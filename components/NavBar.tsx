@@ -1,0 +1,213 @@
+import Head from "next/head";
+import React from "react";
+import {motion} from "framer-motion";
+
+export default function NavBar() {
+    const [open, setOpen] = React.useState(false);
+    return <>
+        <Head>
+            <title>Facejob</title>
+            <meta charSet="UTF-8"/>
+            <meta httpEquiv="X-UA-Compatible" content="IE=edge"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <link rel="shortcut icon" href="/images/favicon.png"/>
+            <meta
+                name="description"
+                content="Jadoo Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
+            />
+            <link
+                rel="canonical"
+                href="https://www.jadoo-travel-agency.vercel.app/"
+            />
+
+            <meta property="og:locale" content="en_US"/>
+            <meta property="og:type”" content="website"/>
+            <meta
+                property="og:title"
+                content="Jadoo – Travel with the best travel agency for a lovely travel experience."
+            />
+            <meta
+                property="og:description"
+                content="Jadoo Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
+            />
+            <meta
+                property="og:url"
+                content="https://www.jadoo-travel-agency.vercel.app/"
+            />
+            <meta property="og:site_name" content="Jadoo Travel Agency"/>
+            <meta property="og:image" content=""/>
+            <meta property="og:image:secure_url" content=""/>
+            <meta property="og:image:width" content="400"/>
+            <meta property="og:image:height" content="400"/>
+            <meta name="twitter:card" content="summary"/>
+            <meta
+                name="twitter:description"
+                content="Jadoo Travel agency is one of the leading agencies that has smooth
+    process and provides affordable pricing."
+            />
+            <meta
+                name="twitter:title"
+                content="Jadoo – Travel with the best travel agency for a lovely travel experience."
+            />
+            <meta name="twitter:site" content="@imaisam"/>
+            <meta name="twitter:image" content=""/>
+            <meta name="twitter:creator" content="@imaisam"/>
+
+            <meta
+                name="robots"
+                content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+            />
+        </Head>
+
+        <motion.nav
+            initial={{y: -20}}
+            transition={{duration: 1}}
+            whileInView={{y: 0}}
+            viewport={{once: true}}
+        >
+            <div className="w-full px-10 mx-auto">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-7">
+                        <div>
+                            <a href="#" className="flex items-center px-2 py-4">
+                                <img
+                                    src="/facejobLogo.png"
+                                    alt="Logo"
+                                    className="w-3/4 mr-2"
+                                />
+                            </a>
+                        </div>
+                        <ul className="flex gap-10 text-sm md:flex font-medium text-secondary font-poppins">
+                            <li>
+                                <a href="#">Home</a>
+                            </li>
+                            <li>
+                                <a href="#">Services</a>
+                            </li>
+                            <li>
+                                <a href="#">Categories</a>
+                            </li>
+                            <li>
+                                <a href="#">Contact</a>
+                            </li>
+                            <li>
+                                <a href="#">Blogs</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <ul className="flex gap-5 text-sm md:flex">
+                        <li>
+                            <a
+                                href="#"
+                                className="px-6 py-2 rounded-[15px] border-[2px] border-primary text-primary font-poppins"
+                            >
+                                Login
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="#"
+                                className="px-6 py-2 rounded-[15px] bg-primary text-white font-poppins"
+                            >
+                                Find Job
+                            </a>
+                        </li>
+                        {/* TODO: Languages later */}
+                        {/* <li className="">
+        <select
+          className="px-2 py-2 bg-transparent"
+          name="langs"
+          id="lang-select"
+          aria-label="Select site language"
+        >
+          <option value="en" id="en">
+            EN
+          </option>
+          <option value="de" id="de">
+            DE
+          </option>
+          <option value="tr" id="tr">
+            TR
+          </option>
+        </select>
+      </li> */}
+                    </ul>
+                    <div className="flex items-center md:hidden">
+                        <button
+                            className="outline-none"
+                            id="btn-mobile-menu"
+                            onClick={() => {
+                                setOpen(!open);
+                            }}
+                        >
+                            <svg
+                                className="w-6 h-6 text-gray-500 hover:text-primary"
+                                xlinkShow="!showMenu"
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                id="mobile-menu"
+                className={`transition transform duration-300 ease-linear ${
+                    open ? "flex" : "hidden"
+                }`}
+            >
+                <ul
+                    className={`flex flex-col p-4 mx-4 space-y-5 text-sm sm:hidden font-poppins`}
+                >
+                    <li>
+                        <a href="#">Home</a>
+                    </li>
+                    <li>
+                        <a href="#">Services</a>
+                    </li>
+                    <li>
+                        <a href="#">Categories</a>
+                    </li>
+                    <li>
+                        <a href="#">Contact</a>
+                    </li>
+                    <li>
+                        <a href="#">Blogs</a>
+                    </li>
+                    <li>
+                        <a href="/#">Login</a>
+                    </li>
+                    <li className="-ml-2">
+                        <a
+                            href="#"
+                            className="px-2 py-2 rounded-md inline-block border-[2px] border-gray-300"
+                        >
+                            Find Job
+                        </a>
+                    </li>
+                    {/* <li className="">
+                <select
+                  className="py-2 bg-transparent"
+                  name="langs"
+                  id="lang-select"
+                >
+                  <option value="en">EN</option>
+                  <option value="de">DE</option>
+                  <option value="tr">TR</option>
+                </select>
+              </li> */}
+                </ul>
+            </div>
+        </motion.nav>
+
+    </>
+
+
+}

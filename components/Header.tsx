@@ -9,7 +9,7 @@ export default function Header({}: Props) {
   return (
     <>
       <Head>
-        <title>Jadoo | Travel Agency</title>
+        <title>Facejob</title>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -61,77 +61,80 @@ export default function Header({}: Props) {
           content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
         />
       </Head>
-      <div
-        id="header-left-decor"
-        className="absolute hidden md:block md:-top-32 md:-left-44 h-[378px] w-[396px]  bg-pink-circle bg-no-repeat bg-cover"
-      ></div>
-      <header className="relative w-full mx-auto mt-5 mb-20 md:w-10/12">
+
+      <header className="relative w-full py-4 bg-optional1">
         <motion.nav
           initial={{ y: -20 }}
           transition={{ duration: 1 }}
           whileInView={{ y: 0 }}
           viewport={{ once: true }}
         >
-          <div className="max-w-6xl px-4 mx-auto">
-            <div className="flex justify-between">
-              <div className="flex space-x-7">
+          <div className="w-full px-10 mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-7">
                 <div>
                   <a href="#" className="flex items-center px-2 py-4">
                     <img
-                      src="/images/logo.png"
+                      src="/facejobLogo.png"
                       alt="Logo"
-                      className="w-full mr-2"
+                      className="w-3/4 mr-2"
                     />
                   </a>
                 </div>
+                <ul className="flex gap-10 text-sm md:flex font-medium text-secondary font-poppins">
+                  <li>
+                    <a href="#">Home</a>
+                  </li>
+                  <li>
+                    <a href="#">Services</a>
+                  </li>
+                  <li>
+                    <a href="#">Categories</a>
+                  </li>
+                  <li>
+                    <a href="#">Contact</a>
+                  </li>
+                  <li>
+                    <a href="#">Blogs</a>
+                  </li>
+                </ul>
               </div>
-              <ul className="items-center hidden gap-10 text-sm md:flex font-poppins">
+              <ul className="flex gap-5 text-sm md:flex">
                 <li>
-                  <a href="#">Destinations</a>
-                </li>
-                <li>
-                  <a href="#">Hotels</a>
-                </li>
-                <li>
-                  <a href="#">Flights</a>
-                </li>
-                <li>
-                  <a href="#">Bookings</a>
-                </li>
-                <li>
-                  <a href="#">Flights</a>
-                </li>
-              </ul>
-              <ul className="items-center hidden gap-10 text-sm md:flex font-poppins">
-                <li>
-                  <a href="#">Login</a>
+                  <a
+                    href="#"
+                    className="px-6 py-2 rounded-[15px] border-[2px] border-primary text-primary font-poppins"
+                  >
+                    Login
+                  </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="px-4 py-2 rounded-md border-[2px] border-gray-300"
+                    className="px-6 py-2 rounded-[15px] bg-primary text-white font-poppins"
                   >
-                    Sign up
+                    Find Job
                   </a>
                 </li>
-                <li className="">
-                  <select
-                    className="px-2 py-2 bg-transparent"
-                    name="langs"
-                    id="lang-select"
-                    aria-label="Select site language"
-                  >
-                    <option value="en" id="en">
-                      EN
-                    </option>
-                    <option value="de" id="de">
-                      DE
-                    </option>
-                    <option value="tr" id="tr">
-                      TR
-                    </option>
-                  </select>
-                </li>
+                {/* TODO: Languages later */}
+                {/* <li className="">
+        <select
+          className="px-2 py-2 bg-transparent"
+          name="langs"
+          id="lang-select"
+          aria-label="Select site language"
+        >
+          <option value="en" id="en">
+            EN
+          </option>
+          <option value="de" id="de">
+            DE
+          </option>
+          <option value="tr" id="tr">
+            TR
+          </option>
+        </select>
+      </li> */}
               </ul>
               <div className="flex items-center md:hidden">
                 <button
@@ -157,9 +160,10 @@ export default function Header({}: Props) {
               </div>
             </div>
           </div>
+
           <div
             id="mobile-menu"
-            className={`bg-[#FFF1DA] transition transform duration-300 ease-linear ${
+            className={`transition transform duration-300 ease-linear ${
               open ? "flex" : "hidden"
             }`}
           >
@@ -167,19 +171,19 @@ export default function Header({}: Props) {
               className={`flex flex-col p-4 mx-4 space-y-5 text-sm sm:hidden font-poppins`}
             >
               <li>
-                <a href="/#">Destinations</a>
+                <a href="#">Home</a>
               </li>
               <li>
-                <a href="/#">Hotels</a>
+                <a href="#">Services</a>
               </li>
               <li>
-                <a href="/#">Flights</a>
+                <a href="#">Categories</a>
               </li>
               <li>
-                <a href="/#">Bookings</a>
+                <a href="#">Contact</a>
               </li>
               <li>
-                <a href="/#">Flights</a>
+                <a href="#">Blogs</a>
               </li>
               <li>
                 <a href="/#">Login</a>
@@ -189,10 +193,10 @@ export default function Header({}: Props) {
                   href="#"
                   className="px-2 py-2 rounded-md inline-block border-[2px] border-gray-300"
                 >
-                  Sign up
+                  Find Job
                 </a>
               </li>
-              <li className="">
+              {/* <li className="">
                 <select
                   className="py-2 bg-transparent"
                   name="langs"
@@ -202,70 +206,70 @@ export default function Header({}: Props) {
                   <option value="de">DE</option>
                   <option value="tr">TR</option>
                 </select>
-              </li>
+              </li> */}
             </ul>
           </div>
         </motion.nav>
-        <div className="absolute -top-[16rem] -right-[16.5rem] -z-10 rotate-10 h-[872px] w-[786px] bg-hero bg-no-repeat bg-cover" />
+        {/* <div className="absolute -top-[16rem] -right-[16.5rem] -z-10 rotate-10 h-[872px] w-[786px] bg-hero bg-no-repeat bg-cover" /> */}
         <div className="flex flex-col my-20 md:mx-12 md:flex-row">
           <motion.div
-            initial={{ x: -100 }}
+            initial={{ x: -20 }}
             transition={{ duration: 1.5 }}
             whileInView={{ x: 0 }}
             viewport={{ once: true }}
-            className="flex-1 mx-8 md:mt-8"
+            className="flex-1 mx-8 md:mt-2"
           >
-            <p className="font-bold uppercase text-primary/80">
-              Best destinations around the world
-            </p>
-            <h1 className="my-10 text-5xl font-bold text-gray-900 md:text-7xl">
-              Travel,
-              <span
-                className="inline-block ml-2"
-                style={{
-                  backgroundImage: `url('/images/decore-red.png')`,
-                  backgroundPosition: "bottom",
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: "320px 30px",
-                }}
-              >
-                enjoy
-              </span>
-              and live a new
-            </h1>
+            {/* <img src="/toggle1.png" alt="Logo" className="w-1/6 mr-2" /> */}
+            {/* <p className="text-lg font-medium text-secondary font-poppins">
+              Find Your Dream Job
+            </p> */}
+            <div className="flex items-center">
+              <img
+                className="w-12 h-auto mr-4"
+                src="/toggle1.png"
+                alt="Toggle"
+              />
+              <p className="font-semibold text-lg text-secondary font-default">
+                Find Your Dream Job
+              </p>
+            </div>
 
-            <p className="text-sm font-poppins">
-              Built Wicket longer admire do barton vanity itself do in it.
-              Preferred to sportsmen it engrossed listening. Park gate sell they
-              west hard for the.
+            <div className="my-10 text-4xl leading-10 space-y-4 font-bold font-default text-secondary md:text-6xl">
+              <p>Make Your Dream</p> <p>Career With Facejob</p>
+            </div>
+
+            <p className="w-5/6 text-lg text-third font-semibold font-default">
+              The easiest way to get your dream job, create trackable resumes
+              and enrich your application employer will find you
             </p>
-            <div className="flex items-center gap-12">
-              <div className="drop-shadow-secondary-button">
-                <button className="px-6 py-3 mt-8 text-sm text-center text-white bg-secondary/80 rounded-xl">
-                  Find our more
-                </button>
-              </div>
-              <div className="flex mt-14">
-                <div className="w-24 h-24 rounded-full drop-shadow-secondary-button">
-                  <a href="#" aria-label="Play demo link">
-                    <div className="grid w-16 h-16 rounded-full place-items-center bg-primary">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-6 h-6 text-white"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  </a>
+
+            <div className="flex flex-col mt-10 items-center gap-6 sm:flex-row">
+              <div className="w-full sm:w-[590px] h-auto bg-white rounded-[31px] border border-slate-200">
+                <div className="mt-2 ml-3 mb-2 flex flex-col sm:flex-row">
+                  <div className="w-full sm:w-[444.47px] h-auto sm:h-[44.99px] bg-white bg-opacity-70 rounded-tl-[20px] sm:rounded-bl-[20px] border border-zinc-100 mb-4 sm:mb-0 sm:mr-4">
+                    <input
+                      type="text"
+                      className="w-full h-full pl-4 text-third text-base opacity-70 font-semibold font-default focus:outline-none"
+                      placeholder="Email Address"
+                    />
+                  </div>
+                  <div className="w-1/2 items-center sm:w-[110px] h-auto sm:h-[45px] p-2 text-center bg-primary rounded-tr-[37px] sm:rounded-br-[37px] flex-col justify-center sm:items-center gap-2.5">
+                    <button className="text-white text-base font-bold font-default leading-7 focus:outline-none">
+                      Find Job
+                    </button>
+                  </div>
                 </div>
-                <button className="inline -ml-3 -mt-7">Play Demo</button>
               </div>
+            </div>
+
+            <div className="flex items-center mt-14">
+              <img src="/Arrow.png" alt="" className="mr-2" />
+              <a
+                href="#scroll-target"
+                className="flex items-center w-[211px] h-[35px] text-third text-[17px] font-medium font-default "
+              >
+                Scroll down
+              </a>
             </div>
           </motion.div>
           <motion.div
@@ -276,20 +280,22 @@ export default function Header({}: Props) {
             className="relative flex-1 mt-24 md:mt-0"
           >
             <img
-              src="/images/traveller.png"
-              className="-mt-14 w-[750px] md:w-full md:right-7 md:absolute"
+              src="/businessMan.png"
+              className="-mt-2 md:w-[620px] md:h-[575px] md:left-20 md:absolute"
+              // className="-mt-14 w-[750px]  md:w-full md:right-7 md:absolute"
               alt="girl travelling"
             />
             <img
-              src="/images/plane.png"
+              src="/message.png"
               alt="plane"
-              className="absolute left-[1rem] top-20 md:left-[6rem] md:top-2"
+              className="absolute -top-52 left-6   w-[245px] h-[82.97px] md:left-[5rem] mt-36 md:right-[5rem] md:top-2"
             />
-            <img
+            {/* <img
               src="/images/plane.png"
               alt="plane"
               className="absolute right-0 -top-12 md:top-12"
-            />
+            /> */}
+            {/* <div className="w-[163px] h-[44.99px] bg-white bg-opacity-70 rounded-[20px] right-0 -top-12 md:top-12"></div> */}
           </motion.div>
         </div>
       </header>

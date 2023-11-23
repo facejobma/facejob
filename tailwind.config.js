@@ -9,7 +9,8 @@ module.exports = {
     extend: {
       fontFamily: {
         "poppins": ['Poppins', 'sans-serif'],
-        "volkhof": ['volkhof', 'sans-serif']
+        "default": ['Plus Jakarta Sans', 'sans-serif'],
+        // "volkhof": ['volkhof', 'sans-serif']
       },
       backgroundImage: {
         'hero': "url('/images/decore.png')",

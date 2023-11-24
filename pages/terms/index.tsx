@@ -1,4 +1,4 @@
-import NavBar from "../../components/NavBar";
+import NavBar from "../../components/NavBar"
 
 export default function Terms() {
     return <div className="relative overflow-x-hidden">
@@ -73,17 +73,17 @@ export default function Terms() {
                         l’exécution des services que nous proposons, aux fins de (liste non exhaustive) :
                     </p>
                     <ul className="list-disc pl-6 mb-4">
-                        <li>Fournir un service personnalisé ;</li>
-                        <li>Etablir tout contrat ou toute déclaration en lien avec nos activités, conformément à la
-                            réglementation en vigueur ;
+                        <li>Fournir un service personnalisé </li>
+                        <li>Établir tout contrat ou toute déclaration en lien avec nos activités, conformément à la
+                            réglementation en vigueur 
                         </li>
-                        <li>Délivrer nos services conformément à vos demandes ;</li>
+                        <li>Délivrer nos services conformément à vos demandes </li>
                         <li>Créer des contacts entre vous et nos candidats, dans le cadre de notre activité et/ou de
-                            l’exécution de la mission / du contrat ;
+                            l’exécution de la mission / du contrat 
                         </li>
-                        <li>Échanger avec vous par tous moyens de communication ;</li>
-                        <li>Gérer et assurer le suivi des missions / contrats ;</li>
-                        <li>Contrôler le respect des procédures mises en place ;</li>
+                        <li>Échanger avec vous par tous moyens de communication </li>
+                        <li>Gérer et assurer le suivi des missions / contrats </li>
+                        <li>Contrôler le respect des procédures mises en place </li>
                         <li>Évaluer la satisfaction et notre niveau de service.</li>
                     </ul>
                 </section>
@@ -92,18 +92,18 @@ export default function Terms() {
                         certaines Données Personnelles pour (liste non exhaustive) :</p>
                     <ul className="list-disc pl-6 mb-4">
                         <li>Gérer et assurer le suivi de nos relations commerciales et de nos relations avec nos
-                            contacts / interlocuteurs ;
+                            contacts / interlocuteurs 
                         </li>
-                        <li>Mener des études, audits, ou réaliser des statistiques à usage interne ou non ;</li>
-                        <li>Développer, améliorer et sécuriser nos systèmes/processus ;</li>
+                        <li>Mener des études, audits, ou réaliser des statistiques à usage interne ou non </li>
+                        <li>Développer, améliorer et sécuriser nos systèmes/processus </li>
                         <li>Assurer la gestion de services proposés par des tiers avec lesquels nous avons un lien
-                            contractuel (plateformes, dématérialisation, externalisation de services...) ;
+                            contractuel (plateformes, dématérialisation, externalisation de services...) 
                         </li>
                         <li>A des fins d’opérations marketing, de publicité ou de communication pour vous informer sur
-                            les actualités de notre société, sur les éventuelles opérations évènementielles en cours ;
+                            les actualités de notre société, sur les éventuelles opérations évènementielles en cours 
                         </li>
-                        <li>Gérer les opt-in, opt-out, newsletter et demandes de désabonnement ;</li>
-                        <li>Satisfaire à l’ensemble de nos obligations légales, règlementaires et conventionnelles ;
+                        <li>Gérer les opt-in, opt-out, newsletter et demandes de désabonnement </li>
+                        <li>Satisfaire à l’ensemble de nos obligations légales, règlementaires et conventionnelles 
                         </li>
                         <li>Gérer les éventuelles actions légales, assurer notre défense ou encore coopérer dans le
                             cadre d’investigations menées par les autorités.

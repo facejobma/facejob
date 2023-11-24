@@ -149,25 +149,25 @@ export default function () {
                         services et en notre qualité d’employeur, aux fins de (liste non exhaustive) :
                     </p>
                     <ul className="list-disc pl-8">
-                        <li>Vous fournir un service personnalisé ;</li>
-                        <li>Évaluer vos compétences et votre profil et préciser le périmètre de vos recherches ;</li>
+                        <li>Vous fournir un service personnalisé </li>
+                        <li>Évaluer vos compétences et votre profil et préciser le périmètre de vos recherches </li>
                         <li>Faciliter le processus de candidature et disposer des informations nécessaires à votre
-                            sélection ;
+                            sélection 
                         </li>
                         <li>Vous informer sur les missions en cours ou à venir, les opportunités d’emplois en rapport
-                            avec votre profil, vos compétences, votre disponibilité et vos attentes ;
+                            avec votre profil, vos compétences, votre disponibilité et vos attentes 
                         </li>
-                        <li>Échanger avec vous par tous moyens de communication ;</li>
+                        <li>Échanger avec vous par tous moyens de communication </li>
                         <li>Vous aider sur le plan de la formation et vous informer sur les programmes et aides
-                            auxquelles vous pouvez prétendre ;
+                            auxquelles vous pouvez prétendre 
                         </li>
-                        <li>Améliorer votre employabilité ;</li>
-                        <li>Favoriser l’insertion professionnelle de certaines catégories de personnes ;</li>
+                        <li>Améliorer votre employabilité </li>
+                        <li>Favoriser l’insertion professionnelle de certaines catégories de personnes </li>
                         <li>Établir vos contrats conformément aux exigences en vigueur, établir vos bulletins de
-                            salaire, effectuer les paiements correspondants et prélèvements éventuels ;
+                            salaire, effectuer les paiements correspondants et prélèvements éventuels 
                         </li>
-                        <li>Procéder à toutes les déclarations obligatoires ;</li>
-                        <li>Vous évaluer et assurer la gestion et le suivi de vos missions et / ou contrat(s) ;</li>
+                        <li>Procéder à toutes les déclarations obligatoires </li>
+                        <li>Vous évaluer et assurer la gestion et le suivi de vos missions et / ou contrat(s) </li>
                         <li>Gérer les éventuels accidents ou incidents.</li>
                     </ul>
                 </section>
@@ -177,19 +177,19 @@ export default function () {
                         personnelles dans le cadre des relations avec nos clients et nos partenaires commerciaux,
                         notamment dans les circonstances suivantes :</h2>
                     <ul className="list-disc pl-8 mb-4">
-                        <li>Gestion de la relation commerciale avec nos clients et partenaires ;</li>
-                        <li>Contrôle du respect des procédures mises en place ;</li>
-                        <li>Évaluation de la satisfaction et de notre niveau de service ;</li>
-                        <li>Études, audits, statistiques à usage interne ou non ;</li>
+                        <li>Gestion de la relation commerciale avec nos clients et partenaires </li>
+                        <li>Contrôle du respect des procédures mises en place </li>
+                        <li>Évaluation de la satisfaction et de notre niveau de service </li>
+                        <li>Études, audits, statistiques à usage interne ou non </li>
                         <li>Développement, amélioration et sécurisation de nos systèmes/processus.</li>
                     </ul>
                     <p className="mb-4">Enfin, plus généralement nous pouvons être amenés à utiliser certaines de vos
                         données à caractère personnel pour :</p>
                     <ul className="list-disc pl-8 mb-4">
-                        <li>Satisfaire à l’ensemble de nos obligations légales, règlementaires et conventionnelles ;
+                        <li>Satisfaire à l’ensemble de nos obligations légales, règlementaires et conventionnelles 
                         </li>
                         <li>Gérer les éventuelles actions légales, assurer notre défense ou encore coopérer dans le
-                            cadre d’investigations menées par les autorités ;
+                            cadre d’investigations menées par les autorités 
                         </li>
                         <li>A des fins d’opérations de communication, pour vous informer sur les actualités de notre
                             société et sur les éventuelles opérations évènementielles en cours.

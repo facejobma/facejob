@@ -111,7 +111,7 @@ export default function Terms() {
                     </ul>
                 </section>
                 <section className="mb-6">
-                    <h2 className="text-xl font-bold mb-4">E Qui est responsable du traitement des Données Personnelles
+                    <h2 className="text-xl font-bold mb-4">E. Qui est responsable du traitement des Données Personnelles
                         ?</h2>
                     <p className="mb-4">
                         Nous sommes responsables du traitement que nous faisons des Données Personnelles collectées et

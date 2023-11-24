@@ -2,6 +2,7 @@ import Head from "next/head";
 import React from "react";
 import {motion} from "framer-motion";
 
+// todo change all meta data
 export default function NavBar() {
     const [open, setOpen] = React.useState(false);
     return <>

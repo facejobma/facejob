@@ -3,7 +3,7 @@ import Category from "../components/Category";
 import Destinations from "../components/Destinations";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
-import HowWorks from "../components/HowWorks";
+import NextTrip from "../components/NextTrip";
 import Subscription from "../components/Subscription";
 import Testimonials from "../components/Testimonials";
 
@@ -14,7 +14,7 @@ export default function Home() {
             <main>
                 <Category/>
                 <Destinations/>
-                <HowWorks/>
+                <NextTrip/>
                 <Testimonials/>
                 <Brands/>
                 <Subscription/>

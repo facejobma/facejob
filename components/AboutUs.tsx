@@ -27,11 +27,12 @@ export default function AboutUs({}: Props) {
         </div>
 
         <div className="w-[180px] h-[42px] relative mx-auto mt-12">
-          <div className="w-[202px] h-[68px] left-0 top-0 absolute bg-optional1 rounded-[15px] border border-primary"></div>
-          <div className="w-[175.36px] h-[29.33px] left-0 top-[16px] absolute text-right pr-2 text-primary text-[23px] font-bold font-default leading-normal">
-            Know More
-          </div>
-        </div>
+  <button className="w-[202px] h-[68px] left-0 top-0 absolute bg-optional1 rounded-[15px] border border-primary focus:outline-none">
+    <div className="w-[175.36px] h-[29.33px] left-0 top-[16px] absolute text-right pr-2 text-primary text-[23px] font-bold font-default leading-normal">
+      Know More
+    </div>
+  </button>
+</div>
       </div>
     </section>
   );

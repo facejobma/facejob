@@ -14,13 +14,23 @@ export default function Footer({}: Props) {
         className="flex flex-wrap justify-center gap-14"
       >
         <div className="md:max-w-[14rem] text-center md:text-start">
-          <h2 className="text-5xl font-poppins">Jadoo.</h2>
+          <h2 className="text-5xl font-default text-secondary">Facejob</h2>
+          <p className="mt-5 text-xs text-gray-600 font-poppins">
+            Tangier, Av Omar Al Mokhtar, NR 20, Morocco.
+          </p>
           <p className="mt-3 text-xs text-gray-600 font-poppins">
-            Book your trip in minute, get full control for much longer.
+            www.facejob.ma
+          </p>
+          <p className="mt-3 text-xs text-gray-600 font-poppins">
+            +212 5 38 030 344
+          </p>
+          <p className="mt-3 text-xs text-gray-600 font-poppins">
+            facejob@gmail.com
           </p>
         </div>
-        <div className="flex flex-col mb-10 sm:mb-0">
-          <h4 className="font-bold font-poppins">Company</h4>
+
+        <div className="flex flex-col mb-10 sm:mb-0 font-default">
+          <h4 className="font-bold text-secondary">Company</h4>
           <ul className="space-y-2 text-sm font-light text-gray-600">
             <li className="mt-4">
               <a href="#">About</a>
@@ -33,8 +43,8 @@ export default function Footer({}: Props) {
             </li>
           </ul>
         </div>
-        <div className="flex flex-col mb-10 sm:mb-0">
-          <h6 className="font-bold font-poppins">Contact</h6>
+        <div className="flex flex-col mb-10 sm:mb-0 font-default">
+          <h6 className="font-bold text-secondary">Contact</h6>
           <ul className="space-y-2 text-sm font-light text-gray-600">
             <li className="mt-4">
               <a href="#">Help/FAQ</a>
@@ -47,8 +57,8 @@ export default function Footer({}: Props) {
             </li>
           </ul>
         </div>
-        <div className="flex flex-col mb-10 sm:mb-0">
-          <h6 className="font-bold font-poppins">More</h6>
+        <div className="flex flex-col mb-10 sm:mb-0 font-default">
+          <h6 className="font-bold text-secondary">More</h6>
           <ul className="space-y-2 text-sm font-light text-gray-600">
             <li className="mt-4">
               <a href="#">Airline fees</a>
@@ -240,7 +250,7 @@ export default function Footer({}: Props) {
         </div>
         <div className="space-y-4 text-sm">
           <p className="mt-8 text-sm font-poppins">
-            All rights reserved@jadoo.co
+            All rights reserved facejob.ma
           </p>
         </div>
       </motion.div>

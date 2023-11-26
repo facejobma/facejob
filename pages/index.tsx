@@ -1,9 +1,10 @@
+import AboutUs from "../components/AboutUs";
 import Brands from "../components/Brands";
 import Category from "../components/Category";
 import Destinations from "../components/Destinations";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
-import NextTrip from "../components/NextTrip";
+import HowWorks from "../components/HowWorks";
 import Subscription from "../components/Subscription";
 import Testimonials from "../components/Testimonials";
 
@@ -14,10 +15,11 @@ export default function Home() {
             <main>
                 <Category/>
                 <Destinations/>
-                <NextTrip/>
+                <HowWorks/>
                 <Testimonials/>
                 <Brands/>
                 <Subscription/>
+                <AboutUs/>
                 <Footer/>
             </main>
         </div>

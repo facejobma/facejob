@@ -20,11 +20,11 @@ export default function Testimonials({}: Props) {
           transition={{ duration: 1 }}
           whileInView={{ x: 0 }}
           viewport={{ once: true }}
-          className="max-w-lg text-center text-gray-800 md:text-start font-poppins"
+          className="max-w-lg text-center text-gray-800 md:text-start font-default"
         >
-          <p className="text-gray-600">Testimonials</p>
-          <h2 className="my-4 text-3xl font-bold text-gray-800 md:text-5xl font-volkhof">
-            What People Say
+          <p className="text-gray-600">What People Say</p>
+          <h2 className="my-4 text-3xl font-bold text-gray-800 md:text-5xl font-default">
+            Testimonials
           </h2>
         </motion.div>
         <motion.div
@@ -55,8 +55,8 @@ export default function Testimonials({}: Props) {
                   parties use. Sure last upon he same as knew next. Of believed
                   or diverted no."
                 </p>
-                <p className="mt-6">Mike taylor</p>
-                <p className="mt-2 text-sm">US, CA</p>
+                <p className="mt-6">Mohamed El</p>
+                <p className="mt-2 text-sm">Morocco, TG</p>
               </div>
             </SwiperSlide>
             <SwiperSlide>

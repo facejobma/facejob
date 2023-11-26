@@ -78,7 +78,7 @@ export default function NavBar() {
                                 />
                             </a>
                         </div>
-                        <ul className="flex gap-10 text-sm md:flex font-medium text-secondary font-poppins">
+                        <ul className="flex gap-10 text-base md:flex font-medium text-secondary font-poppins">
                             <li>
                                 <a href="#">Home</a>
                             </li>
@@ -96,11 +96,11 @@ export default function NavBar() {
                             </li>
                         </ul>
                     </div>
-                    <ul className="flex gap-5 text-sm md:flex">
+                    <ul className="flex gap-5 font-bold text-sm md:flex">
                         <li>
                             <a
                                 href="#"
-                                className="px-6 py-2 rounded-[15px] border-[2px] border-primary text-primary font-poppins"
+                                className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
                             >
                                 Login
                             </a>
@@ -108,7 +108,7 @@ export default function NavBar() {
                         <li>
                             <a
                                 href="#"
-                                className="px-6 py-2 rounded-[15px] bg-primary text-white font-poppins"
+                                className="px-6 py-3 rounded-[15px] bg-primary text-white font-default"
                             >
                                 Find Job
                             </a>

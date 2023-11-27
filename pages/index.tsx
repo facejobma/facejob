@@ -14,7 +14,7 @@ export default function Home() {
             <Hero/>
             <main>
                 <Category/>
-                <Destinations/>
+                {/* <Destinations/> */}
                 <HowWorks/>
                 <Testimonials/>
                 <Brands/>

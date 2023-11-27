@@ -5,7 +5,7 @@ type Props = {};
 
 export default function Footer({}: Props) {
   return (
-    <footer className="w-full p-10 pt-20 pb-10 mx-auto mt-10 md:w-10/12 md:px-20">
+    <footer className="w-full bg-optional1 p-10 pt-20 pb-10 mx-auto mt-10 md:w-full md:px-32 md:p-10 md:mx-auto">
       <motion.div
         initial={{ y: 100 }}
         transition={{ duration: 1.2 }}
@@ -33,13 +33,13 @@ export default function Footer({}: Props) {
           <h4 className="font-bold text-secondary">Company</h4>
           <ul className="space-y-2 text-sm font-light text-gray-600">
             <li className="mt-4">
-              <a href="#">About</a>
+              <a href="#">À propos</a>
             </li>
             <li>
-              <a href="#">Careers</a>
+              <a href="#"></a>
             </li>
             <li>
-              <a href="#">Mobile</a>
+              <a href="#">Contact</a>
             </li>
           </ul>
         </div>
@@ -50,10 +50,10 @@ export default function Footer({}: Props) {
               <a href="#">Help/FAQ</a>
             </li>
             <li>
-              <a href="#">Press</a>
+              <a href="#">Termes</a>
             </li>
             <li>
-              <a href="#">Affiliates</a>
+              <a href="#">Confidentialité</a>
             </li>
           </ul>
         </div>
@@ -61,13 +61,10 @@ export default function Footer({}: Props) {
           <h6 className="font-bold text-secondary">More</h6>
           <ul className="space-y-2 text-sm font-light text-gray-600">
             <li className="mt-4">
-              <a href="#">Airline fees</a>
+              <a href="#">Blogs</a>
             </li>
             <li>
-              <a href="#">Airline</a>
-            </li>
-            <li>
-              <a href="#">Affiliates</a>
+              <a href="#">Services</a>
             </li>
           </ul>
         </div>
@@ -156,7 +153,9 @@ export default function Footer({}: Props) {
               </a>
             </li>
           </ul>
-          <p className="mt-6 mb-4 text-xs font-poppins">Discover our app</p>
+          <p className="mt-6 mb-4 text-xs font-poppins">
+            Découvrez notre application
+          </p>
           <div className="flex w-full">
             <a
               href="#"
@@ -203,7 +202,7 @@ export default function Footer({}: Props) {
                 </g>
               </svg>
               <div className="flex flex-col ml-2">
-                <p className="text-[10px] text-white">Available on the</p>
+                <p className="text-[10px] text-white">Disponible sur le</p>
                 <p className="text-xs text-white">Google Play</p>
               </div>
             </a>
@@ -242,7 +241,7 @@ export default function Footer({}: Props) {
               </svg>
 
               <div className="flex flex-col ml-2">
-                <p className="text-[10px] text-white">Available on the</p>
+                <p className="text-[10px] text-white">Disponible sur le</p>
                 <p className="text-xs text-white">Apple Store</p>
               </div>
             </a>
@@ -250,7 +249,7 @@ export default function Footer({}: Props) {
         </div>
         <div className="space-y-4 text-sm">
           <p className="mt-8 text-sm font-poppins">
-            All rights reserved facejob.ma
+            Tous droits réservés facejob.ma
           </p>
         </div>
       </motion.div>

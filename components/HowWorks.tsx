@@ -5,12 +5,13 @@ type Props = {};
 export default function HowWorks({}: Props) {
   return (
     <section className="w-full p-20 mx-auto mt-32 mb-16 bg-optional3">
-      <div className="max-w-lg mx-auto text-center text-gray-800 md:text-start">
+      <div className="max-w-xl mx-auto text-center text-gray-800 md:text-start">
         <h2 className="my-4 text-4xl font-bold text-center text-gray-800 md:text-5xl font-default">
-          How It Works
+          Comment <span className="text-primary">ça</span> fonctionne
         </h2>
         <p className="text-third text-center font-default font-medium text-lg px-10 py-4">
-          Explore the following these steps will help you to find a job easily{" "}
+          Explorez les étapes suivantes qui vous aideront à trouver facilement
+          un emploi.{" "}
         </p>
       </div>
 
@@ -30,16 +31,16 @@ export default function HowWorks({}: Props) {
             </div>
             <div className="w-2/3 my-7 px-4">
               <div className="w-[285px] h-[34px] text-neutral-700 text-[26px] font-semibold font-default leading-[33px]">
-                Register Account
+                Créer un compte
               </div>
               <div className="w-[45px] h-[0px] border-2 border-primary mb-2 mt-3"></div>
               <div className="w-[205px] h-[74px] text-neutral-400 text-lg font-semibold font-default leading-[33px]">
-                First, you need to make an account{" "}
+                Tout d'abord, vous devez créer un compte{" "}
               </div>
             </div>
           </div>
 
-          <div className="group w-[402.66px] h-[183.69px] flex px-4 bg-white rounded-[13px] transition-all duration-300 ease-in-out transform hover:shadow-lg">
+          <div className="group w-[450.66px] h-[210.69px] flex px-4 bg-white rounded-[13px] transition-all duration-300 ease-in-out transform hover:shadow-lg">
             <div className="w-1/3 h-[84.94px] flex justify-center bg-primary m-5 my-12 rounded-[7px] group-hover:bg-optional2 transition-all duration-300">
               <div className="w-[55px] h-[53px] text-center text-white text-[41px] font-bold font-default leading-[75.50px] group-hover:text-primary transition-all duration-300">
                 02
@@ -47,11 +48,11 @@ export default function HowWorks({}: Props) {
             </div>
             <div className="w-2/3 my-7 px-4">
               <div className="w-[285px] h-[34px] text-neutral-700 text-[26px] font-semibold font-default leading-[33px]">
-                Record a video
+                Enregistrer une vidéo
               </div>
               <div className="w-[45px] h-[0px] border-2 border-primary mb-2 mt-3"></div>
               <div className="w-[220px] h-[74px] text-neutral-400 text-lg font-semibold font-default leading-[33px]">
-                Then, record a video and talking about your career{" "}
+                Ensuite, enregistrez une vidéo et parlez de votre carrière{" "}
               </div>
             </div>
           </div>
@@ -64,11 +65,11 @@ export default function HowWorks({}: Props) {
             </div>
             <div className="w-2/3 my-7 px-4">
               <div className="w-[285px] h-[34px] text-neutral-700 text-[26px] font-semibold font-default leading-[33px]">
-                Get a Job
+                Obtenez un emploi
               </div>
               <div className="w-[45px] h-[0px] border-2 border-primary mb-2 mt-3"></div>
               <div className="w-[205px] h-[74px] text-neutral-400 text-lg font-semibold font-default leading-[33px]">
-                Finally, get your job{" "}
+                Enfin, obtenez votre emploi{" "}
               </div>
             </div>
           </div>

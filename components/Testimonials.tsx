@@ -61,7 +61,7 @@ export default function Testimonials({}: Props) {
             <SwiperSlide>
               <div className="relative flex flex-col mt-8 mx-8 mb-4 py-6 px-8 font-poppins bg-white rounded-lg shadow-lg text-[#5E6282]">
                 <img
-                  src="./images/mike.png"
+                  src="/images/mike.png"
                   alt="Profile image of a man"
                   className="absolute rounded-full w-14 h-14 -left-6 -top-6"
                 />
@@ -78,7 +78,7 @@ export default function Testimonials({}: Props) {
             <SwiperSlide>
               <div className="relative flex flex-col mt-8 mx-8 mb-4 py-6 px-8 font-poppins bg-white rounded-lg shadow-lg text-[#5E6282]">
                 <img
-                  src="./images/person-2.jpg"
+                  src="/images/person-2.jpg"
                   alt="Profile image of a man"
                   className="absolute object-cover rounded-full w-14 h-14 -left-6 -top-6"
                 />

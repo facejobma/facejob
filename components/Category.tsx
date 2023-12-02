@@ -6,7 +6,7 @@ type Props = {};
 
 export default function Category({}: Props) {
     return (
-        <section className="w-full  mx-auto mt-[6rem] pb-12">
+        <section className="w-full  mx-auto mt-[6rem] pb-12" id={'section2'}>
             <div className="relative text-center font-default pb-14">
                 <h2 className="my-4 text-5xl font-bold text-gray-800">
                     Explorer par <span className="text-primary">catégorie</span>

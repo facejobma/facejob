@@ -176,12 +176,6 @@ export default function NavBar() {
               <Link href="/">Home</Link>
             </li>
             <li>
-              <Link href="#">Services</Link>
-            </li>
-            <li>
-              <Link href="#">Categories</Link>
-            </li>
-            <li>
               <Link href="/contact">Contact</Link>
             </li>
             <li>

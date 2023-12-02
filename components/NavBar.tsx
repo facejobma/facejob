@@ -1,6 +1,7 @@
 import Head from "next/head";
 import React from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 // todo change all meta data
 export default function NavBar() {
@@ -99,12 +100,12 @@ export default function NavBar() {
             </div>
             <ul className="flex gap-5 font-bold text-sm md:flex">
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/auth/auth-candidat"
                   className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
                 >
                   Candidat
-                </a>
+                </Link>
               </li>
               <li>
                 <a

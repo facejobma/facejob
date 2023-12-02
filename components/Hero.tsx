@@ -38,36 +38,15 @@ export default function Hero({}: Props) {
 
                         <div
                             className="my-5 text-2xl leading-10 space-y-2 font-bold font-default text-secondary md:text-4xl">
-                            <p>Réalisez votre carrière de rêve avec Facejob.</p>
+                            <p>Vous êtes une entreprise ... rencontrez en avant-première les candidats et de nicher les
+                                talents caches
+                            </p>
                         </div>
 
-                        <p className="w-5/6 text-lg text-third font-semibold font-default">
-                            La manière la plus simple d'obtenir l'emploi de vos rêves: créez
-                            des CV traçables et enrichissez votre candidature pour que les
-                            employeurs puissent vous trouver.
-                        </p>
+                        <p className="w-5/6 text-xl text-third font-semibold font-default">Vous êtes un candidat en
+                            recherche d'emploi ...
+                            rencontrez vous et trouvez votre job même depuis chez vous</p>
 
-                        <div className="flex flex-col mt-10 items-center gap-6 sm:flex-row">
-                            <div className="w-full sm:w-[590px] h-auto bg-white rounded-[31px] border border-slate-200">
-                                <div className="mt-2 ml-3 mb-2 flex flex-col sm:flex-row">
-                                    <div
-                                        className="w-full sm:w-[444.47px] h-auto sm:h-[44.99px] bg-white bg-opacity-70 rounded-tl-[20px] sm:rounded-bl-[20px] border border-zinc-100 mb-4 sm:mb-0 sm:mr-4">
-                                        <input
-                                            type="text"
-                                            className="w-full h-full pl-4 text-third text-base opacity-70 font-semibold font-default focus:outline-none"
-                                            placeholder="Email Address"
-                                        />
-                                    </div>
-                                    <div
-                                        className="w-1/2 items-center sm:w-[110px] h-auto sm:h-[45px] p-2 text-center bg-primary rounded-tr-[37px] sm:rounded-br-[37px] flex-col justify-center sm:items-center gap-2.5">
-                                        <button
-                                            className="text-white text-base font-bold font-default leading-7 focus:outline-none">
-                                            S'inscrire
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         <div className="flex items-center mt-10">
                             <img src="/Arrow.png" alt="" className="mr-2"/>

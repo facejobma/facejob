@@ -12,18 +12,17 @@ export default function AboutUs({}: Props) {
         <div className="md:px-10">
           <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-12 px-5 md:px-1 py-2 md:py-4">
             Bienvenue sur{" "}
-            <span className="text-primary font-semibold">FaceJob</span>, une
-            plateforme de pointe engagée à révolutionner l'expérience de
-            candidature à un emploi. Au cœur de notre mission se trouve notre
-            engagement à mettre en relation des individus exceptionnellement
-            talentueux avec des opportunités de carrière passionnantes, en
-            transformant le processus de recrutement traditionnel en un
-            processus fluide, transparent et finalement gratifiant.
+            <span className="text-primary font-semibold">FaceJob</span>, Notre
+            philosophie est simple : Offrir à toutes les entreprises, à tous les
+            chercheurs d’emploi la chance de s’entrecroiser, de se connecter de
+            la manière la plus facile que jamais, la plus efficace que jamais
           </p>
           <p className="text-third text-start font-default font-medium text-base md:text-xl px-5 md:px-1 py-2">
-            Né d'une passion commune pour l'innovation et d'une croyance dans le
-            pouvoir transformateur d'un emploi valorisant, FaceJob est plus
-            qu'un simple portail d'emploi.
+            Pendant des années nous avons écouté les besoins, recueilli les
+            confidences, cherché des solutions aux problèmes du recrutement … et
+            avons découvert que la plus simple étape consistant à
+            l’entrecroisement entre les entreprises et les chercheurs d’emploi,
+            était souvent la plus fondamentale mais souvent la plus négligée.
           </p>
         </div>
 

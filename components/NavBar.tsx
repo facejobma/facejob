@@ -87,17 +87,13 @@ export default function NavBar() {
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
                   <Link href="/">Accueil</Link>
                 </li>
+
+
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="#">Services</Link>
+                  <Link href="/contact">Contact</Link>
                 </li>
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="#">Categories</Link>
-                </li>
-                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="#">Contact</Link>
-                </li>
-                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="#">Blogs</Link>
+                  <Link href="/blogs">Blogs</Link>
                 </li>
               </ul>
             </div>

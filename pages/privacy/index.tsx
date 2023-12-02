@@ -9,18 +9,18 @@ export default function () {
           <h1 className="text-3xl font-bold mb-8 border-b-2 border-primary pb-2">
             Candidats
           </h1>
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Vous venez de créer votre espace personnel, êtes dans l’attente de
             votre première mission ou êtes collaborateur (régulier ou non) de
             notre entreprise et nous vous en remercions.
           </p>
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Dans le cadre de notre activité, afin de proposer le meilleur niveau
             de service à nos clients et d’assurer le suivi personnalisé de vos
             missions et de votre carrière, nous sommes amenés à collecter des
             données personnelles vous concernant.
           </p>
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Au sein de notre entreprise, la protection de ces données est un
             enjeu majeur et nous avons particulièrement à cœur de protéger votre
             vie privée. Dans cette optique et conformément à la réglementation
@@ -30,7 +30,7 @@ export default function () {
             dispositifs que nous mettons en place pour en assurer la sécurité et
             vos droits en la matière.
           </p>
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Nous vous informons que dans le cadre du présent document, « nous »
             désigne la société facejob.
           </p>
@@ -41,11 +41,11 @@ export default function () {
             1. Quelles sont les informations personnelles vous concernant que
             nous pouvons être amenés à collecter et à traiter ?
           </h2>
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Dès notre premier contact, nous sommes amenés à collecter et traiter
             certaines informations personnelles vous concernant :
           </p>
-          <ul className="list-disc ml-6 mb-6">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               Données d’identification et de connexion si vous nous contactez en
               ligne, étant précisé que vos identifiants et mots de passe sont
@@ -57,7 +57,7 @@ export default function () {
             </li>
           </ul>
 
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Pour la gestion de votre candidature, de votre carrière et / ou dans
             le cadre de l’exécution de votre mission / contrat, nous ou nos
             partenaires commerciaux pouvons avoir à traiter des données
@@ -65,7 +65,7 @@ export default function () {
             telles que (liste non exhaustive) :
           </p>
 
-          <ul className="list-disc ml-6">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               Nom(s), prénom(s), date et lieu de naissance, copie du ou des
               document(s) prouvant votre identité, numéro de sécurité sociale
@@ -126,14 +126,14 @@ export default function () {
             </li>
           </ul>
 
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Pour remplir nos obligations légales pour ce qui a trait à la santé,
             à la sécurité, au travail et à l’emploi des travailleurs handicapés,
             nous pouvons être amenés à collecter des informations personnelles
             particulièrement sensibles vous concernant telles que des données
             médicales ou relatives à un handicap éventuel.
           </p>
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Par ailleurs, pour certains postes particuliers, nous pouvons être
             amenés à vous demander l’extrait de votre casier judiciaire.
           </p>
@@ -143,12 +143,12 @@ export default function () {
             2. Sur quel fondement juridique sont collectées vos données et par
             quel(s) moyen(s) ?
           </h2>
-          <p>
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Conformément à la réglementation en vigueur, les traitements que
             nous faisons de vos données personnelles reposent sur l’un des
             fondements suivants :
           </p>
-          <ul className="list-disc pl-8">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               L’exécution d’un contrat auquel vous êtes partie ou l’exécution de
               mesures précontractuelles
@@ -166,7 +166,7 @@ export default function () {
               affecter vos propres intérêts et droits fondamentaux.
             </li>
           </ul>
-          <p className="mt-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Pour tout traitement complémentaire ou accessoire, nous pourrons
             recueillir votre consentement exprès préalable. Vos données sont
             collectées et traitées par nos équipes, mais nous pouvons également
@@ -179,12 +179,12 @@ export default function () {
             3. A quelles fins collectons-nous et traitons-nous vos informations
             personnelles ?
           </h2>
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Nous collectons et traitons vos données personnelles dans le cadre
             de l’exécution de nos services et en notre qualité d’employeur, aux
             fins de (liste non exhaustive) :
           </p>
-          <ul className="list-disc pl-8">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>Vous fournir un service personnalisé </li>
             <li>
               Évaluer vos compétences et votre profil et préciser le périmètre
@@ -230,7 +230,7 @@ export default function () {
             partenaires commerciaux, notamment dans les circonstances suivantes
             :
           </h2>
-          <ul className="list-disc pl-8 mb-4">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               Gestion de la relation commerciale avec nos clients et partenaires{" "}
             </li>
@@ -244,11 +244,11 @@ export default function () {
               systèmes/processus.
             </li>
           </ul>
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Enfin, plus généralement nous pouvons être amenés à utiliser
             certaines de vos données à caractère personnel pour :
           </p>
-          <ul className="list-disc pl-8 mb-4">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               Satisfaire à l’ensemble de nos obligations légales, règlementaires
               et conventionnelles
@@ -271,17 +271,17 @@ export default function () {
             4. A qui vos données personnelles peuvent-elles être communiquées ?
             Peut-il y avoir des transferts hors du Maroc ?
           </h2>
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Dans le cadre de leur traitement et aux fins des objectifs présentés
             ci-dessus, nous vous informons que nous pouvons communiquer
             certaines de vos informations personnelles à des tiers.
           </p>
 
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Ces tiers peuvent se trouver au Maroc, ou hors du Maroc.
           </p>
 
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Les transferts hors du Maroc respectent strictement la
             réglementation applicable et sont effectués soit vers un pays
             reconnu comme « à protection adéquate » par le Maroc, soit dans le
@@ -289,14 +289,14 @@ export default function () {
             sous couvert de règles d’entreprise contraignantes.
           </p>
 
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Nous nous efforçons d’assurer la protection de vos informations
             personnelles en toutes circonstances, aussi nous vous informons que
             vos données peuvent faire l’objet d’un transfert dans les cas et aux
             conditions ci-après détaillées.
           </p>
 
-          <ul className="list-disc pl-8 mb-4">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               Vos données peuvent être transférées à toutes les autres sociétés
               du groupe facejob, au sein ou hors du Maroc. Le groupe facejob
@@ -327,19 +327,19 @@ export default function () {
           <h2 className="text-lg font-bold mb-2">
             5. Combien de temps sont conservées vos données personnelles ?
           </h2>
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Nous sommes tenus de conserver les informations personnelles vous
             concernant pendant une durée suffisante à l’accomplissement des
             finalités développées en 2 et conformément aux dispositions légales
             et réglementaires.
           </p>
 
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Les principes généraux en matière de durée de conservation sont les
             suivants :
           </p>
 
-          <ul className="list-disc pl-8 mb-4">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               Si vous êtes candidat et que vous n’avez effectué aucune mission
               pour notre compte, vos données seront conservées pendant une durée
@@ -364,12 +364,12 @@ export default function () {
             6. Quels sont vos droits sur vos données personnelles et comment les
             exercer ?
           </h2>
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Conformément à la réglementation en vigueur, vous disposez d’un
             certain nombre de droits concernant vos informations personnelles :
           </p>
 
-          <ul className="list-disc pl-8 mb-4">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               <strong>Droit d’accès et droit à la portabilité :</strong> vous
               pouvez accéder à tout moment à vos données personnelles via votre
@@ -420,11 +420,11 @@ export default function () {
             </li>
           </ul>
 
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Pour l'exercice de ces droits, vous pouvez adresser votre demande :
           </p>
 
-          <ul className="list-disc pl-8 mb-4">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li>
               via{" "}
               <a
@@ -438,11 +438,11 @@ export default function () {
             <li>ou par voie postale à facejob - Service Juridique.</li>
           </ul>
 
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Nous nous réservons le droit, à l’occasion de l’exercice de l’un des
             droits susvisés, de procéder à une vérification de votre identité.
           </p>
-          <p className="mb-4">
+          <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">
             Nous nous réservons le droit de modifier à tout moment la présente
             politique de gestion des données personnelles. Nous vous invitons à
             vous y référer dès que nécessaire et à vérifier régulièrement si des

@@ -44,7 +44,7 @@ export default function Terms() {
             Sont principalement traitées les catégories de Données Personnelles
             suivantes (liste non exhaustive) :
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="list-disc pl-6 mb-4 text-third font-default">
             <li className="font-default text-third">
               Données d’identification et de contact : nom, prénom, numéro
               client, adresse, email, numéro de téléphone...

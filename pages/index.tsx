@@ -10,7 +10,7 @@ import Testimonials from "../components/Testimonials";
 
 export default function Home() {
     return (
-        <div className="relative overflow-x-hidden">
+        <div className="relative overflow-hidden">
             <Hero/>
             <main>
                 <Category/>

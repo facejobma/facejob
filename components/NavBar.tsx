@@ -1,6 +1,7 @@
 import Head from "next/head";
 import React from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 
 // todo change all meta data
@@ -16,28 +17,28 @@ export default function NavBar() {
         <link rel="shortcut icon" href="/images/favicon.png" />
         <meta
           name="description"
-          content="Jadoo Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
+          content="facejob Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
         />
         <link
           rel="canonical"
-          href="https://www.jadoo-travel-agency.vercel.app/"
+          href="https://facejob.ma/"
         />
 
         <meta property="og:locale" content="en_US" />
         <meta property="og:type”" content="website" />
         <meta
           property="og:title"
-          content="Jadoo – Travel with the best travel agency for a lovely travel experience."
+          content="facejob – Travel with the best travel agency for a lovely travel experience."
         />
         <meta
           property="og:description"
-          content="Jadoo Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
+          content="facejob Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
         />
         <meta
           property="og:url"
-          content="https://www.jadoo-travel-agency.vercel.app/"
+          content="https://www.facejob.vercel.app/"
         />
-        <meta property="og:site_name" content="Jadoo Travel Agency" />
+        <meta property="og:site_name" content="facejob Travel Agency" />
         <meta property="og:image" content="" />
         <meta property="og:image:secure_url" content="" />
         <meta property="og:image:width" content="400" />
@@ -45,12 +46,12 @@ export default function NavBar() {
         <meta name="twitter:card" content="summary" />
         <meta
           name="twitter:description"
-          content="Jadoo Travel agency is one of the leading agencies that has smooth
+          content="facejob Travel agency is one of the leading agencies that has smooth
     process and provides affordable pricing."
         />
         <meta
           name="twitter:title"
-          content="Jadoo – Travel with the best travel agency for a lovely travel experience."
+          content="facejob – Travel with the best travel agency for a lovely travel experience."
         />
         <meta name="twitter:site" content="@imaisam" />
         <meta name="twitter:image" content="" />
@@ -72,48 +73,50 @@ export default function NavBar() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-7">
               <div>
-                <a href="#" className="flex items-center px-2 py-4">
-                  <img
+                <Link href="/" className="flex items-center px-2 py-4">
+                  <Image
                     src="/facejobLogo.png"
                     alt="Logo"
                     className="w-3/4 mr-2"
+                    width={100}
+                    height={100}
                   />
-                </a>
+                </Link>
               </div>
               <ul className="flex gap-10 text-base md:flex font-medium text-secondary font-poppins">
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <a href="#">Accueil</a>
+                  <Link href="/">Accueil</Link>
                 </li>
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <a href="#">Services</a>
+                  <Link href="#">Services</Link>
                 </li>
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <a href="#">Categories</a>
+                  <Link href="#">Categories</Link>
                 </li>
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <a href="#">Contact</a>
+                  <Link href="#">Contact</Link>
                 </li>
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <a href="#">Blogs</a>
+                  <Link href="#">Blogs</Link>
                 </li>
               </ul>
             </div>
             <ul className="flex gap-5 font-bold text-sm md:flex">
               <li>
                 <Link
-                  href="/auth/auth-candidat"
+                  href="#"
                   className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
                 >
                   Candidat
                 </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="#"
                   className="px-6 py-3 rounded-[15px] bg-primary text-white font-default"
                 >
                   Entreprise
-                </a>
+                </Link>
               </li>
               {/* TODO: Languages later */}
               {/* <li className="">
@@ -170,30 +173,30 @@ export default function NavBar() {
             className={`flex flex-col p-4 mx-4 space-y-5 text-sm sm:hidden font-poppins`}
           >
             <li>
-              <a href="#">Home</a>
+              <Link href="/">Home</Link>
             </li>
             <li>
-              <a href="#">Services</a>
+              <Link href="#">Services</Link>
             </li>
             <li>
-              <a href="#">Categories</a>
+              <Link href="#">Categories</Link>
             </li>
             <li>
-              <a href="#">Contact</a>
+              <Link href="/contact">Contact</Link>
             </li>
             <li>
-              <a href="#">Blogs</a>
+              <Link href="#">Blogs</Link>
             </li>
             <li>
-              <a href="/#">Login</a>
+              <Link href="/#">Login</Link>
             </li>
             <li className="-ml-2">
-              <a
+              <Link
                 href="#"
                 className="px-2 py-2 rounded-md inline-block border-[2px] border-gray-300"
               >
                 Find Job
-              </a>
+              </Link>
             </li>
             {/* <li className="">
                 <select

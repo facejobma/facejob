@@ -24,7 +24,7 @@ export default function HowWorks({}: Props) {
                     className="flex flex-col gap-12"
                 >
                     <div className="flex items-center  max-w-md">
-                        <div className="grid p-3 rounded-xl w-16 h-[3.2rem] bg-[#F0BB1F] place-items-center">
+                        <div className="grid p-3 rounded-xl w-16 h-[3.2rem] bg-primary-3 place-items-center">
                             <FaUserPlus color={"#fff"}/>
                         </div>
                         <div className="flex flex-col mx-4 text-[#5E6282] break-words font-poppins w-max">
@@ -35,7 +35,7 @@ export default function HowWorks({}: Props) {
                         </div>
                     </div>
                     <div className="flex items-center  max-w-md">
-                        <div className="grid p-3 rounded-xl w-16 h-[3.2rem] bg-[#F15A2B] place-items-center">
+                        <div className="grid p-3 rounded-xl w-16 h-[3.2rem] bg-primary-2 place-items-center">
                             <FaVideo color={"#fff"} />
                         </div>
                         <div className="flex flex-col mx-4 text-[#5E6282] break-words font-poppins w-max">
@@ -46,7 +46,7 @@ export default function HowWorks({}: Props) {
                         </div>
                     </div>
                     <div className="flex items-center  max-w-md">
-                        <div className="grid p-3 rounded-xl w-16 h-[3.2rem] bg-[#006380] place-items-center">
+                        <div className="grid p-3 rounded-xl w-16 h-[3.2rem] bg-primary-1 place-items-center">
                             <MdOutlineWork color={"#fff"} />
                         </div>
                         <div className="flex flex-col mx-4 text-[#5E6282] break-words font-poppins w-max">
@@ -58,11 +58,13 @@ export default function HowWorks({}: Props) {
                     </div>
                 </motion.div>
                 <div className="absolute -right-28 bottom-32 md:-top-44 md:-right-32">
-                    <img
-                        src="./images/blue-circle.png"
+                    <Image
+                        src="/images/blue-circle.png"
                         className="z-0 w-96 h-96"
                         role="presentation"
-                    />
+                        width={96}
+                        height={96}
+                     alt={"icon"}/>
                 </div>
                 <motion.div
                     initial={{x: 100}}

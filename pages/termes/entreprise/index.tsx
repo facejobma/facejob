@@ -1,5 +1,5 @@
-import Footer from "../../components/Footer";
-import NavBar from "../../components/NavBar";
+import Footer from "../../../components/Footer";
+import NavBar from "../../../components/NavBar";
 
 export default function Terms() {
   return (
@@ -7,7 +7,7 @@ export default function Terms() {
       <NavBar />
       <main className="container mx-auto p-10 md:p-24 md:px-32 bg-white rounded-md shadow-lg">
         <section className="mb-8">
-          <h1 className="text-3xl font-bold mb-4 border-b-2 text-secondary border-gray-300 pb-4">
+          <h1 className="text-3xl font-bold mb-4 border-b-2 text-secondary border-primary  pb-4">
             Partenaires commerciaux & prospects
           </h1>
           <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-2 md:py-4">

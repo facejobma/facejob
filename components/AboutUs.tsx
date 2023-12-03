@@ -17,7 +17,7 @@ export default function AboutUs({}: Props) {
           <div className="md:px-10">
             <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-12 px-5 md:px-1 py-2 md:py-4">
               Bienvenue sur{" "}
-              <span className="text-primary font-semibold">FaceJob</span>, Notre
+              <span className="text-primary font-semibold">facejob</span>, Notre
               philosophie est simple : Offrir à toutes les entreprises, à tous
               les chercheurs d’emploi la chance de s’entrecroiser, de se
               connecter de la manière la plus facile que jamais, la plus

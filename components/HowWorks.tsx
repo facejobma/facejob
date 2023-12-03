@@ -8,10 +8,10 @@ type Props = {};
 
 export default function HowWorks({}: Props) {
   return (
-    <section className="w-3/4 pb-10 mx-auto mt-32 mb-16">
-      <div className="max-w-lg text-center text-gray-800 md:text-start font-poppins">
+    <section className="w-3/4 pb-10 mx-auto mt-32 mb-16 font-default">
+      <div className="max-w-lg text-center text-gray-800 md:text-start ">
         <p className="text-gray-600">Facile et rapide</p>
-        <h2 className="my-4 text-4xl font-bold text-gray-800 md:text-5xl font-volkhof">
+        <h2 className="my-4 text-4xl font-bold text-gray-800 md:text-5xl">
           Explorez les étapes suivantes .
         </h2>
       </div>

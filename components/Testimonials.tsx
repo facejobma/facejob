@@ -25,7 +25,6 @@ export default function Testimonials({}: Props) {
           <img
             src="/img3.jpg"
             className="-mt-2 rounded-3xl md-10 p-7 md:p-2 md:ml-20 md:w-2/6 md:left-6 md:top-4 md:absolute "
-
             alt="girl record video"
           />
         </motion.div>
@@ -61,35 +60,35 @@ export default function Testimonials({}: Props) {
             <SwiperSlide>
               <div className="relative flex flex-col mt-8 mx-8 mb-4 py-6 px-8 font-poppins bg-white rounded-lg shadow-lg text-[#5E6282]">
                 <img
-                  src="/images/mike.png"
-                  alt="Profile image of a man"
-                  className="absolute rounded-full w-14 h-14 -left-6 -top-6"
+                  src="/images/Sohaib MANAH.png"
+                  alt="Sohaib MANAH image"
+                  className="absolute object-cover rounded-full w-14 h-14 -left-6 -top-6"
                 />
                 <p className="">
-                  "Sur les fenêtres, on parle de pâturages peints, mais ses
-                  parties expresses utilisent. Bien sûr, le dernier sur lui est
-                  le même que celui qui a connu ensuite. De cru ou détourné
-                  non."
+                  "A l'ère où tout devient digitalisé et en tant qu’ingénieur
+                  logiciel junior … facejob était la solution la plus adéquate
+                  et la plus simple pour moi pour pénétrer le marché du
+                  travail."
                 </p>
-                <p className="mt-6">Mohamed El</p>
-                <p className="mt-2 text-sm">Maroc, TG</p>
+                <p className="mt-6">Sohaib MANAH</p>
+                <p className="mt-2 text-sm">Maroc</p>
               </div>
             </SwiperSlide>
             <SwiperSlide>
               <div className="relative flex flex-col mt-8 mx-8 mb-4 py-6 px-8 font-poppins bg-white rounded-lg shadow-lg text-[#5E6282]">
                 <img
-                  src="/images/person-2.jpg"
-                  alt="Profile image of a man"
-                  className="absolute object-cover rounded-full w-14 h-14 -left-6 -top-6"
+                  src="/images/Mariam BEN DAOUED.jpg"
+                  alt="Mariam BEN DAOUED image"
+                  className="absolute rounded-full w-14 h-14 -left-6 -top-6"
                 />
                 <p className="">
-                  "Sur les fenêtres, on parle de pâturages peints, mais ses
-                  parties expresses utilisent. Bien sûr, le dernier sur lui est
-                  le même que celui qui a connu ensuite. De cru ou détourné
-                  non."
+                  "j’ai été attirée par le côté innovateur de l’idée, j’ai
+                  enregistré mon CV Vidéo et quelques jours après … mon
+                  téléphone a commencé à sonner déjà et j’ai réussi à décrocher
+                  mon 1er entretien grâce à facejob."
                 </p>
-                <p className="mt-6">Mike taylor</p>
-                <p className="mt-2 text-sm">US, CA</p>
+                <p className="mt-6">Mariam BEN DAOUED</p>
+                <p className="mt-2 text-sm">Maroc</p>
               </div>
             </SwiperSlide>
           </Swiper>

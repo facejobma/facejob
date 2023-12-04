@@ -3,7 +3,7 @@ import Footer from "../../components/Footer";
 
 export default function () {
     return (
-        <div className="relative overflow-x-hidden font-default bg-gray-100">
+        <div className="relative overflow-hidden font-default bg-gray-100">
             <NavBar/>
             <main className="container mx-auto p-10 md:p-28 bg-white rounded-md shadow-lg">
                 <section className="mb-6">

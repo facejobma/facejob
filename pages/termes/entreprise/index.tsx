@@ -3,7 +3,7 @@ import NavBar from "../../../components/NavBar";
 
 export default function Terms() {
   return (
-    <div className="relative overflow-x-hidden font-default bg-optional1">
+    <div className="relative overflow-hidden font-default bg-optional1">
       <NavBar />
       <main className="container mx-auto p-10 md:p-24 md:px-32 bg-white rounded-md shadow-lg">
         <section className="mb-8">

@@ -2,6 +2,7 @@ import AboutUs from "../components/AboutUs";
 import Brands from "../components/Brands";
 import Category from "../components/Category";
 import Destinations from "../components/Destinations";
+import FAQs from "../components/FAQs";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import HowWorks from "../components/HowWorks";
@@ -19,6 +20,7 @@ export default function Home() {
                 <Testimonials/>
                 <Brands/>
                 <Subscription/>
+                <FAQs />
                 <AboutUs/>
                 <Footer/>
             </main>

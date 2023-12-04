@@ -2,6 +2,7 @@ import React from "react";
 import {motion} from "framer-motion";
 import Link from "next/link";
 import {FaFacebook, FaInstagram, FaLinkedinIn, FaTwitter} from "react-icons/fa";
+import Image from "next/image";
 
 type Props = {};
 
@@ -13,10 +14,12 @@ export default function Footer({}: Props) {
                 transition={{duration: 1.2}}
                 whileInView={{y: 0}}
                 viewport={{once: true}}
-                className="flex flex-wrap justify-center gap-14"
+                className="flex flex-wrap justify-center gap-20"
             >
                 <div className="md:max-w-[14rem] text-center md:text-start">
-                    <h2 className="text-5xl font-default text-secondary">Facejob</h2>
+                    <h2 className="text-5xl font-default text-secondary">
+                        <Image src={"/facejobLogo.png"} alt={"facejob logo"} width={100} height={100}/>
+                    </h2>
                     <p className="mt-5 text-xs text-gray-600 font-poppins">
                         Tangier, Av Omar Al Mokhtar, NR 20, Morocco.
                     </p>
@@ -35,10 +38,7 @@ export default function Footer({}: Props) {
                     <h4 className="font-bold text-secondary">Company</h4>
                     <ul className="space-y-2 text-sm font-light text-gray-600">
                         <li className="mt-4">
-                            <Link href="#">À propos</Link>
-                        </li>
-                        <li>
-                            <Link href="#"></Link>
+                            <Link href="/apropsdenous">À propos</Link>
                         </li>
                         <li>
                             <Link href="/contact">Contact</Link>
@@ -49,9 +49,6 @@ export default function Footer({}: Props) {
                     <h6 className="font-bold text-secondary">Contact</h6>
                     <ul className="space-y-2 text-sm font-light text-gray-600">
                         <li className="mt-4">
-                            <Link href="#">Help/FAQ</Link>
-                        </li>
-                        <li>
                             <Link href="/termes/entreprise">Partenaires commerciaux & prospects</Link>
                         </li>
                         <li>
@@ -60,13 +57,10 @@ export default function Footer({}: Props) {
                     </ul>
                 </div>
                 <div className="flex flex-col mb-10 sm:mb-0 font-default">
-                    <h6 className="font-bold text-secondary">More</h6>
+                    <h6 className="font-bold text-secondary">Plus</h6>
                     <ul className="space-y-2 text-sm font-light text-gray-600">
                         <li className="mt-4">
-                            <Link href="#">Blogs</Link>
-                        </li>
-                        <li>
-                            <Link href="#">Services</Link>
+                            <Link href="/blogs">Blogs</Link>
                         </li>
                     </ul>
                 </div>
@@ -78,7 +72,7 @@ export default function Footer({}: Props) {
                                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                                 aria-label="Facebook Icon"
                             >
-                              <FaFacebook/>
+                                <FaFacebook/>
                             </Link>
                         </li>
                         <li>
@@ -87,7 +81,7 @@ export default function Footer({}: Props) {
                                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                                 aria-label="Instagram icon"
                             >
-                              <FaInstagram/>
+                                <FaInstagram/>
                             </Link>
                         </li>
                         <li>
@@ -96,7 +90,7 @@ export default function Footer({}: Props) {
                                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                                 aria-label="Twitter icon"
                             >
-                             <FaTwitter/>
+                                <FaTwitter/>
                             </Link>
                         </li>
                         <li>

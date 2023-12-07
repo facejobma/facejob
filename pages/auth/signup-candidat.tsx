@@ -1,20 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import SignupFormCandidat from "../../components/auth/signup/SignupCandidat";
 // import "../../styles/globals.css";
-import LoginForm from "../../components/auth/login";
 
-const LoginCandidatPage = () => {
+const SignupCandidatPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   // const {data: session} = useSession()
   const router = useRouter();
 
-  const toggleNavbar = () => {
-    setIsOpen(!isOpen);
-  };
-
   // useEffect(() => {
-  //     // if the user is logged in and has not completed his profile, redirect him to the profile page
   //     if (session && !session.user.isCompleted) router.push('/register')
   //     // if the client is logged in and has completed his profile, redirect him to the dashboard page
   //     if (session && session.user.userRole === UserRole.Client && session.user.isCompleted) router.push('/dashboard')
@@ -22,17 +17,21 @@ const LoginCandidatPage = () => {
   //     if (session && session.user.userRole === UserRole.Freelancer && session.user.isCompleted) router.push('/find-work')
   // }, [session])
 
+  const toggleNavbar = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <>
-      <nav className="container mx-auto p-6 font-default  bg-danger">
+      <nav className="container mx-auto font-default p-6">
         <div className="flex items-center justify-between">
           <div>
-            {/* <p className="text-primary font-bold text-2xl px-6">FaceJob</p> */}
             <div>
               <a href="#" className="flex items-center px-2 py-2">
                 <img src="/facejobLogo.png" alt="Logo" className="w-3/4 mr-2" />
               </a>
             </div>
+            {/* <p className="text-primary font-bold text-2xl px-6">FaceJob</p> */}
           </div>
           <div className="md:hidden">
             <button
@@ -55,7 +54,7 @@ const LoginCandidatPage = () => {
       </nav>
       <div className="flex items-center mt-8">
         <div className="w-1/2 pr-4">
-          <LoginForm />
+          <SignupFormCandidat />
         </div>
 
         <div className="w-1/2 pl-4">
@@ -71,4 +70,4 @@ const LoginCandidatPage = () => {
   );
 };
 
-export default LoginCandidatPage;
+export default SignupCandidatPage;

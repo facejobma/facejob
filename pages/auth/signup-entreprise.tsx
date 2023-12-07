@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 // import "../../styles/globals.css";
-import SignupForm from "../../components/auth/signup";
+import SignupFormEntreprise from "../../components/auth/signup/SignupEntreprise";
 
 const SignupCandidatPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,7 +54,7 @@ const SignupCandidatPage = () => {
       </nav>
       <div className="flex items-center mt-8">
         <div className="w-1/2 pr-4">
-          <SignupForm />
+          <SignupFormEntreprise />
         </div>
 
         <div className="w-1/2 pl-4">

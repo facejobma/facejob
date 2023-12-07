@@ -9,6 +9,7 @@ import HowWorks from "../components/HowWorks";
 import Subscription from "../components/Subscription";
 import Testimonials from "../components/Testimonials";
 
+
 export default function Home() {
     return (
         <div className="relative overflow-hidden">
@@ -18,7 +19,7 @@ export default function Home() {
                 {/* <Destinations/> */}
                 <HowWorks/>
                 <Testimonials/>
-                <Brands/>
+                {/* <Brands/> */}
                 <Subscription/>
                 <FAQs />
                 <AboutUs/>

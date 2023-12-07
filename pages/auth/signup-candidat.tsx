@@ -2,23 +2,27 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SignupFormCandidat from "../../components/auth/signup/SignupCandidat";
+import NextStepSignupCandidat from "../../components/auth/signup/NextStepSignupCandidat";
 // import "../../styles/globals.css";
 
 const SignupCandidatPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   // const {data: session} = useSession()
   const router = useRouter();
-
-  // useEffect(() => {
-  //     if (session && !session.user.isCompleted) router.push('/register')
-  //     // if the client is logged in and has completed his profile, redirect him to the dashboard page
-  //     if (session && session.user.userRole === UserRole.Client && session.user.isCompleted) router.push('/dashboard')
-  //     // if the freelancer is logged in and has completed his profile, redirect him to the find-work page
-  //     if (session && session.user.userRole === UserRole.Freelancer && session.user.isCompleted) router.push('/find-work')
-  // }, [session])
+  const [step, setStep] = useState(1);
+  const [additionalInfo, setAdditionalInfo] = useState("");
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleNextStep = () => {
+    // setAdditionalInfo(info);
+    setStep(step + 1);
+  };
+
+  const handleSkip = () => {
+    setStep(step + 1);
   };
 
   return (
@@ -54,7 +58,13 @@ const SignupCandidatPage = () => {
       </nav>
       <div className="flex items-center mt-8">
         <div className="w-1/2 pr-4">
-          <SignupFormCandidat />
+          {step === 1 && <SignupFormCandidat onNextStep={handleNextStep} />}
+          {step === 2 && (
+            <NextStepSignupCandidat
+              onNextStep={handleNextStep}
+              onSkip={handleSkip}
+            />
+          )}
         </div>
 
         <div className="w-1/2 pl-4">

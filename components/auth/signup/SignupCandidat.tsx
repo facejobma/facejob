@@ -5,63 +5,62 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 // import facebook from "../../../assets/imgs/facebook.png";
+import {toast} from "react-hot-toast";
 
-const SignupFormCandidat = () => {
+
+interface SignupFormCandidatProps {
+  onNextStep: () => void;
+}
+
+const SignupFormCandidat: React.FC<SignupFormCandidatProps> = ({
+  onNextStep,
+}) => {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [prenom, setPrenom] = useState("");
+  const [nom, setNom] = useState("");
+  const [tel, seTel] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  async function handleSubmit() {
-    // if (!acceptTerms) {
-    //     return toast.error("Please accept our terms first")
-    // }
-
-    // if (!username || !email || !password || !passwordConfirm) {
-
-    //     return toast.error("Please fill in all fields");
-    // }
-
-    // if (password !== passwordConfirm) {
-    //     return toast.error("Password and password confirmation do not match");
-    // }
-    // if (validateEmail(email)) {
-    //     return toast.error("Invalid email address");
-    // }
-
-    // if (validatePassword(password)) {
-    //     return toast.error("Password must be at least 8 characters long");
-    // }
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
 
     const formData = {
-      username,
+      prenom,
+      nom,
+      tel,
       email,
       password,
       passwordConfirm,
       acceptTerms,
     };
 
-    // await toast.promise(fetch(`/api/users/signup`, {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(formData),
-    // }).then(async (res) => {
-    //         if (res.status >= 400) throw new Error((await res.json()).message)
-    //         return await res.json()
-    //     }
-    // ), {
-    //     loading: "Signing up...",
-    //     success: (data) => data.message,
-    //     error: (err) => err.message,
-    // }).then(
-    //     () => router.push(`/signin`)
-    // ).catch((err) => {
-    //     console.error(err.message);
-    // });
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/auth/candidat/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Your account created successfuly!");
+        onNextStep();
+      } else {
+        const errorData = await response.json();
+        toast.error("Registration failed!");
+        console.error("Registration failed:", errorData);
+      }
+    } catch (error) {
+      toast.error("Error during registration!");
+      console.error("Error during registration:", error);
+    }
   }
 
   const validateEmail = (value: string) => {
@@ -109,16 +108,36 @@ const SignupFormCandidat = () => {
         className="flex flex-col space-y-6 my-4"
         onSubmit={async (e) => {
           e.preventDefault();
-          await handleSubmit();
+          await handleSubmit(e);
         }}
       >
+        <div className="flex flex-row gap-4">
+          <input
+            required={true}
+            type="text"
+            placeholder="Prenom"
+            value={prenom}
+            onChange={(e) => setPrenom(e.target.value)}
+            className={`px-4 py-2 rounded border border-gray w-1/2`}
+          />
+          <input
+            required={true}
+            type="text"
+            placeholder="Nom"
+            value={nom}
+            onChange={(e) => setNom(e.target.value)}
+            className={`px-4 py-2 rounded border border-gray w-1/2`}
+          />
+        </div>
         <input
           required={true}
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className={`px-4 py-2 rounded border border-gray`}
+          type="tel"
+          placeholder="Tel"
+          value={tel}
+          onChange={(e) => {
+            seTel(e.target.value);
+          }}
+          className="px-4 py-2 rounded border border-gray"
         />
         <input
           required={true}
@@ -128,7 +147,7 @@ const SignupFormCandidat = () => {
           onChange={(e) => {
             setEmail(e.target.value);
           }}
-          style={{ width: "500px" }}
+          // style={{ width: "500px" }}
           className="px-4 py-2 rounded border border-gray"
         />
         {/*{validateEmail(email) && <p className="text-red-500 text-sm">{validateEmail(email)}</p>}*/}
@@ -167,7 +186,7 @@ const SignupFormCandidat = () => {
           >
             Oui, je comprends et j'accepte{" "}
             <Link href="/terms" className="text-primary">
-            les conditions d'utilisation de facejob.
+              les conditions d'utilisation de facejob.
             </Link>
           </label>
         </div>

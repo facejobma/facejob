@@ -3,11 +3,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 // import "../../styles/globals.css";
 import SignupFormEntreprise from "../../components/auth/signup/SignupEntreprise";
+import NextStepSignupCandidat from "../../components/auth/signup/NextStepSignupCandidat";
 
 const SignupCandidatPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   // const {data: session} = useSession()
   const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [additionalInfo, setAdditionalInfo] = useState("");
 
   // useEffect(() => {
   //     if (session && !session.user.isCompleted) router.push('/register')
@@ -19,6 +22,15 @@ const SignupCandidatPage = () => {
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleNextStep = () => {
+    // setAdditionalInfo(info);
+    setStep(step + 1);
+  };
+
+  const handleSkip = () => {
+    setStep(step + 1);
   };
 
   return (
@@ -54,7 +66,13 @@ const SignupCandidatPage = () => {
       </nav>
       <div className="flex items-center mt-8">
         <div className="w-1/2 pr-4">
-          <SignupFormEntreprise />
+          {step === 1 && <SignupFormEntreprise onNextStep={handleNextStep} />}
+          {step === 2 && (
+            <NextStepSignupCandidat
+              onNextStep={handleNextStep}
+              onSkip={handleSkip}
+            />
+          )}
         </div>
 
         <div className="w-1/2 pl-4">

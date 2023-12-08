@@ -1,12 +1,12 @@
 "use client"
 import {FormEvent, useState} from "react";
-// import {toast} from "react-hot-toast";
+import {toast} from "react-hot-toast";
 // import google from "../../../assets/imgs/google.png";
 // import facebook from "../../../assets/imgs/facebook.png";
 
 import Image from "next/image";
 import Link from "next/link";
-// import {signIn} from "next-auth/react";
+import { CompletionEntryDataResolved } from "typescript";
 
 
 const LoginForm = () => {
@@ -16,34 +16,41 @@ const LoginForm = () => {
     const [passwordError, setPasswordError] = useState("");
 
 
+    //TODO : http://localhost:8000/api/auth/entreprise/login
+
     const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
+    
+        if (!email || !password) {
+            return toast.error("Please fill in all fields");
+        }
+    
+        try {
+            const response = await fetch("http://localhost:8000/api/auth/entreprise/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-
-        // if (!email || !password) {
-        //     return toast.error("Please fill in all fields");
-        // }
-
-
-        // await toast.promise(signIn<'credentials'>("credentials", {
-        //         email, password, redirect: false
-        //     }).then(res => {
-        //         if (!res || !res.ok) {
-        //             throw Error(res?.error || "Email or password are not valid")
-        //         }
-
-        //     })
-        //     ,
-        //     {
-        //         loading: "Signing in...",
-        //         success: "Signed in successfully",
-        //         error: (err) => err.message
-        //     }).catch(err => {
-        //     console.error(err)
-        // })
-
-
+            console.log(response);
+            
+    
+            if (!response.ok) {
+                toast.error("Email or password are not valid");
+                throw new Error("Email or password are not valid");
+            }
+    
+            console.log("Logged in successfully");
+            toast.success("Logged in successfully");
+    
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "An error occurred during login");
+        }
     };
+    
 
     const validateEmail = (value: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,7 +63,7 @@ const LoginForm = () => {
 
     const validatePassword = (value: string) => {
         if (value.length < 8) {
-            setPasswordError("Password must be at least 8 characters long");
+            setPasswordError("Password must be at least 8 characte  rs long");
         } else {
             setPasswordError("");
         }

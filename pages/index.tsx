@@ -1,7 +1,5 @@
 import AboutUs from "../components/AboutUs";
-import Brands from "../components/Brands";
 import Category from "../components/Category";
-import Destinations from "../components/Destinations";
 import FAQs from "../components/FAQs";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
@@ -16,10 +14,10 @@ export default function Home() {
             <Hero/>
             <main>
                 <Category/>
-                {/* <Destinations/> */}
+                 {/*<Destinations/>*/}
                 <HowWorks/>
                 <Testimonials/>
-                {/* <Brands/> */}
+                {/*<Brands/>*/}
                 <Subscription/>
                 <FAQs />
                 <AboutUs/>

@@ -10,7 +10,7 @@ export default function NavBar() {
   return (
     <>
       <Head>
-        <title>Facejob</title>
+        <title>facejob</title>
         <meta charSet="UTF-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -53,9 +53,9 @@ export default function NavBar() {
           name="twitter:title"
           content="facejob – Travel with the best travel agency for a lovely travel experience."
         />
-        <meta name="twitter:site" content="@imaisam" />
-        <meta name="twitter:image" content="" />
-        <meta name="twitter:creator" content="@imaisam" />
+        <meta name="twitter:site" content="@facejob" />
+        <meta name="twitter:image" content="todo" />
+        <meta name="twitter:creator" content="@facejob" />
 
         <meta
           name="robots"
@@ -114,7 +114,7 @@ export default function NavBar() {
                   Entreprise
                 </Link>
               </li>
-              {/* TODO: Languages later */}
+              {/*  Languages later */}
               {/* <li className="">
         <select
           className="px-2 py-2 bg-transparent"

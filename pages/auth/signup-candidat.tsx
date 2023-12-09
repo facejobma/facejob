@@ -12,6 +12,15 @@ const SignupCandidatPage = () => {
   const [step, setStep] = useState(1);
   const [additionalInfo, setAdditionalInfo] = useState("");
 
+  useEffect(() => {
+    const userId = sessionStorage.getItem("userId");
+
+    // ? JHere if the userId already existed in session (means he created his account) skip the step 1
+    if (userId) {
+      setStep(2);
+    }
+  }, []);
+
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
   };
@@ -23,6 +32,7 @@ const SignupCandidatPage = () => {
 
   const handleSkip = () => {
     setStep(step + 1);
+    
   };
 
   return (
@@ -61,7 +71,7 @@ const SignupCandidatPage = () => {
           {step === 1 && <SignupFormCandidat onNextStep={handleNextStep} />}
           {step === 2 && (
             <NextStepSignupCandidat
-              onNextStep={handleNextStep}
+              // onNextStep={handleNextStep}
               onSkip={handleSkip}
             />
           )}

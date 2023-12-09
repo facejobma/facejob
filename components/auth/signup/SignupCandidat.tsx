@@ -5,8 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 // import facebook from "../../../assets/imgs/facebook.png";
-import {toast} from "react-hot-toast";
-
+import { toast } from "react-hot-toast";
 
 interface SignupFormCandidatProps {
   onNextStep: () => void;
@@ -18,7 +17,8 @@ const SignupFormCandidat: React.FC<SignupFormCandidatProps> = ({
   const router = useRouter();
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
-  const [tel, seTel] = useState("");
+  const [tel, setTel] = useState("");
+  const [sexe, setSexe] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -31,6 +31,7 @@ const SignupFormCandidat: React.FC<SignupFormCandidatProps> = ({
       prenom,
       nom,
       tel,
+      sexe,
       email,
       password,
       passwordConfirm,
@@ -50,7 +51,14 @@ const SignupFormCandidat: React.FC<SignupFormCandidatProps> = ({
       );
 
       if (response.ok) {
+
+        const responseData = await response.json();
+        const userId = responseData.user_id;
+
+        sessionStorage.setItem('userId', userId);
+
         toast.success("Your account created successfuly!");
+        
         onNextStep();
       } else {
         const errorData = await response.json();
@@ -135,7 +143,7 @@ const SignupFormCandidat: React.FC<SignupFormCandidatProps> = ({
           placeholder="Tel"
           value={tel}
           onChange={(e) => {
-            seTel(e.target.value);
+            setTel(e.target.value);
           }}
           className="px-4 py-2 rounded border border-gray"
         />
@@ -170,6 +178,47 @@ const SignupFormCandidat: React.FC<SignupFormCandidatProps> = ({
           onChange={(e) => setPasswordConfirm(e.target.value)}
           className={`px-4 py-2 rounded border border-gray`}
         />
+
+        <div className="flex flex-row space-x-20 justify-center">
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              className="hidden"
+              name="sexe"
+              value="Femme"
+              checked={sexe === "Femme"}
+              onChange={() => setSexe("Femme")}
+            />
+            <div
+              className={`w-5 h-5 border-2 rounded ${
+                sexe === "Femme"
+                  ? "bg-primary border-primary"
+                  : "border-gray-300"
+              }`}
+            ></div>
+            <span className="ml-2 text-gray-700">Femme</span>
+          </label>
+
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              className="hidden"
+              name="sexe"
+              value="Homme"
+              checked={sexe === "Homme"}
+              onChange={() => setSexe("Homme")}
+            />
+            <div
+              className={`w-5 h-5 border-2 rounded ${
+                sexe === "Homme"
+                  ? "bg-primary border-primary"
+                  : "border-gray-300"
+              }`}
+            ></div>
+            <span className="ml-2 text-gray-700">Homme</span>
+          </label>
+        </div>
+
         <div className="flex space-x-2" style={{ width: "500px" }}>
           <input
             required={true}

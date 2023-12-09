@@ -248,7 +248,7 @@ const SignupFormCandidat: React.FC<SignupFormCandidatProps> = ({
         </button>
         <p className="font-normal my-2 mx-32 text-second">
           Already have an account ?{" "}
-          <Link href="/signin" className="text-primary">
+          <Link href="/auth/login-candidat" className="text-primary">
             Log In
           </Link>
         </p>

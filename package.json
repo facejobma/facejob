@@ -1,5 +1,5 @@
 {
-  "name": "jadoo-travel-agency",
+  "name": "facejob",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -23,6 +23,7 @@
     "typescript": "4.8.4"
   },
   "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.18",
     "tailwindcss": "^3.2.1"

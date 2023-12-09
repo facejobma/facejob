@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
 
 type Props = {};
 
@@ -37,14 +38,14 @@ export default function Subscription({}: Props) {
   return (
     <section className="relative w-full pb-10 mx-auto my-10 md:w-8/12">
       <div className="md:h-[70px] md:w-[70px] w-[40px] h-[40px] right-0 bg-gradient-to-r rounded-full grid place-items-center absolute md:-right-5 -top-5 from-primary to-[#8ac36b] z-10 p-1">
-        <img src="/images/send.svg" />
+        <Image src="/images/send.svg"  alt={"send logo"} width={30} height={30}/>
       </div>
 
       <div className="relative">
         <div className="overflow-hidden relative w-full h-96 bg-optional1  md:rounded-b-2xl md:rounded-tr-2xl md:rounded-tl-[6rem]"></div>
 
         <div className="absolute hidden md:block -right-24 -bottom-16">
-          <img src="/images/bottom-pattern.svg" role="none" />
+          <Image src="/images/bottom-pattern.svg" role="none"  alt={"scroll icon"} width={24} height={24}/>
         </div>
         <div className="absolute top-0 flex items-center w-full h-full">
           <div className="flex flex-col items-center max-w-2xl mx-auto my-16">
@@ -56,11 +57,13 @@ export default function Subscription({}: Props) {
               <div className="relative w-full text-gray-600">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                   <label htmlFor="email" className="p-1">
-                    <img
+                    <Image
                       src="/images/email.svg"
                       role="none"
                       className="w-6 h-6"
-                    />
+                      width={24}
+                        height={24}
+                     alt={"email logo"}/>
                   </label>
                 </span>
                 <input

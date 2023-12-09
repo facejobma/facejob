@@ -100,7 +100,7 @@ export default function NavBar() {
             <ul className="flex gap-5 font-bold text-sm md:flex">
               <li>
                 <Link
-                  href="#"
+                  href="/auth/login-candidat"
                   className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
                 >
                   Candidat
@@ -108,7 +108,7 @@ export default function NavBar() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/auth/login-entreprise"
                   className="px-6 py-3 rounded-[15px] bg-primary text-white font-default"
                 >
                   Entreprise

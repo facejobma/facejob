@@ -146,7 +146,7 @@ const LoginForm = () => {
                 </button>
                 <p className="font-normal my-2 mx-32 text-second">
                     Don't have an account ?{" "}
-                    <Link href="/signup" className="text-primary">
+                    <Link href="/auth/signup-candidat" className="text-primary">
                         Sign Up
                     </Link>
                 </p>

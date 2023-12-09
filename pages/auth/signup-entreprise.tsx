@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 // import "../../styles/globals.css";
 import SignupFormEntreprise from "../../components/auth/signup/SignupEntreprise";
 import NextStepSignupCandidat from "../../components/auth/signup/NextStepSignupCandidat";
+import NextStepSignupEntreprise from "../../components/auth/signup/NextStepSignupEntreprise";
 
 const SignupCandidatPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,15 @@ const SignupCandidatPage = () => {
   //     // if the freelancer is logged in and has completed his profile, redirect him to the find-work page
   //     if (session && session.user.userRole === UserRole.Freelancer && session.user.isCompleted) router.push('/find-work')
   // }, [session])
+
+  useEffect(() => {
+    const userId = sessionStorage.getItem("userId");
+
+    // ? JHere if the userId already existed in session (means he created his account) skip the step 1
+    if (userId) {
+      setStep(2);
+    }
+  }, []);
 
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
@@ -68,8 +78,8 @@ const SignupCandidatPage = () => {
         <div className="w-1/2 pr-4">
           {step === 1 && <SignupFormEntreprise onNextStep={handleNextStep} />}
           {step === 2 && (
-            <NextStepSignupCandidat
-              onNextStep={handleNextStep}
+            <NextStepSignupEntreprise
+              // onNextStep={handleNextStep}
               onSkip={handleSkip}
             />
           )}

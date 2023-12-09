@@ -1,8 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
 
 type Props = {};
 
 export default function Subscription({}: Props) {
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = async () => {
+    try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return;
+      }
+
+      const response = await fetch("http://localhost:8000/api/store-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        console.log("Email subscribed successfully!");
+        toast.success("Email subscribed successfully!");
+        setEmail(""); 
+      } else {
+        const responseData = await response.json();
+        console.error("Subscription failed:", responseData);
+      }
+    } catch (error) {
+      console.error("Error during subscription:", error);
+    }
+  };
+
   return (
     <section className="relative w-full pb-10 mx-auto my-10 md:w-8/12">
       <div className="md:h-[70px] md:w-[70px] w-[40px] h-[40px] right-0 bg-gradient-to-r rounded-full grid place-items-center absolute md:-right-5 -top-5 from-primary to-[#8ac36b] z-10 p-1">
@@ -35,6 +66,8 @@ export default function Subscription({}: Props) {
                 <input
                   type="email"
                   name="q"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="p-5 pl-12 text-sm bg-white font-default rounded-lg w-full md:h-[55px] focus:outline-none"
                   placeholder="email@example.com"
                   autoComplete="off"
@@ -43,7 +76,10 @@ export default function Subscription({}: Props) {
                 />
               </div>
 
-              <button className="bg-gradient-to-r inline-block from-primary to-primary font-default px-7 py-2 rounded-lg text-white text-lg">
+              <button
+                onClick={handleSubscribe}
+                className="bg-gradient-to-r inline-block from-primary to-primary font-default px-7 py-2 rounded-lg text-white text-lg"
+              >
                 S'inscrire
               </button>
             </div>

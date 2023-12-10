@@ -5,8 +5,7 @@ type Props = {};
 
 export default function AboutUs({}: Props) {
     return (
-        <section className="flex flex-col-reverse md:flex-row w-full mt-8 md:mt-32 mb-8 md:mb-16 bg-white">
-
+        <section className="flex flex-col-reverse md:flex-row w-full p-8 mt-8 md:mt-32 mb-8 md:mb-16 bg-white">
 
             {/* Right Text Section */}
             <div className="w-full md:w-1/2  mt-4 md:mt-8  bg-white">
@@ -23,26 +22,19 @@ export default function AboutUs({}: Props) {
                             connecter de la manière la plus facile que jamais, la plus
                             efficace que jamais
                         </p>
-                        {/*<p className="text-third text-start font-default font-medium text-base md:text-xl px-5 md:px-1 py-2">*/}
-                        {/*    Pendant des années nous avons écouté les besoins, recueilli les*/}
-                        {/*    confidences, cherché des solutions aux problèmes du recrutement …*/}
-                        {/*    et avons découvert que la plus simple étape consistant à*/}
-                        {/*    l’entrecroisement entre les entreprises et les chercheurs*/}
-                        {/*    d’emploi, était souvent la plus fondamentale mais souvent la plus*/}
-                        {/*    négligée.*/}
-                        {/*</p>*/}
+                        <p className="text-third text-start font-default font-medium text-base md:text-xl px-5 md:px-1 py-2">
+                            Pendant des années nous avons écouté les besoins, recueilli les
+                            confidences, cherché des solutions aux problèmes du recrutement …
+                            et avons découvert que la plus simple étape consistant à
+                            l’entrecroisement entre les entreprises et les chercheurs
+                            d’emploi, était souvent la plus fondamentale mais souvent la plus
+                            négligée.
+                        </p>
                     </div>
 
-                    <div className="w-1/2  relative mx-auto">
-                        {/*    /!*<button*!/*/}
-                        {/*    /!*    className="w-full md:w-[202px] h-[30px] left-0 top-0 absolute bg-optional1 rounded-[15px] border border-primary focus:outline-none">*!/*/}
-                        {/*    /!*    <div*!/*/}
-                        {/*    /!*        className="w-full pr-2 h-[40px] left-0 top-[16px] absolute text-center md:text-right md:pr-8 text-primary text-[23px] font-bold font-default leading-normal">*!/*/}
-                        {/*    {}*/}
-                        {/*    /!*    </div>*!/*/}
-                        {/*    /!*</button>*!/*/}
+                    <div className="w-1/2  relative mx-auto mt-4">
                         <button
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center w-full flex justify-center">
                             <Link href="/apropsdenous">
                                 <span>Lire plus</span>
                             </Link>

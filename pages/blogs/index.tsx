@@ -1,5 +1,6 @@
 import React from "react";
 import NavBar from "../../components/NavBar";
+import Link from "next/link";
 
 const blogs = [
   {
@@ -47,9 +48,9 @@ const BlogPage: React.FC = () => {
               <div>
                 <h2 className="text-xl font-semibold mb-4">{blog.title}</h2>
                 <p className="text-gray-600 mb-4">{blog.content}</p>
-                <a href={blog.link} className="text-primary hover:underline">
+                <Link href={blog.link} className="text-primary hover:underline">
                   Read more
-                </a>
+                </Link>
               </div>
             </div>
           ))}

@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import NavBar from "./NavBar";
 import Image from "next/image";
+import Link from "next/link";
 
 type Props = {};
 
@@ -60,13 +61,13 @@ export default function Hero({}: Props) {
 
             <div className="flex items-center mt-16">
               <img src="/Arrow.png" alt="" className="mr-2" />
-              <a
+              <Link
                 href="#section2"
                 className="flex items-center w-[211px] h-[35px] text-third text-[17px] font-medium font-default"
                 onClick={handleScroll}
               >
                 Faites défiler
-              </a>
+              </Link>
             </div>
           </motion.div>
           <motion.div

@@ -1,5 +1,6 @@
 import Footer from "../../../components/Footer";
 import NavBar from "../../../components/NavBar";
+import Link from "next/link";
 
 export default function Terms() {
   return (
@@ -188,14 +189,14 @@ export default function Terms() {
           <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-1 md:py-1">
             Davantage d’informations sur la protection des données sont
             disponibles sur le site internet de la CNDP (
-            <a
+            <Link
               href="https://www.cndp.ma"
               className="text-blue-500"
               target="_blank"
               rel="noopener noreferrer"
             >
               https://www.cndp.ma
-            </a>
+            </Link>
             ).
           </p>
           <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-1 md:py-1">

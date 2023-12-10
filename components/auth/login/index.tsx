@@ -1,12 +1,7 @@
 "use client"
 import {FormEvent, useState} from "react";
 import {toast} from "react-hot-toast";
-// import google from "../../../assets/imgs/google.png";
-// import facebook from "../../../assets/imgs/facebook.png";
-
-import Image from "next/image";
 import Link from "next/link";
-import { CompletionEntryDataResolved } from "typescript";
 
 
 const LoginForm = () => {
@@ -16,46 +11,43 @@ const LoginForm = () => {
     const [passwordError, setPasswordError] = useState("");
 
 
-    //TODO : http://localhost:8000/api/auth/entreprise/login
-
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-    
+
         if (!email || !password) {
-            return toast.error("Please fill in all fields");
+            return toast.error("Veuillez remplir tous les champs");
         }
-    
+
         try {
-            const response = await fetch("http://localhost:8000/api/auth/entreprise/login", {
+            const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/entreprise/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({email, password}),
             });
 
             console.log(response);
-            
-    
+
+
             if (!response.ok) {
-                toast.error("Email or password are not valid");
-                throw new Error("Email or password are not valid");
+                toast.error("Email ou mot de passe ne sont pas valides");
             }
-    
+
             console.log("Logged in successfully");
-            toast.success("Logged in successfully");
-    
+            toast.success("connecté avec succès");
+
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || "An error occurred during login");
+            toast.error(error.message || "Une erreur s’est produite lors de la connexion");
         }
     };
-    
+
 
     const validateEmail = (value: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
-            setEmailError("Invalid email address");
+            setEmailError("L'adresse email invalide");
         } else {
             setEmailError("");
         }
@@ -63,7 +55,7 @@ const LoginForm = () => {
 
     const validatePassword = (value: string) => {
         if (value.length < 8) {
-            setPasswordError("Password must be at least 8 characte  rs long");
+            setPasswordError("Le mot de passe doit comporter au moins 8 caractères");
         } else {
             setPasswordError("");
         }
@@ -71,38 +63,27 @@ const LoginForm = () => {
 
     return (
         <div
-            className="flex flex-col items-center rounded-lg border border-newColor p-4 font-default"
-
-        >
-            <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4">
-                Sign up to find work you love
-            </h2>
+            className="flex flex-col items-center rounded-lg border border-newColor p-4 font-default">
+            <h2 className="text-2xl font-semibold text-second my-2 py-4 mb-4"> Inscrivez-vous pour trouver un travail
+                que vous aimez</h2>
             <div className="mt-4 flex space-x-4">
-                {/* <Image
-                    src={google}
-                    alt="google"
-                    style={{width: "35px", height: "35px"}}
-                /> */}
                 <button
-                    onClick={() => {}}
-                    className="w-full py-2 px-36 rounded-full font-medium text-base bg-blue-400 text-white"
-                >Continue with Google
+                    onClick={() => {
+                    }}
+                    className="w-full py-2 px-36 rounded-full font-medium text-base bg-primary-3 text-white"
+                >Continuer avec Google
                 </button>
             </div>
             <div className="mt-4 flex space-x-4">
-                {/* <Image
-                    src={facebook}
-                    alt="facebook"
-                    style={{width: "35px", height: "35px"}}
-                /> */}
                 <button
-                    onClick={() => {}}
-                    className="py-2 px-36 rounded-full font-medium text-base bg-blue-400 text-white"
+                    onClick={() => {
+                    }}
+                    className="w-full py-2 px-36 rounded-full font-medium text-base bg-primary-3 text-white"
                 >
-                    Continue with Facebook
+                    Continuer avec Linkedin
                 </button>
             </div>
-            <p className="mx-4 my-2 text-gray-500 font-medium">Or</p>
+            <p className="mx-4 my-2 text-gray-500 font-medium">Ou</p>
             <form className="flex flex-col space-y-6 my-4" onSubmit={handleSubmit}>
                 <input
                     type="email"
@@ -120,7 +101,7 @@ const LoginForm = () => {
                 {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
                 <input
                     type="password"
-                    placeholder="Password (8 or more characters)"
+                    placeholder="Mot de passe (8 caractères ou plus)"
                     value={password}
                     onChange={(e) => {
                         setPassword(e.target.value);
@@ -135,19 +116,19 @@ const LoginForm = () => {
                 )}
                 <p className="font-light text-base mx-45 text-second">
                     <Link href="/forgetPassword" className="text-primary">
-                        Forget your password?
+                        oublié votre mot de passe?
                     </Link>
                 </p>
                 <button
                     type="submit"
                     className="py-2 px-20 rounded-full font-medium text-base text-white bg-primary"
                 >
-                    Log in
+                    se connecter
                 </button>
                 <p className="font-normal my-2 mx-32 text-second">
-                    Don't have an account ?{" "}
+                    Je n’ai pas de compte ?{" "}
                     <Link href="/auth/signup-candidat" className="text-primary">
-                        Sign Up
+                        s'inscrire
                     </Link>
                 </p>
             </form>

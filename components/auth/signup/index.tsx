@@ -1,14 +1,10 @@
 "use client"
 import {useState} from "react";
-// import google from "../../../assets/imgs/google.png";
-import Image from "next/image";
 import Link from "next/link";
-import {useRouter} from "next/navigation";
-// import facebook from "../../../assets/imgs/facebook.png";
 
 
 const SignupForm = () => {
-        const router = useRouter();
+
         const [username, setUsername] = useState("");
         const [email, setEmail] = useState("");
         const [password, setPassword] = useState("");
@@ -88,11 +84,6 @@ const SignupForm = () => {
                     Sign up to find work you love
                 </h2>
                 <div className="flex space-x-4">
-                    {/* <Image
-                        src={google}
-                        alt="google"
-                        style={{width: "35px", height: "35px"}}
-                    /> */}
                     <button
                         // onClick={() => ()}
                         className="w-full py-2 px-36 rounded-full font-medium text-base bg-blue-400 text-white"
@@ -100,14 +91,9 @@ const SignupForm = () => {
                     </button>
                 </div>
                 <div className="mt-4 flex space-x-4">
-                    {/* <Image
-                        src={facebook}
-                        alt="facebook"
-                        style={{width: "35px", height: "35px"}}
-                    /> */}
                     <button
                         // onClick={() => ()}
-                            className="py-2 px-36 rounded-full font-medium text-base bg-blue-400 text-white"
+                        className="py-2 px-36 rounded-full font-medium text-base bg-blue-400 text-white"
                     >
                         Continue with Facebook
                     </button>
@@ -170,25 +156,22 @@ const SignupForm = () => {
                             htmlFor="termsCheckbox"
                             className="text-gray-500 font-normal text-sm"
                         >
-                            Yes, I understand and agree to the{" "}
-                            <Link href="/terms" className="text-primary">
-                                FaceJob Terms of Service
-                            </Link>
-                            , including the User Agreement and Privacy Policy
+                            Oui, je comprends et j’accepte
+                            <Link href="/termes/entreprise" className="text-primary">
+                                Conditions d’utilisation de FaceJob
+                            </Link> , y compris le contrat d’utilisation et la politique de confidentialité
                         </label>
                     </div>
                     {/* <div className="my-2"> */}
                     <button
                         type="submit"
                         className="py-2 px-20 rounded-full font-medium text-base text-white bg-primary"
-                    >
-
-                        Create my account
+                    >créer mon compte
                     </button>
-                    <p className="font-normal my-2 mx-32 text-second">
-                        Already have an account ?{" "}
-                        <Link href="/signin" className="text-primary">
-                            Log In
+                    <p className="font-normal my-2 mx-32 text-second">Vous avez déjà un compte? {" "}
+
+                        <Link href="/auth/login-entreprise" className="text-primary">
+                            se connecter
                         </Link>
                     </p>
                     {/* </div> */}

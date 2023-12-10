@@ -7,7 +7,6 @@ import {NavBarAuth} from "../../components/auth/NavBarAuth/NavBarAuth";
 
 
 const SignupCandidatPage = () => {
-    const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(1);
 
 
@@ -20,9 +19,6 @@ const SignupCandidatPage = () => {
         }
     }, []);
 
-    const toggleNavbar = () => {
-        setIsOpen(!isOpen);
-    };
 
     const handleNextStep = () => {
         // setAdditionalInfo(info);

@@ -82,16 +82,16 @@ const NextStepSignupEntreprise: React.FC<NextStepSignupEntrepriseProps> = ({
             );
 
             if (response.ok) {
-                const responseData = await response.json();
-                toast.success("Your account has completed successfully!");
+                // const responseData = await response.json();
+                toast.success("Votre compte s’est terminé avec succès!");
 
-                router.push("/auth/login-entreprise");
+                await router.push("/auth/login-entreprise");
                 sessionStorage.clear();
             } else {
             }
         } catch (error) {
             console.error("Error updating user:", error);
-            toast.error("Error updating user!");
+            toast.error("Erreur de mise à jour de l’utilisateur!");
         }
     };
 
@@ -122,7 +122,7 @@ const NextStepSignupEntreprise: React.FC<NextStepSignupEntrepriseProps> = ({
                     className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 >
                     <option value="" disabled>
-                        Select Secteur
+                        Sélectionnez Secteur.
                     </option>
                     {secteurOptions.map((option, index) => (
                         <option key={index} value={option.name}>

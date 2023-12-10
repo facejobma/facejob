@@ -1,7 +1,6 @@
 "use client";
 import {useState} from "react";
 import Link from "next/link";
-import {useRouter} from "next/navigation";
 import {toast} from "react-hot-toast";
 
 interface SignupFormCandidatProps {
@@ -32,6 +31,10 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
             passwordConfirm,
             acceptTerms,
         };
+        if (!validateEmail(email)) {
+            toast.error("email est invalide");
+            return;
+        }
 
         try {
             const response = await fetch(

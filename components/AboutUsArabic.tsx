@@ -29,9 +29,9 @@ export default function AboutUs({}: Props) {
               عن عمل للاختلاط والتواصل بأسهل طريقة على الإطلاق وأكثر الطرق
               فعالية على الإطلاق
             </p>
-            <p className="text-third text-start font-default font-medium text-base md:text-xl px-5 md:px-1 py-2 md:text-center">
-              ...
-            </p>
+            {/*<p className="text-third text-start font-default font-medium text-base md:text-xl px-5 md:px-1 py-2 md:text-center">*/}
+            {/*  ...*/}
+            {/*</p>*/}
           </div>
 
           <div className="w-1/3 md:w-1/4  relative mx-auto mt-4 font-default">

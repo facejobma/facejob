@@ -21,9 +21,9 @@ export default function AboutUs({}: Props) {
               connecter de la manière la plus facile que jamais, la plus
               efficace que jamais
             </p>
-            <p className="text-third text-start font-default font-medium text-base md:text-xl px-5 md:px-1 py-2 md:text-center">
-              ...
-            </p>
+            {/*<p className="text-third text-start font-default font-medium text-base md:text-xl px-5 md:px-1 py-2 md:text-center">*/}
+            {/*  ...*/}
+            {/*</p>*/}
           </div>
 
           <div className="w-1/3 md:w-1/4  relative mx-auto mt-4 font-default">

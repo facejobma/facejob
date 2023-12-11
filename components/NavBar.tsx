@@ -167,14 +167,17 @@ export default function NavBar() {
                             <Link href="/contact">Contact</Link>
                         </li>
                         <li>
-                            <Link href="#">Blogs</Link>
+                            <Link href="/blogs">Blogs</Link>
                         </li>
                         <li>
-                            <Link href="/#">Login</Link>
+                            <Link href="/auth/login-candidat">Connection Candidat</Link>
+                        </li>
+                        <li>
+                            <Link href="/auth/login-entreprise">Connection Entreprise</Link>
                         </li>
                         <li className="-ml-2">
                             <Link
-                                href="#"
+                                href="/"
                                 className="px-2 py-2 rounded-md inline-block border-[2px] border-gray-300"
                             >
                                 Find Job

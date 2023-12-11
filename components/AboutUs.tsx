@@ -34,7 +34,7 @@ export default function AboutUs({}: Props) {
 
                     <div className="w-1/2  relative mx-auto mt-4">
                         <button
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center w-full flex justify-center">
+                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center w-full justify-center">
                             <Link href="/apropsdenous">
                                 <span>Lire plus</span>
                             </Link>

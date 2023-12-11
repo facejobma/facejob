@@ -37,13 +37,13 @@ const SignupForm = () => {
             // }
 
 
-            const formData = {
-                username,
-                email,
-                password,
-                passwordConfirm,
-                acceptTerms
-            };
+            // const formData = {
+            //     username,
+            //     email,
+            //     password,
+            //     passwordConfirm,
+            //     acceptTerms
+            // };
 
             // await toast.promise(fetch(`/api/users/signup`, {
             //     method: "POST",

@@ -71,6 +71,8 @@ export default function Footer({}: Props) {
                                 href="https://www.facebook.com/people/facejob/100085933744117/"
                                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                                 aria-label="Facebook Icon"
+                                target={"_blank"}
+                                rel="noopener noreferrer"
                             >
                                 <FaFacebook/>
                             </Link>
@@ -80,6 +82,8 @@ export default function Footer({}: Props) {
                                 href="https://www.instagram.com/facejob.ma/"
                                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                                 aria-label="Instagram icon"
+                                target={"_blank"}
+                                rel="noopener noreferrer"
                             >
                                 <FaInstagram/>
                             </Link>
@@ -89,6 +93,8 @@ export default function Footer({}: Props) {
                                 href="https://twitter.com/facejob_/facejob.ma/"
                                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                                 aria-label="Twitter icon"
+                                target={"_blank"}
+                                rel="noopener noreferrer"
                             >
                                 <FaTwitter/>
                             </Link>
@@ -98,6 +104,8 @@ export default function Footer({}: Props) {
                                 href="https://www.linkedin.com/company/facejob-ma/"
                                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                                 aria-label="Linked icon"
+                                target={"_blank"}
+                                rel="noopener noreferrer"
                             >
                                 <FaLinkedinIn/>
                             </Link>

@@ -1,4 +1,5 @@
 import AboutUs from "../components/AboutUs";
+import AboutUsArabic from "../components/AboutUsArabic";
 import Category from "../components/Category";
 import FAQs from "../components/FAQs";
 import Footer from "../components/Footer";
@@ -21,6 +22,7 @@ export default function Home() {
                 <Subscription/>
                 <FAQs />
                 <AboutUs/>
+                <AboutUsArabic/>
                 <Footer/>
             </main>
         </div>

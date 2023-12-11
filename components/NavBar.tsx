@@ -17,7 +17,7 @@ export default function NavBar() {
                 <link rel="shortcut icon" href="/images/favicon.png"/>
                 <meta
                     name="description"
-                    content="facejob Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
+                    content="Notre philosophie est simple : Offrir à toutes les entreprises, à tous les chercheurs d’emploi la chance de s’entrecroiser, de se connecter de la manière la plus facile que jamais, la plus efficace que jamais."
                 />
                 <link
                     rel="canonical"
@@ -28,11 +28,11 @@ export default function NavBar() {
                 <meta property="og:type”" content="website"/>
                 <meta
                     property="og:title"
-                    content="facejob – Travel with the best travel agency for a lovely travel experience."
+                    content="facejob –  trouvez votre job même depuis chez vous."
                 />
                 <meta
                     property="og:description"
-                    content="facejob Travel agency is one of the leading agencies that has smooth process and provides affordable pricing."
+                    content="Notre philosophie est simple : Offrir à toutes les entreprises, à tous les chercheurs d’emploi la chance de s’entrecroiser, de se connecter de la manière la plus facile que jamais, la plus efficace que jamais."
                 />
                 <meta
                     property="og:url"
@@ -46,12 +46,11 @@ export default function NavBar() {
                 <meta name="twitter:card" content="summary"/>
                 <meta
                     name="twitter:description"
-                    content="facejob Travel agency is one of the leading agencies that has smooth
-    process and provides affordable pricing."
+                    content="facejob –  trouvez votre job même depuis chez vous."
                 />
                 <meta
                     name="twitter:title"
-                    content="facejob – Travel with the best travel agency for a lovely travel experience."
+                    content="facejob –  trouvez votre job même depuis chez vous."
                 />
                 <meta name="twitter:site" content="@facejob"/>
                 <meta name="twitter:image" content="todo"/>

@@ -56,6 +56,8 @@ export default function NavBar() {
         />
       </Head>
 
+      
+
       <motion.nav
         initial={{ y: -20 }}
         transition={{ duration: 1 }}

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 
 const LoginForm = (props: {
-                       for: "candidat" | "entreprise"
+                       loginFor: "candidat" | "entreprise"
                    }
     ) => {
         const [email, setEmail] = useState("");
@@ -130,7 +130,7 @@ const LoginForm = (props: {
                     </button>
                     <p className="font-normal my-2 mx-32 text-second">
                         Je n’ai pas de compte ?{" "}
-                        <Link href="/auth/signup-candidat" className="text-primary">
+                        <Link href={`/auth/signup-${props.loginFor}`} className="text-primary">
                             s'inscrire
                         </Link>
                     </p>

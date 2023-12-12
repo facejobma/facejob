@@ -5,7 +5,7 @@ import SignupFormEntreprise from "../../components/auth/signup/SignupEntreprise"
 import NextStepSignupEntreprise from "../../components/auth/signup/NextStepSignupEntreprise";
 import {NavBarAuth} from "../../components/auth/NavBarAuth/NavBarAuth";
 
-const SignupCandidatPage = () => {
+const SignupEntreprisePage = () => {
     const [step, setStep] = useState(1);
 
 
@@ -55,7 +55,7 @@ const SignupCandidatPage = () => {
     );
 };
 
-export default SignupCandidatPage;
+export default SignupEntreprisePage;
 
 // TODO: Adresse Real
 // VILLA 11, RESIDENCE RYAD AL ANDALOUS, VILLE NOUVELLE IBN BATTOUTA, TANGER

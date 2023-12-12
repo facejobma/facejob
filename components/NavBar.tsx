@@ -135,7 +135,7 @@ export default function NavBar() {
                     }`}
                 >
                     <ul
-                        className={`flex flex-col items-center w-full p-4 mx-4 space-y-5 text-sm sm:hidden font-poppins`}
+                        className={`flex flex-col items-center w-full p-4 mx-4 space-y-5 text-sm md:hidden font-poppins`}
                     >
                         <li className={"flex gap-2 mb-2" }>
                             <div>

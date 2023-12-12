@@ -92,7 +92,7 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
                     // onClick={() => ()}
                     className="w-full py-2 px-36 rounded-full font-medium text-base bg-primary-2   text-white"
                 >
-                    Continue with Google
+                    Continuer avec Google
                 </button>
             </div>
             <div className="mt-4 flex space-x-4">
@@ -104,8 +104,7 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
                 <button
                     // onClick={() => ()}
                     className="py-2 px-36 rounded-full font-medium text-base bg-primary-2 text-white"
-                >
-                    Continue with Facebook
+                > Continuer avec Linkedin
                 </button>
             </div>
             <p className="mx-4 my-2 text-gray-500 font-medium">Or</p>
@@ -192,12 +191,12 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
                     type="submit"
                     className="py-2 px-20 rounded-full font-medium text-base text-white bg-primary"
                 >
-                    Create my account
+                    créer mon compte
                 </button>
                 <p className="font-normal my-2 mx-32 text-second">
                     Vous avez déjà un compte?
                     <Link href="/auth/login-entreprise" className="text-primary">
-                        Log In
+                        se connecter
                     </Link>
                 </p>
                 {/* </div> */}

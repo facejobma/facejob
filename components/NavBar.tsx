@@ -4,7 +4,6 @@ import {motion} from "framer-motion";
 import Link from "next/link";
 import {Logo} from "./Logo";
 
-
 export default function NavBar() {
     const [open, setOpen] = React.useState(false);
     return (
@@ -62,24 +61,23 @@ export default function NavBar() {
                 />
             </Head>
 
+
             <motion.nav
                 initial={{y: -20}}
                 transition={{duration: 1}}
                 whileInView={{y: 0}}
                 viewport={{once: true}}
             >
-                <div className="w-full my-3 px-10 mx-auto">
+                <div className="w-full my-3 px-6 md:px-10 mx-auto">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-7">
                             <div>
                                 <Logo/>
                             </div>
-                            <ul className="flex gap-10 text-base md:flex font-medium text-secondary font-poppins">
+                            <ul className="hidden md:flex gap-10 text-base font-medium text-secondary font-poppins">
                                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
                                     <Link href="/">Accueil</Link>
                                 </li>
-
-
                                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
                                     <Link href="/contact">Contact</Link>
                                 </li>
@@ -88,7 +86,7 @@ export default function NavBar() {
                                 </li>
                             </ul>
                         </div>
-                        <ul className="flex gap-5 font-bold text-sm md:flex">
+                        <ul className="hidden md:flex gap-5 font-bold text-sm">
                             <li>
                                 <Link
                                     href="/auth/login-candidat"
@@ -105,25 +103,6 @@ export default function NavBar() {
                                     Entreprise
                                 </Link>
                             </li>
-                            {/*  Languages later */}
-                            {/* <li className="">
-        <select
-          className="px-2 py-2 bg-transparent"
-          name="langs"
-          id="lang-select"
-          aria-label="Select site language"
-        >
-          <option value="en" id="en">
-            EN
-          </option>
-          <option value="de" id="de">
-            DE
-          </option>
-          <option value="tr" id="tr">
-            TR
-          </option>
-        </select>
-      </li> */}
                         </ul>
                         <div className="flex items-center md:hidden">
                             <button
@@ -135,7 +114,6 @@ export default function NavBar() {
                             >
                                 <svg
                                     className="w-6 h-6 text-gray-500 hover:text-primary"
-                                    xlinkShow="!showMenu"
                                     fill="none"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
@@ -157,8 +135,26 @@ export default function NavBar() {
                     }`}
                 >
                     <ul
-                        className={`flex flex-col p-4 mx-4 space-y-5 text-sm sm:hidden font-poppins`}
+                        className={`flex flex-col items-center w-full p-4 mx-4 space-y-5 text-sm md:hidden font-poppins`}
                     >
+                        <li className={"flex gap-2 mb-2" }>
+                            <div>
+                                <Link
+                                    href="/auth/login-candidat"
+                                    className="px-8 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
+                                >
+                                    Candidat
+                                </Link>
+                            </div>
+                            <div>
+                                <Link
+                                    href="/auth/login-entreprise"
+                                    className="px-8 py-3 rounded-[15px] bg-primary text-white font-default"
+                                >
+                                    Entreprise
+                                </Link>
+                            </div>
+                        </li>
                         <li>
                             <Link href="/">Home</Link>
                         </li>
@@ -168,31 +164,16 @@ export default function NavBar() {
                         <li>
                             <Link href="/blogs">Blogs</Link>
                         </li>
-                        <li>
-                            <Link href="/auth/login-candidat">Connection Candidat</Link>
-                        </li>
-                        <li>
-                            <Link href="/auth/login-entreprise">Connection Entreprise</Link>
-                        </li>
-                        <li className="-ml-2">
-                            <Link
-                                href="/"
-                                className="px-2 py-2 rounded-md inline-block border-[2px] border-gray-300"
-                            >
-                                Find Job
-                            </Link>
-                        </li>
-                        {/* <li className="">
-                <select
-                  className="py-2 bg-transparent"
-                  name="langs"
-                  id="lang-select"
-                >
-                  <option value="en">EN</option>
-                  <option value="de">DE</option>
-                  <option value="tr">TR</option>
-                </select>
-              </li> */}
+
+
+                        {/* <li className="-ml-2">
+              <Link
+                href="/"
+                className="px-2 py-2 rounded-md inline-block border-[2px] border-gray-300"
+              >
+                Find Job
+              </Link>
+            </li> */}
                     </ul>
                 </div>
             </motion.nav>

@@ -149,7 +149,7 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
                 <input
                     required={true}
                     type="password"
-                    placeholder="Password (8 or more characters)"
+                    placeholder="Mot de passe (8 caractères ou plus)"
                     value={password}
                     onChange={(e) => {
                         setPassword(e.target.value);
@@ -160,7 +160,7 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
                 <input
                     required={true}
                     type="password"
-                    placeholder="Confirm Password"
+                    placeholder="Confirmer le mot de passe"
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     className={`px-4 py-2 rounded border border-gray`}

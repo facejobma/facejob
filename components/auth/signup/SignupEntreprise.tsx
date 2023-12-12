@@ -90,7 +90,7 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
                     /> */}
                 <button
                     // onClick={() => ()}
-                    className="w-full py-2 px-36 rounded-full font-medium text-base bg-slate-600   text-white"
+                    className="w-full py-2 px-36 rounded-full font-medium text-base bg-primary-2   text-white"
                 >
                     Continue with Google
                 </button>
@@ -103,7 +103,7 @@ const SignupFormEntreprise: React.FC<SignupFormCandidatProps> = ({
                     /> */}
                 <button
                     // onClick={() => ()}
-                    className="py-2 px-36 rounded-full font-medium text-base bg-slate-600 text-white"
+                    className="py-2 px-36 rounded-full font-medium text-base bg-primary-2 text-white"
                 >
                     Continue with Facebook
                 </button>

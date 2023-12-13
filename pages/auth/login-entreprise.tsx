@@ -1,5 +1,6 @@
 import LoginForm from "../../components/auth/login";
 import {NavBarAuth} from "../../components/auth/NavBarAuth/NavBarAuth";
+import Image from "next/image";
 
 
 const LoginCandidatPage = () => {
@@ -13,10 +14,12 @@ const LoginCandidatPage = () => {
                     <LoginForm loginFor={"entreprise"}/>
                 </div>
                 <div className="md:w-1/2 mt-4 md:mt-0">
-                    <img
+                    <Image
                         src="/images/photo-login.jpg"
                         className="rounded-3xl w-full md:w-4/5 mx-auto"
                         alt="image-signup"
+                        width={1000}
+                        height={1000}
                     />
                 </div>
             </div>

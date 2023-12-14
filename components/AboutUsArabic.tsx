@@ -34,7 +34,7 @@ export default function AboutUs({}: Props) {
             {/*</p>*/}
           </div>
 
-          <div className="w-1/3 md:w-1/4  relative mx-auto mt-4 font-default">
+          <div className="w-1/3 mb-8 md:w-1/4  relative mx-auto mt-4 font-default">
             <button className="bg-gray-300 hover:bg-gray-400 text-secondary font-bold py-2 px-3 rounded-lg inline-flex items-center w-full justify-center">
               <Link href="/apropsdenous">
                 <span>اقرأ أكثر</span>

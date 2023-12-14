@@ -83,7 +83,7 @@ export default function Hero({}: Props) {
                             height={1000}
                         />
                         <Image
-                            src="/message.png"
+                            src="/message2.png"
                             alt="plane"
                             className="absolute -top-52 left-24  md:left-[28rem] mt-36 md:mt-72"
                             width={200}

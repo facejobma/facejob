@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import SignupFormEntreprise from "../../components/auth/signup/SignupEntreprise";
 import NextStepSignupEntreprise from "../../components/auth/signup/NextStepSignupEntreprise";
 import {NavBarAuth} from "../../components/auth/NavBarAuth/NavBarAuth";
+import NavBar from "../../components/NavBar";
 
 const SignupEntreprisePage = () => {
     const [step, setStep] = useState(1);
@@ -30,7 +31,7 @@ const SignupEntreprisePage = () => {
 
     return (
         <>
-            <NavBarAuth/>
+            <NavBar/>
             <div className="flex items-center mt-8">
                 <div className="w-1/2 pr-4">
                     {step === 1 && <SignupFormEntreprise onNextStep={handleNextStep}/>}

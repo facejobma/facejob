@@ -4,6 +4,7 @@ import SignupFormCandidate from "../../components/auth/signup/SignupCandidat";
 import NextStepSignupCandidat from "../../components/auth/signup/NextStepSignupCandidat";
 import Image from "next/image";
 import {NavBarAuth} from "../../components/auth/NavBarAuth/NavBarAuth";
+import NavBar from "../../components/NavBar";
 
 
 const SignupCandidatPage = () => {
@@ -32,7 +33,7 @@ const SignupCandidatPage = () => {
 
     return (
         <>
-            <NavBarAuth/>
+            <NavBar/>
             <div className="flex items-center mt-8">
                 <div className="w-1/2 px-4">
                     {step === 1 && <SignupFormCandidate onNextStep={handleNextStep}/>}

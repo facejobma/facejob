@@ -148,66 +148,66 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
         </div>
 
         {/* <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between"> */}
-          <div className="flex flex-row space-x-4 justify-center">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                className="hidden"
-                name="sex"
-                value="Femme"
-                checked={sex === "Femme"}
-                onChange={() => setSex("Femme")}
-              />
-              <div
-                className={`w-5 h-5 border-2 rounded ${
-                  sex === "Femme"
-                    ? "bg-primary border-primary"
-                    : "border-gray-300"
-                }`}
-              ></div>
-              <span className="ml-2 text-gray-700">Femme</span>
-            </label>
-
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                className="hidden"
-                name="sex"
-                value="Homme"
-                checked={sex === "Homme"}
-                onChange={() => setSex("Homme")}
-              />
-              <div
-                className={`w-5 h-5 border-2 rounded ${
-                  sex === "Homme"
-                    ? "bg-primary border-primary"
-                    : "border-gray-300"
-                }`}
-              ></div>
-              <span className="ml-2 text-gray-700">Homme</span>
-            </label>
-          </div>
-
-          <div className="flex space-x-2">
+        <div className="flex flex-row space-x-4 justify-center">
+          <label className="inline-flex items-center">
             <input
-              required={true}
-              type="checkbox"
-              id="termsCheckbox"
-              className={`rounded border border-gray-300`}
-              onClick={() => {
-                setAcceptTerms((prv) => !prv);
-              }}
+              type="radio"
+              className="hidden"
+              name="sex"
+              value="Femme"
+              checked={sex === "Femme"}
+              onChange={() => setSex("Femme")}
             />
-            <label
-              htmlFor="termsCheckbox"
-              className="text-gray-500 font-normal text-sm"
-            >
-              Oui, je comprends et j'accepte{" "}
-              <Link href="/termes/candidats" className="text-primary">
-                les conditions utilisation de facejob.
-              </Link>
-            </label>
-          </div>
+            <div
+              className={`w-5 h-5 border-2 rounded ${
+                sex === "Femme"
+                  ? "bg-primary border-primary"
+                  : "border-gray-300"
+              }`}
+            ></div>
+            <span className="ml-2 text-gray-700">Femme</span>
+          </label>
+
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              className="hidden"
+              name="sex"
+              value="Homme"
+              checked={sex === "Homme"}
+              onChange={() => setSex("Homme")}
+            />
+            <div
+              className={`w-5 h-5 border-2 rounded ${
+                sex === "Homme"
+                  ? "bg-primary border-primary"
+                  : "border-gray-300"
+              }`}
+            ></div>
+            <span className="ml-2 text-gray-700">Homme</span>
+          </label>
+        </div>
+
+        <div className="flex space-x-2" style={{ width: "500px" }}>
+          <input
+            required={true}
+            type="checkbox"
+            id="termsCheckbox"
+            className={`rounded border border-gray-300`}
+            onClick={() => {
+              setAcceptTerms((prv) => !prv);
+            }}
+          />
+          <label
+            htmlFor="termsCheckbox"
+            className="text-gray-500 font-normal text-sm"
+          >
+            Oui, je comprends et j'accepte{" "}
+            <Link href="/termes/entreprise" className="text-primary">
+              les conditions d'utilisation de facejob.
+            </Link>
+          </label>
+        </div>
         {/* </div> */}
         {/* <div className="my-2"> */}
         <button
@@ -216,7 +216,7 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
         >
           créer mon compte
         </button>
-        <p className="font-normal text-center my-2 text-second">
+        <p className="font-normal my-2 mx-32 text-second">
           Vous avez déjà un compte ?{" "}
           <Link href="/auth/login-candidat" className="text-primary">
             se connecter

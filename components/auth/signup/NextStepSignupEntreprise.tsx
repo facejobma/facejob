@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, FC, ChangeEvent} from "react";
 import {useDropzone} from "react-dropzone";
 import {useRouter} from "next/router";
 import {toast} from "react-hot-toast";
@@ -13,9 +13,9 @@ interface NextStepSignupEntrepriseProps {
     onSkip: () => void;
 }
 
-const NextStepSignupEntreprise: React.FC<NextStepSignupEntrepriseProps> = ({
-                                                                               onSkip,
-                                                                           }) => {
+const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
+                                                                         onSkip,
+                                                                     }) => {
     const [bio, setBio] = useState("");
     const [secteur, setSecteur] = useState("");
     const [adresse, setAdresse] = useState("");
@@ -34,7 +34,7 @@ const NextStepSignupEntreprise: React.FC<NextStepSignupEntrepriseProps> = ({
         },
     });
 
-    const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleBioChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         const inputValue = e.target.value;
         if (inputValue.length <= maxLength) {
             setBio(inputValue);
@@ -54,7 +54,9 @@ const NextStepSignupEntreprise: React.FC<NextStepSignupEntrepriseProps> = ({
             }
         };
 
-        fetchSectors();
+        fetchSectors().then(() => {
+            console.log('sectors fetched');
+        });
     }, []);
 
     const handleSubmit = async () => {
@@ -137,8 +139,7 @@ const NextStepSignupEntreprise: React.FC<NextStepSignupEntrepriseProps> = ({
                 className="w-96 mb-4 border border-gray p-4 rounded"
             >
                 <input {...getInputProps()} />
-                <p className="text-secondary">
-                    Drag 'n' drop a logo here, or click to select a logo
+                <p className="text-secondary">Faites glisser un logo ici ou cliquez pour sélectionner un logo
                 </p>
                 {image && (
                     <div className="mt-5 flex justify-center items-center flex-col ">
@@ -194,23 +195,28 @@ const NextStepSignupEntreprise: React.FC<NextStepSignupEntrepriseProps> = ({
                 />
             </div>
 
-            <div className="flex space-x-2">
-                <button
-                    onClick={handleSubmit}
-                    className="py-2 px-10 rounded-full font-medium text-base text-white bg-primary"
-                >
-                    Submit
-                </button>
+            <div className="w-96 mb-4 flexrounded px-4 py-2">
                 <button
                     onClick={() => {
                         onSkip();
                         sessionStorage.clear();
-                        router.push("/auth/login-candidat");
+                        router.push("/auth/login-candidat").then(() => {
+                            console.log('redirected');
+                        });
                     }}
-                    className="py-2 px-10 rounded-full font-medium text-base text-white bg-gray-400"
+                    className="py-2 px-10 rounded-full font-medium text-base text-white bg-gray-400 w-full"
                 >
                     Skip
                 </button>
+            </div>
+            <div className="w-96 mb-4 flexrounded px-4 py-2">
+                <button
+                    onClick={handleSubmit}
+                    className=" py-2 px-10 rounded-full font-medium text-base text-white bg-primary w-full"
+                >
+                    Submit
+                </button>
+
             </div>
         </div>
     );

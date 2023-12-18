@@ -141,9 +141,7 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
                 className="w-96 mb-4 border border-gray p-4 rounded"
             >
                 <input {...getInputProps()} />
-                <p className="text-secondary">
-                    Drag 'n' drop an image here, or click to select an image
-                </p>
+                <p className="text-secondary">Faites glisser un logo ici ou cliquez pour sélectionner un logo</p>
                 {image && (
                     <div className="mt-5 flex justify-center items-center flex-col ">
                         <p className="text-primary mb-1">Selected Image:</p>

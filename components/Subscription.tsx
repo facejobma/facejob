@@ -11,6 +11,7 @@ export default function Subscription({}: Props) {
         try {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
+                toast.error("Email invalide");
                 return;
             }
 
@@ -29,8 +30,10 @@ export default function Subscription({}: Props) {
             } else {
                 const responseData = await response.json();
                 console.error("Subscription failed:", responseData);
+                toast.error("Error during subscription");
             }
         } catch (error) {
+            toast.error("Error during subscription");
             console.error("Error during subscription:", error);
         }
     };

@@ -1,5 +1,4 @@
 import LoginForm from "../../components/auth/login";
-import Image from "next/image";
 import NavBar from "../../components/NavBar";
 
 const LoginCandidatPage = () => {

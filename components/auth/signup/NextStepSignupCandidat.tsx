@@ -16,10 +16,10 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
                                                                      onSkip,
                                                                  }) => {
     const [bio, setBio] = useState("");
-    const [secteur, setSecteur] = useState("");
+    const [sector, SetSector] = useState("");
     const [yearsOfExperience, setYearsOfExperience] = useState("");
     const [image, setImage] = useState<File | null>(null);
-    const [secteurOptions, setSecteurOptions] = useState<SecteurOptions[]>([]);
+    const [secteurOptions, SetSectorOptions] = useState<SecteurOptions[]>([]);
     const maxLength = 250;
 
     const router = useRouter();
@@ -44,7 +44,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
             try {
                 const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors");
                 const data = await response.json();
-                setSecteurOptions(data);
+                SetSectorOptions(data);
             } catch (error) {
                 toast.error("Erreur de récupération des secteurs!");
                 console.error("Error fetching sectors:", error);
@@ -57,11 +57,11 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
     const handleSubmit = async () => {
         try {
             const formData = {
-                user_id: Number(sessionStorage.getItem("userId")) || "",
+                userId: sessionStorage.getItem("userId"),
                 bio,
-                secteur,
+                sector,
                 image,
-                annee_experience: Number(yearsOfExperience),
+                yearsOfExperience,
             };
 
             console.log("formData, ", formData);
@@ -71,7 +71,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
             // }
 
             const response = await fetch(
-                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/complete-candidat",
+                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/complete-candidate",
                 {
                     method: "PUT",
                     headers: {
@@ -89,6 +89,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
                 sessionStorage.clear();
                 // console.log(responseData);
             } else {
+                toast.error("L’enregistrement a échoué!");
             }
         } catch (error) {
             console.error("Error updating user:", error);
@@ -118,8 +119,8 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
 
             <div className="w-96 mb-4">
                 <select
-                    value={secteur}
-                    onChange={(e) => setSecteur(e.target.value)}
+                    value={sector}
+                    onChange={(e) => SetSector(e.target.value)}
                     className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 >
                     <option value="" disabled>
@@ -144,7 +145,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
                         <p className="text-primary mb-1">Selected Image:</p>
                         <img
                             src={URL.createObjectURL(image)}
-                            alt="Selected Image"
+                            alt="image sélectionnée"
                             className="rounded-lg max-w-full h-auto"
                         />
                     </div>
@@ -164,7 +165,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
                     onClick={() => {
                         onSkip();
                         sessionStorage.clear();
-                        router.push("/auth/login-candidat").then(() => {
+                        router.push("/auth/login-candidate").then(() => {
                             console.log('redirected');
                         });
                     }}

@@ -54,9 +54,13 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({onNextStep}) => {
                 }
             );
 
+
             if (response.ok) {
-                // const responseData = await response.json();
-                // const userId = responseData.user_id;
+                const responseData = await response.json();
+                const userId = responseData.user_id;
+
+
+                sessionStorage.setItem("userId", userId);
 
                 toast.success("Votre compte a été créé avec succès !");
 
@@ -220,7 +224,7 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({onNextStep}) => {
                 </button>
                 <p className="font-normal my-2 mx-16 text-second">
                     Vous avez déjà un compte ?{" "}
-                    <Link href="/auth/login-candidat" className="text-primary">
+                    <Link href="/auth/login-candidate" className="text-primary">
                         se connecter
                     </Link>
                 </p>

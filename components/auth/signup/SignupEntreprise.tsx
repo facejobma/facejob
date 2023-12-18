@@ -59,7 +59,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({
                 onNextStep();
             } else {
                 const errorData = await response.json();
-                toast.error("L’enregistrement a échoué!");
+                toast.error("L’enregistrement a échoué! ");
                 console.error("Registration failed:", errorData);
             }
         } catch (error) {
@@ -177,7 +177,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({
                 </button>
                 <p className="font-normal text-center my-2 md:mx-16 text-second">
                     Vous avez déjà un compte ?{" "}
-                    <Link href="/auth/login-candidat" className="text-primary">
+                    <Link href="/auth/login-enterprise" className="text-primary">
                         se connecter
                     </Link>
                 </p>

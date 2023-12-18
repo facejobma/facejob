@@ -3,7 +3,6 @@ import {useEffect, useState} from "react";
 
 import SignupFormEntreprise from "../../components/auth/signup/SignupEntreprise";
 import NextStepSignupEntreprise from "../../components/auth/signup/NextStepSignupEntreprise";
-import {NavBarAuth} from "../../components/auth/NavBarAuth/NavBarAuth";
 import NavBar from "../../components/NavBar";
 import Image from "next/image";
 

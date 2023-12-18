@@ -17,7 +17,7 @@ const ForgetPasswordForm = ({ onSubmit }: ForgetPasswordFormProps) => {
     e.preventDefault();
 
     if (!email) {
-      return toast.error(`Please fill the ${email} field!`);
+      return toast.error(`Veuillez remplir le ${email} champ!`);
     }
 
     const formData = {
@@ -43,7 +43,7 @@ const ForgetPasswordForm = ({ onSubmit }: ForgetPasswordFormProps) => {
         return;
       }
 
-      toast.success("The reset token sent successfuly!");
+      toast.success("Le jeton de réinitialisation a été envoyé avec succès !");
       // router.push("/auto/");
     } catch (error: any) {
       console.error(error);
@@ -56,7 +56,7 @@ const ForgetPasswordForm = ({ onSubmit }: ForgetPasswordFormProps) => {
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
-      setEmailError("Invalid email address");
+      setEmailError("Adresse e-mail invalide");
     } else {
       setEmailError("");
     }
@@ -81,7 +81,7 @@ const ForgetPasswordForm = ({ onSubmit }: ForgetPasswordFormProps) => {
           // style={{ width: "110px", height: "110px" }}
         />
         <h2 className="text-3xl font-medium text-second my-2 py-4 mb-4">
-          Update your password
+          Mettez à jour votre mot de passe
         </h2>
         <form className="flex flex-col space-y-6 my-4" onSubmit={handleSubmit}>
           <input
@@ -105,12 +105,12 @@ const ForgetPasswordForm = ({ onSubmit }: ForgetPasswordFormProps) => {
             type="submit"
             className="py-2 px-8 m-12 rounded-full font-medium text-base text-white bg-primary"
           >
-            Send Email
+            Envoyer un E-mail
           </button>
           <p className="font-normal my-2 mx-32 text-second">
-            Already have an account ?{" "}
+            Vous avez déjà un compte ?{" "}
             <Link href="/auth/login-candidate" className="text-primary">
-              Log In
+              Se connecter
             </Link>
           </p>
           {/* </div> */}

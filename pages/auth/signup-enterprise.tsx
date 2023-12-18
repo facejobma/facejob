@@ -38,7 +38,7 @@ const SignupEntreprisePage = () => {
             </div>
             <div className="w-0 p-4 md:w-1/2">
               <Image
-                src="/img4.jpg"
+                src="/img6.jpg"
                 className="rounded-3xl w-full md:w-2/5 md:-my-56 md:absolute"
                 alt="image-signup"
                 width={1000}

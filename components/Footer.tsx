@@ -61,9 +61,7 @@ export default function Footer({}: Props) {
           <h6 className="font-bold text-secondary">Contact</h6>
           <ul className="space-y-2 text-sm font-light text-gray-600">
             <li className="mt-4">
-              <Link href="/termes/entreprise">
-                Partenaires 
-              </Link>
+              <Link href="/termes/entreprise">Partenaires</Link>
             </li>
             <li>
               <Link href="/termes/candidats">Candidats</Link>
@@ -173,7 +171,7 @@ export default function Footer({}: Props) {
                   />
                 </g>
               </svg>
-              <div className="flex flex-col ml-2">
+              <div className="flex flex-col ml-2 font-default">
                 <p className="text-[10px] text-white">Disponible sur le</p>
                 <p className="text-xs text-white">Google Play</p>
               </div>
@@ -212,14 +210,14 @@ export default function Footer({}: Props) {
                 </g>
               </svg>
 
-              <div className="flex flex-col ml-2">
+              <div className="flex flex-col ml-2 font-default">
                 <p className="text-[10px] text-white">Disponible sur le</p>
                 <p className="text-xs text-white">Apple Store</p>
               </div>
             </Link>
           </div>
         </div>
-        <div className="space-y-4 text-sm">
+        <div className="space-y-4 text-sm font-default">
           <p className="mt-2 text-sm font-default">
             Tous droits réservés facejob.ma
           </p>

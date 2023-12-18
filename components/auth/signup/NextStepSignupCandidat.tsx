@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, FC, ChangeEvent} from "react";
 import {useDropzone} from "react-dropzone";
 import {useRouter} from "next/router";
 import {toast} from "react-hot-toast";
@@ -12,9 +12,9 @@ interface NextStepSignupCandidatProps {
     onSkip: () => void;
 }
 
-const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
-                                                                           onSkip,
-                                                                       }) => {
+const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
+                                                                     onSkip,
+                                                                 }) => {
     const [bio, setBio] = useState("");
     const [secteur, setSecteur] = useState("");
     const [yearsOfExperience, setYearsOfExperience] = useState("");
@@ -30,7 +30,7 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
         },
     });
 
-    const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleBioChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         const inputValue = e.target.value;
         if (inputValue.length <= maxLength) {
             setBio(inputValue);
@@ -46,6 +46,7 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
                 const data = await response.json();
                 setSecteurOptions(data);
             } catch (error) {
+                toast.error("Erreur de récupération des secteurs!");
                 console.error("Error fetching sectors:", error);
             }
         };
@@ -62,10 +63,6 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
                 image,
                 annee_experience: Number(yearsOfExperience),
             };
-            // formData.append("user_id", sessionStorage.getItem("userId") || "");
-            // formData.append("bio", bio);
-            // formData.append("secteur", secteur);
-            // formData.append("annee_experience", yearsOfExperience);
 
             console.log("formData, ", formData);
 
@@ -85,8 +82,8 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
             );
 
             if (response.ok) {
-                const responseData = await response.json();
-                toast.success("Your account has completed successfuly!");
+                // const responseData = await response.json();
+                toast.success("Votre compte s’est terminé avec succès !");
 
                 router.push("/auth/login-candidat");
                 sessionStorage.clear();
@@ -95,7 +92,7 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
             }
         } catch (error) {
             console.error("Error updating user:", error);
-            toast.error("Error updating user!");
+            toast.error("Erreur de mise à jour de l’utilisateur!");
         }
     };
 
@@ -107,7 +104,7 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
 
             <div className="w-96 mb-4">
         <textarea
-            placeholder="Tell us more about yourself..."
+            placeholder="écrire une description de vous-même (votre carrière professionnelle..)"
             value={bio}
             onChange={handleBioChange}
             maxLength={maxLength}
@@ -126,7 +123,7 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
                     className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 >
                     <option value="" disabled>
-                        Select Secteur
+                        Sélectionnez Secteur.
                     </option>
                     {secteurOptions.map((option, index) => (
                         <option key={index} value={option.name}>
@@ -156,29 +153,34 @@ const NextStepSignupCandidat: React.FC<NextStepSignupCandidatProps> = ({
 
             <input
                 type="number"
-                placeholder="Année Experience"
+                placeholder="Année d'experience"
                 value={yearsOfExperience}
                 onChange={(e) => setYearsOfExperience(e.target.value)}
                 className="px-4 py-2 rounded border border-gray w-96 mb-4 text-secondary"
             />
 
-            <div className="flex space-x-2">
-                <button
-                    onClick={handleSubmit}
-                    className="py-2 px-10 rounded-full font-medium text-base text-white bg-primary"
-                >
-                    Submit
-                </button>
+            <div className="w-96 mb-1 flexrounded px-4 py-2">
                 <button
                     onClick={() => {
                         onSkip();
                         sessionStorage.clear();
-                        router.push("/auth/login-candidat");
+                        router.push("/auth/login-candidat").then(() => {
+                            console.log('redirected');
+                        });
                     }}
-                    className="py-2 px-10 rounded-full font-medium text-base text-white bg-gray-400"
+                    className="py-2 px-10 rounded-full font-medium text-base text-white bg-gray-400 w-full"
                 >
-                    Skip
+                    Ignorer
                 </button>
+            </div>
+            <div className="w-96  flexrounded px-4 py-2">
+                <button
+                    onClick={handleSubmit}
+                    className=" py-2 px-10 rounded-full font-medium text-base text-white bg-primary w-full"
+                >
+                    Soumettre
+                </button>
+
             </div>
         </div>
     );

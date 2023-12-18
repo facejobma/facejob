@@ -51,6 +51,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 setSecteurOptions(data);
             } catch (error) {
                 console.error("Error fetching sectors:", error);
+                toast.error("Erreur de récupération des secteurs!");
             }
         };
 
@@ -100,12 +101,12 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     return (
         <div className="flex flex-col items-center font-default rounded-lg border border-newColor p-4">
             <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4">
-                Additional Information (Optional)
+                Information supplémentaire (Optionnel)
             </h2>
 
             <div className="w-96 mb-4">
         <textarea
-            placeholder="Tell us more about yourself..."
+            placeholder="décrire votre entreprise (secteur, environnement)..."
             value={bio}
             onChange={handleBioChange}
             maxLength={maxLength}
@@ -113,7 +114,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
         />
                 <p className="text-gray-500 text-sm mt-1 text-end">
                     {remainingCharacters} character{remainingCharacters !== 1 ? "s" : ""}{" "}
-                    remaining
+                    Restant
                 </p>
             </div>
 
@@ -143,7 +144,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 </p>
                 {image && (
                     <div className="mt-5 flex justify-center items-center flex-col ">
-                        <p className="text-primary mb-1">Selected Logo:</p>
+                        <p className="text-primary mb-1">Logo sélectionné:</p>
                         <img
                             src={URL.createObjectURL(image)}
                             alt="Selected Image"
@@ -166,7 +167,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             <div className="w-96 mb-4">
                 <input
                     type="number"
-                    placeholder="Number of Employees"
+                    placeholder="Nombre d'employés"
                     value={effectif}
                     onChange={(e) => setEffectif(e.target.value)}
                     className="px-4 py-2 rounded border border-gray w-96 mb-4 text-secondary"
@@ -177,7 +178,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 <FaGlobe className="mr-2 text-gray-500"/>
                 <input
                     type="text"
-                    placeholder="Website URL"
+                    placeholder="URL du site Web"
                     value={siteWeb}
                     onChange={(e) => setSitWeb(e.target.value)}
                     className="flex-grow outline-none text-secondary"
@@ -188,33 +189,33 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 <FaLinkedin className="mr-2 text-gray-500"/>
                 <input
                     type="text"
-                    placeholder="LinkedIn Profile URL"
+                    placeholder="URL du profil LinkedIn"
                     value={linkedin}
                     onChange={(e) => setLinkedin(e.target.value)}
                     className="flex-grow outline-none text-secondary"
                 />
             </div>
 
-            <div className="w-96 mb-4 flexrounded px-4 py-2">
+            <div className="w-96 mb-1 flexrounded px-4 py-2">
                 <button
                     onClick={() => {
                         onSkip();
                         sessionStorage.clear();
-                        router.push("/auth/login-candidat").then(() => {
+                        router.push("/auth/login-entreprise").then(() => {
                             console.log('redirected');
                         });
                     }}
                     className="py-2 px-10 rounded-full font-medium text-base text-white bg-gray-400 w-full"
                 >
-                    Skip
+                    Ignorer
                 </button>
             </div>
-            <div className="w-96 mb-4 flexrounded px-4 py-2">
+            <div className="w-96  flexrounded px-4 py-2">
                 <button
                     onClick={handleSubmit}
                     className=" py-2 px-10 rounded-full font-medium text-base text-white bg-primary w-full"
                 >
-                    Submit
+                    Soumettre
                 </button>
 
             </div>

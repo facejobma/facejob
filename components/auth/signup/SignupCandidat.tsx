@@ -8,8 +8,8 @@ interface SignupFormCandidatProps {
 }
 
 const SignupFormCandidate: FC<SignupFormCandidatProps> = ({onNextStep}) => {
-    const [first_name, setFirstName] = useState("");
-    const [nom, setNom] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [tel, setTel] = useState("");
     const [sex, setSex] = useState("");
     const [email, setEmail] = useState("");
@@ -21,8 +21,8 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({onNextStep}) => {
         e.preventDefault();
 
         const formData = {
-            first_name,
-            nom,
+            firstName,
+            lastName,
             tel,
             sex,
             email,
@@ -34,6 +34,11 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({onNextStep}) => {
 
         if (password !== passwordConfirm) {
             toast.error("Les mots de passe ne correspondent pas");
+            return;
+        }
+
+        if (!sex) {
+            toast.error("Veuillez choisir votre sexe");
             return;
         }
 
@@ -90,7 +95,7 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({onNextStep}) => {
                             required={true}
                             type="text"
                             placeholder="Prenom"
-                            value={first_name}
+                            value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             className="px-4 py-2 rounded border border-gray w-full md:w-1/2"
                         />
@@ -98,15 +103,15 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({onNextStep}) => {
                             required={true}
                             type="text"
                             placeholder="Nom"
-                            value={nom}
-                            onChange={(e) => setNom(e.target.value)}
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                             className="px-4 py-2 rounded border border-gray w-full md:w-1/2"
                         />
                     </div>
                     <input
                         required={true}
                         type="tel"
-                        placeholder="Tel"
+                        placeholder="Telephone"
                         value={tel}
                         onChange={(e) => {
                             setTel(e.target.value);

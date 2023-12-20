@@ -85,7 +85,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
                 // const responseData = await response.json();
                 toast.success("Votre compte s’est terminé avec succès !");
 
-                router.push("/auth/login-candidat");
+                router.push("/auth/login-candidate");
                 sessionStorage.clear();
                 // console.log(responseData);
             } else {

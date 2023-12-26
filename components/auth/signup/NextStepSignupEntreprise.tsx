@@ -201,7 +201,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                     onClick={() => {
                         onSkip();
                         sessionStorage.clear();
-                        router.push("/auth/login-entreprise").then(() => {
+                        router.push("/auth/login-enterprise").then(() => {
                             console.log('redirected');
                         });
                     }}

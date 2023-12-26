@@ -19,6 +19,7 @@
     "react-dropzone": "^14.2.3",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.12.0",
+    "sharp": "^0.33.1",
     "swiper": "^8.4.4",
     "typescript": "4.8.4"
   },

@@ -88,7 +88,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 // const responseData = await response.json();
                 toast.success("Votre compte s’est terminé avec succès!");
 
-                await router.push("/auth/login-entreprise");
+                await router.push("/auth/login-enterprise");
                 sessionStorage.clear();
             } else {
             }

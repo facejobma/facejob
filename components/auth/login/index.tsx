@@ -69,6 +69,28 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
     }
   };
 
+  const handleLinkedinLogin = async () => {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin"
+      );
+
+      if (!response.ok) {
+        toast.error("Erreur lors de la connexion avec Linkedin");
+        return;
+      }
+
+      const data = await response.json();
+
+      // alert(data.url);
+
+      window.location.href = data.url;
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Une erreur s’est produite lors de la connexion");
+    }
+  };
+
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
@@ -111,8 +133,10 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
           </div>
         </button>
         <button
+          type="submit"
           className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300 
     hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
+          onClick={handleLinkedinLogin}
         >
           <div className="relative flex items-center space-x-10 justify-center">
             <img

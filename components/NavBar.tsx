@@ -63,120 +63,110 @@ export default function NavBar() {
 
 
             <motion.nav
-                initial={{y: -20}}
-                transition={{duration: 1}}
-                whileInView={{y: 0}}
-                viewport={{once: true}}
-            >
-                <div className="w-full my-3 px-6 md:px-10 mx-auto">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-7">
-                            <div>
-                                <Logo/>
-                            </div>
-                            <ul className="hidden md:flex gap-10 text-base font-medium text-secondary font-poppins">
-                                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                                    <Link href="/">Accueil</Link>
-                                </li>
-                                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                                    <Link href="/contact">Contact</Link>
-                                </li>
-                                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                                    <Link href="/blogs">Blogs</Link>
-                                </li>
-                            </ul>
-                        </div>
-                        <ul className="hidden md:flex gap-5 font-bold text-sm">
-                            <li>
-                                <Link
-                                    href="/auth/login-candidate"
-                                    className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
-                                >
-                                    Candidat
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/auth/login-enterprise"
-                                    className="px-6 py-3 rounded-[15px] bg-primary text-white font-default"
-                                >
-                                    Entreprise
-                                </Link>
-                            </li>
-                        </ul>
-                        <div className="flex items-center md:hidden">
-                            <button
-                                className="outline-none"
-                                id="btn-mobile-menu"
-                                onClick={() => {
-                                    setOpen(!open);
-                                }}
-                            >
-                                <svg
-                                    className="w-6 h-6 text-gray-500 hover:text-primary"
-                                    fill="none"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path d="M4 6h16M4 12h16M4 18h16"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    id="mobile-menu"
-                    className={`transition transform duration-300 ease-linear ${
-                        open ? "flex" : "hidden"
-                    }`}
+        initial={{ y: -20 }}
+        transition={{ duration: 1 }}
+        whileInView={{ y: 0 }}
+        viewport={{ once: true }}
+      >
+        <div className="w-full my-3 px-6 md:px-10 mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-7">
+              <div>
+                <Logo />
+              </div>
+              <ul className="hidden md:flex gap-10 text-base font-medium text-secondary font-poppins">
+                <li className="transition-all duration-300 ease-in-out hover:text-primary">
+                  <Link href="/">Accueil</Link>
+                </li>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary">
+                  <Link href="/contact">Contact</Link>
+                </li>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary">
+                  <Link href="/blogs">Blogs</Link>
+                </li>
+              </ul>
+            </div>
+            <ul className="hidden md:flex gap-5 font-bold text-sm">
+              <li>
+                <Link
+                  href="/auth/login-candidate"
+                  className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
                 >
-                    <ul
-                        className={`flex flex-col items-center w-full p-4 mx-4 space-y-5 text-sm md:hidden font-poppins`}
-                    >
-                        <li className={"flex gap-2 mb-2" }>
-                            <div>
-                                <Link
-                                    href="/auth/login-candidate"
-                                    className="px-8 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
-                                >
-                                    Candidat
-                                </Link>
-                            </div>
-                            <div>
-                                <Link
-                                    href="/auth/login-enterprise"
-                                    className="px-8 py-3 rounded-[15px] bg-primary text-white font-default"
-                                >
-                                    Entreprise
-                                </Link>
-                            </div>
-                        </li>
-                        <li>
-                            <Link href="/">Home</Link>
-                        </li>
-                        <li>
-                            <Link href="/contact">Contact</Link>
-                        </li>
-                        <li>
-                            <Link href="/blogs">Blogs</Link>
-                        </li>
-
-
-                        {/* <li className="-ml-2">
-              <Link
-                href="/"
-                className="px-2 py-2 rounded-md inline-block border-[2px] border-gray-300"
+                  Candidat
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/auth/login-enterprise"
+                  className="px-6 py-3 rounded-[15px] bg-primary text-white font-default"
+                >
+                  Entreprise
+                </Link>
+              </li>
+            </ul>
+            <div className="flex items-center md:hidden">
+              <button
+                className="outline-none"
+                id="btn-mobile-menu"
+                onClick={() => {
+                  setOpen(!open);
+                }}
               >
-                Find Job
-              </Link>
-            </li> */}
-                    </ul>
-                </div>
-            </motion.nav>
-        </>
-    );
+                <svg
+                  className="w-6 h-6 text-gray-500 hover:text-primary"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="mobile-menu"
+          className={`transition transform duration-300 ease-linear ${
+            open ? "flex" : "hidden"
+          }`}
+        >
+          <ul
+            className={`flex flex-col items-center w-full p-4 mx-4 space-y-5 text-sm md:hidden font-poppins`}
+          >
+            <li className={"flex gap-2 mb-2"}>
+              <div>
+                <Link
+                  href="/auth/login-candidate"
+                  className="px-8 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
+                >
+                  Candidat
+                </Link>
+              </div>
+              <div>
+                <Link
+                  href="/auth/login-enterprise"
+                  className="px-8 py-3 rounded-[15px] bg-primary text-white font-default"
+                >
+                  Entreprise
+                </Link>
+              </div>
+            </li>
+            <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li>
+              <Link href="/contact">Contact</Link>
+            </li>
+            <li>
+              <Link href="/blogs">Blogs</Link>
+            </li>
+          </ul>
+        </div>
+      </motion.nav>
+    </>
+  );
 }

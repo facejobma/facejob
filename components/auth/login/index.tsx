@@ -86,7 +86,7 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
 
       window.location.href = data.url;
     } catch (error: any) {
-      console.error(error);
+      console.error(error); 
       toast.error("Une erreur s’est produite lors de la connexion");
     }
   };

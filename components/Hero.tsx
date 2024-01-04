@@ -23,11 +23,11 @@ export default function Hero({}: Props) {
         <NavBar />
         <div className="flex flex-col-reverse my-2 md:my-20 md:mx-12 md:flex-row">
           <motion.div
-            initial={{ x: -20 }}
+            initial={{ y: 20 }}
             transition={{ duration: 1.5 }}
-            whileInView={{ x: 0 }}
+            whileInView={{ y: 0 }}
             viewport={{ once: true }}
-            className="flex-1 mx-4 md:mx-8 md:mt-2"
+            className="flex-1 mx-2 md:mx-8 md:mt-2"
           >
             <div className="flex items-center mt-8 md:mt-0">
               <Image
@@ -72,11 +72,11 @@ export default function Hero({}: Props) {
             </div>
           </motion.div>
           <motion.div
-            initial={{ x: 100 }}
+            initial={{ x: 0 }}
             transition={{ duration: 1.5 }}
             whileInView={{ x: 0 }}
             viewport={{ once: true }}
-            className="relative flex-1 mt-8 md:mt-0"
+            className="relative flex-1 mt-4 md:mt-0"
           >
             <Image
               src="/img1.jpg"

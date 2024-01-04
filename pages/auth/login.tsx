@@ -6,7 +6,7 @@ const LoginPage = () => {
     const authenticateWithGoogle = async () => {
       try {
         // Send a request to your Laravel backend to initiate Google OAuth
-        const response = await fetch('http://localhost:8000/api/auth/google');
+        const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL+'/api/auth/google');
         
         // Redirect the user to the Google login page
         const responseData = await response.json();

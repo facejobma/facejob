@@ -56,7 +56,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
         onNextStep();
       } else {
         const errorData = await response.json();
-        toast.error("L’enregistrement a échoué! ");
+        toast.error("L’enregistrement a échoué! email déjà utilisé");
         console.error("Registration failed:", errorData);
       }
     } catch (error) {
@@ -64,46 +64,6 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
       console.error("Error during registration:", error);
     }
   }
-
-  const handleGoogleLogin = async () => {
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google"
-      );
-
-      if (!response.ok) {
-        toast.error("Erreur lors de la s'inscrire avec Google");
-        return;
-      }
-
-      const data = await response.json();
-
-      window.location.href = data.url;
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Une erreur s’est produite lors de la s'inscrire");
-    }
-  };
-
-  const handleLinkedinLogin = async () => {
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin"
-      );
-
-      if (!response.ok) {
-        toast.error("Erreur lors de la connexion avec Linkedin");
-        return;
-      }
-
-      const data = await response.json();
-
-      window.location.href = data.url;
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Une erreur s’est produite lors de la connexion");
-    }
-  };
 
   const validatePassword = (value: string) => {
     return value.length < 8;
@@ -119,7 +79,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
           type="submit"
           className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300 
         hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
-          onClick={handleGoogleLogin}
+          // onClick={handleGoogleLogin}
         >
           <div className="relative flex items-center space-x-10 justify-center">
             <img
@@ -136,7 +96,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
           type="submit"
           className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300 
     hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
-          onClick={handleLinkedinLogin}
+          // onClick={handleLinkedinLogin}
         >
           <div className="relative flex items-center space-x-10 justify-center">
             <img
@@ -150,11 +110,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
           </div>
         </button>
       </div>
-      <div className="flex items-center justify-center space-x-2 my-5">
-        <span className="h-px w-16 bg-gray-200"></span>
-        <span className="text-gray-400 font-normal">ou</span>
-        <span className="h-px w-16 bg-gray-200"></span>
-      </div>
+      <p className="mx-4 my-2 text-gray-500 font-medium">Ou</p>
       <form
         className="flex flex-col space-y-6 my-4 w-full"
         onSubmit={async (e) => {

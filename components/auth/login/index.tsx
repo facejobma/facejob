@@ -3,6 +3,13 @@ import { FormEvent, useState } from "react";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import Image from "next/image";
+import google from "../../../public/svg/google.svg";
+import linkedin from "../../../public/svg/linkedin.svg";
+
+function handleLinkedinLogin() {
+  //     todo
+}
 
 const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
   const [email, setEmail] = useState("");
@@ -69,29 +76,6 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
     }
   };
 
-  const handleLinkedinLogin = async () => {
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin"
-      );
-
-      if (!response.ok) {
-        toast.error("Erreur lors de la connexion avec Linkedin");
-        return;
-      }
-
-      const data = await response.json();
-      sessionStorage.setItem("provider", data.provider)
-
-      // alert(data.url);
-
-      window.location.href = data.url;
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Une erreur s’est produite lors de la connexion");
-    }
-  };
-
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
@@ -118,13 +102,15 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
       <div className="mt-4 grid space-y-4">
         <button
           type="submit"
-          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300 
+          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
         hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
           onClick={handleGoogleLogin}
         >
           <div className="relative flex items-center space-x-10 justify-center">
-            <img
-              src="https://tailus.io/sources/blocks/social/preview/images/google.svg"
+            <Image
+              width={100}
+              height={100}
+              src={google}
               className="absolute left-0 w-5"
               alt="google logo"
             />
@@ -134,14 +120,15 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
           </div>
         </button>
         <button
-          type="submit"
-          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300 
+          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
     hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
           onClick={handleLinkedinLogin}
         >
           <div className="relative flex items-center space-x-10 justify-center">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
+            <Image
+              width={100}
+              height={100}
+              src={linkedin}
               alt="LinkedIn logo"
               className="absolute left-0 w-5"
             />

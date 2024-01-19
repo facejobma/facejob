@@ -17,9 +17,12 @@ function GoogleCallback() {
     const queryParams = new URLSearchParams(router.asPath.split("?", 2)[1]);
 
     console.log("router.query.code:", queryParams);
+    console.log("provider, ", sessionStorage.getItem("provider"));
 
     fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google/callback?${queryParams}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/${sessionStorage.getItem(
+        "provider"
+      )}/callback?${queryParams}`,
       {
         headers: new Headers({ accept: "application/json" }),
       }

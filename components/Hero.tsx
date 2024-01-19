@@ -45,12 +45,12 @@ export default function Hero({}: Props) {
             <div className="my-5 px-1 text-2xl leading-10 space-y-2 font-bold font-default text-secondary md:text-4xl md:px-2">
               <p>
                 Vous êtes une entreprise ... rencontrez en avant-première les
-                candidats et de nicher les talents caches
+                candidats et dénichez les talents cachés
               </p>
             </div>
 
             <p className=" md:w-5/6 px-1 text-xl md:text-2xl text-third font-bold font-default md:px-1 md:mt-8">
-              Vous êtes un candidat en recherche d'emploi ... rencontrez vous et
+              Vous êtes un candidat en recherche d'emploi ... démarquez-vous et
               trouvez votre job même depuis chez vous
             </p>
 

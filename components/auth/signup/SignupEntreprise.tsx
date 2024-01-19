@@ -65,6 +65,46 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
     }
   }
 
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google"
+      );
+
+      if (!response.ok) {
+        toast.error("Erreur lors de la s'inscrire avec Google");
+        return;
+      }
+
+      const data = await response.json();
+
+      window.location.href = data.url;
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Une erreur s’est produite lors de la s'inscrire");
+    }
+  };
+
+  const handleLinkedinLogin = async () => {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin"
+      );
+
+      if (!response.ok) {
+        toast.error("Erreur lors de la connexion avec Linkedin");
+        return;
+      }
+
+      const data = await response.json();
+
+      window.location.href = data.url;
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Une erreur s’est produite lors de la connexion");
+    }
+  };
+
   const validatePassword = (value: string) => {
     return value.length < 8;
   };
@@ -74,21 +114,47 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
       <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4 text-center">
         Créez votre compte et trouvez le job idéal
       </h2>
-      <div className="flex flex-col space-y-4 w-full">
+      <div className="mt-4 grid space-y-4">
         <button
-          // onClick={() => ()}
-          className="w-full py-2 md:px-36 rounded-full font-medium text-base bg-primary-2 text-white"
+          type="submit"
+          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300 
+        hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
+          onClick={handleGoogleLogin}
         >
-          Continuer avec Google
+          <div className="relative flex items-center space-x-10 justify-center">
+            <img
+              src="https://tailus.io/sources/blocks/social/preview/images/google.svg"
+              className="absolute left-0 w-5"
+              alt="google logo"
+            />
+            <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
+              Continuer avec Google
+            </span>
+          </div>
         </button>
         <button
-          // onClick={() => ()}
-          className="w-full py-2 md:px-36 rounded-full font-medium text-base bg-primary-2 text-white"
+          type="submit"
+          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300 
+    hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
+          onClick={handleLinkedinLogin}
         >
-          Continuer avec Linkedin
+          <div className="relative flex items-center space-x-10 justify-center">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
+              alt="LinkedIn logo"
+              className="absolute left-0 w-5"
+            />
+            <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
+              Continuer avec LinkedIn
+            </span>
+          </div>
         </button>
       </div>
-      <p className="mx-4 my-2 text-gray-500 font-medium">Ou</p>
+      <div className="flex items-center justify-center space-x-2 my-5">
+        <span className="h-px w-16 bg-gray-200"></span>
+        <span className="text-gray-400 font-normal">ou</span>
+        <span className="h-px w-16 bg-gray-200"></span>
+      </div>
       <form
         className="flex flex-col space-y-6 my-4 w-full"
         onSubmit={async (e) => {

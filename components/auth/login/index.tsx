@@ -81,12 +81,13 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
       }
 
       const data = await response.json();
+      sessionStorage.setItem("provider", data.provider)
 
       // alert(data.url);
 
       window.location.href = data.url;
     } catch (error: any) {
-      console.error(error); 
+      console.error(error);
       toast.error("Une erreur s’est produite lors de la connexion");
     }
   };
@@ -128,7 +129,7 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
               alt="google logo"
             />
             <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
-              Continue with Google
+              Continuer avec Google
             </span>
           </div>
         </button>
@@ -145,7 +146,7 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
               className="absolute left-0 w-5"
             />
             <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
-              Continue with LinkedIn
+              Continuer avec LinkedIn
             </span>
           </div>
         </button>

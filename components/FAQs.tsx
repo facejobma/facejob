@@ -11,7 +11,7 @@ const FaqSection: React.FC = () => {
     <div className="container my-24 px-2 mx-auto md:px-6 xl:px-40 w-full mt-36 font-default">
       {/* Section: Design Block */}
       <section className="mb-32">
-        <h2 className="mb-6 pl-6 text-5xl font-bold text-gray-800">Frequently asked questions</h2>
+        <h2 className="mb-6 pl-6 text-5xl font-bold text-gray-800">Questions fréquemment posées</h2>
 
         <div id="accordionFlushExample">
           {/* Question 1 */}

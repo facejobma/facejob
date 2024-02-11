@@ -129,7 +129,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
         <input
           required={true}
           type="tel"
-          placeholder="Telephone"
+          placeholder="Téléphone"
           value={tel}
           onChange={(e) => {
             setTel(e.target.value);

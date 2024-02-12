@@ -53,7 +53,7 @@ const ContactPage: React.FC = () => {
     <div>
       <NavBar />
       <div className="container mx-auto mt-10 px-4 flex flex-wrap">
-        <div className="w-full md:w-1/2 p-10 bg-white rounded-lg shadow-lg font-default">
+        <div className="w-full md:w-1/2 p-8 bg-white rounded-lg shadow-lg font-default">
           <h1 className="text-3xl font-semibold mb-6">Contactez-nous</h1>
           <p className="text-gray-600 mb-6">
             Nous aimerions avoir de vos nouvelles! Remplissez le formulaire
@@ -120,7 +120,7 @@ const ContactPage: React.FC = () => {
           </form>
         </div>
 
-        <div className="w-0 md:w-1/2 mt-6 md:mt-0">
+        <div className="w-0 md:w-1/2 mt-8 mb-8 md:mt-0">
           <Image
             src="/img1.jpg"
             alt="Contact Image"

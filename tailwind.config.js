@@ -33,7 +33,8 @@ module.exports = {
                 'primary-button': "0 15px 60px rgb(223, 105, 81, 30)",
                 'secondary-button': "0 20px 70px rgb(241, 165, 1, 15)",
                 'card': "0 21.85px 26.3px rgb(0,0,0, 10)",
-            }
+            },
+            textAlign: ['rtl'],
         },
     },
     plugins: [

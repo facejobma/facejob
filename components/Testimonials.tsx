@@ -7,7 +7,7 @@ import "swiper/css/effect-cards";
 import "swiper/css/scrollbar";
 
 // import required modules
-import {EffectCards, Scrollbar} from "swiper";
+import {EffectCards, Scrollbar} from "swiper/modules";
 import Image from "next/image";
 
 type Props = {};

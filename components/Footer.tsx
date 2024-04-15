@@ -25,7 +25,7 @@ export default function Footer({}: Props) {
                     <h2 className="text-5xl font-default text-secondary">
                         <Image
                             src={"/facejobLogo.png"}
-                            alt={"facejob logo"}
+                            alt={"facejob_client logo"}
                             width={100}
                             height={100}
                             className="mx-auto md:mx-0"

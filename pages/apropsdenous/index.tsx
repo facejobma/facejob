@@ -1,7 +1,7 @@
 import NavBar from "../../components/NavBar";
 import Footer from "../../components/Footer";
 
-export default function () {
+export default function Index() {
     return (
         <div className="relative overflow-hidden font-default bg-gray-100">
             <NavBar/>

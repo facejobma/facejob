@@ -79,7 +79,7 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
-      setEmailError("L'adresse email invalide");
+      setEmailError("L&apos;adresse email invalide");
     } else {
       setEmailError("");
     }
@@ -193,7 +193,7 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
             href={`/auth/signup-${props.loginFor}`}
             className="text-primary"
           >
-            s'inscrire
+            s&apos;inscrire
           </Link>
         </p>
       </form>

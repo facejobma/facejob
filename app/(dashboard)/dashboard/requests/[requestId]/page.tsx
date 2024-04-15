@@ -13,7 +13,8 @@ export default function Page() {
   const [enterpriseData, setEnterpriseData] = useState<EnterpriseData | null>(
     null
   );
-  const { requestId } = useParams();
+  const params = useParams();
+  const requestId=params?.toString()
 
   const breadcrumbItems = [
     { title: "Entreprise", link: "/dashboard/requests" },

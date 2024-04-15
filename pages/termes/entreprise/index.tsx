@@ -259,7 +259,7 @@ export default function Terms() {
             d’un droit de rectification, d’opposition et de limitation.
           </p>
           <p className="text-third text-start font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-4 px-5 md:px-1 py-1 md:py-1">
-            Pour l'exercice de ces droits, vous pouvez adresser votre demande :
+            Pour l&apos;exercice de ces droits, vous pouvez adresser votre demande :
           </p>
           <ul className="list-disc pl-6 mb-4 font-default text-third">
             <li>

@@ -87,7 +87,7 @@ const FaqSection: React.FC = () => {
               <div className="py-4 px-5 space-y-4">
                 <div>
                   <span className="font-bold">Le candidat</span> enregistre et
-                  dépose son CV vidéo dans la plateforme “facejob" en
+                  dépose son CV vidéo dans la plateforme &quot;facejob&quot; en
                   renseignant des informations complémentaires. Il peut soit
                   répondre directement à une offre diffusée sur la plateforme
                   soit laisser son CV vidéo en candidature spontanée. Grâce à ce

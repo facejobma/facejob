@@ -68,7 +68,7 @@ export default function Subscription({}: Props) {
           <div className="flex flex-col items-center max-w-2xl mx-auto my-16">
             <h1 className="max-w-sm text-xl leading-normal text-center text-secondary md:max-w-full md:text-2xl font-semibold font-default">
               Abonnez-vous pour recevoir des informations, les dernières
-              nouvelles et d'autres offres intéressantes sur facejob
+              nouvelles et d&apos;autres offres intéressantes sur facejob
             </h1>
             <div className="flex flex-col w-full gap-5 mt-10 md:flex-row md:mt-20">
               <div className="relative w-full text-gray-600">
@@ -101,7 +101,7 @@ export default function Subscription({}: Props) {
                 onClick={handleSubscribe}
                 className="bg-gradient-to-r inline-block from-primary to-primary font-default px-7 py-2 rounded-lg text-white text-lg"
               >
-                S'inscrire
+                S&apos;inscrire
               </button>
             </div>
           </div>

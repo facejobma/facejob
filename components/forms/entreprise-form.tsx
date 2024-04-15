@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
-  FormField,
+    FormField,
   FormItem,
   FormLabel,
   FormMessage,
@@ -88,7 +87,7 @@ export const EntrepriseForm: React.FC<ProductFormProps> = ({
     try {
       setLoading(true);
 
-      const enterpriseId = params.enterpriseId;
+      const enterpriseId = params?.enterpriseId.toString();
       const authToken = Cookies.get("authToken");
 
       const response = await fetch(
@@ -135,7 +134,7 @@ export const EntrepriseForm: React.FC<ProductFormProps> = ({
     try {
       setLoading(true);
 
-      const enterpriseId = params.enterpriseId;
+      const enterpriseId = params?.enterpriseId;
       const authToken = Cookies.get("authToken");
 
       const response = await fetch(

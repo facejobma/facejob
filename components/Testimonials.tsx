@@ -72,10 +72,10 @@ export default function Testimonials({}: Props) {
                                     height={100}
                                 />
                                 <p className="">
-                                    "A l'ère où tout devient digitalisé et en tant qu’ingénieur
+                                    &quot;A l&apos;ère où tout devient digitalisé et en tant qu’ingénieur
                                     logiciel junior … facejob était la solution la plus adéquate
                                     et la plus simple pour moi pour pénétrer le marché du
-                                    travail."
+                                    travail.&quot;
                                 </p>
                                 <p className="mt-6">Sohaib MANAH</p>
                                 <p className="mt-2 text-sm">Maroc</p>
@@ -92,10 +92,10 @@ export default function Testimonials({}: Props) {
                                     height={100}
                                 />
                                 <p className="">
-                                    "j’ai été attirée par le côté innovateur de l’idée, j’ai
+                                    &quot;j’ai été attirée par le côté innovateur de l’idée, j’ai
                                     enregistré mon CV Vidéo et quelques jours après … mon
                                     téléphone a commencé à sonner déjà et j’ai réussi à décrocher
-                                    mon 1er entretien grâce à facejob."
+                                    mon 1er entretien grâce à facejob.&quot;
                                 </p>
                                 <p className="mt-6">Mariam BEN DAOUED</p>
                                 <p className="mt-2 text-sm">Maroc</p>

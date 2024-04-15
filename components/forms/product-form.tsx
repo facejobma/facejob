@@ -87,7 +87,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setLoading(true);
 
       // Extract candidate ID from params
-      const candidateId = params.userId;
+      const candidateId = params?.userId.toString();
       const authToken = Cookies.get("authToken");
 
 
@@ -146,7 +146,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setLoading(true);
 
       // Extract candidate ID from params
-      const candidateId = params.userId;
+      const candidateId = params?.userId.toString();
       const authToken = localStorage.getItem("authToken");
 
       // Send a request to delete the candidate

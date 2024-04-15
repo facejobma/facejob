@@ -31,7 +31,7 @@ export default function HowWorks({}: Props) {
             <div className="flex flex-col mx-4 text-[#5E6282] break-words font-poppins w-max">
               <h3 className="font-bold font-poppins"> Créer un compte</h3>
               <p className="mt-1 text-sm">
-                Tout d'abord, vous devez créer un compte
+                Tout d&apos;abord, vous devez créer un compte
               </p>
             </div>
           </div>

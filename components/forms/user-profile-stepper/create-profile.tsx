@@ -108,7 +108,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       setLoading(true);
       //   await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
       router.refresh();
-      router.push(`/${params.storeId}/products`);
+      router.push(`/${params?.storeId}/products`);
     } catch (error: any) {
     } finally {
       setLoading(false);

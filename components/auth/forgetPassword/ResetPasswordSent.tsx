@@ -21,7 +21,7 @@ const ResetPasswordSent = () => {
         >
           <p className="text-secondary px-4 ">
             Nous avons envoyé un e-mail à votre adresse e-mail enregistrée.
-            Veuillez suivre les instructions fournies dans l'e-mail pour mettre
+            Veuillez suivre les instructions fournies dans l&apos;e-mail pour mettre
             à jour votre mot de passe. Si vous ne souhaitez pas modifier votre
             mot de passe pour le moment, vous pouvez simplement choisir de vous
             connecter.

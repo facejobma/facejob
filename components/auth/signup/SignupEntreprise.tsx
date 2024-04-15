@@ -180,9 +180,9 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
               htmlFor="termsCheckbox"
               className="text-gray-500 font-normal text-sm"
             >
-              Oui, je comprends et j'accepte{" "}
+              Oui, je comprends et j&apos;accepte{" "};
               <Link href="/termes/entreprise" className="text-primary">
-                les conditions d'utilisation de facejob.
+                les conditions d&apos;utilisation de facejob.
               </Link>
             </label>
           </div>

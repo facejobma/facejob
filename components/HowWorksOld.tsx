@@ -35,7 +35,7 @@ export default function HowWorks({}: Props) {
               </div>
               <div className="w-[45px] h-[0px] border-2 border-primary mb-2 mt-3"></div>
               <div className="w-[205px] h-[74px] text-neutral-400 text-lg font-semibold font-default leading-[33px]">
-                Tout d'abord, vous devez créer un compte{" "}
+                Tout d&apos;abord, vous devez créer un compte{" "}
               </div>
             </div>
           </div>

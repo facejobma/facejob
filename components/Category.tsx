@@ -50,7 +50,7 @@ export default function Category({}: Props) {
                             </h3>
                             <p className="max-w-[11rem] text-gray-500 mt-3 text-base">
                                 réduire les stocks, les délais et les
-                                coûts. C'est avant tout un organisateur et un manager.
+                                coûts. C&apos;est avant tout un organisateur et un manager.
                             </p>
                         </div>
                     </div>

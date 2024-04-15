@@ -54,7 +54,7 @@ export default function Hero({}: Props) {
               candidats et dénichez les talents cachés
             </p>
             <p className=" md:w-5/6 px-1 text-xl md:text-2xl  text-gray-600 font-bold font-default md:px-1 md:mt-8">
-              Vous êtes un candidat en recherche d'emploi ... démarquez-vous et
+              Vous êtes un candidat en recherche d&apos;emploi ... démarquez-vous et
               trouvez votre job même depuis chez vous
             </p>
 

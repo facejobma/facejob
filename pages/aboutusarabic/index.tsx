@@ -1,7 +1,7 @@
 import NavBar from "../../components/NavBar";
 import Footer from "../../components/Footer";
 
-export default function () {
+export default function Index() {
     return (
         <div className="relative overflow-hidden font-default bg-gray-100">
             <NavBar/>
@@ -32,7 +32,7 @@ export default function () {
                     </p>
                     <p className="text-third text-right font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-3 px-5 md:px-1 py-2 md:py-2">
                         بالنسبة للباحثين عن العمل، يُنظر إلى السيرة الذاتية الورقية على أنها مختزلة و ليست في الواقع
-                        انعكاسًا لذاتهم. كما أن المرشح يحتاج لإثارة "الشعور". لهاذا تضيف السيرة الذاتية بالفيديو العامل
+                        انعكاسًا لذاتهم. كما أن المرشح يحتاج لإثارة &apos;الشعور&apos;. لهاذا تضيف السيرة الذاتية بالفيديو العامل
                         الإنساني كما أنها تظهر المزيد عن طريقة التعامل و تعزز الفعالية في الاختيار وفي اللقاء.
                     </p>
                     <p className="text-third text-right font-default font-medium text-base md:text-lg lg:text-xl mt-8 md:mt-3 px-5 md:px-1 py-2 md:py-2">

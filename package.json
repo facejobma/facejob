@@ -57,7 +57,7 @@
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.341.0",
     "next-navigation": "^1.0.6",
-    "next-themes": "^0.2.1",
+    "next-themes": "^0.3.0",
     "postcss": "8.4.35",
     "react-day-picker": "^8.9.1",
     "react-hook-form": "^7.51.1",

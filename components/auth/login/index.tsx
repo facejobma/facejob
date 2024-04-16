@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { FormEvent, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -35,23 +36,29 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email, password }),
-        }
+        },
       );
-
-      console.log(response);
 
       if (!response.ok) {
         toast.error("Email ou mot de passe ne sont pas valides");
         return;
       }
 
-      console.log("Logged in successfully");
+      // console.log("Logged in successfully");
+
+      const userData = await response.json();
+      console.log("Logged in successfully", userData.data);
+
+      localStorage.setItem("user", JSON.stringify(userData.data));
+      localStorage.setItem("userRole", "entreprise");
+
       toast.success("connecté avec succès");
+
       router.push("/dashboard");
     } catch (error: any) {
       console.error(error);
       toast.error(
-        error.message || "Une erreur s’est produite lors de la connexion"
+        error.message || "Une erreur s’est produite lors de la connexion",
       );
     }
   };
@@ -59,7 +66,7 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
   const handleGoogleLogin = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google"
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google",
       );
 
       if (!response.ok) {

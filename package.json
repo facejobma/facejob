@@ -62,7 +62,7 @@
     "react-day-picker": "^8.9.1",
     "react-hook-form": "^7.51.1",
     "react-loader-spinner": "^6.1.6",
-    "recharts": "^2.12.1",
+    "recharts": "^2.12.6",
     "tailwind-merge": "^2.2.1",
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",

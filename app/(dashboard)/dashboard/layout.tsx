@@ -1,4 +1,3 @@
-// import { useEffect } from "react";
 "use client";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/header";
@@ -15,11 +14,6 @@ export default function DashboardLayout({
   const userDataString =
     typeof window !== "undefined" ? window.localStorage?.getItem("user") : null;
   const userData = userDataString ? JSON.parse(userDataString) : null;
-
-  // const userData = localStorage.getItem("user");
-  // const userRole = localStorage.getItem("userRole");
-
-  // console.log("userData, ", userData);
 
   if (!userData) {
     router.push(`/`);

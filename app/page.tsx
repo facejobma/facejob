@@ -1,3 +1,4 @@
+"use client"
 import AboutUs from "../components/AboutUs";
 import AboutUsArabic from "../components/AboutUsArabic";
 import Category from "../components/Category";

@@ -1,8 +1,9 @@
+"use client"
 import NavBar from "../../../components/NavBar";
 import Footer from "../../../components/Footer";
 import Link from "next/link";
 
-export default function Index() {
+export default function Page() {
     return (
         <div className="relative overflow-hidden font-default bg-gray-100">
             <NavBar/>

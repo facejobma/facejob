@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from "react";
 import NavBar from "../../components/NavBar";
 import { toast } from "react-hot-toast";

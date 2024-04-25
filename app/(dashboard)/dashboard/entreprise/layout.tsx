@@ -1,0 +1,39 @@
+// import { useEffect } from "react";
+"use client";
+import { useRouter } from "next/navigation";
+import Header from "@/components/layout/header";
+import Sidebar from "@/components/layout/sidebar";
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+
+  // useEffect(() => {
+  const userDataString =
+    typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
+  const userData = userDataString ? JSON.parse(userDataString) : null;
+
+  // const userData = localStorage.getItem("user");
+  // const userRole = localStorage.getItem("userRole");
+
+  // console.log("userData, ", userData);
+
+  if (!userData) {
+    router.push(`/`);
+    // return null;
+  }
+  // }, [router]);
+
+  return (
+    <>
+      <Header />
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar />
+        <main className="w-full pt-16">{children}</main>
+      </div>
+    </>
+  );
+}

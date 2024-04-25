@@ -12,7 +12,7 @@ export default function DashboardLayout({
 
   // useEffect(() => {
   const userDataString =
-    typeof window !== "undefined" ? window.localStorage?.getItem("user") : null;
+    typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
   const userData = userDataString ? JSON.parse(userDataString) : null;
 
   if (!userData) {

@@ -42,41 +42,56 @@ export type CV = {
   secteur_name: string;
 };
 
-export const navItems: NavItem[] = [
+export const navItemsCandidat: NavItem[] = [
   {
     title: "Dashboard",
-    href: "/dashboard",
+    href: "/dashboard/candidat",
     icon: "dashboard",
-    label: "Dashboard"
+    label: "Dashboard",
   },
-  // {
-  //   title: "Dashboard",
-  //   href: "/dashboard",
-  //   icon: "dashboard",
-  //   label: "Dashboard"
-  // },
-  // {
-  //   title: "Entreprise Review",
-  //   href: "/dashboard/requests",
-  //   icon: "request",
-  //   label: "request"
-  // },
   {
     title: "Service de Payment",
-    href: "/dashboard/payments",
+    href: "/dashboard/candidat/payments",
     icon: "payments",
-    label: "payments"
+    label: "payments",
   },
   {
     title: "Profile",
-    href: "/dashboard",
+    href: "/dashboard/candidat",
     icon: "profile",
-    label: "Profile"
+    label: "Profile",
   },
   {
     title: "Logout",
     href: "/",
     icon: "logout",
-    label: "logout"
-  }
+    label: "logout",
+  },
+];
+
+export const navItemsEntreprise: NavItem[] = [
+  {
+    title: "Dashboard",
+    href: "/dashboard/entreprise",
+    icon: "dashboard",
+    label: "Dashboard",
+  },
+  {
+    title: "Service de Payment",
+    href: "/dashboard/entreprise/payments",
+    icon: "payments",
+    label: "payments",
+  },
+  {
+    title: "Profile",
+    href: "/dashboard/entreprise",
+    icon: "profile",
+    label: "Profile",
+  },
+  {
+    title: "Logout",
+    href: "/",
+    icon: "logout",
+    label: "logout",
+  },
 ];

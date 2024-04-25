@@ -7,14 +7,13 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Statistiques } from "@/types";
-
 
 function OverViewTab() {
   const [stats, setStats] = useState({} as Statistiques);
@@ -28,18 +27,16 @@ function OverViewTab() {
           setStats(result);
         })
         .catch((error) => {
-            toast({
-              title: "Whoops!",
-              variant: "destructive",
-              description: error.message
-            });
-          }
-        );
+          toast({
+            title: "Whoops!",
+            variant: "destructive",
+            description: error.message,
+          });
+        });
     }
 
     getStats();
   }, [toast]);
-
 
   return (
     <ScrollArea className="h-full">
@@ -52,7 +49,7 @@ function OverViewTab() {
             <CalendarDateRangePicker />
           </div>
         </div>
-        <Tabs defaultValue="overview" className="space-y-4">
+        {/* <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Aperçu</TabsTrigger>
             <TabsTrigger value="analytics" disabled>
@@ -84,9 +81,9 @@ function OverViewTab() {
                   {/*<p className="text-xs text-muted-foreground">*/}
                   {/*  +20.1% from last month*/}
                   {/*</p>*/}
-                </CardContent>
-              </Card>
-              <Card>
+            {/* </CardContent> */}
+        {/* </Card> */}
+        {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total des postules
@@ -107,11 +104,11 @@ function OverViewTab() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.postules}</div>
-                  {/*<p className="text-xs text-muted-foreground">*/}
-                  {/*  +180.1% from last month*/}
-                  {/*</p>*/}
-                </CardContent>
+                  <div className="text-2xl font-bold">{stats.postules}</div> */}
+        {/*<p className="text-xs text-muted-foreground">*/}
+        {/*  +180.1% from last month*/}
+        {/*</p>*/}
+        {/* </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -133,11 +130,11 @@ function OverViewTab() {
                 <CardContent>
                   <div className="text-2xl font-bold">{
                     stats.offres
-                  }</div>
-                  {/*<p className="text-xs text-muted-foreground">*/}
-                  {/*  +19% from last month*/}
-                  {/*</p>*/}
-                </CardContent>
+          }</div> */}
+        {/*<p className="text-xs text-muted-foreground">*/}
+        {/*  +19% from last month*/}
+        {/*</p>*/}
+        {/* </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -159,12 +156,11 @@ function OverViewTab() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{
-                    stats.users
-                  }</div>
-                  {/*<p className="text-xs text-muted-foreground">*/}
-                  {/*  +201 since last hour*/}
-                  {/*</p>*/}
-                </CardContent>
+                    stats.users}</div> */}
+        {/*<p className="text-xs text-muted-foreground">*/}
+        {/*  +201 since last hour*/}
+        {/*</p>*/}
+        {/* </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -182,11 +178,11 @@ function OverViewTab() {
                 <CardContent>
                   <div className="text-2xl font-bold">{
                     stats.entreprises
-                  }</div>
-                  {/*<p className="text-xs text-muted-foreground">*/}
-                  {/*  +201 since last hour*/}
-                  {/*</p>*/}
-                </CardContent>
+                  }</div> */}
+        {/*<p className="text-xs text-muted-foreground">*/}
+        {/*  +201 since last hour*/}
+        {/*</p>*/}
+        {/* </CardContent>
               </Card>
             </div>
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
@@ -211,7 +207,7 @@ function OverViewTab() {
               </Card>
             </div>
           </TabsContent>
-        </Tabs>
+        </Tabs> */}
       </div>
     </ScrollArea>
   );

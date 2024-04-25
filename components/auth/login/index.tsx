@@ -49,8 +49,8 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
       const userData = await response.json();
       console.log("Logged in successfully", userData.data);
 
-      localStorage.setItem("user", JSON.stringify(userData.data));
-      localStorage.setItem("userRole", "entreprise");
+      sessionStorage.setItem("user", JSON.stringify(userData.data));
+      sessionStorage.setItem("userRole", props.loginFor);
 
       toast.success("connecté avec succès");
 

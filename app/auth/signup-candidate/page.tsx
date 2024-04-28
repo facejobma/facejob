@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import SignupFormCandidate from "../../components/auth/signup/SignupCandidat";
-import NextStepSignupCandidat from "../../components/auth/signup/NextStepSignupCandidat";
+import SignupFormCandidate from "../../../components/auth/signup/SignupCandidat";
+import NextStepSignupCandidat from "../../../components/auth/signup/NextStepSignupCandidat";
 import Image from "next/image";
-import NavBar from "../../components/NavBar";
+import NavBar from "../../../components/NavBar";
 
 const SignupCandidatPage = () => {
   const [step, setStep] = useState(1);

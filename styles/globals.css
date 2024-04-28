@@ -4,13 +4,13 @@
 @tailwind utilities;
 
 :root {
-    touch-action: pan-x pan-y;
-    height: 100% 
-  }
-  
-  body {
-    font-family: "Volkhov", serif;
-  }
-  .mySwiper {
-    overflow:hidden!important;
-  }
+  touch-action: pan-x pan-y;
+  height: 100%;
+}
+
+body {
+  font-family: "Volkhov", serif;
+}
+.mySwiper {
+  overflow: hidden !important;
+}

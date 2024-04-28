@@ -16,13 +16,16 @@ function LinkedinCallback() {
   const [user, setUser] = useState<UserData | null>(null);
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(router.asPath.split('?', 2)[1]);
-  
+    const queryParams = new URLSearchParams(router.asPath.split("?", 2)[1]);
+
     console.log("router.query.code:", queryParams);
-  
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/linkedin/callback?${queryParams}`, {
-      headers: new Headers({ accept: "application/json" }),
-    })
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/linkedin/callback?${queryParams}`,
+      {
+        headers: new Headers({ accept: "application/json" }),
+      },
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -39,7 +42,6 @@ function LinkedinCallback() {
         setLoading(false);
       });
   }, []);
-  
 
   function fetchUserData() {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user`, {

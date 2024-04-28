@@ -32,8 +32,8 @@ import {
   ArrowLeft,
   GanttChartSquare,
   Video,
-  CircleDollarSign
-
+  CircleDollarSign,
+  Layers
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -73,4 +73,5 @@ export const Icons = {
   check: Check,
   logout: LogOut,
   payments: CircleDollarSign,
+  offres: Layers
 };

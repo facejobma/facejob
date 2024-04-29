@@ -2,8 +2,8 @@ import Providers from "@/components/layout/providers";
 import { Toaster } from "@/components/ui/toaster";
 // import "@uploadthing/react/styles.css";
 // import { Inter } from "next/font/google";
-// import "./globals.css";
-import "../styles/globals.css";
+import "./globals.css";
+// import "../styles/globals.css";
 // import React from "react";
 import { GoogleAnalytics } from "@next/third-parties/google";
 

@@ -23,7 +23,7 @@ export default function Testimonials({}: Props) {
           viewport={{ once: true }}
           className="max-w-lg  text-gray-800 md:text-start font-default"
         >
-          <Image
+          <img
             src="../img3.jpg"
             className="-mt-2 rounded-3xl md-10 p-7 md:p-2 md:ml-20 md:w-2/6 md:left-6 md:top-4 md:absolute "
             alt="girl record video"

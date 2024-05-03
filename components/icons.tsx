@@ -33,7 +33,8 @@ import {
   GanttChartSquare,
   Video,
   CircleDollarSign,
-  Layers
+  Layers,
+  Send,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -73,5 +74,6 @@ export const Icons = {
   check: Check,
   logout: LogOut,
   payments: CircleDollarSign,
-  offres: Layers
+  offres: Layers,
+  postuler: Send,
 };

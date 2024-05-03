@@ -62,8 +62,14 @@ export const navItemsCandidat: NavItem[] = [
     label: "offres",
   },
   {
+    title: "Postuler",
+    href: "/dashboard/candidat/postuler",
+    icon: "postuler",
+    label: "postuler",
+  },
+  {
     title: "Profile",
-    href: "/dashboard/candidat",
+    href: "/dashboard/candidat/profile",
     icon: "profile",
     label: "Profile",
   },

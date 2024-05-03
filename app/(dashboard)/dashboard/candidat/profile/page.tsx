@@ -6,8 +6,10 @@ const Profile: React.FC = () => {
   const userProfile = {
     name: "John Doe",
     headline: "Full Stack Developer",
-    avatarUrl: "https://via.placeholder.com/150",
-    coverImageUrl: "https://via.placeholder.com/800x200",
+    avatarUrl:
+      "https://media.licdn.com/dms/image/D4E03AQFspr6MI03aJw/profile-displayphoto-shrink_400_400/0/1687714548973?e=2147483647&v=beta&t=9oLqlW9fYz5q8o79VrwsKIWmCCbBLgBrx65hcmMkWWE",
+    coverImageUrl:
+      "https://plus.unsplash.com/premium_photo-1714115034964-16b20994142a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "New York City",
     companyName: "ABC Inc.",
     companyLogoUrl: "https://via.placeholder.com/50",
@@ -22,7 +24,7 @@ const Profile: React.FC = () => {
           "Led frontend development for customer-facing applications.",
         enterpriseLogoUrl: "https://via.placeholder.com/50",
         companyUrl: "https://example.com/abc-inc",
-        roleUrl: "https://example.com/software-engineer", 
+        roleUrl: "https://example.com/software-engineer",
       },
       {
         company: "XYZ Corp.",
@@ -32,7 +34,7 @@ const Profile: React.FC = () => {
         description: "Designed and implemented user interfaces using React.",
         enterpriseLogoUrl: "https://via.placeholder.com/50",
         companyUrl: "https://example.com/xyz-corp",
-        roleUrl: "https://example.com/frontend-developer", 
+        roleUrl: "https://example.com/frontend-developer",
       },
     ],
     skills: ["JavaScript", "React", "Node.js", "TypeScript", "HTML/CSS"],
@@ -49,7 +51,7 @@ const Profile: React.FC = () => {
     education: [
       {
         schoolName: "Faculty of Science and Technology, Tangier",
-        schoolLogoUrl: "https://via.placeholder.com/50", 
+        schoolLogoUrl: "https://via.placeholder.com/50",
         fieldOfStudy: "Software Engineering and Intelligent Systems",
         degree: "Engineer's degree",
         graduationDate: "Sep 2022",
@@ -155,8 +157,6 @@ const Profile: React.FC = () => {
           ))}
         </ul>
       </ProfileSection>
-
-    
     </div>
   );
 };

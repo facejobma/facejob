@@ -32,13 +32,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       )}
 
       <div className="p-6 relative">
-        <div className="absolute top-2 right-6">
+        <div className="absolute top-4 right-6">
           <button
             className="text-gray-400 hover:text-gray-600"
-            onClick={() => {
-            }}
+            onClick={() => {}}
           >
-            <Edit size={20} /> 
+            <Edit size={20} />
           </button>
         </div>
         {avatarUrl && (
@@ -59,8 +58,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           )}
           <button
             className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
-            onClick={() => {
-            }}
+            onClick={() => {}}
           >
             Consulter CV
           </button>

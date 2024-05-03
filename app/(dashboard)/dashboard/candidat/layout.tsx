@@ -29,12 +29,12 @@ export default function DashboardLayout({
   return (
     <>
       <Header />
-      {/* <body className={`${inter.className} overflow-hidden`}> */}
+      <body className={`${inter.className}`}>
         <div className="flex h-screen">
           <Sidebar />
           <main className="w-full pt-16">{children}</main>
         </div>
-      {/* </body> */}
+      </body>
     </>
   );
 }

@@ -71,7 +71,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             className="text-gray-400 hover:text-gray-600"
             onClick={handleEditClick}
           >
-            <Edit size={20} />
+            <Edit />
           </button>
         </div>
         {avatarUrl && (

@@ -1,7 +1,12 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import ProfileHeader from "@/components/ProfileHeader";
-import ProfileSection from "@/components/ProfileSection";
+import BioSection from "@/components/BioSection";
+import ExperiencesSection from "@/components/ExperiencesSection";
+import SkillsSection from "@/components/SkillsSection";
+import ProjectsSection from "@/components/ProjectsSection";
+import EducationSection from "@/components/EducationSection";
 import Cookies from "js-cookie";
 
 const Profile: React.FC = () => {
@@ -55,7 +60,6 @@ const Profile: React.FC = () => {
     return <p>Loading...</p>;
   }
 
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <ProfileHeader
@@ -68,107 +72,15 @@ const Profile: React.FC = () => {
         companyLogoUrl={userProfile.companyLogoUrl}
       />
 
-      <ProfileSection title="Bio">
-        <p>{userProfile.bio}</p>
-      </ProfileSection>
+      <BioSection bio={userProfile.bio} />
 
-      {userProfile.experiences && (
-        <ProfileSection title="Experiences">
-          <ul className="space-y-4">
-            {userProfile.experiences.map((exp: any, index: number) => (
-              <li key={index} className="flex items-start space-x-4">
-                {exp.enterpriseLogoUrl && (
-                  <img
-                    src={exp.enterpriseLogoUrl}
-                    alt={exp.organisme}
-                    className="w-16 h-16 rounded-full border-2 border-gray-200"
-                  />
-                )}
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold">
-                        <a href={exp.roleUrl} className="hover:underline">
-                          {exp.poste}
-                        </a>
-                      </h3>
-                      <p className="text-gray-600">
-                        <a href={exp.companyUrl} className="hover:underline">
-                          {exp.organisme}
-                        </a>{" "}
-                        {exp.date_debut && <span>({exp.date_fin})</span>}
-                      </p>
-                    </div>
-                    {exp.location && (
-                      <p className="text-sm text-gray-600">{exp.location}</p>
-                    )}
-                  </div>
-                  {exp.description && (
-                    <p className="text-sm text-gray-600 mt-2">
-                      {exp.description}
-                    </p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </ProfileSection>
-      )}
+      <ExperiencesSection experiences={userProfile.experiences} />
 
-      {/* Skills Section */}
-      {userProfile.skills && (
-        <ProfileSection title="Skills">
-          <ul className="flex flex-wrap">
-            {userProfile.skills.map((skill: any, index: number) => (
-              <li
-                key={index}
-                className="bg-gray-200 rounded-full px-3 py-1 mr-2 mb-2"
-              >
-                {skill.title}
-              </li>
-            ))}
-          </ul>
-        </ProfileSection>
-      )}
+      <SkillsSection skills={userProfile.skills} />
 
-      {/* Projects Section */}
-      {userProfile.projects && (
-        <ProfileSection title="Projects">
-          <ul>
-            {userProfile.projects.map((project: any, index: number) => (
-              <li key={index} className="mb-2">
-                <strong>{project.title}</strong>: {project.description}
-              </li>
-            ))}
-          </ul>
-        </ProfileSection>
-      )}
+      <ProjectsSection projects={userProfile.projects} />
 
-      {/* Education Section */}
-      {userProfile.education && (
-        <ProfileSection title="Education">
-          <ul className="space-y-4">
-            {userProfile.education.map((edu: any, index: number) => (
-              <li key={index} className="flex items-start space-x-4">
-                {edu.schoolLogoUrl && (
-                  <img
-                    src={edu.schoolLogoUrl}
-                    alt={edu.school_name}
-                    className="w-16 h-16 rounded-full border-2 border-gray-200"
-                  />
-                )}
-                <div className="flex-1">
-                  <div className="font-bold">{edu.school_name}</div>
-                  <div>
-                    {edu.degree}, {edu.title}
-                  </div>
-                  <div>{edu.graduation_date}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </ProfileSection>
-      )}
+      <EducationSection education={userProfile.education} />
     </div>
   );
 };

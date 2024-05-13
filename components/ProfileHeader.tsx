@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Edit } from "lucide-react";
+import { Modal } from "@/components/ui/modal";
 
 interface ProfileHeaderProps {
   name: string;
@@ -21,6 +22,39 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   companyName,
   companyLogoUrl,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    newName: name,
+    newHeadline: headline,
+    newLocation: location || "",
+    newCompanyName: companyName || "",
+  });
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsEditing(false);
+  };
+
+  const handleProfileUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Perform update logic with formData
+    console.log("Updated profile data:", formData);
+    setIsEditing(false); // Close the modal after updating
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden relative">
       {coverImageUrl && (
@@ -35,7 +69,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         <div className="absolute top-4 right-6">
           <button
             className="text-gray-400 hover:text-gray-600"
-            onClick={() => {}}
+            onClick={handleEditClick}
           >
             <Edit size={20} />
           </button>
@@ -75,6 +109,80 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </div>
         )}
       </div>
+
+      {/* Modal for editing profile */}
+      <Modal
+        isOpen={isEditing}
+        onClose={handleCloseModal}
+        title="Edit Profile"
+        description="Update your profile information"
+      >
+        <form onSubmit={handleProfileUpdate}>
+          {/* Name */}
+          <label htmlFor="newName" className="block mb-2 font-bold">
+            Name
+          </label>
+          <input
+            type="text"
+            id="newName"
+            name="newName"
+            value={formData.newName}
+            onChange={handleInputChange}
+            placeholder="Enter new name"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
+          {/* Headline */}
+          <label htmlFor="newHeadline" className="block mb-2 font-bold">
+            Headline
+          </label>
+          <input
+            type="text"
+            id="newHeadline"
+            name="newHeadline"
+            value={formData.newHeadline}
+            onChange={handleInputChange}
+            placeholder="Enter new headline"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
+          {/* Location */}
+          <label htmlFor="newLocation" className="block mb-2 font-bold">
+            Location
+          </label>
+          <input
+            type="text"
+            id="newLocation"
+            name="newLocation"
+            value={formData.newLocation}
+            onChange={handleInputChange}
+            placeholder="Enter new location"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
+          {/* Company Name */}
+          <label htmlFor="newCompanyName" className="block mb-2 font-bold">
+            Company Name
+          </label>
+          <input
+            type="text"
+            id="newCompanyName"
+            name="newCompanyName"
+            value={formData.newCompanyName}
+            onChange={handleInputChange}
+            placeholder="Enter new company name"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+          >
+            Save
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 };

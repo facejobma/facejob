@@ -4,8 +4,8 @@ import { Edit } from "lucide-react";
 
 interface ProfileSectionProps {
   title: string;
-  children: ReactNode; 
-} 
+  children: ReactNode;
+}
 
 const ProfileSection: React.FC<ProfileSectionProps> = ({ title, children }) => {
   return (
@@ -13,11 +13,10 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ title, children }) => {
       <div className="p-6 flex justify-between items-center">
         <h2 className="text-xl font-bold">{title}</h2>
         <button
-          onClick={() => {
-          }}
+          onClick={() => {}}
           className="text-gray-400 hover:text-gray-600"
         >
-          <Edit size={20} /> 
+          <Edit size={20} />
         </button>
       </div>
 

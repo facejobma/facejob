@@ -9,6 +9,7 @@ import Image from "next/image";
 import google from "../../../public/svg/google.svg";
 import linkedin from "../../../public/svg/linkedin.svg";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 function handleLinkedinLogin() {
   //     todo
@@ -53,6 +54,12 @@ const LoginForm = (props: { loginFor: "candidat" | "entreprise" }) => {
 
       sessionStorage.setItem("user", JSON.stringify(userData.data));
       sessionStorage.setItem("userRole", props.loginFor);
+
+      const { token } = userData;
+
+      Cookies.set("authToken", token, { expires: 7 });
+
+
 
       toast.success("connecté avec succès");
 

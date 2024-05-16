@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Edit, Trash, Plus, PlusSquare } from "lucide-react";
+import { Edit, Trash, PlusSquare } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import Cookies from "js-cookie";
 
 interface Skill {
   id: string;
@@ -8,11 +9,13 @@ interface Skill {
 }
 
 interface SkillsSectionProps {
+  id: number;
   skills: Skill[]; // Array of skills data
-  onEdit: (updatedSkills: Skill[]) => void;
 }
 
-const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, onEdit }) => {
+const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedSkills, setEditedSkills] = useState([...skills]);
   const [newSkill, setNewSkill] = useState("");
@@ -28,11 +31,31 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, onEdit }) => {
     setNewSkill("");
   };
 
-  const handleSkillsUpdate = () => {
+  const handleSkillsUpdate = async () => {
     // Perform update logic with editedSkills
-    console.log("Updated skills:", editedSkills);
-    onEdit(editedSkills);
-    setIsEditing(false); // Close the modal after updating
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/skills`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ skills: editedSkills }),
+        },
+      );
+
+      if (response.ok) {
+        const updatedSkills = await response.json();
+        setEditedSkills(updatedSkills);
+        setIsEditing(false); // Close the modal after updating
+      } else {
+        console.error("Failed to update skills");
+      }
+    } catch (error) {
+      console.error("Error updating skills:", error);
+    }
   };
 
   const handleInputChange = (index: number, value: string) => {
@@ -46,12 +69,31 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, onEdit }) => {
     setEditedSkills(updatedSkills);
   };
 
-  const handleAddSkill = () => {
+  const handleAddSkill = async () => {
     if (newSkill.trim() === "") return;
-    const newId = Date.now().toString();
-    const updatedSkills = [...editedSkills, { id: newId, title: newSkill }];
-    setEditedSkills(updatedSkills);
-    setNewSkill("");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/skills`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title: newSkill }),
+        },
+      );
+
+      if (response.ok) {
+        const addedSkill = await response.json();
+        setEditedSkills((prevSkills) => [...prevSkills, addedSkill]);
+        setNewSkill("");
+      } else {
+        console.error("Failed to add skill");
+      }
+    } catch (error) {
+      console.error("Error adding skill:", error);
+    }
   };
 
   return (
@@ -119,7 +161,6 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, onEdit }) => {
             />
             <button
               onClick={handleAddSkill}
-              // className="ml-2 bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
               className="ml-2 text-blue-500 hover:text-blue-700"
             >
               <PlusSquare size={20} />

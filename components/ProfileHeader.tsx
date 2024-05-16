@@ -1,10 +1,14 @@
 "use client";
+
 import React, { useState } from "react";
 import { Edit } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import Cookies from "js-cookie";
 
 interface ProfileHeaderProps {
-  name: string;
+  id: number;
+  first_name: string;
+  last_name: string;
   headline: string;
   avatarUrl?: string;
   coverImageUrl?: string;
@@ -14,7 +18,9 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
-  name,
+  id,
+  first_name,
+  last_name,
   headline,
   avatarUrl,
   coverImageUrl,
@@ -22,9 +28,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   companyName,
   companyLogoUrl,
 }) => {
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    newName: name,
+    newFirstName: first_name,
+    newLastName: last_name,
     newHeadline: headline,
     newLocation: location || "",
     newCompanyName: companyName || "",
@@ -38,15 +47,42 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     setIsEditing(false);
   };
 
-  const handleProfileUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Perform update logic with formData
-    console.log("Updated profile data:", formData);
-    setIsEditing(false); // Close the modal after updating
+
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/candidate/updateId/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            first_name: formData.newFirstName,
+            last_name: formData.newLastName,
+            sector: formData.newHeadline,
+            location: formData.newLocation,
+            // companyName: formData.newCompanyName,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        const updatedData = await response.json();
+        console.log("Updated profile data:", updatedData);
+        setIsEditing(false);
+      } else {
+        console.error("Failed to update profile data");
+      }
+    } catch (error) {
+      console.error("Error updating profile data:", error);
+    }
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -85,11 +121,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         )}
 
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
-          <h1 className="text-2xl font-bold mb-1">{name}</h1>
+          <h1 className="text-2xl font-bold mb-1">
+            {first_name} {last_name}
+          </h1>
           <p className="text-gray-600 mb-2">{headline}</p>
-          {location && (
-            <p className="text-gray-600 mb-3">Location: {location}</p>
-          )}
+          {location && <p className="text-gray-600 mb-3">{location}</p>}
           <button
             className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
             onClick={() => {}}
@@ -119,14 +155,27 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       >
         <form onSubmit={handleProfileUpdate}>
           {/* Name */}
-          <label htmlFor="newName" className="block mb-2 font-bold">
-            Name
+          <label htmlFor="newFirstName" className="block mb-2 font-bold">
+            Prenom
           </label>
           <input
             type="text"
-            id="newName"
-            name="newName"
-            value={formData.newName}
+            id="newFirstName"
+            name="newFirstName"
+            value={formData.newFirstName}
+            onChange={handleInputChange}
+            placeholder="Enter new name"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
+          <label htmlFor="newName" className="block mb-2 font-bold">
+            Nom
+          </label>
+          <input
+            type="text"
+            id="newLastName"
+            name="newLastName"
+            value={formData.newLastName}
             onChange={handleInputChange}
             placeholder="Enter new name"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"

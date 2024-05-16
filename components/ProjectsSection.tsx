@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Trash, PlusSquare } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import Cookies from "js-cookie";
 
 interface Project {
   id: string;
@@ -9,14 +10,13 @@ interface Project {
 }
 
 interface ProjectsSectionProps {
+  id: number;
   projects: Project[];
-  onEdit: (updatedProjects: Project[]) => void;
 }
 
-const ProjectsSection: React.FC<ProjectsSectionProps> = ({
-  projects,
-  onEdit,
-}) => {
+const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
   const [isEditing, setIsEditing] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [editedProjects, setEditedProjects] = useState([...projects]);
@@ -51,7 +51,8 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     setSelectedProject(null);
   };
 
-  const handleProjectUpdate = () => {
+  const handleProjectUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (selectedProject) {
       // Update existing project
       const updatedProject: Project = {
@@ -59,10 +60,31 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
         title: formData.title || "",
         description: formData.description || "",
       };
-      const updatedProjects = editedProjects.map((proj) =>
-        proj.id === selectedProject.id ? updatedProject : proj,
-      );
-      onEdit(updatedProjects);
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/projects/${selectedProject.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updatedProject),
+          },
+        );
+
+        if (response.ok) {
+          const updatedProjects = editedProjects.map((proj) =>
+            proj.id === selectedProject.id ? updatedProject : proj,
+          );
+          setEditedProjects(updatedProjects);
+        } else {
+          console.error("Failed to update project");
+        }
+      } catch (error) {
+        console.error("Error updating project:", error);
+      }
     } else {
       // Add new project
       const newProject: Project = {
@@ -70,8 +92,29 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
         title: formData.title || "",
         description: formData.description || "",
       };
-      const updatedProjects = [...editedProjects, newProject];
-      onEdit(updatedProjects);
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/projects`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newProject),
+          },
+        );
+
+        if (response.ok) {
+          const addedProject = await response.json();
+          setEditedProjects((prevProjects) => [...prevProjects, addedProject]);
+        } else {
+          console.error("Failed to add project");
+        }
+      } catch (error) {
+        console.error("Error adding project:", error);
+      }
     }
     setIsEditing(false);
     setSelectedProject(null);
@@ -84,12 +127,30 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     }));
   };
 
-  const handleRemoveProject = (project: Project) => {
-    const updatedProjects = editedProjects.filter(
-      (proj) => proj.id !== project.id,
-    );
-    setEditedProjects(updatedProjects);
-    onEdit(updatedProjects); // Update parent component
+  const handleRemoveProject = async (project: Project) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/projects/${project.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.ok) {
+        const updatedProjects = editedProjects.filter(
+          (proj) => proj.id !== project.id,
+        );
+        setEditedProjects(updatedProjects);
+      } else {
+        console.error("Failed to remove project");
+      }
+    } catch (error) {
+      console.error("Error removing project:", error);
+    }
   };
 
   return (

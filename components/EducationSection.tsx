@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Edit, PlusSquare, Trash } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import Cookies from "js-cookie";
 
 interface Education {
   id: string;
@@ -11,14 +12,16 @@ interface Education {
 }
 
 interface EducationSectionProps {
+  id: number;
   education: Education[];
-  onEdit: (updatedEducation: Education[]) => void;
 }
 
 const EducationSection: React.FC<EducationSectionProps> = ({
+  id,
   education,
-  onEdit,
 }) => {
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedEducation, setEditedEducation] = useState([...education]);
   const [selectedEducation, setSelectedEducation] = useState<Education | null>(
@@ -34,12 +37,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   useEffect(() => {
     if (selectedEducation) {
       // Populate form data with selected education when editing
-      setFormData({
-        school_name: selectedEducation.school_name,
-        degree: selectedEducation.degree,
-        title: selectedEducation.title,
-        graduation_date: selectedEducation.graduation_date,
-      });
+      setFormData({ ...selectedEducation });
     } else {
       // Reset form data when adding a new education entry
       setFormData({
@@ -61,27 +59,45 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     setSelectedEducation(null);
   };
 
-  const handleEducationUpdate = () => {
+  const handleEducationUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { id: educationId, ...educationData } = formData;
+
     if (selectedEducation) {
       // Update existing education entry
       const updatedEducationList = editedEducation.map((edu) =>
-        edu.id === selectedEducation.id
-          ? { ...selectedEducation, ...formData }
-          : edu,
+        edu.id === selectedEducation.id ? { ...edu, ...educationData } : edu,
       );
-      onEdit(updatedEducationList);
+      setEditedEducation(updatedEducationList);
     } else {
       // Add new education entry
-      const newEducation: Education = {
-        id: Date.now().toString(),
-        school_name: formData.school_name || "", // Ensure school_name is always a string
-        degree: formData.degree || "", // Ensure degree is always a string
-        title: formData.title || "", // Ensure title is always a string
-        graduation_date: formData.graduation_date || "", // Ensure graduation_date is always a string
-      };
-      const updatedEducationList = [...editedEducation, newEducation];
-      onEdit(updatedEducationList);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/education`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          },
+        );
+
+        if (response.ok) {
+          const addedEducation = await response.json();
+          setEditedEducation((prevEducation) => [
+            ...prevEducation,
+            addedEducation,
+          ]);
+        } else {
+          console.error("Failed to add education");
+        }
+      } catch (error) {
+        console.error("Error adding education:", error);
+      }
     }
+
     setIsEditing(false);
     setSelectedEducation(null);
   };
@@ -98,7 +114,6 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       (edu) => edu.id !== education.id,
     );
     setEditedEducation(updatedEducationList);
-    onEdit(updatedEducationList); // Update parent component state
   };
 
   return (

@@ -1,13 +1,18 @@
 "use client";
+
 import React, { useState } from "react";
 import { Edit } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import Cookies from "js-cookie";
 
 interface BioSectionProps {
+  id: number;
   bio: string;
 }
 
-const BioSection: React.FC<BioSectionProps> = ({ bio }) => {
+const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
   const [isEditing, setIsEditing] = useState(false);
   const [newBio, setNewBio] = useState(bio);
 
@@ -17,13 +22,37 @@ const BioSection: React.FC<BioSectionProps> = ({ bio }) => {
 
   const handleCloseModal = () => {
     setIsEditing(false);
-    setNewBio(bio);
+    setNewBio(bio); // Reset the bio to the original value if editing is canceled
   };
 
-  const handleBioUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleBioUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Updated bio:", newBio);
-    setIsEditing(false);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate/updateId/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            bio: newBio,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const updatedData = await response.json();
+        console.log("Updated bio:", updatedData);
+        setIsEditing(false);
+      } else {
+        console.error("Failed to update bio");
+      }
+    } catch (error) {
+      console.error("Error updating bio:", error);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

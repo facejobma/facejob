@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Trash, PlusSquare } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import Cookies from "js-cookie";
 
 interface Experience {
   id: string;
@@ -13,14 +14,16 @@ interface Experience {
 }
 
 interface ExperiencesSectionProps {
+  id: string;
   experiences: Experience[];
-  onEdit: (updatedExperiences: Experience[]) => void;
 }
 
 const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
+  id,
   experiences,
-  onEdit,
 }) => {
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
   const [isEditing, setIsEditing] = useState(false);
   const [selectedExperience, setSelectedExperience] =
     useState<Experience | null>(null);
@@ -36,7 +39,6 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
 
   useEffect(() => {
     if (selectedExperience) {
-      // Populate form data with selected experience when editing
       setFormData({
         poste: selectedExperience.poste,
         organisme: selectedExperience.organisme,
@@ -46,7 +48,6 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         date_fin: selectedExperience.date_fin || "",
       });
     } else {
-      // Reset form data when adding a new experience
       setFormData({
         poste: "",
         organisme: "",
@@ -68,36 +69,79 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     setSelectedExperience(null);
   };
 
-  const handleExperienceUpdate = () => {
+  const handleExperienceUpdate = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ) => {
+    e.preventDefault();
+
     if (selectedExperience) {
       // Update existing experience
-      const updatedExperience: Experience = {
-        ...selectedExperience,
-        poste: formData.poste || "",
-        organisme: formData.organisme || "",
-        location: formData.location || "",
-        description: formData.description || "",
-        date_debut: formData.date_debut || "",
-        date_fin: formData.date_fin || "",
-      };
-      const updatedExperiences = editedExperiences.map((exp) =>
-        exp.id === selectedExperience.id ? updatedExperience : exp,
-      );
-      onEdit(updatedExperiences);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experience/update/${selectedExperience.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              poste: formData.poste,
+              organisme: formData.organisme,
+              location: formData.location,
+              description: formData.description,
+              date_debut: formData.date_debut,
+              date_fin: formData.date_fin,
+              candidat_id: id,
+            }),
+          },
+        );
+
+        if (response.ok) {
+          // const updatedExperience = await response.json();
+          // const updatedExperiences = editedExperiences.map((exp) =>
+          //   exp.id === selectedExperience.id ? updatedExperience : exp,
+          // );
+        } else {
+          console.error("Failed to update experience");
+        }
+      } catch (error) {
+        console.error("Error updating experience:", error);
+      }
     } else {
       // Add new experience
-      const newExperience: Experience = {
-        id: Date.now().toString(),
-        poste: formData.poste || "",
-        organisme: formData.organisme || "",
-        description: formData.description || "",
-        location: formData.location || "",
-        date_debut: formData.date_debut || "",
-        date_fin: formData.date_fin || "",
-      };
-      const updatedExperiences = [...editedExperiences, newExperience];
-      onEdit(updatedExperiences);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experience/add`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              poste: formData.poste,
+              organisme: formData.organisme,
+              location: formData.location,
+              description: formData.description,
+              date_debut: formData.date_debut,
+              date_fin: formData.date_fin,
+              candidat_id: id,
+            }),
+          },
+        );
+
+        if (response.ok) {
+          // const newExperience = await response.json();
+          // const updatedExperiences = [...editedExperiences, newExperience];
+        } else {
+          console.error("Failed to add new experience");
+        }
+      } catch (error) {
+        console.error("Error adding new experience:", error);
+      }
     }
+
     setIsEditing(false);
     setSelectedExperience(null);
   };
@@ -232,4 +276,5 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   );
 };
 
+// @ts-ignore
 export default ExperiencesSection;

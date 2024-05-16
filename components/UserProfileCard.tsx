@@ -1,5 +1,6 @@
-import Image from 'next/image';
-import { FC } from 'react';
+import Image from "next/image";
+import { FC } from "react";
+import Cookies from "js-cookie";
 
 interface UserProfileCardProps {
   name: string;
@@ -25,7 +26,13 @@ export const UserProfileCard: FC<UserProfileCardProps> = ({
       <div className="p-4">
         <div className="flex items-center space-x-4">
           <div className="flex-shrink-0">
-            <Image src={photoUrl} alt={name} width={80} height={80} className="rounded-full" />
+            <Image
+              src={photoUrl}
+              alt={name}
+              width={80}
+              height={80}
+              className="rounded-full"
+            />
           </div>
           <div>
             <h1 className="text-2xl font-semibold">{name}</h1>

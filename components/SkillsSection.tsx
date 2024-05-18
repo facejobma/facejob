@@ -10,7 +10,7 @@ interface Skill {
 
 interface SkillsSectionProps {
   id: number;
-  skills: Skill[]; // Array of skills data
+  skills: Skill[];
 }
 
 const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
@@ -64,9 +64,30 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
     setEditedSkills(updatedSkills);
   };
 
-  const handleRemoveSkill = (skillId: string) => {
-    const updatedSkills = editedSkills.filter((skill) => skill.id !== skillId);
-    setEditedSkills(updatedSkills);
+  const handleRemoveSkill = async (skill: Skill) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/skill/delete/${skill.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.ok) {
+        const updatedSkillList = editedSkills.filter(
+          (sk) => sk.id !== skill.id,
+        );
+        setEditedSkills(updatedSkillList);
+      } else {
+        console.error("Failed to delete skill");
+      }
+    } catch (error) {
+      console.error("Error deleting skill:", error);
+    }
   };
 
   const handleAddSkill = async () => {
@@ -117,7 +138,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
               <span className="mr-2">{skill.title}</span>
               {isEditing && (
                 <button
-                  onClick={() => handleRemoveSkill(skill.id)}
+                  onClick={() => handleRemoveSkill(skill)}
                   className="text-red-500 hover:text-red-700"
                 >
                   <Trash size={16} />
@@ -144,7 +165,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-2"
               />
               <button
-                onClick={() => handleRemoveSkill(skill.id)}
+                onClick={() => handleRemoveSkill(skill)}
                 className="ml-2 text-red-500 hover:text-red-700"
               >
                 <Trash size={20} />

@@ -130,7 +130,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
   const handleRemoveProject = async (project: Project) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/projects/${project.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/project/delete/${project.id}`,
         {
           method: "DELETE",
           headers: {

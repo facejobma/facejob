@@ -153,11 +153,30 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     }));
   };
 
-  const handleDeleteExperience = (experience: Experience) => {
-    const updatedExperiences = editedExperiences.filter(
-      (exp) => exp.id !== experience.id,
-    );
-    setEditedExperiences(updatedExperiences);
+  const handleDeleteExperience = async (experience: Experience) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experience/delete/${experience.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.ok) {
+        const updatedExperienceList = editedExperiences.filter(
+          (exp) => exp.id !== experience.id,
+        );
+        setEditedExperiences(updatedExperienceList);
+      } else {
+        console.error("Failed to delete education");
+      }
+    } catch (error) {
+      console.error("Error deleting education:", error);
+    }
   };
 
   return (

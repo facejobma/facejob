@@ -80,6 +80,13 @@ const Profile: React.FC = () => {
         location={userProfile.location}
         companyName={userProfile.companyName}
         companyLogoUrl={userProfile.companyLogoUrl}
+        bio={userProfile.bio}
+        experiences={userProfile.experiences}
+        skills={userProfile.skills}
+        projects={userProfile.projects}
+        educations={userProfile.education}
+
+
       />
 
       <BioSection id={userProfile.id} bio={userProfile.bio} />

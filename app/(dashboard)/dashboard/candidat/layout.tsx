@@ -3,14 +3,11 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import { Inter } from "next/font/google";
+import dynamic from "next/dynamic";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   // useEffect(() => {
@@ -38,3 +35,6 @@ export default function DashboardLayout({
     </>
   );
 }
+
+export default dynamic(() => Promise.resolve(DashboardLayout), { ssr: false });
+// export default DashboardLayout

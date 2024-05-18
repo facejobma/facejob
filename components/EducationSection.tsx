@@ -11,6 +11,11 @@ interface Education {
   graduation_date: string;
 }
 
+interface Degree {
+  id: string;
+  titre: string;
+}
+
 interface EducationSectionProps {
   id: number;
   education: Education[];
@@ -27,12 +32,39 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   const [selectedEducation, setSelectedEducation] = useState<Education | null>(
     null,
   );
+  const [degrees, setDegrees] = useState<Degree[]>([]);
   const [formData, setFormData] = useState<Partial<Education>>({
     school_name: "",
     degree: "",
     title: "",
     graduation_date: "",
   });
+
+  useEffect(() => {
+    // Fetch degrees (diplomes) from the backend
+    const fetchDegrees = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/diplomes`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setDegrees(data);
+        } else {
+          console.error("Failed to fetch degrees");
+        }
+      } catch (error) {
+        console.error("Error fetching degrees:", error);
+      }
+    };
+
+    fetchDegrees();
+  }, [authToken]);
 
   useEffect(() => {
     if (selectedEducation) {
@@ -61,14 +93,34 @@ const EducationSection: React.FC<EducationSectionProps> = ({
 
   const handleEducationUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { id: educationId, ...educationData } = formData;
 
     if (selectedEducation) {
       // Update existing education entry
-      const updatedEducationList = editedEducation.map((edu) =>
-        edu.id === selectedEducation.id ? { ...edu, ...educationData } : edu,
-      );
-      setEditedEducation(updatedEducationList);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/formation/${selectedEducation.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          },
+        );
+
+        if (response.ok) {
+          const updatedEducation = await response.json();
+          const updatedEducationList = editedEducation.map((edu) =>
+            edu.id === selectedEducation.id ? updatedEducation : edu,
+          );
+          setEditedEducation(updatedEducationList);
+        } else {
+          console.error("Failed to update education");
+        }
+      } catch (error) {
+        console.error("Error updating education:", error);
+      }
     } else {
       // Add new education entry
       try {
@@ -109,11 +161,30 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     }));
   };
 
-  const handleDeleteEducation = (education: Education) => {
-    const updatedEducationList = editedEducation.filter(
-      (edu) => edu.id !== education.id,
-    );
-    setEditedEducation(updatedEducationList);
+  const handleDeleteEducation = async (education: Education) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/formation/delete/${education.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.ok) {
+        const updatedEducationList = editedEducation.filter(
+          (edu) => edu.id !== education.id,
+        );
+        setEditedEducation(updatedEducationList);
+      } else {
+        console.error("Failed to delete education");
+      }
+    } catch (error) {
+      console.error("Error deleting education:", error);
+    }
   };
 
   return (
@@ -151,7 +222,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => handleDeleteEducation(edu)} // Delete specific education entry
+                onClick={() => handleDeleteEducation(edu)} 
                 className="text-red-500 hover:text-red-700"
               >
                 <Trash width={20} height={20} />
@@ -182,13 +253,19 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
           <label htmlFor="degree">Degree:</label>
-          <input
-            type="text"
+          <select
             id="degree"
             value={formData.degree}
             onChange={(e) => handleInputChange("degree", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
+          >
+            <option value="">Select a degree</option>
+            {degrees.map((degree) => (
+              <option key={degree.id} value={degree.titre}>
+                {degree.titre}
+              </option>
+            ))}
+          </select>
           <label htmlFor="title">Title:</label>
           <input
             type="text"

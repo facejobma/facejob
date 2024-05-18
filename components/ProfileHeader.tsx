@@ -1,9 +1,12 @@
-"use client";
+// "use client";
 
 import React, { useState } from "react";
-import { Edit } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ResumePDF from "@/components/ResumePDF";
+import { Edit } from "lucide-react";
+
 
 interface ProfileHeaderProps {
   id: number;
@@ -15,6 +18,11 @@ interface ProfileHeaderProps {
   location?: string;
   companyName?: string;
   companyLogoUrl?: string;
+  bio?: string;
+  experiences?: [];
+  skills?: [];
+  projects?: [];
+  educations?: [];
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -27,6 +35,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   location,
   companyName,
   companyLogoUrl,
+  bio,
+  experiences,
+  skills,
+  projects,
+  educations,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
@@ -108,6 +121,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             onClick={handleEditClick}
           >
             <Edit />
+            {/* Edit */}
           </button>
         </div>
         {avatarUrl && (
@@ -126,12 +140,31 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </h1>
           <p className="text-gray-600 mb-2">{headline}</p>
           {location && <p className="text-gray-600 mb-3">{location}</p>}
-          <button
+          <PDFDownloadLink
+            document={
+              <ResumePDF
+                userProfile={{
+                  first_name,
+                  last_name,
+                  headline,
+                  avatarUrl,
+                  coverImageUrl,
+                  location,
+                  companyName,
+                  companyLogoUrl,
+                  bio,
+                  experiences,
+                  skills,
+                  projects,
+                  educations,
+                }}
+              />
+            }
+            fileName="resume.pdf"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
-            onClick={() => {}}
           >
-            Consulter CV
-          </button>
+            {({ loading }) => (loading ? "Generating..." : "Consulter CV")}
+          </PDFDownloadLink>
         </div>
 
         {companyName && companyLogoUrl && (

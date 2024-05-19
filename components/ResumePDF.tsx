@@ -1,8 +1,5 @@
-"use client";
-
 import React from "react";
-import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
-
+import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
 // Define styles
 const styles = StyleSheet.create({
@@ -11,16 +8,32 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
   header: {
-    textAlign: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 20,
+  },
+  headerLeft: {
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  headerRight: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: "50%",
   },
   name: {
     fontSize: 24,
     fontWeight: "bold",
+    color: "#333",
   },
   headline: {
     fontSize: 18,
     color: "#666",
+    marginBottom: 10,
   },
   location: {
     fontSize: 14,
@@ -32,30 +45,25 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     marginBottom: 10,
+    color: "#333",
     borderBottom: "2px solid #eaeaea",
     paddingBottom: 5,
   },
   text: {
     fontSize: 12,
-    marginBottom: 3,
+    marginBottom: 5,
+    color: "#333",
   },
   bold: {
     fontWeight: "bold",
   },
   columns: {
     flexDirection: "row",
+    justifyContent: "space-between",
   },
   column: {
-    flex: 1,
-    paddingHorizontal: 10,
-  },
-  columnLeft: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  columnRight: {
-    flex: 1,
-    paddingLeft: 10,
+    width: "48%",
+    paddingHorizontal: 5,
   },
 });
 
@@ -65,11 +73,18 @@ const ResumePDF: React.FC<{ userProfile: any }> = ({ userProfile }) => (
     <Page size="A4" style={styles.page}>
       {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.name}>
-          {userProfile.first_name} {userProfile.last_name}
-        </Text>
-        <Text style={styles.headline}>{userProfile.headline}</Text>
-        <Text style={styles.location}>{userProfile.location}</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.name}>
+            {userProfile.first_name} {userProfile.last_name}
+          </Text>
+          <Text style={styles.headline}>{userProfile.headline}</Text>
+          <Text style={styles.location}>{userProfile.location}</Text>
+        </View>
+        {userProfile.avatarUrl && (
+          <View style={styles.headerRight}>
+            <Image style={styles.avatar} src={userProfile.avatarUrl} />
+          </View>
+        )}
       </View>
 
       {/* Bio Section */}
@@ -81,7 +96,7 @@ const ResumePDF: React.FC<{ userProfile: any }> = ({ userProfile }) => (
       {/* Columns for Skills, Projects, Experiences, and Education */}
       <View style={styles.columns}>
         {/* Left Column: Skills and Projects */}
-        <View style={styles.columnLeft}>
+        <View style={styles.column}>
           {/* Skills Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Skills</Text>
@@ -105,7 +120,7 @@ const ResumePDF: React.FC<{ userProfile: any }> = ({ userProfile }) => (
         </View>
 
         {/* Right Column: Experiences and Education */}
-        <View style={styles.columnRight}>
+        <View style={styles.column}>
           {/* Experiences Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Experiences</Text>
@@ -127,9 +142,7 @@ const ResumePDF: React.FC<{ userProfile: any }> = ({ userProfile }) => (
             <Text style={styles.sectionTitle}>Education</Text>
             {userProfile.educations.map((edu: any, index: number) => (
               <View key={index} style={styles.section}>
-                <Text style={[styles.text, styles.bold]}>
-                  {edu.school_name}
-                </Text>
+                <Text style={[styles.text, styles.bold]}>{edu.school_name}</Text>
                 <Text style={styles.text}>
                   {edu.degree}, {edu.title}
                 </Text>

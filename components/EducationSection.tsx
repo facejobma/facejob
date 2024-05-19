@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from "react";
 import { Edit, PlusSquare, Trash } from "lucide-react";
 import { Modal } from "@/components/ui/modal";

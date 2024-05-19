@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+// const uploadThingConfig = require("./uploadThingConfig");
+
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
@@ -83,4 +85,5 @@ module.exports = {
     },
   },
   plugins: [require("@tailwindcss/aspect-ratio")],
+  // ...uploadThingConfig.plugins,
 };

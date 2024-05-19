@@ -40,7 +40,9 @@ const Profile: React.FC = () => {
             first_name: user.first_name,
             last_name: user.last_name,
             // headline: user.sector,
-            avatarUrl: user.image || "https://via.placeholder.com/150",
+            avatarUrl:
+              "https://media.licdn.com/dms/image/D4E03AQH8Ypj6IDAEdA/profile-displayphoto-shrink_800_800/0/1713374020480?e=2147483647&v=beta&t=0XQNiawmx_JwIMUDBaxrGjcThowNbarkOyNZ0MhDigg" ||
+              "https://via.placeholder.com/150",
             // coverImageUrl: "https://via.placeholder.com/800x200",
             coverImageUrl: "",
             location: user.address || "",
@@ -69,35 +71,41 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <ProfileHeader
-        id={userProfile.id}
-        first_name={userProfile.first_name}
-        last_name={userProfile.last_name}
-        headline={userProfile.job.name}
-        avatarUrl={userProfile.avatarUrl}
-        coverImageUrl={userProfile.coverImageUrl}
-        location={userProfile.location}
-        companyName={userProfile.companyName}
-        companyLogoUrl={userProfile.companyLogoUrl}
-        bio={userProfile.bio}
-        experiences={userProfile.experiences}
-        skills={userProfile.skills}
-        projects={userProfile.projects}
-        educations={userProfile.education}
+    <div className=" mx-auto  bg-gray-100 px-4 py-8">
+      <div className="max-w-4xl mx-auto ">
+        <ProfileHeader
+          id={userProfile.id}
+          first_name={userProfile.first_name}
+          last_name={userProfile.last_name}
+          headline={userProfile.job.name}
+          avatarUrl={userProfile.avatarUrl}
+          coverImageUrl={userProfile.coverImageUrl}
+          location={userProfile.location}
+          companyName={userProfile.companyName}
+          companyLogoUrl={userProfile.companyLogoUrl}
+          bio={userProfile.bio}
+          experiences={userProfile.experiences}
+          skills={userProfile.skills}
+          projects={userProfile.projects}
+          educations={userProfile.education}
+        />
 
+        <BioSection id={userProfile.id} bio={userProfile.bio} />
 
-      />
+        <ExperiencesSection
+          id={userProfile.id}
+          experiences={userProfile.experiences}
+        />
 
-      <BioSection id={userProfile.id} bio={userProfile.bio} />
+        <SkillsSection id={userProfile.id} skills={userProfile.skills} />
 
-      <ExperiencesSection id={userProfile.id} experiences={userProfile.experiences} />
+        <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
 
-      <SkillsSection id={userProfile.id} skills={userProfile.skills} />
-
-      <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
-
-      <EducationSection id={userProfile.id} education={userProfile.education} />
+        <EducationSection
+          id={userProfile.id}
+          education={userProfile.education}
+        />
+      </div>
     </div>
   );
 };

@@ -5,7 +5,8 @@ import "@uploadthing/react/styles.css";
 import { UploadDropzone } from "@uploadthing/react";
 import { OurFileRouter } from "@/app/api/uploadthing/core";
 import Cookies from "js-cookie";
-import { useToast } from "@/components/ui/use-toast";
+// import { useToast } from "@/components/ui/use-toast";
+import { toast } from "react-hot-toast";
 
 interface Job {
   id: number;
@@ -19,7 +20,7 @@ const PublishVideo: React.FC = () => {
   const [jobOptions, setJobOptions] = useState<Job[]>([]);
   const [uploadStatus, setUploadStatus] = useState("idle");
 
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
@@ -36,13 +37,14 @@ const PublishVideo: React.FC = () => {
         setJobOptions(data);
       } catch (error) {
         console.error("Error fetching job options:", error);
-        toast({
-          title: "Error",
-          description: "Error fetching job options.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        // toast({
+        //   title: "Error",
+        //   description: "Error fetching job options.",
+        //   status: "error",
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
+        toast.error("Error fetching job options!");
       }
     };
 
@@ -52,13 +54,14 @@ const PublishVideo: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!videoUrl) {
-      toast({
-        title: "Error",
-        description: "Please upload a video.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "Please upload a video.",
+      //   status: "error",
+      //   duration: 5000,
+      //   isClosable: true,
+      // });
+      toast.error("Please upload a video !");
       return;
     }
 
@@ -83,43 +86,43 @@ const PublishVideo: React.FC = () => {
       );
 
       if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Video published successfully!",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        });
+        // toast({
+        //   title: "Success",
+        //   description: "Video published successfully!",
+        //   status: "success",
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
+        toast.success("Video published successfully!");
         setUploadStatus("completed");
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to publish video.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
+        // toast({
+        //   title: "Error",
+        //   description: "Failed to publish video.",
+        //   status: "error",
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
+        toast.error("Failed to publish video !");
         setUploadStatus("failed");
       }
     } catch (error) {
       console.error("Error publishing video:", error);
-      toast({
-        title: "Error",
-        description: "An error occurred while publishing the video.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      // toast({
+      //   title: "Error",
+      //   description: "An error occurred while publishing the video.",
+      //   status: "error",
+      //   duration: 5000,
+      //   isClosable: true,
+      // });
+      toast.error("An error occurred while publishing the video !");
       setUploadStatus("failed");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div
-        className="max-w-xl mx-auto bg-white rounded-lg shadow-lg p-6"
-        style={{ minHeight: "400px" }}
-      >
+    <div className="flex-1 space-y-4 p-4 md:p-24  bg-gray-100 ">
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-medium mb-8 text-center">
           Publish Your CV Video
         </h2>
@@ -137,22 +140,24 @@ const PublishVideo: React.FC = () => {
               onClientUploadComplete={(res: any) => {
                 console.log("Files: ", res);
                 setVideoUrl(res[0].fileUrl);
-                toast({
-                  title: "Success",
-                  description: "Upload Completed",
-                  status: "success",
-                  duration: 5000,
-                  isClosable: true,
-                });
+                // toast({
+                //   title: "Success",
+                //   description: "Upload Completed",
+                //   status: "success",
+                //   duration: 5000,
+                //   isClosable: true,
+                // });
+                toast.success("Upload Completed !");
               }}
               onUploadError={(error: Error) => {
-                toast({
-                  title: "Error",
-                  description: `Upload Error: ${error.message}`,
-                  status: "error",
-                  duration: 5000,
-                  isClosable: true,
-                });
+                // toast({
+                //   title: "Error",
+                //   description: `Upload Error: ${error.message}`,
+                //   status: "error",
+                //   duration: 5000,
+                //   isClosable: true,
+                // });
+                toast.error(`Upload Error: ${error.message}`);
               }}
               className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors border-gray-300"
             />

@@ -1,5 +1,12 @@
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  Image,
+} from "@react-pdf/renderer";
 
 // Define styles
 const styles = StyleSheet.create({
@@ -9,21 +16,18 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 20,
   },
   headerLeft: {
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  headerRight: {
-    justifyContent: "center",
-    alignItems: "center",
+    marginRight: 20,
   },
   avatar: {
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
     borderRadius: "50%",
+    marginRight: 20,
   },
   name: {
     fontSize: 24,
@@ -73,18 +77,16 @@ const ResumePDF: React.FC<{ userProfile: any }> = ({ userProfile }) => (
     <Page size="A4" style={styles.page}>
       {/* Header Section */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
+        {userProfile.avatarUrl && (
+          <Image style={styles.avatar} src={userProfile.avatarUrl} />
+        )}
+        <View>
           <Text style={styles.name}>
             {userProfile.first_name} {userProfile.last_name}
           </Text>
           <Text style={styles.headline}>{userProfile.headline}</Text>
           <Text style={styles.location}>{userProfile.location}</Text>
         </View>
-        {userProfile.avatarUrl && (
-          <View style={styles.headerRight}>
-            <Image style={styles.avatar} src={userProfile.avatarUrl} />
-          </View>
-        )}
       </View>
 
       {/* Bio Section */}
@@ -142,7 +144,9 @@ const ResumePDF: React.FC<{ userProfile: any }> = ({ userProfile }) => (
             <Text style={styles.sectionTitle}>Education</Text>
             {userProfile.educations.map((edu: any, index: number) => (
               <View key={index} style={styles.section}>
-                <Text style={[styles.text, styles.bold]}>{edu.school_name}</Text>
+                <Text style={[styles.text, styles.bold]}>
+                  {edu.school_name}
+                </Text>
                 <Text style={styles.text}>
                   {edu.degree}, {edu.title}
                 </Text>

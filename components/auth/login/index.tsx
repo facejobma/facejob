@@ -1,18 +1,21 @@
 /* eslint-disable react/no-unescaped-entities */
+
 "use client";
+
 import { FormEvent, useState } from "react";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import Image from "next/image";
 import google from "../../../public/svg/google.svg";
 import linkedin from "../../../public/svg/linkedin.svg";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 function handleLinkedinLogin() {
   //     todo
 }
 
-const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
+const LoginForm = (props: { loginFor: "candidat" | "entreprise" }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -52,9 +55,19 @@ const LoginForm = (props: { loginFor: "candidate" | "enterprise" }) => {
       sessionStorage.setItem("user", JSON.stringify(userData.data));
       sessionStorage.setItem("userRole", props.loginFor);
 
+      const { token } = userData;
+
+      Cookies.set("authToken", token, { expires: 7 });
+
+
+
       toast.success("connecté avec succès");
 
-      router.push("/dashboard");
+      if (props.loginFor === "candidat") {
+        router.push("/dashboard/candidat");
+      } else if (props.loginFor == "entreprise") {
+        router.push("/dashboard/entreprise");
+      }
     } catch (error: any) {
       console.error(error);
       toast.error(

@@ -43,7 +43,7 @@ export default function AboutUs({}: Props) {
             controls
             muted
             playsInline
-            poster="/videos/videoImage.png" 
+            poster="/videos/videoImage.png"
           >
             <source src="/videos/Facejob_VF_WEB.mp4" type="video/mp4" />
             Your browser does not support the video tag.

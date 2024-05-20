@@ -42,6 +42,67 @@ export type CV = {
   secteur_name: string;
 };
 
+export interface UserClient {
+  id: number;
+  first_name: string;
+  last_name: string;
+  sector: string;
+  image?: string;
+  bio: string;
+}
+
+export interface Experience {
+  roleUrl: string;
+  poste: string;
+  companyUrl: string;
+  organisme: string;
+  date_debut: string;
+  date_fin: string;
+  location?: string;
+  description?: string;
+  enterpriseLogoUrl?: string;
+}
+
+export interface ProfileData {
+  name: string;
+  headline: string;
+  avatarUrl: string;
+  coverImageUrl: string;
+  location: string;
+  companyName: string;
+  companyLogoUrl: string;
+  bio: string;
+  experiences: Experience[];
+  skills: any[]; 
+  projects: any[]; 
+  education: any[]; 
+}
+
+export interface Skill {
+  title: string;
+}
+
+export interface Project {
+  title: string;
+  description: string;
+}
+
+export interface Education {
+  schoolLogoUrl?: string;
+  school_name: string;
+  degree: string;
+  title: string;
+  graduation_date: string;
+}
+
+export interface ProfileSectionProps {
+  title: string;
+  children: React.ReactNode;
+  onUpdateContent: (newContent: any) => void; 
+  initialContent: any; 
+}
+
+
 export const navItemsCandidat: NavItem[] = [
   {
     title: "Dashboard",
@@ -56,8 +117,20 @@ export const navItemsCandidat: NavItem[] = [
     label: "payments",
   },
   {
+    title: "Offres",
+    href: "/dashboard/candidat/offres",
+    icon: "offres",
+    label: "offres",
+  },
+  {
+    title: "Postuler",
+    href: "/dashboard/candidat/postuler",
+    icon: "postuler",
+    label: "postuler",
+  },
+  {
     title: "Profile",
-    href: "/dashboard/candidat",
+    href: "/dashboard/candidat/profile",
     icon: "profile",
     label: "Profile",
   },

@@ -11,7 +11,6 @@ import Testimonials from "../components/Testimonials";
 
 export default function Home() {
     return (
-        <body>
         <div className="relative overflow-hidden">
             <Hero/>
             <main>
@@ -25,6 +24,5 @@ export default function Home() {
                 <Footer/>
             </main>
         </div>
-        </body>
     );
 }

@@ -22,7 +22,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
 
   const handleCloseModal = () => {
     setIsEditing(false);
-    setNewBio(bio); // Reset the bio to the original value if editing is canceled
+    setNewBio(bio); 
   };
 
   const handleBioUpdate = async (e: React.FormEvent<HTMLFormElement>) => {

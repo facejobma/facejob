@@ -26,6 +26,7 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
+
       <body className={`${inter.className}`}>
         <div className="flex h-screen">
           <Sidebar />

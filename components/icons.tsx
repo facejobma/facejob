@@ -35,7 +35,10 @@ import {
   CircleDollarSign,
   Layers,
   Send,
+  MessageCircleQuestion,
+  Users,
 } from "lucide-react";
+import { MdSupport } from "react-icons/md";
 
 export type Icon = LucideIcon;
 
@@ -76,4 +79,7 @@ export const Icons = {
   payments: CircleDollarSign,
   offres: Layers,
   postuler: Send,
+  entreprises: Building2,
+  support: MessageCircleQuestion,
+  candidats: Users
 };

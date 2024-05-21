@@ -18,12 +18,13 @@ export default async function RootLayout({
   const session = "tmpSession";
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <body className={`${inter.className} overflow-hidden`}> */}
-      <Providers session={session}>
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS!!} />
-        <Toaster position="top-center" /> {children}
-      </Providers>
-      {/* </body> */}
+      <Toaster position="top-center" />
+      <body>
+        <Providers session={session}>
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS!!} />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

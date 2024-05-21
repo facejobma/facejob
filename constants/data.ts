@@ -73,9 +73,9 @@ export interface ProfileData {
   companyLogoUrl: string;
   bio: string;
   experiences: Experience[];
-  skills: any[]; 
-  projects: any[]; 
-  education: any[]; 
+  skills: any[];
+  projects: any[];
+  education: any[];
 }
 
 export interface Skill {
@@ -98,10 +98,9 @@ export interface Education {
 export interface ProfileSectionProps {
   title: string;
   children: React.ReactNode;
-  onUpdateContent: (newContent: any) => void; 
-  initialContent: any; 
+  onUpdateContent: (newContent: any) => void;
+  initialContent: any;
 }
-
 
 export const navItemsCandidat: NavItem[] = [
   {
@@ -110,17 +109,18 @@ export const navItemsCandidat: NavItem[] = [
     icon: "dashboard",
     label: "Dashboard",
   },
-  {
-    title: "Service de Payment",
-    href: "/dashboard/candidat/payments",
-    icon: "payments",
-    label: "payments",
-  },
+
   {
     title: "Offres",
     href: "/dashboard/candidat/offres",
     icon: "offres",
     label: "offres",
+  },
+  {
+    title: "Entreprises",
+    href: "/dashboard/candidat/entreprises",
+    icon: "entreprises",
+    label: "entreprises",
   },
   {
     title: "Postuler",
@@ -133,6 +133,12 @@ export const navItemsCandidat: NavItem[] = [
     href: "/dashboard/candidat/profile",
     icon: "profile",
     label: "Profile",
+  },
+  {
+    title: "Support",
+    href: "/dashboard/candidat/support",
+    icon: "support",
+    label: "support",
   },
   {
     title: "Logout",
@@ -150,6 +156,18 @@ export const navItemsEntreprise: NavItem[] = [
     label: "Dashboard",
   },
   {
+    title: "Candidats",
+    href: "/dashboard/entreprise/candidats",
+    icon: "candidats",
+    label: "candidats",
+  },
+  { 
+    title: "Publier",
+    href: "/dashboard/candidat/publier",
+    icon: "postuler",
+    label: "publier",
+  },
+  {
     title: "Service de Payment",
     href: "/dashboard/entreprise/payments",
     icon: "payments",
@@ -157,9 +175,15 @@ export const navItemsEntreprise: NavItem[] = [
   },
   {
     title: "Profile",
-    href: "/dashboard/entreprise",
+    href: "/dashboard/entreprise/profile",
     icon: "profile",
     label: "Profile",
+  },
+  {
+    title: "Support",
+    href: "/dashboard/entreprise/support",
+    icon: "support",
+    label: "support",
   },
   {
     title: "Logout",

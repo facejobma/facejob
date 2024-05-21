@@ -1,11 +1,9 @@
+"use client"
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/router";
-import NavBar from "../../components/NavBar";
+import NavBar from "../../../components/NavBar";
 
-type ForgetPasswordFormProps = {
-  onSubmit: (formData: any) => void;
-};
 
 const ResetPasswordForm = () => {
   const [password, setPassword] = useState("");

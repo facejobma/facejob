@@ -79,7 +79,7 @@ const ForgetPasswordForm = ({ onSubmit }: ForgetPasswordFormProps) => {
           </button>
           <p className="font-normal my-2 mx-auto md:mx-32 text-second">
             Vous avez déjà un compte ?{" "}
-            <Link href="/auth/login-candidate" className="text-primary">
+            <Link href="/app/api/auth/login-candidate" className="text-primary">
               Se connecter
             </Link>
           </p>

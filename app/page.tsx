@@ -10,19 +10,21 @@ import Subscription from "../components/Subscription";
 import Testimonials from "../components/Testimonials";
 
 export default function Home() {
-  return (
-    <div className="relative overflow-hidden">
-      <Hero />
-      <main>
-        <Category />
-        <HowWorks />
-        <Testimonials />
-        <Subscription />
-        <FAQs />
-        <AboutUs />
-        <AboutUsArabic />
-        <Footer />
-      </main>
-    </div>
-  );
+    return (
+        <body>
+        <div className="relative overflow-hidden">
+            <Hero/>
+            <main>
+                <Category/>
+                <HowWorks/>
+                <Testimonials/>
+                <Subscription/>
+                <FAQs/>
+                <AboutUs/>
+                <AboutUsArabic/>
+                <Footer/>
+            </main>
+        </div>
+        </body>
+    );
 }

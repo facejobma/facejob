@@ -18,9 +18,9 @@ export default async function RootLayout({
   const session = "tmpSession";
   return (
     <html lang="en" suppressHydrationWarning>
-      <Toaster position="top-center" />
       <body>
-        <Providers session={session}>
+      <Toaster position="top-center" />
+      <Providers session={session}>
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS!!} />
           {children}
         </Providers>

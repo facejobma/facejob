@@ -9,8 +9,8 @@ export default function Sidebar() {
       ? window.sessionStorage?.getItem("userRole")
       : null;
 
-  const navItems =
-    userRole === "entreprise" ? navItemsEntreprise : navItemsCandidat;
+  const navItems = navItemsEntreprise;
+  // userRole === "entreprise" ? navItemsEntreprise : navItemsCandidat;
 
   return (
     <nav

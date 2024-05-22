@@ -1,5 +1,5 @@
 "use client";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import { Inter } from "next/font/google";
@@ -8,25 +8,25 @@ import dynamic from "next/dynamic";
 const inter = Inter({ subsets: ["latin"] });
 
 function DashboardLayout({ children }: { children: React.ReactNode }) {
-  //!!!!
-  // const router = useRouter();
+  // !!!!
+  const router = useRouter();
 
-  // const userDataString =
-  //   typeof window !== "undefined"
-  //     ? window.sessionStorage?.getItem("user")
-  //     : null;
-  // const userData = userDataString ? JSON.parse(userDataString) : null;
+  const userDataString =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user")
+      : null;
+  const userData = userDataString ? JSON.parse(userDataString) : null;
 
-  // if (!userData) {
-  //   router.push(`/`);
-  // }
+  if (!userData) {
+    router.push(`/`);
+  }
 
   return (
     <>
       <Header />
 
       {/* <body className={`${inter.className}`}> */}
-      <div className={`flex h-screen overflow-hidden ${inter.className}`}>
+      <div className={`flex h-screen ${inter.className}`}>
         <Sidebar />
         <main className="w-full pt-16">{children}</main>
       </div>

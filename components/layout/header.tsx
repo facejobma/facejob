@@ -12,7 +12,7 @@ export default function Header() {
   const router = useRouter();
 
   return (
-    <div className="fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20">
+    <div className={`fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 font-default`}>
       <nav className="h-14 flex items-center justify-between px-4">
         <div className="flex items-center gap-5">
           <div className="hidden lg:block my-2 mr-40">

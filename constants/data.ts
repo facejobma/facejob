@@ -163,7 +163,7 @@ export const navItemsEntreprise: NavItem[] = [
   },
   { 
     title: "Publier",
-    href: "/dashboard/candidat/publier",
+    href: "/dashboard/entreprise/publier",
     icon: "postuler",
     label: "publier",
   },

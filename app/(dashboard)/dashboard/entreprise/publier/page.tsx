@@ -1,69 +1,54 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import "@uploadthing/react/styles.css";
-import { UploadDropzone } from "@uploadthing/react";
-import { OurFileRouter } from "@/app/api/uploadthing/core";
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import ReactQuill from "react-quill"; // Import ReactQuill
 import Cookies from "js-cookie";
-// import { useToast } from "@/components/ui/use-toast";
 import { toast } from "react-hot-toast";
 
-interface Job {
+interface Option {
   id: number;
   name: string;
 }
 
-const PublishVideo: React.FC = () => {
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [experiences, setExperiences] = useState("");
-  const [job, setJob] = useState("");
-  const [jobOptions, setJobOptions] = useState<Job[]>([]);
+const PublishOffer: React.FC = () => {
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [contractType, setContractType] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [description, setDescription] = useState("");
+  const [secteur, setSecteur] = useState("");
+  const [metier, setMetier] = useState("");
+  const [secteurOptions, setSecteurOptions] = useState<Option[]>([]);
+  const [metierOptions, setMetierOptions] = useState<Option[]>([]);
   const [uploadStatus, setUploadStatus] = useState("idle");
-
-  // const { toast } = useToast();
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
-  const userData = sessionStorage.getItem("user") || "";
-  const user = JSON.parse(userData);
-
   useEffect(() => {
-    const fetchJobOptions = async () => {
+    const fetchOptions = async () => {
       try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/jobs",
-        );
-        const data = await response.json();
-        setJobOptions(data);
+        const [secteurResponse, metierResponse] = await Promise.all([
+          fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/secteurs"),
+          fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/metiers"),
+        ]);
+
+        const secteurData = await secteurResponse.json();
+        const metierData = await metierResponse.json();
+
+        setSecteurOptions(secteurData);
+        setMetierOptions(metierData);
       } catch (error) {
-        console.error("Error fetching job options:", error);
-        // toast({
-        //   title: "Error",
-        //   description: "Error fetching job options.",
-        //   status: "error",
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
-        toast.error("Error fetching job options!");
+        console.error("Error fetching options:", error);
+        toast.error("Error fetching options!");
       }
     };
 
-    fetchJobOptions();
-  }, [toast]);
+    fetchOptions();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!videoUrl) {
-      // toast({
-      //   title: "Error",
-      //   description: "Please upload a video.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      // });
-      toast.error("Please upload a video !");
-      return;
-    }
 
     setUploadStatus("uploading");
 
@@ -77,129 +62,167 @@ const PublishVideo: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            video_url: videoUrl,
-            nb_experiences: experiences,
-            job_id: job,
-            candidat_id: user.id,
+            title,
+            location,
+            contractType,
+            startDate,
+            description,
+            secteur,
+            metier,
           }),
         },
       );
 
       if (response.ok) {
-        // toast({
-        //   title: "Success",
-        //   description: "Video published successfully!",
-        //   status: "success",
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
-        toast.success("Video published successfully!");
+        toast.success("Offer published successfully!");
         setUploadStatus("completed");
       } else {
-        // toast({
-        //   title: "Error",
-        //   description: "Failed to publish video.",
-        //   status: "error",
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
-        toast.error("Failed to publish video !");
+        toast.error("Failed to publish offer!");
         setUploadStatus("failed");
       }
     } catch (error) {
-      console.error("Error publishing video:", error);
-      // toast({
-      //   title: "Error",
-      //   description: "An error occurred while publishing the video.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      // });
-      toast.error("An error occurred while publishing the video !");
+      console.error("Error publishing offer:", error);
+      toast.error("An error occurred while publishing the offer!");
       setUploadStatus("failed");
     }
   };
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-24  bg-gray-100 ">
+    <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-medium mb-8 text-center">
-          Publish Your CV Video
+          Publier votre offre
         </h2>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
             <label
               className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="video"
+              htmlFor="title"
             >
-              Upload CV Video
-            </label>
-            <UploadDropzone<OurFileRouter>
-              endpoint="imageUploader"
-              onClientUploadComplete={(res: any) => {
-                console.log("Files: ", res);
-                setVideoUrl(res[0].fileUrl);
-                // toast({
-                //   title: "Success",
-                //   description: "Upload Completed",
-                //   status: "success",
-                //   duration: 5000,
-                //   isClosable: true,
-                // });
-                toast.success("Upload Completed !");
-              }}
-              onUploadError={(error: Error) => {
-                // toast({
-                //   title: "Error",
-                //   description: `Upload Error: ${error.message}`,
-                //   status: "error",
-                //   duration: 5000,
-                //   isClosable: true,
-                // });
-                toast.error(`Upload Error: ${error.message}`);
-              }}
-              className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors border-gray-300"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="experiences"
-            >
-              Number of Experiences
+              Titre du poste
             </label>
             <input
-              type="number"
-              id="experiences"
-              value={experiences}
-              onChange={(e) => setExperiences(e.target.value)}
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter number of experiences"
+              placeholder="Entrez le titre du poste"
             />
           </div>
 
           <div className="mb-6">
             <label
               className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="job"
+              htmlFor="location"
             >
-              Select Corresponding Job
+              Lieu
+            </label>
+            <input
+              type="text"
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Entrez le lieu"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label
+              className="block text-sm font-bold mb-2 text-gray-700"
+              htmlFor="contractType"
+            >
+              Type de contrat
             </label>
             <select
-              id="job"
-              value={job}
-              onChange={(e) => setJob(e.target.value)}
+              id="contractType"
+              value={contractType}
+              onChange={(e) => setContractType(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option value="">Select a job</option>
-              {jobOptions.map((jobOption) => (
-                <option key={jobOption.id} value={jobOption.id}>
-                  {jobOption.name}
+              <option value="">Sélectionnez le type de contrat</option>
+              <option value="CDI">CDI</option>
+              <option value="CDD">CDD</option>
+              <option value="Temps plein">Temps plein</option>
+              <option value="Temps partiel">Temps partiel</option>
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <label
+              className="block text-sm font-bold mb-2 text-gray-700"
+              htmlFor="startDate"
+            >
+              Date de début
+            </label>
+            <input
+              type="date"
+              id="startDate"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label
+              className="block text-sm font-bold mb-2 text-gray-700"
+              htmlFor="secteur"
+            >
+              Secteur
+            </label>
+            <select
+              id="secteur"
+              value={secteur}
+              onChange={(e) => setSecteur(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="">Sélectionnez le secteur</option>
+              {secteurOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="mb-6">
+            <label
+              className="block text-sm font-bold mb-2 text-gray-700"
+              htmlFor="metier"
+            >
+              Métier
+            </label>
+            <select
+              id="metier"
+              value={metier}
+              onChange={(e) => setMetier(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="">Sélectionnez le métier</option>
+              {metierOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <label
+              className="block text-sm font-bold mb-2 text-gray-700"
+              htmlFor="description"
+            >
+              Description du poste
+            </label>
+            <ReactQuill
+              value={description}
+              onChange={setDescription}
+              className="h-40 mb-6"
+              placeholder="Entrez la description du poste"
+            />
           </div>
 
           <div className="flex justify-center">
@@ -212,7 +235,7 @@ const PublishVideo: React.FC = () => {
               }`}
               disabled={uploadStatus === "uploading"}
             >
-              {uploadStatus === "uploading" ? "Publishing..." : "Publish Video"}
+              {uploadStatus === "uploading" ? "Publishing..." : "Publish Offer"}
             </button>
           </div>
         </form>
@@ -221,4 +244,4 @@ const PublishVideo: React.FC = () => {
   );
 };
 
-export default PublishVideo;
+export default PublishOffer;

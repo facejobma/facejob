@@ -262,7 +262,7 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
         </button>
         <p className="font-normal my-2 mx-16 text-second">
           Vous avez déjà un compte ?{" "}
-          <Link href="/app/api/auth/login-candidate" className="text-primary">
+          <Link href="/auth/login-candidate" className="text-primary">
             se connecter
           </Link>
         </p>

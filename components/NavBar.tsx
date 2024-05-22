@@ -91,7 +91,7 @@ export default function NavBar() {
             <ul className="hidden md:flex gap-5 font-bold text-sm">
               <li>
                 <Link
-                  href="/app/api/auth/login-candidate"
+                  href="/auth/login-candidate"
                   className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
                 >
                   Candidat
@@ -99,7 +99,7 @@ export default function NavBar() {
               </li>
               <li>
                 <Link
-                  href="/app/api/auth/login-enterprise"
+                  href="/auth/login-enterprise"
                   className="px-6 py-3 rounded-[15px] bg-primary text-white font-default"
                 >
                   Entreprise
@@ -142,7 +142,7 @@ export default function NavBar() {
             <li className={"flex gap-2 mb-2"}>
               <div>
                 <Link
-                  href="/app/api/auth/login-candidate"
+                  href="/auth/login-candidate"
                   className="px-8 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
                 >
                   Candidat
@@ -150,7 +150,7 @@ export default function NavBar() {
               </div>
               <div>
                 <Link
-                  href="/app/api/auth/login-enterprise"
+                  href="/auth/login-enterprise"
                   className="px-8 py-3 rounded-[15px] bg-primary text-white font-default"
                 >
                   Entreprise

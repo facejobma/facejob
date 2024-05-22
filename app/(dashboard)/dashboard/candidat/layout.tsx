@@ -5,34 +5,33 @@ import Sidebar from "@/components/layout/sidebar";
 import { Inter } from "next/font/google";
 import dynamic from "next/dynamic";
 
+const inter = Inter({ subsets: ["latin"] });
 
 function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  //!!!!
+  // const router = useRouter();
 
-  // useEffect(() => {
-  const userDataString =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user")
-      : null;
-  const userData = userDataString ? JSON.parse(userDataString) : null;
+  // const userDataString =
+  //   typeof window !== "undefined"
+  //     ? window.sessionStorage?.getItem("user")
+  //     : null;
+  // const userData = userDataString ? JSON.parse(userDataString) : null;
 
-  if (!userData) {
-    router.push(`/`);
-    // return null;
-  }
-  // }, [router]);
+  // if (!userData) {
+  //   router.push(`/`);
+  // }
 
   return (
-    <>
+    <html>
       <Header />
 
-      {/*<body className={`${inter.className}`}>*/}
+      <body className={`${inter.className}`}>
         <div className="flex h-screen">
           <Sidebar />
           <main className="w-full pt-16">{children}</main>
         </div>
-      {/*</body>*/}
-    </>
+      </body>
+    </html>
   );
 }
 

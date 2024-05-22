@@ -195,7 +195,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
         </button>
         <p className="font-normal text-center my-2 md:mx-16 text-second">
           Vous avez déjà un compte ?{" "}
-          <Link href="/app/api/auth/login-enterprise" className="text-primary">
+          <Link href="/auth/login-enterprise" className="text-primary">
             se connecter
           </Link>
         </p>

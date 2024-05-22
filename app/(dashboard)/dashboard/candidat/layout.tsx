@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import { Inter } from "next/font/google";
@@ -22,16 +22,15 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
   // }
 
   return (
-    <html>
+    <>
       <Header />
 
-      <body className={`${inter.className}`}>
-        <div className="flex h-screen">
-          <Sidebar />
-          <main className="w-full pt-16">{children}</main>
-        </div>
-      </body>
-    </html>
+      {/* <body className={`${inter.className}`}> */}
+      <div className={`flex h-screen overflow-hidden ${inter.className}`}>
+        <Sidebar />
+        <main className="w-full pt-16">{children}</main>
+      </div>
+    </>
   );
 }
 

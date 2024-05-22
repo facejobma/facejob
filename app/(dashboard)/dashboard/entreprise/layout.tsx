@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 
@@ -27,15 +27,15 @@ export default function DashboardLayout({
   // }
 
   return (
-    <html>
+    <>
       <Header />
-      <body className={`${inter.className} overflow-hidden`}>
-        <div className="flex h-screen overflow-hidden">
+      {/* <body className={`${inter.className} overflow-hidden`}> */}
+        <div className={`flex h-screen overflow-hidden ${inter.className}`}>
           <Sidebar />
           
           <main className="w-full pt-16">{children}</main>
         </div>
-      </body>
-    </html>
+      {/* </body> */}
+    </>
   );
 }

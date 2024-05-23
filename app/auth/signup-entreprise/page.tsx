@@ -59,5 +59,3 @@ const SignupEntreprisePage = () => {
 
 export default SignupEntreprisePage;
 
-// TODO: Adresse Real
-// VILLA 11, RESIDENCE RYAD AL ANDALOUS, VILLE NOUVELLE IBN BATTOUTA, TANGER

@@ -35,7 +35,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/enterprise/register",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/entreprise/register",
         {
           method: "POST",
           headers: {

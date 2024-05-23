@@ -1,6 +1,7 @@
+"use client"
 import { useState, useEffect, FC, ChangeEvent } from "react";
 import { useDropzone } from "react-dropzone";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 interface SecteurOptions {
@@ -193,9 +194,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
           onClick={() => {
             onSkip();
             sessionStorage.clear();
-            router.push("/auth/login-candidate").then(() => {
-              console.log("redirected");
-            });
+            router.push("/auth/login-candidate");
           }}
           className="py-2 px-10 rounded-full font-medium text-base text-white bg-gray-400 w-full"
         >

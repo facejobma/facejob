@@ -32,7 +32,7 @@ const LoginForm = (props: { loginFor: "candidat" | "entreprise" }) => {
     try {
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL +
-          `/auth/${props.loginFor}/login`,
+          `/api/auth/${props.loginFor}/login`,
         {
           method: "POST",
           headers: {

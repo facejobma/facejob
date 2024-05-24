@@ -37,13 +37,7 @@ const PublishVideo: React.FC = () => {
         setJobOptions(data);
       } catch (error) {
         console.error("Error fetching job options:", error);
-        // toast({
-        //   title: "Error",
-        //   description: "Error fetching job options.",
-        //   status: "error",
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
+
         toast.error("Error fetching job options!");
       }
     };
@@ -54,13 +48,6 @@ const PublishVideo: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!videoUrl) {
-      // toast({
-      //   title: "Error",
-      //   description: "Please upload a video.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      // });
       toast.error("Please upload a video !");
       return;
     }
@@ -86,35 +73,15 @@ const PublishVideo: React.FC = () => {
       );
 
       if (response.ok) {
-        // toast({
-        //   title: "Success",
-        //   description: "Video published successfully!",
-        //   status: "success",
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
         toast.success("Video published successfully!");
         setUploadStatus("completed");
       } else {
-        // toast({
-        //   title: "Error",
-        //   description: "Failed to publish video.",
-        //   status: "error",
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
+        
         toast.error("Failed to publish video !");
         setUploadStatus("failed");
       }
     } catch (error) {
       console.error("Error publishing video:", error);
-      // toast({
-      //   title: "Error",
-      //   description: "An error occurred while publishing the video.",
-      //   status: "error",
-      //   duration: 5000,
-      //   isClosable: true,
-      // });
       toast.error("An error occurred while publishing the video !");
       setUploadStatus("failed");
     }
@@ -140,23 +107,9 @@ const PublishVideo: React.FC = () => {
               onClientUploadComplete={(res: any) => {
                 console.log("Files: ", res);
                 setVideoUrl(res[0].fileUrl);
-                // toast({
-                //   title: "Success",
-                //   description: "Upload Completed",
-                //   status: "success",
-                //   duration: 5000,
-                //   isClosable: true,
-                // });
                 toast.success("Upload Completed !");
               }}
               onUploadError={(error: Error) => {
-                // toast({
-                //   title: "Error",
-                //   description: `Upload Error: ${error.message}`,
-                //   status: "error",
-                //   duration: 5000,
-                //   isClosable: true,
-                // });
                 toast.error(`Upload Error: ${error.message}`);
               }}
               className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors border-gray-300"

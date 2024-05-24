@@ -59,8 +59,6 @@ const LoginForm = (props: { loginFor: "candidat" | "entreprise" }) => {
 
       Cookies.set("authToken", token, { expires: 7 });
 
-
-
       toast.success("connecté avec succès");
 
       if (props.loginFor === "candidat") {

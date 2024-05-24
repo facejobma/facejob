@@ -1,14 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import ReactQuill from "react-quill"; // Import ReactQuill
+import "react-quill/dist/quill.snow.css"; 
+import ReactQuill from "react-quill"; 
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 
-interface Option {
+interface Job {
   id: number;
   name: string;
+}
+
+interface Sector {
+  id: number;
+  name: string;
+  jobs: Job[];
 }
 
 const PublishOffer: React.FC = () => {
@@ -17,34 +23,35 @@ const PublishOffer: React.FC = () => {
   const [contractType, setContractType] = useState("");
   const [startDate, setStartDate] = useState("");
   const [description, setDescription] = useState("");
-  const [secteur, setSecteur] = useState("");
-  const [metier, setMetier] = useState("");
-  const [secteurOptions, setSecteurOptions] = useState<Option[]>([]);
-  const [metierOptions, setMetierOptions] = useState<Option[]>([]);
+  const [selectedSector, setSelectedSector] = useState("");
+  const [selectedJob, setSelectedJob] = useState("");
+  const [sectors, setSectors] = useState<Sector[]>([]);
   const [uploadStatus, setUploadStatus] = useState("idle");
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  const userData = sessionStorage.getItem("user");
+  // console.log("user data : ", userData);
+
+  // if (userData) {
+  //   const user = JSON.parse(userData);
+  //   setEntreprise(user.id);
+  // }
 
   useEffect(() => {
-    const fetchOptions = async () => {
+    const fetchSectors = async () => {
       try {
-        const [secteurResponse, metierResponse] = await Promise.all([
-          fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/secteurs"),
-          fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/metiers"),
-        ]);
-
-        const secteurData = await secteurResponse.json();
-        const metierData = await metierResponse.json();
-
-        setSecteurOptions(secteurData);
-        setMetierOptions(metierData);
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+        );
+        const data = await response.json();
+        setSectors(data);
       } catch (error) {
-        console.error("Error fetching options:", error);
-        toast.error("Error fetching options!");
+        console.error("Error fetching sectors:", error);
+        toast.error("Error fetching sectors!");
       }
     };
 
-    fetchOptions();
+    fetchSectors();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,32 +60,36 @@ const PublishOffer: React.FC = () => {
     setUploadStatus("uploading");
 
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/candidate/postuler",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
+      if (userData) {
+        const user = JSON.parse(userData);
+        
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/offre/create",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              titre: title,
+              location,
+              contractType,
+              date_debut: startDate,
+              description,
+              sector_id: selectedSector,
+              job_id: selectedJob,
+              entreprise_id: user.id,
+            }),
           },
-          body: JSON.stringify({
-            title,
-            location,
-            contractType,
-            startDate,
-            description,
-            secteur,
-            metier,
-          }),
-        },
-      );
-
-      if (response.ok) {
-        toast.success("Offer published successfully!");
-        setUploadStatus("completed");
-      } else {
-        toast.error("Failed to publish offer!");
-        setUploadStatus("failed");
+        );
+        if (response.ok) {
+          toast.success("Offer published successfully!");
+          setUploadStatus("completed");
+        } else {
+          toast.error("Failed to publish offer!");
+          setUploadStatus("failed");
+        }
       }
     } catch (error) {
       console.error("Error publishing offer:", error);
@@ -86,6 +97,11 @@ const PublishOffer: React.FC = () => {
       setUploadStatus("failed");
     }
   };
+
+  // Filter jobs based on selected sector
+  const filteredJobs =
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
+    [];
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
@@ -175,14 +191,17 @@ const PublishOffer: React.FC = () => {
             </label>
             <select
               id="secteur"
-              value={secteur}
-              onChange={(e) => setSecteur(e.target.value)}
+              value={selectedSector}
+              onChange={(e) => {
+                setSelectedSector(e.target.value);
+                setSelectedJob(""); // Reset job selection when sector changes
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Sélectionnez le secteur</option>
-              {secteurOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
+              {sectors.map((sector) => (
+                <option key={sector.id} value={sector.id}>
+                  {sector.name}
                 </option>
               ))}
             </select>
@@ -197,14 +216,15 @@ const PublishOffer: React.FC = () => {
             </label>
             <select
               id="metier"
-              value={metier}
-              onChange={(e) => setMetier(e.target.value)}
+              value={selectedJob}
+              onChange={(e) => setSelectedJob(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              disabled={!selectedSector}
             >
               <option value="">Sélectionnez le métier</option>
-              {metierOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.name}
+              {filteredJobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.name}
                 </option>
               ))}
             </select>

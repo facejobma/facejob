@@ -3,10 +3,7 @@
 import React, { useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import ResumePDF from "@/components/ResumePDF";
 import { Edit } from "lucide-react";
-
 
 interface ProfileEntrepHeaderProps {
   id: number;
@@ -16,7 +13,7 @@ interface ProfileEntrepHeaderProps {
   coverImageUrl?: string;
   siegeSocial?: string;
   companyLogoUrl?: string;
-  website?: string ;
+  website?: string;
   creationDate: string;
 }
 
@@ -35,12 +32,11 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    newSector: sector || "",
+    newCompanyName: company_name,
+    newSector: sector,
     newSiegeSocial: siegeSocial || "",
-    newCompanyName: company_name || "",
     newWebsite: website || "",
     newCreationDate: creationDate || "",
-    
   });
 
   const handleEditClick = () => {
@@ -53,10 +49,16 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
+      // Parse the creation date string
+      const creationDate = new Date(formData.newCreationDate);
+      
+      // Format the date as "yyyy-MM-dd"
+      const formattedCreationDate = creationDate.toISOString().split('T')[0];
+  
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/candidate/updateId/${id}`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/enterprise/updateId/${id}`,
         {
           method: "PUT",
           headers: {
@@ -68,11 +70,11 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             sector: formData.newSector,
             siegeSocial: formData.newSiegeSocial,
             website: formData.newWebsite,
-            // companyName: formData.newCompanyName,
+            creationDate: formattedCreationDate, // Use the formatted date
           }),
         },
       );
-
+  
       if (response.ok) {
         const updatedData = await response.json();
         console.log("Updated profile data:", updatedData);
@@ -84,9 +86,10 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       console.error("Error updating profile data:", error);
     }
   };
+  
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -112,7 +115,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             onClick={handleEditClick}
           >
             <Edit />
-            {/* Edit */}
           </button>
         </div>
         {avatarUrl && (
@@ -125,9 +127,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           </div>
         )}
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
-          <h1 className="text-2xl font-bold mb-1">
-            {company_name}
-          </h1>
+          <h1 className="text-2xl font-bold mb-1">{company_name}</h1>
           <p className="text-gray-600 mb-2">{sector}</p>
           {siegeSocial && <p className="text-gray-600 mb-3">{siegeSocial}</p>}
           {website && (
@@ -142,13 +142,11 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           )}
         </div>
 
-        {creationDate  && (
+        {creationDate && (
           <div className="flex items-center absolute bottom-6 right-6">
-          
-          <p className="text-gray-600 text-sm">
-            Creation Date: {new Date(creationDate).toLocaleDateString()}
-          </p>
-  
+            <p className="text-gray-600 text-sm">
+              Creation Date: {new Date(creationDate).toLocaleDateString()}
+            </p>
           </div>
         )}
       </div>
@@ -161,9 +159,9 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         description="Update your profile information"
       >
         <form onSubmit={handleProfileUpdate}>
-          {/* Name */}
+          {/* Company Name */}
           <label htmlFor="newCompanyName" className="block mb-2 font-bold">
-            Company name
+            Company Name
           </label>
           <input
             type="text"
@@ -187,10 +185,9 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             onChange={handleInputChange}
             placeholder="Enter new sector"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-
           />
-            
-            {/* Website */}
+
+          {/* Website */}
           <label htmlFor="newWebsite" className="block mb-2 font-bold">
             Website
           </label>
@@ -203,21 +200,21 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             placeholder="Enter new website"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
+
           {/* Creation Date */}
           <label htmlFor="newCreationDate" className="block mb-2 font-bold">
             Creation Date
           </label>
           <input
-            type="text"
+            type="date"
             id="newCreationDate"
             name="newCreationDate"
             value={formData.newCreationDate}
             onChange={handleInputChange}
-            placeholder="Enter new creation date"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          
-          {/* siegeSocial */}
+
+          {/* Siege Social */}
           <label htmlFor="newSiegeSocial" className="block mb-2 font-bold">
             Siege Social
           </label>
@@ -230,6 +227,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             placeholder="Enter new siege social"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
+
           {/* Submit Button */}
           <button
             type="submit"

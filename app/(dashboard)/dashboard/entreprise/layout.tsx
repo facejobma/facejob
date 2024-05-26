@@ -4,6 +4,7 @@ import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 
 import { Inter } from "next/font/google";
+import { useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,6 +15,7 @@ export default function DashboardLayout({
 }) {
   //!!!
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
 
   const userDataString =
     typeof window !== "undefined"
@@ -25,16 +27,22 @@ export default function DashboardLayout({
     router.push(`/`);
   }
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <>
-      <Header />
-      {/* <body className={`${inter.className} overflow-hidden`}> */}
-      <div className={`flex h-screen ${inter.className}`}>
-        <Sidebar />
+      <Header />{" "}
+      {isClient ? (
+        <div className={`flex h-screen ${inter.className}`}>
+          <Sidebar />
 
-        <main className="w-full pt-16">{children}</main>
-      </div>
-      {/* </body> */}
+          <main className="w-full pt-16">{children}</main>
+        </div>
+      ) : (
+        <p>There are some issues during loading the page !</p>
+      )}
     </>
   );
 }

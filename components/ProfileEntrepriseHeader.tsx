@@ -8,7 +8,7 @@ import { Edit } from "lucide-react";
 interface ProfileEntrepHeaderProps {
   id: number;
   company_name: string;
-  sector: string;
+  sector_id: number;
   avatarUrl?: string;
   coverImageUrl?: string;
   siegeSocial?: string;
@@ -20,7 +20,7 @@ interface ProfileEntrepHeaderProps {
 const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   id,
   company_name,
-  sector,
+  sector_id,
   avatarUrl,
   coverImageUrl,
   siegeSocial,
@@ -33,7 +33,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     newCompanyName: company_name,
-    newSector: sector,
+    newSector: sector_id || "",
     newSiegeSocial: siegeSocial || "",
     newWebsite: website || "",
     newCreationDate: creationDate || "",
@@ -67,10 +67,10 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           },
           body: JSON.stringify({
             company_name: formData.newCompanyName,
-            sector: formData.newSector,
-            siegeSocial: formData.newSiegeSocial,
-            website: formData.newWebsite,
-            creationDate: formattedCreationDate, // Use the formatted date
+            sector_id: formData.newSector,
+            adresse: formData.newSiegeSocial,
+            site_web: formData.newWebsite,
+            created_at: formattedCreationDate, // Use the formatted date
           }),
         },
       );
@@ -128,7 +128,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         )}
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
           <h1 className="text-2xl font-bold mb-1">{company_name}</h1>
-          <p className="text-gray-600 mb-2">{sector}</p>
+          <p className="text-gray-600 mb-2">{sector_id}</p>
           {siegeSocial && <p className="text-gray-600 mb-3">{siegeSocial}</p>}
           {website && (
             <a

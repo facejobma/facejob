@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import ProfileEntrepHeader from "@/components/ProfileEntrepriseHeader";
 import BioEntrepSection from "@/components/BioEntrep";
+import ContactSection from "@/components/contactSection";
 import Cookies from "js-cookie";
 import { Circles } from "react-loader-spinner";
 
@@ -12,14 +13,11 @@ const CompanyProfile: React.FC = () => {
 
   useEffect(() => {
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+    const company = sessionStorage.getItem("user");
+    const companyId = company ? JSON.parse(company).id : null;
 
-    const companyData = sessionStorage.getItem("user");
-    console.log("company data : ", companyData);
-
-
-    if (companyData) {
-      const company = JSON.parse(companyData);
-      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/enterprise/${company.id}`;
+    if (companyId) {
+      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/enterprise/${companyId}`;
 
       fetch(apiUrl, {
         headers: {
@@ -35,20 +33,22 @@ const CompanyProfile: React.FC = () => {
         })
         .then((companyData) => {
           const profileData = {
-            id: company.id,
-            company_name: company.company_name,
-            sector: company.sector_id,
-            site_web: company.site_web,
-            creationDate: company.created_at,
-            adresse: company.adresse,
+            id: companyData.id,
+            company_name: companyData.company_name,
+            sector_id: companyData.sector_id,
+            site_web: companyData.site_web,
+            linkedin: companyData.linkedin,
+            phone: companyData.phone,
+            email: companyData.email, // Add email
+            creationDate: companyData.created_at.split('T')[0], // Format to yyyy-MM-dd
+            adresse: companyData.adresse,
             description: companyData.description || "",
             coverImageUrl: companyData.coverImageUrl || "https://via.placeholder.com/150",
             avatarUrl: companyData.avatarUrl || "https://via.placeholder.com/150",
             logo: companyData.logo || "https://via.placeholder.com/150",
           };
-
+          console.log("company data : ", profileData);
           setCompanyProfile(profileData);
-          console.log("company profile data : ", profileData);
           setLoading(false);
         })
         .catch((error) => {
@@ -81,7 +81,7 @@ const CompanyProfile: React.FC = () => {
           id={companyProfile.id}
           company_name={companyProfile.company_name}
           companyLogoUrl={companyProfile.logo}
-          sector={companyProfile.sector}
+          sector_id={companyProfile.sector_id}
           website={companyProfile.site_web}
           creationDate={companyProfile.creationDate}
           siegeSocial={companyProfile.adresse}
@@ -90,6 +90,13 @@ const CompanyProfile: React.FC = () => {
         />
 
         <BioEntrepSection id={companyProfile.id} bio={companyProfile.description} />
+        <ContactSection
+          id={companyProfile.id}
+          email={companyProfile.email}
+          phone={companyProfile.phone}
+          linkedin={companyProfile.linkedin}
+          adresse={companyProfile.adresse}
+        />
       </div>
     </div>
   );

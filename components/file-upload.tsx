@@ -62,7 +62,7 @@ export default function FileUpload({
                 {value.length < IMG_MAX_LIMIT && (
                     <UploadDropzone<OurFileRouter>
                         className="dark:bg-zinc-800 py-2 ut-label:text-sm ut-allowed-content:ut-uploading:text-red-300"
-                        endpoint="videoUpload" as string
+                        endpoint="videoUpload"
                         config={{mode: "auto"}}
                         content={{
                             allowedContent({isUploading}) {

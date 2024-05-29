@@ -1,16 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState} from "react";
 import { Edit } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Cookies from "js-cookie";
+import dynamic from "next/dynamic";
 
 interface BioEntrepSectionProps {
   id: number;
   bio: string;
 }
+
+const ReactQuill = dynamic(import('react-quill'), {
+  ssr: false,
+  loading: () => <p>chargement ...</p>,
+})
+
 
 const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");

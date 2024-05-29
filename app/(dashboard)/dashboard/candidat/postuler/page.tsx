@@ -5,7 +5,6 @@ import "@uploadthing/react/styles.css";
 import { UploadDropzone } from "@uploadthing/react";
 import { OurFileRouter } from "@/app/api/uploadthing/core";
 import Cookies from "js-cookie";
-// import { useToast } from "@/components/ui/use-toast";
 import { toast } from "react-hot-toast";
 
 interface Job {
@@ -103,7 +102,7 @@ const PublishVideo: React.FC = () => {
               Upload CV Video
             </label>
             <UploadDropzone<OurFileRouter>
-              endpoint="imageUploader"
+              endpoint="videoUpload"
               onClientUploadComplete={(res: any) => {
                 console.log("Files: ", res);
                 setVideoUrl(res[0].fileUrl);

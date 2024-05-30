@@ -1,56 +1,52 @@
 "use client";
-import { CalendarDateRangePicker } from "@/components/date-range-picker";
-import { Overview } from "@/components/overview";
-import { RecentSales } from "@/components/recent-sales";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { Statistiques } from "@/types";
+import {CalendarDateRangePicker} from "@/components/date-range-picker";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import React, {useEffect, useState} from "react";
+import {useToast} from "@/components/ui/use-toast";
+import {Statistiques} from "@/types";
+import {DateRange} from "react-day-picker";
+import {addYears} from "date-fns";
 
 function OverViewTab() {
-  const [stats, setStats] = useState({} as Statistiques);
-  const { toast } = useToast();
+    const [date, setDate] = React.useState<DateRange | undefined>({
+        from: addYears(new Date(), -1),
+        to: new Date(),
+    });
+    const [stats, setStats] = useState({} as Statistiques);
+    const {toast} = useToast();
 
-  useEffect(() => {
-    async function getStats() {
-      await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/admin/statics")
-        .then((response) => response.json())
-        .then((result) => {
-          setStats(result);
-        })
-        .catch((error) => {
-          toast({
-            title: "Whoops!",
-            variant: "destructive",
-            description: error.message,
-          });
-        });
-    }
+    useEffect(() => {
+        async function getStats() {
+            await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/admin/statics")
+                .then((response) => response.json())
+                .then((result) => {
+                    setStats(result);
+                })
+                .catch((error) => {
+                    toast({
+                        title: "Whoops!",
+                        variant: "destructive",
+                        description: error.message,
+                    });
+                });
+        }
 
-    getStats();
-  }, [toast]);
+        getStats();
+    }, [toast]);
 
-  return (
-    <ScrollArea className="h-full">
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">
-            Bonjour, bon retour 👋
-          </h2>
-          <div className="hidden md:flex items-center space-x-2">
-            <CalendarDateRangePicker />
-          </div>
-        </div>
+    return (
+        <ScrollArea className="h-full">
+            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+                <div className="flex items-center justify-between space-y-2">
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        Bonjour, bon retour 👋
+                    </h2>
+                    <div className="hidden md:flex items-center space-x-2">
+                        <CalendarDateRangePicker date={date} setDate={setDate}/>
+                    </div>
+                </div>
 
-        {/* <Tabs defaultValue="overview" className="space-y-4">
+                {/* <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Aperçu</TabsTrigger>
             <TabsTrigger value="analytics" disabled>
@@ -80,11 +76,11 @@ function OverViewTab() {
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.secteurs}</div>
                   {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +20.1% from last month*/}
-        {/*</p>*/}
-        {/* </CardContent> */}
-        {/* </Card> */}
-        {/* <Card>
+                {/*  +20.1% from last month*/}
+                {/*</p>*/}
+                {/* </CardContent> */}
+                {/* </Card> */}
+                {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total des postules
@@ -106,10 +102,10 @@ function OverViewTab() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.postules}</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +180.1% from last month*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                {/*<p className="text-xs text-muted-foreground">*/}
+                {/*  +180.1% from last month*/}
+                {/*</p>*/}
+                {/* </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -132,10 +128,10 @@ function OverViewTab() {
                   <div className="text-2xl font-bold">{
                     stats.offres
           }</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +19% from last month*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                {/*<p className="text-xs text-muted-foreground">*/}
+                {/*  +19% from last month*/}
+                {/*</p>*/}
+                {/* </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -158,10 +154,10 @@ function OverViewTab() {
                 <CardContent>
                   <div className="text-2xl font-bold">{
                     stats.users}</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +201 since last hour*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                {/*<p className="text-xs text-muted-foreground">*/}
+                {/*  +201 since last hour*/}
+                {/*</p>*/}
+                {/* </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -180,10 +176,10 @@ function OverViewTab() {
                   <div className="text-2xl font-bold">{
                     stats.entreprises
                   }</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +201 since last hour*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                {/*<p className="text-xs text-muted-foreground">*/}
+                {/*  +201 since last hour*/}
+                {/*</p>*/}
+                {/* </CardContent>
               </Card>
             </div>
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
@@ -209,11 +205,11 @@ function OverViewTab() {
             </div>
           </TabsContent>
         </Tabs> */}
-      </div>
-    </ScrollArea>
-  );
+            </div>
+        </ScrollArea>
+    );
 }
 
 export default function page() {
-  return <OverViewTab />;
+    return <OverViewTab/>;
 }

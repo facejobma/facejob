@@ -7,16 +7,16 @@ import { EnterpriseData } from "@/types";
 export const EntrepriseProfile: React.FC<{ initialData: EnterpriseData }> = ({
   initialData,
 }) => {
-  const isPending = initialData.isVerified === "Pending";
-  const isAccepted = initialData.isVerified === "Accepted";
-  const isDeclined = initialData.isVerified === "Declined";
+  const isPending = initialData.is_verified === "Pending";
+  const isAccepted = initialData.is_verified === "Accepted";
+  const isDeclined = initialData.is_verified === "Declined";
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg max-w-md mx-auto mt-8 p-6">
       <div className="flex items-center justify-center">
         <div className="w-20 h-20 relative rounded-full overflow-hidden">
           <Image
-            src={initialData.logo}
+            src={initialData.entreprise_logo}
             alt={`${initialData.company_name} Logo`}
             layout="fill"
             objectFit="cover"
@@ -37,7 +37,7 @@ export const EntrepriseProfile: React.FC<{ initialData: EnterpriseData }> = ({
 
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Pannel actuelle</h2>
-          <p className="text-gray-600">{initialData.plan}</p>
+          <p className="text-gray-600">{initialData.plan_name}</p>
         </div>
 
         <div className="mb-4">

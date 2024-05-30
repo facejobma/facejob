@@ -41,30 +41,30 @@ export default function Page() {
 
           const {
             company_name,
-            secteur,
+            sector,
             email,
             phone,
             adresse,
             site_web,
             effectif,
             description,
-            logo,
-            isVerified,
-            plan
+            entreprise_logo,
+            is_verified,
+            plan_name
           } = data;
 
           setEnterpriseData({
             company_name,
-            secteur,
+            sector,
             email,
             phone,
             adresse,
             site_web,
             effectif,
             description,
-            logo,
-            isVerified,
-            plan
+            entreprise_logo,
+            is_verified,
+            plan_name
           });
         } catch (error) {
           // console.log(error);

@@ -8,7 +8,7 @@ import { Edit } from "lucide-react";
 interface ProfileEntrepHeaderProps {
   id: number;
   company_name: string;
-  sector_id: number;
+  sector_name: string;
   avatarUrl?: string;
   coverImageUrl?: string;
   siegeSocial?: string;
@@ -20,7 +20,7 @@ interface ProfileEntrepHeaderProps {
 const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   id,
   company_name,
-  sector_id,
+  sector_name,
   avatarUrl,
   coverImageUrl,
   siegeSocial,
@@ -33,7 +33,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     newCompanyName: company_name,
-    newSector: sector_id || "",
+    newSector: sector_name || "",
     newSiegeSocial: siegeSocial || "",
     newWebsite: website || "",
     newCreationDate: creationDate || "",
@@ -128,7 +128,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         )}
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
           <h1 className="text-2xl font-bold mb-1">{company_name}</h1>
-          <p className="text-gray-600 mb-2">{sector_id}</p>
+          <p className="text-gray-600 mb-2">{sector_name}</p>
           {siegeSocial && <p className="text-gray-600 mb-3">{siegeSocial}</p>}
           {website && (
             <a

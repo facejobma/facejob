@@ -1,5 +1,4 @@
 "use client";
-import ThemeToggle from "@/components/layout/ThemeToggle/theme-toggle";
 import { cn } from "@/lib/utils";
 import { MobileSidebar } from "./mobile-sidebar";
 import { UserNav } from "./user-nav";
@@ -60,7 +59,6 @@ export default function Header() {
         <div className="flex items-center gap-5">
           <Notification />
           <UserNav />
-          <ThemeToggle />
         </div>
       </nav>
     </div>

@@ -12,7 +12,6 @@ interface ContactSectionProps {
   linkedin: string;
   adresse: string;
 }
-
 const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linkedin, adresse }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 

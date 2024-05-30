@@ -1,27 +1,43 @@
 "use client";
 import { CalendarDateRangePicker } from "@/components/date-range-picker";
-import { Overview } from "@/components/overview";
 import { RecentSales } from "@/components/recent-sales";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Statistiques } from "@/types";
+import { Overview } from "@/components/overview";
+import * as React from "react";
+import { DateRange } from "react-day-picker";
+import { addYears } from "date-fns";
+import Cookies from "js-cookie";
 
 function OverViewTab() {
   const [stats, setStats] = useState({} as Statistiques);
+  const [date, setDate] = React.useState<DateRange | undefined>({
+    from: addYears(new Date(), -1),
+    to: new Date(),
+  });
   const { toast } = useToast();
+
+  const authToken = Cookies.get("authToken");
 
   useEffect(() => {
     async function getStats() {
-      await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/admin/statics")
+      await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL +
+          "/api/admin/statics?from=" +
+          date?.from?.toISOString() +
+          "&to=" +
+          date?.to?.toISOString(),
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      )
         .then((response) => response.json())
         .then((result) => {
           setStats(result);
@@ -36,7 +52,7 @@ function OverViewTab() {
     }
 
     getStats();
-  }, [toast]);
+  }, [date?.from, date?.to, toast]);
 
   return (
     <ScrollArea className="h-full">
@@ -46,15 +62,13 @@ function OverViewTab() {
             Bonjour, bon retour 👋
           </h2>
           <div className="hidden md:flex items-center space-x-2">
-            <CalendarDateRangePicker />
+            <CalendarDateRangePicker date={date} setDate={setDate} />
           </div>
         </div>
-        {/* <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Aperçu</TabsTrigger>
-            <TabsTrigger value="analytics" disabled>
-              Plus de details
-            </TabsTrigger>
+            <TabsTrigger value="analytics">Plus de details</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -77,13 +91,12 @@ function OverViewTab() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.secteurs}</div>
-                  {/*<p className="text-xs text-muted-foreground">*/}
-                  {/*  +20.1% from last month*/}
-                  {/*</p>*/}
-            {/* </CardContent> */}
-        {/* </Card> */}
-        {/* <Card>
+                  <div className="text-2xl font-bold">
+                    {stats.sectors_count}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total des postules
@@ -104,15 +117,16 @@ function OverViewTab() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.postules}</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +180.1% from last month*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                  <div className="text-2xl font-bold">
+                    {stats.postules_count}
+                  </div>
+                </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total d&apos;offres</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total d&apos;offres
+                  </CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -128,13 +142,8 @@ function OverViewTab() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{
-                    stats.offres
-          }</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +19% from last month*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                  <div className="text-2xl font-bold">{stats.offres_count}</div>
+                </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -155,12 +164,10 @@ function OverViewTab() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{
-                    stats.users}</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +201 since last hour*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                  <div className="text-2xl font-bold">
+                    {stats.candidates_count}
+                  </div>
+                </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -168,46 +175,70 @@ function OverViewTab() {
                     Nombre d&apos;entreprises
                   </CardTitle>
 
-                  <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none"
-                       xmlns="http://www.w3.org/2000/svg">
+                  <svg
+                    className="h-4 w-4 text-muted-foreground"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                     <path
                       d="M9 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7H15M9 7V5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7M9 7H15"
-                      stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      stroke="#000000"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{
-                    stats.entreprises
-                  }</div> */}
-        {/*<p className="text-xs text-muted-foreground">*/}
-        {/*  +201 since last hour*/}
-        {/*</p>*/}
-        {/* </CardContent>
+                  <div className="text-2xl font-bold">
+                    {stats.entreprises_count}
+                  </div>
+                </CardContent>
               </Card>
             </div>
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4">
                 <CardHeader>
-                  <CardTitle>Overview</CardTitle>
+                  <CardTitle>Les ventes</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <Overview />
+                  {stats.sales && <Overview unit={"DH"} stats={stats.sales} />}
                 </CardContent>
               </Card>
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
-                  <CardDescription>
-                    You made 265 sales this month.
-                  </CardDescription>
+                  <CardTitle>Ventes récentes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales />
+                  {stats.last_n_sales && (
+                    <RecentSales sales={stats.last_n_sales} />
+                  )}
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
-        </Tabs> */}
+          <TabsContent value="analytics" className="space-y-4">
+            <div className="grid gap-4  grid-cols-2">
+              <Card className="col-span-1">
+                <CardHeader>
+                  <CardTitle>Les enterprises</CardTitle>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  {stats.entreprises && <Overview stats={stats.entreprises} />}
+                </CardContent>
+              </Card>
+              <Card className="col-span-1">
+                <CardHeader>
+                  <CardTitle>Les candidats</CardTitle>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  {stats.candidates && <Overview stats={stats.candidates} />}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </ScrollArea>
   );

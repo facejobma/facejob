@@ -7,7 +7,6 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import ResumePDF from "@/components/ResumePDF";
 import { Edit } from "lucide-react";
 
-
 interface ProfileHeaderProps {
   id: number;
   first_name: string;
@@ -114,7 +113,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         />
       )}
 
-      <div className="p-6 relative">
+      <div className="p-10 relative">
         <div className="absolute top-4 right-6">
           <button
             className="text-gray-400 hover:text-gray-600"
@@ -143,21 +142,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <PDFDownloadLink
             document={
               <ResumePDF
-                userProfile={{
-                  first_name,
-                  last_name,
-                  headline,
-                  avatarUrl,
-                  coverImageUrl,
-                  location,
-                  companyName,
-                  companyLogoUrl,
-                  bio,
-                  experiences,
-                  skills,
-                  projects,
-                  educations,
-                }}
+                candidateId={id}
               />
             }
             fileName="resume.pdf"

@@ -52,6 +52,11 @@ const PublishOffer: React.FC = () => {
     fetchSectors();
   }, []);
 
+  // Filter jobs based on selected sector
+  const filteredJobs =
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
+    [];
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -96,10 +101,7 @@ const PublishOffer: React.FC = () => {
     }
   };
 
-  // Filter jobs based on selected sector
-  const filteredJobs =
-    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
-    [];
+  
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">

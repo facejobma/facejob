@@ -1,23 +1,25 @@
 import Image from "next/image";
 import { CheckCircle, XCircle } from "lucide-react";
 
+
 interface JobData {
   id: number;
   titre: string;
   description: string;
   date_debut: string;
   date_fin: string;
-  company_name: number;
-  sector_name: number;
-  isVerified: string;
+  company_name: string;
+  sector_name: string;
+  contractType: string;
+  is_verified: string;
 }
 
 export const JobForm: React.FC<{ initialData: JobData }> = ({
   initialData,
 }) => {
-  const isPending = initialData.isVerified === "Pending";
-  const isAccepted = initialData.isVerified === "Accepted";
-  const isDeclined = initialData.isVerified === "Declined";
+  const isPending = initialData.is_verified === "Pending";
+  const isAccepted = initialData.is_verified === "Accepted";
+  const isDeclined = initialData.is_verified === "Declined";
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg max-w-md mx-auto mt-8 p-6">

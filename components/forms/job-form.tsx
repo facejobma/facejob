@@ -8,7 +8,7 @@ interface JobData {
   date_debut: string;
   date_fin: string;
   company_name: number;
-  secteur_name: number;
+  sector_name: number;
   isVerified: string;
 }
 
@@ -46,7 +46,7 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
 
         <div>
           <h2 className="text-lg font-semibold mb-2">Secteur</h2>
-          <p className="text-gray-600">{initialData.secteur_name}</p>
+          <p className="text-gray-600">{initialData.sector_name}</p>
         </div>
       </div>
 

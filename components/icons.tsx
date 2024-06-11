@@ -37,6 +37,7 @@ import {
   Send,
   MessageCircleQuestion,
   Users,
+  BriefcaseBusiness 
 } from "lucide-react";
 import { MdSupport } from "react-icons/md";
 
@@ -81,5 +82,6 @@ export const Icons = {
   postuler: Send,
   entreprises: Building2,
   support: MessageCircleQuestion,
-  candidats: Users
+  candidats: Users,
+  mesOffres: BriefcaseBusiness
 };

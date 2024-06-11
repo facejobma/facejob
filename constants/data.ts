@@ -23,6 +23,11 @@ export type Entreprise = {
   isVerified: string;
 };
 
+export type Sector = {
+  id: number;
+  name: string;
+};
+
 export type Job = {
   id: number;
   titre: string;
@@ -30,8 +35,9 @@ export type Job = {
   date_debut: string;
   date_fin: string;
   company_name: string;
-  secteur_name: string;
-  isVerified: string;
+  sector: Sector;
+  contractType: string;
+  is_verified: string;
 };
 
 export type CV = {
@@ -167,8 +173,14 @@ export const navItemsEntreprise: NavItem[] = [
     icon: "postuler",
     label: "publier",
   },
+  { 
+    title: "Mes Offres",
+    href: "/dashboard/entreprise/mes-offres",
+    icon: "mesOffres",
+    label: "mesOffres",
+  },
   {
-    title: "Service de Payment",
+    title: "Service de Paiment",
     href: "/dashboard/entreprise/payments",
     icon: "payments",
     label: "payments",

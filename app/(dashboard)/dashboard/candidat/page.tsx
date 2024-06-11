@@ -1,10 +1,12 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
+import { Circles } from "react-loader-spinner";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -27,6 +29,7 @@ interface CV {
   candidat_name: string;
   secteur_name: string;
   is_verified: string;
+  job_name: string;
 }
 
 const columns: ColumnDef<CV>[] = [
@@ -56,6 +59,16 @@ const columns: ColumnDef<CV>[] = [
   {
     accessorKey: "link",
     header: "VIDEO",
+    cell: ({ row }) => (
+      <video width="100" height="60" controls>
+        <source src={row.original.link} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    ),
+  },
+  {
+    accessorKey: "job_name",
+    header: "Metier",
   },
   {
     accessorKey: "secteur_name",
@@ -82,6 +95,7 @@ const columns: ColumnDef<CV>[] = [
 
 export default function UsersPage() {
   const [users, setUsers] = useState<CV[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const { toast } = useToast();
   const authToken = Cookies.get("authToken");
   const user = sessionStorage.getItem("user");
@@ -90,6 +104,7 @@ export default function UsersPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true); // Set loading to true before starting the fetch
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-video/${userId}`,
           {
@@ -120,6 +135,8 @@ export default function UsersPage() {
           variant: "destructive",
           description: "Erreur lors de la récupération des données.",
         });
+      } finally {
+        setLoading(false); // Set loading to false after fetching is complete
       }
     };
 
@@ -128,6 +145,7 @@ export default function UsersPage() {
 
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [selectedSector, setSelectedSector] = useState<string>("");
+  const [selectedJob, setSelectedJob] = useState<string>("");
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedStatus(event.target.value);
@@ -137,21 +155,51 @@ export default function UsersPage() {
     setSelectedSector(event.target.value);
   };
 
+  const handleJobChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedJob(event.target.value);
+  };
+
   const filteredUsers = useMemo(
     () =>
       users.filter(
         (user) =>
           (selectedStatus === "" || user.is_verified === selectedStatus) &&
-          (selectedSector === "" || user.secteur_name === selectedSector)
+          (selectedSector === "" || user.secteur_name === selectedSector) &&
+          (selectedJob === "" || user.job_name === selectedJob)
       ),
-    [users, selectedStatus, selectedSector]
+    [users, selectedStatus, selectedSector, selectedJob]
   );
+
+  const jobOptions = useMemo(() => {
+    const jobs = Array.from(new Set(users.map((user) => user.job_name)));
+    return ["", ...jobs];
+  }, [users]);
 
   const table = useReactTable({
     data: filteredUsers,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(), // Enable pagination
+    initialState: {
+      pagination: {
+        pageSize: 4, // Set page size to 4
+      },
+    },
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-220px)]">
+        <Circles
+          height={80}
+          width={80}
+          color="#4fa94d"
+          ariaLabel="circles-loading"
+          visible={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -185,6 +233,18 @@ export default function UsersPage() {
               </option>
             )
           )}
+        </select>
+        <select
+          value={selectedJob}
+          onChange={handleJobChange}
+          className="border bg-white text-gray-500 p-2 rounded-md focus:outline-none focus:border-accent focus:ring focus:ring-accent disabled:opacity-50 w-60"
+        >
+          <option value="">All Jobs</option>
+          {jobOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
         </select>
       </div>
       <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">
@@ -228,10 +288,20 @@ export default function UsersPage() {
           {table.getRowModel().rows.length} row(s) selected.
         </div>
         <div className="space-x-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
             Previous
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
             Next
           </Button>
         </div>

@@ -26,6 +26,10 @@ export const columns: ColumnDef<CV>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "id",
+    header: "ID",
+  },
+  {
     accessorKey: "link",
     header: "VIDEO",
     // cell: ({ row }) => (

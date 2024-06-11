@@ -22,13 +22,46 @@ interface Candidate {
 
 const Hiring: React.FC = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+
+  const [selectedCandidate, setSelectedCandidate] = useState<number | null>(
+    null,
+  );
+  const [loadingPDF, setLoadingPDF] = useState<{ [key: number]: boolean }>({});
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [sectors, setSectors] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
-  const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
-  const [loadingPDF, setLoadingPDF] = useState<{ [key: number]: boolean }>({});
-  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
+  useEffect(() => {
+    if (selectedSector) {
+      const sector = sectors.find((sec) => sec.id === Number(selectedSector));
+      setFilteredJobs(sector ? sector.jobs : []);
+      setSelectedJob(""); // Reset selected job when sector changes
+    } else {
+      setFilteredJobs([]);
+    }
+  }, [selectedSector, sectors]);
+
+
+  const fetchSectors = async () => {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+        { 
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await response.json();
+      setSectors(data);
+    } catch (error) {
+      console.error("Error fetching sectors:", error);
+      toast.error("Error fetching sectors!");
+    }
+  };
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -40,7 +73,7 @@ const Hiring: React.FC = () => {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         const data = await response.json();
         setCandidates(data);
@@ -50,38 +83,9 @@ const Hiring: React.FC = () => {
       }
     };
 
-    const fetchSectors = async () => {
-      try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = await response.json();
-        setSectors(data);
-      } catch (error) {
-        console.error("Error fetching sectors:", error);
-        toast.error("Error fetching sectors!");
-      }
-    };
-
     fetchCandidates();
     fetchSectors();
   }, [authToken]);
-
-  useEffect(() => {
-    if (selectedSector) {
-      const sector = sectors.find((sec) => sec.id === Number(selectedSector));
-      setFilteredJobs(sector ? sector.jobs : []);
-      setSelectedJob(""); // Reset selected job when sector changes
-    } else {
-      setFilteredJobs([]);
-    }
-  }, [selectedSector, sectors]);
 
   const handleGenerateCV = (candidateId: number) => {
     setLoadingPDF((prev) => ({ ...prev, [candidateId]: true }));
@@ -98,8 +102,12 @@ const Hiring: React.FC = () => {
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 bg-gray-100">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Candidate Videos</h1>
-        <p className="text-gray-600">Browse through the videos to find your ideal candidate</p>
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          Candidate Videos
+        </h1>
+        <p className="text-gray-600">
+          Browse through the videos to find your ideal candidate
+        </p>
       </div>
       <div className="flex justify-center space-x-4 mb-8">
         <div className="relative w-64">
@@ -164,7 +172,8 @@ const Hiring: React.FC = () => {
               <p className="text-gray-600">
                 {candidate.nb_experiences} years of experience
               </p>
-              {selectedCandidate === candidate.id && loadingPDF[candidate.id] ? (
+              {selectedCandidate === candidate.id &&
+              loadingPDF[candidate.id] ? (
                 <PDFDownloadLink
                   document={<ResumePDF candidateId={candidate.id} />}
                   fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}

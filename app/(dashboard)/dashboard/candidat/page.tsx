@@ -1,12 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  useReactTable
+  useReactTable,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -14,7 +13,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -71,8 +70,8 @@ const columns: ColumnDef<CV>[] = [
           row.original.is_verified === "Accepted"
             ? "bg-green-200 text-green-800 rounded-full py-1 px-2 text-center"
             : row.original.is_verified === "Declined"
-              ? "bg-yellow-200 text-yellow-800 rounded-full py-1 px-2 text-center"
-              : "bg-gray-200 text-gray-800 rounded-full py-1 px-2 text-center"
+            ? "bg-yellow-200 text-yellow-800 rounded-full py-1 px-2 text-center"
+            : "bg-gray-200 text-gray-800 rounded-full py-1 px-2 text-center"
         }
       >
         {row.original.is_verified}
@@ -98,7 +97,7 @@ export default function UsersPage() {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
             },
-          },
+          }
         );
 
         if (!response.ok) {
@@ -106,6 +105,7 @@ export default function UsersPage() {
         }
 
         const data = await response.json();
+        console.log("Data:", data);
 
         if (Array.isArray(data)) {
           setUsers(data);
@@ -137,16 +137,20 @@ export default function UsersPage() {
     setSelectedSector(event.target.value);
   };
 
-  const filteredUsers = users.filter(user =>
-    (selectedStatus === "" || user.is_verified === selectedStatus) &&
-    (selectedSector === "" || user.secteur_name === selectedSector)
+  const filteredUsers = useMemo(
+    () =>
+      users.filter(
+        (user) =>
+          (selectedStatus === "" || user.is_verified === selectedStatus) &&
+          (selectedSector === "" || user.secteur_name === selectedSector)
+      ),
+    [users, selectedStatus, selectedSector]
   );
 
   const table = useReactTable({
     data: filteredUsers,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   });
 
   return (
@@ -221,7 +225,7 @@ export default function UsersPage() {
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table.getRowModel().rows.length} row(s) selected.
         </div>
         <div className="space-x-2">
           <Button variant="outline" size="sm">

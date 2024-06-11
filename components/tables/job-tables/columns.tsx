@@ -34,27 +34,27 @@ export const columns: ColumnDef<Job>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: "company_name",
-    header: "ENTREPRISE",
-  },
-  {
-    accessorKey: "secteur_name",
+    accessorKey: "sector_name",
     header: "SECTEUR",
   },
   {
-    accessorKey: "isVerified",
+    accessorKey: "contractType",
+    header: "CONTRAT",
+  },
+  {
+    accessorKey: "is_verified",
     header: "STATUS",
     cell: ({ row }) => (
       <div
         className={
-          row.original.isVerified === "Accepted"
+          row.original.is_verified === "Accepted"
             ? "bg-green-200 text-green-800 rounded-full py-1 px-2 text-center"
-            : row.original.isVerified === "Declined"
+            : row.original.is_verified === "Declined"
               ? "bg-yellow-200 text-yellow-800 rounded-full py-1 px-2 text-center"
               : "bg-gray-200 text-gray-800 rounded-full py-1 px-2 text-center"
         }
       >
-        {row.original.isVerified}
+        {row.original.is_verified}
       </div>
     ),
   },

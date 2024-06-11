@@ -11,12 +11,20 @@ interface JobProps {
 }
 
 export const JobRequests: FC<JobProps> = ({ data }) => {
+
+  data = data.map((job) => {
+    return {
+      ...job,
+      sector_name: job.sector.name,
+    };
+  }, []);
+
   return (
     <>
       <div className="flex items-start justify-between">
         <Heading
-          title={`Jobs (${data.length})`}
-          description="Validating the job requests"
+          title={`Offres (${data.length})`}
+          description="Consultez mes offres"
         />
       </div>
       <Separator />

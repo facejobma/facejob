@@ -89,7 +89,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              router.push(`/dashboard/jobs/${data.id}`);
+              router.push(`/dashboard/entreprise/mes-offres/${data.id}`);
             }}
           >
             <View className="mr-2 h-4 w-4" /> Consult

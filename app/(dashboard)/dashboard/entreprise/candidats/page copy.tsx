@@ -1,10 +1,9 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import ResumePDF from "@/components/ResumePDF";
+import ResumePDFLoader from "@/components/ResumePDFLoader";
+import { Button } from "@/components/ui/button";
 
 interface Candidate {
   id: number;
@@ -26,8 +25,9 @@ const Hiring: React.FC = () => {
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
-  const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
-  const [loadingPDF, setLoadingPDF] = useState<{ [key: number]: boolean }>({});
+  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
+    null,
+  );
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const Hiring: React.FC = () => {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         const data = await response.json();
         setCandidates(data);
@@ -59,7 +59,7 @@ const Hiring: React.FC = () => {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         const data = await response.json();
         setSectors(data);
@@ -80,13 +80,9 @@ const Hiring: React.FC = () => {
       setSelectedJob(""); // Reset selected job when sector changes
     } else {
       setFilteredJobs([]);
+      setSelectedJob(""); // Reset selected job when no sector is selected
     }
   }, [selectedSector, sectors]);
-
-  const handleGenerateCV = (candidateId: number) => {
-    setLoadingPDF((prev) => ({ ...prev, [candidateId]: true }));
-    setSelectedCandidate(candidateId);
-  };
 
   const filteredCandidates = candidates.filter((candidate) => {
     return (
@@ -98,8 +94,12 @@ const Hiring: React.FC = () => {
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 bg-gray-100">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Candidate Videos</h1>
-        <p className="text-gray-600">Browse through the videos to find your ideal candidate</p>
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          Candidate Videos
+        </h1>
+        <p className="text-gray-600">
+          Browse through the videos to find your ideal candidate
+        </p>
       </div>
       <div className="flex justify-center space-x-4 mb-8">
         <div className="relative w-64">
@@ -164,23 +164,11 @@ const Hiring: React.FC = () => {
               <p className="text-gray-600">
                 {candidate.nb_experiences} years of experience
               </p>
-              {selectedCandidate === candidate.id && loadingPDF[candidate.id] ? (
-                <PDFDownloadLink
-                  document={<ResumePDF candidateId={candidate.id} />}
-                  fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                  className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
-                >
-                  {({ loading }) =>
-                    loading ? "Generating..." : "Consulter CV"
-                  }
-                </PDFDownloadLink>
-              ) : (
-                <button
-                  onClick={() => handleGenerateCV(candidate.id)}
-                  className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
-                >
-                  Consulter CV
-                </button>
+              <Button onClick={() => setSelectedCandidateId(candidate.id)}>
+                Consulter CV
+              </Button>
+              {selectedCandidateId === candidate.id && (
+                <ResumePDFLoader candidateId={candidate.id} />
               )}
             </div>
           </div>

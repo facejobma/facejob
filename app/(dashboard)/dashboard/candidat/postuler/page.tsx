@@ -12,42 +12,49 @@ interface Job {
   name: string;
 }
 
+interface Sector {
+  id: number;
+  name: string;
+  jobs: Job[];
+}
+
 const PublishVideo: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [experiences, setExperiences] = useState("");
   const [job, setJob] = useState("");
-  const [jobOptions, setJobOptions] = useState<Job[]>([]);
+  const [sectors, setSectors] = useState<Sector[]>([]);
+  const [selectedSector, setSelectedSector] = useState("");
+  const [selectedJob, setSelectedJob] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle");
 
-  // const { toast } = useToast();
-
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-
-  const userData = sessionStorage.getItem("user") || "";
-  const user = JSON.parse(userData);
+  const userData = sessionStorage.getItem("user");
+  const user = userData ? JSON.parse(userData) : null;
 
   useEffect(() => {
-    const fetchJobOptions = async () => {
+    const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/jobs",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
         );
         const data = await response.json();
-        setJobOptions(data);
+        setSectors(data);
       } catch (error) {
-        console.error("Error fetching job options:", error);
-
-        toast.error("Error fetching job options!");
+        console.error("Error fetching sectors:", error);
+        toast.error("Error fetching sectors!");
       }
     };
 
-    fetchJobOptions();
-  }, [toast]);
+    fetchSectors();
+  }, []);
+
+  const filteredJobs =
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!videoUrl) {
-      toast.error("Please upload a video !");
+      toast.error("Please upload a video!");
       return;
     }
 
@@ -65,29 +72,28 @@ const PublishVideo: React.FC = () => {
           body: JSON.stringify({
             video_url: videoUrl,
             nb_experiences: experiences,
-            job_id: job,
+            job_id: selectedJob,
             candidat_id: user.id,
           }),
-        },
+        }
       );
 
       if (response.ok) {
         toast.success("Video published successfully!");
         setUploadStatus("completed");
       } else {
-        
-        toast.error("Failed to publish video !");
+        toast.error("Failed to publish video!");
         setUploadStatus("failed");
       }
     } catch (error) {
       console.error("Error publishing video:", error);
-      toast.error("An error occurred while publishing the video !");
+      toast.error("An error occurred while publishing the video!");
       setUploadStatus("failed");
     }
   };
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-24  bg-gray-100 ">
+    <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-medium mb-8 text-center">
           Publish Your CV Video
@@ -106,7 +112,7 @@ const PublishVideo: React.FC = () => {
               onClientUploadComplete={(res: any) => {
                 console.log("Files: ", res);
                 setVideoUrl(res[0].fileUrl);
-                toast.success("Upload Completed !");
+                toast.success("Upload Completed!");
               }}
               onUploadError={(error: Error) => {
                 toast.error(`Upload Error: ${error.message}`);
@@ -135,20 +141,46 @@ const PublishVideo: React.FC = () => {
           <div className="mb-6">
             <label
               className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="job"
+              htmlFor="secteur"
             >
-              Select Corresponding Job
+              Secteur
             </label>
             <select
-              id="job"
-              value={job}
-              onChange={(e) => setJob(e.target.value)}
+              id="secteur"
+              value={selectedSector}
+              onChange={(e) => {
+                setSelectedSector(e.target.value);
+                setSelectedJob(""); // Reset job selection when sector changes
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option value="">Select a job</option>
-              {jobOptions.map((jobOption) => (
-                <option key={jobOption.id} value={jobOption.id}>
-                  {jobOption.name}
+              <option value="">Sélectionnez le secteur</option>
+              {sectors.map((sector) => (
+                <option key={sector.id} value={sector.id}>
+                  {sector.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <label
+              className="block text-sm font-bold mb-2 text-gray-700"
+              htmlFor="metier"
+            >
+              Métier
+            </label>
+            <select
+              id="metier"
+              value={selectedJob}
+              onChange={(e) => setSelectedJob(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              disabled={!selectedSector}
+            >
+              <option value="">Sélectionnez le métier</option>
+              {filteredJobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.name}
                 </option>
               ))}
             </select>

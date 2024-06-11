@@ -1,4 +1,5 @@
-import React from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import {
   Page,
   Text,
@@ -7,6 +8,8 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import Cookies from "js-cookie";
+import { toast } from "react-hot-toast";
 
 // Define styles
 const styles = StyleSheet.create({
@@ -19,9 +22,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
-  },
-  headerLeft: {
-    marginRight: 20,
   },
   avatar: {
     width: 80,
@@ -72,92 +72,137 @@ const styles = StyleSheet.create({
 });
 
 // Define the Resume component
-const ResumePDF: React.FC<{ userProfile: any }> = ({ userProfile }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        {userProfile.avatarUrl && (
-          <Image style={styles.avatar} src={userProfile.avatarUrl} />
-        )}
-        <View>
-          <Text style={styles.name}>
-            {userProfile.first_name} {userProfile.last_name}
-          </Text>
-          <Text style={styles.headline}>{userProfile.headline}</Text>
-          <Text style={styles.location}>{userProfile.location}</Text>
-        </View>
-      </View>
+const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
+  const [userProfile, setUserProfile] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-      {/* Bio Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About Me</Text>
-        <Text style={styles.text}>{userProfile.bio}</Text>
-      </View>
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
-      {/* Columns for Skills, Projects, Experiences, and Education */}
-      <View style={styles.columns}>
-        {/* Left Column: Skills and Projects */}
-        <View style={styles.column}>
-          {/* Skills Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Skills</Text>
-            {userProfile.skills.map((skill: any, index: number) => (
-              <Text key={index} style={styles.text}>
-                {skill.title}
-              </Text>
-            ))}
-          </View>
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${candidateId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        setUserProfile(data);
+      } catch (error) {
+        setError("Error fetching candidate profile");
+        toast.error("Error fetching candidate profile");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-          {/* Projects Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Projects</Text>
-            {userProfile.projects.map((project: any, index: number) => (
-              <View key={index} style={styles.section}>
-                <Text style={[styles.text, styles.bold]}>{project.title}</Text>
-                <Text style={styles.text}>{project.description}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
+    fetchProfileData();
+  }, [candidateId]);
 
-        {/* Right Column: Experiences and Education */}
-        <View style={styles.column}>
-          {/* Experiences Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Experiences</Text>
-            {userProfile.experiences.map((exp: any, index: number) => (
-              <View key={index} style={styles.section}>
-                <Text style={[styles.text, styles.bold]}>
-                  {exp.poste} at {exp.organisme}
-                </Text>
-                <Text style={styles.text}>
-                  {exp.date_debut} - {exp.date_fin}
-                </Text>
-                <Text style={styles.text}>{exp.description}</Text>
-              </View>
-            ))}
-          </View>
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
-          {/* Education Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Education</Text>
-            {userProfile.educations.map((edu: any, index: number) => (
-              <View key={index} style={styles.section}>
-                <Text style={[styles.text, styles.bold]}>
-                  {edu.school_name}
-                </Text>
-                <Text style={styles.text}>
-                  {edu.degree}, {edu.title}
-                </Text>
-                <Text style={styles.text}>{edu.graduation_date}</Text>
-              </View>
-            ))}
+  if (error) {
+    return <Text>{error}</Text>;
+  }
+
+  if (!userProfile) {
+    return <Text>No profile data available</Text>;
+  }
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Header Section */}
+        <View style={styles.header}>
+          {userProfile.image && (
+            <Image style={styles.avatar} src={userProfile.image} />
+          )}
+          <View>
+            <Text style={styles.name}>
+              {userProfile.first_name} {userProfile.last_name}
+            </Text>
+            <Text style={styles.headline}>{userProfile.headline}</Text>
+            <Text style={styles.location}>{userProfile.location}</Text>
           </View>
         </View>
-      </View>
-    </Page>
-  </Document>
-);
+
+        {/* Bio Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About Me</Text>
+          <Text style={styles.text}>{userProfile.bio}</Text>
+        </View>
+
+        {/* Columns for Skills, Projects, Experiences, and Education */}
+        <View style={styles.columns}>
+          {/* Left Column: Skills and Projects */}
+          <View style={styles.column}>
+            {/* Skills Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Skills</Text>
+              {userProfile.skills?.map((skill: any, index: number) => (
+                <Text key={index} style={styles.text}>
+                  {skill.title}
+                </Text>
+              ))}
+            </View>
+
+            {/* Projects Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Projects</Text>
+              {userProfile.projects?.map((project: any, index: number) => (
+                <View key={index} style={styles.section}>
+                  <Text style={[styles.text, styles.bold]}>{project.title}</Text>
+                  <Text style={styles.text}>{project.description}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Right Column: Experiences and Education */}
+          <View style={styles.column}>
+            {/* Experiences Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Experiences</Text>
+              {userProfile.experiences?.map((exp: any, index: number) => (
+                <View key={index} style={styles.section}>
+                  <Text style={[styles.text, styles.bold]}>
+                    {exp.poste} at {exp.organisme}
+                  </Text>
+                  <Text style={styles.text}>
+                    {exp.date_debut} - {exp.date_fin}
+                  </Text>
+                  <Text style={styles.text}>{exp.description}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Education Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Education</Text>
+              {userProfile.educations?.map((edu: any, index: number) => (
+                <View key={index} style={styles.section}>
+                  <Text style={[styles.text, styles.bold]}>
+                    {edu.school_name}
+                  </Text>
+                  <Text style={styles.text}>
+                    {edu.degree}, {edu.title}
+                  </Text>
+                  <Text style={styles.text}>{edu.graduation_date}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+};
 
 export default ResumePDF;

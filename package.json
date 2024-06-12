@@ -14,7 +14,7 @@
     "@dnd-kit/modifiers": "^7.0.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@hookform/resolvers": "^3.4.2",
+    "@hookform/resolvers": "^3.6.0",
     "@material-tailwind/react": "^2.1.9",
     "@next/third-parties": "^14.2.3",
     "@radix-ui/react-accordion": "^1.1.2",

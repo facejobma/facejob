@@ -94,7 +94,7 @@ const Hiring: React.FC = () => {
 
   const filteredCandidates = candidates.filter((candidate) => {
     return (
-      (!selectedSector || candidate.job.sector_id === Number(selectedSector)) &&
+      (!selectedSector || candidate.job?.sector_id === Number(selectedSector)) &&
       (!selectedJob || candidate.job.id === Number(selectedJob))
     );
   });
@@ -168,7 +168,7 @@ const Hiring: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-800">
                 {candidate.first_name} {candidate.last_name}
               </h3>
-              <p className="text-gray-600">{candidate.job.name}</p>
+              <p className="text-gray-600">{candidate.job?.name}</p>
               <p className="text-gray-600">
                 {candidate.nb_experiences} years of experience
               </p>

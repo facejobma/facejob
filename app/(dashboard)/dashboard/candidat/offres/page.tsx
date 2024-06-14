@@ -36,7 +36,7 @@ const OffresPage: React.FC = () => {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       setSectors(data);
@@ -55,7 +55,7 @@ const OffresPage: React.FC = () => {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       const data = await response.json();
       setEntreprises(data);
@@ -75,7 +75,7 @@ const OffresPage: React.FC = () => {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -101,7 +101,8 @@ const OffresPage: React.FC = () => {
     return (
       (!selectedSector || offre.sector_id === Number(selectedSector)) &&
       (!selectedJob || offre.job_id === Number(selectedJob)) &&
-      (!selectedEntreprise || offre.entreprise_id === Number(selectedEntreprise))
+      (!selectedEntreprise ||
+        offre.entreprise_id === Number(selectedEntreprise))
     );
   });
 
@@ -172,7 +173,8 @@ const OffresPage: React.FC = () => {
               <option value="">Select Entreprise</option>
               {entreprises.map((entreprise) => (
                 <option key={entreprise.id} value={entreprise.id}>
-                  {entreprise.company_name} {/* Ensure this is the correct field */}
+                  {entreprise.company_name}{" "}
+                  {/* Ensure this is the correct field */}
                 </option>
               ))}
             </select>

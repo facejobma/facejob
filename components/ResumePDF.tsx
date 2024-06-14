@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   Page,
@@ -28,6 +28,15 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: "50%",
     marginRight: 20,
+  },
+  avatarBlur: {
+    width: 80,
+    height: 80,
+    borderRadius: "50%",
+    marginRight: 20,
+    opacity: 0,
+    display: "none",
+    
   },
   name: {
     fontSize: 24,
@@ -89,7 +98,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         const data = await response.json();
         setUserProfile(data);
@@ -116,17 +125,28 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
     return <Text>No profile data available</Text>;
   }
 
+  const userRole = sessionStorage.getItem("userRole");
+  const abbreviatedLastName =
+    userRole === "entreprise"
+      ? `${userProfile.last_name.charAt(0)}.`
+      : userProfile.last_name;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Header Section */}
         <View style={styles.header}>
           {userProfile.image && (
-            <Image style={styles.avatar} src={userProfile.image} />
+            <Image
+              style={
+                userRole === "entreprise" ? styles.avatarBlur : styles.avatar
+              }
+              src={userProfile.image}
+            />
           )}
           <View>
             <Text style={styles.name}>
-              {userProfile.first_name} {userProfile.last_name}
+              {userProfile.first_name} {abbreviatedLastName}
             </Text>
             <Text style={styles.headline}>{userProfile.headline}</Text>
             <Text style={styles.location}>{userProfile.location}</Text>
@@ -158,7 +178,9 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
               <Text style={styles.sectionTitle}>Projects</Text>
               {userProfile.projects?.map((project: any, index: number) => (
                 <View key={index} style={styles.section}>
-                  <Text style={[styles.text, styles.bold]}>{project.title}</Text>
+                  <Text style={[styles.text, styles.bold]}>
+                    {project.title}
+                  </Text>
                   <Text style={styles.text}>{project.description}</Text>
                 </View>
               ))}

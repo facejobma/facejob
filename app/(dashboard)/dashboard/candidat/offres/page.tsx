@@ -188,7 +188,7 @@ const OffresPage: React.FC = () => {
         <h1 className="text-3xl font-bold mb-6">Offres</h1>
         {filteredOffers.map((offre) => (
           <OffreCard
-            key={offre.id}
+            offreId={offre.id}
             titre={offre.titre}
             entreprise_name={offre.company_name}
             sector_name={offre.sector_name}

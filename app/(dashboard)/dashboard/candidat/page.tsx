@@ -172,7 +172,7 @@ export default function UsersPage() {
 
   const jobOptions = useMemo(() => {
     const jobs = Array.from(new Set(users.map((user) => user.job_name)));
-    return ["", ...jobs];
+    return [...jobs];
   }, [users]);
 
   const table = useReactTable({

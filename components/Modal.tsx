@@ -7,6 +7,7 @@ interface ModalProps {
   onClose: () => void;
   onValidate: (selectedVideo: string) => void;
   titre: string;
+  job_name: string;
   entreprise_name: string;
   sector_name: string;
   videos: { id: string; link: string; job_name: string; secteur_name: string }[];
@@ -19,6 +20,7 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   onValidate,
   titre,
+  job_name,
   entreprise_name,
   sector_name,
   videos = [],
@@ -40,7 +42,7 @@ const Modal: React.FC<ModalProps> = ({
         </button>
         <div className="mb-4">
           <h2 className="text-xl font-bold mb-4">Postuler</h2>
-          <p><strong>Metier :</strong> {titre}</p>
+          <p><strong>Metier :</strong> {job_name}</p>
           <p><strong>Entreprise :</strong> {entreprise_name}</p>
           <p><strong>Secteur :</strong> {sector_name}</p>
           <div className="mt-4">

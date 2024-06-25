@@ -4,7 +4,7 @@ import BreadCrumb from "@/components/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useParams } from "next/navigation";
 import Cookies from "js-cookie";
-import { JobForm } from "@/components/forms/job-form";
+import JobForm from "@/components/forms/job-form";
 
 interface Sector {
   id: number;

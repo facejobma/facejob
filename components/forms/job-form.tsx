@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { FiUser } from "react-icons/fi"; // Importer l'icône de personne depuis react-icons
 
@@ -38,14 +37,16 @@ interface JobData {
   candidats_count: number;
 }
 
-export const JobForm: React.FC<{ initialData: JobData }> = ({
-  initialData,
-}) => {
+const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
   const isPending = initialData.is_verified === "Pending";
   const isAccepted = initialData.is_verified === "Accepted";
   const isDeclined = initialData.is_verified === "Declined";
 
   const [showAllCandidates, setShowAllCandidates] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [videoLink, setVideoLink] = useState<string | null>(null);
+
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const toggleShowAllCandidates = () => {
     setShowAllCandidates(!showAllCandidates);
@@ -54,6 +55,24 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
   const displayedApplications = showAllCandidates
     ? initialData.applications
     : initialData.applications.slice(0, 4);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setShowModal(false);
+      }
+    };
+
+    if (showModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showModal]);
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg max-w-md mx-auto mt-8 p-6">
@@ -97,12 +116,10 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
               <div key={index} className="flex items-center space-x-2 mb-2">
                 {application.candidat.image ? (
                   <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                    <Image
+                    <img
                       src={application.candidat.image}
                       alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
-                      layout="fill"
-                      objectFit="cover"
-                      objectPosition="center"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 ) : (
@@ -113,12 +130,14 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
                 <div>
                   <p className="text-gray-600">{`${application.candidat.first_name} ${application.candidat.last_name}`}</p>
                   <a
-                    href={application.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="#"
+                    onClick={() => {
+                      setVideoLink(application.link);
+                      setShowModal(true);
+                    }}
                     className="text-blue-500 hover:underline"
                   >
-                    Voir le lien
+                    Voir Cv video
                   </a>
                 </div>
               </div>
@@ -161,6 +180,27 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
           </div>
         )}
       </div>
+
+      {showModal && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div ref={modalRef} className="bg-white rounded-lg overflow-hidden shadow-lg max-w-xl mx-auto p-6">
+            <iframe
+              title="CV vidéo"
+              src={videoLink || ""}
+              className="w-full h-96"
+              allowFullScreen
+            ></iframe>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-500 hover:text-gray-700 px-4 py-2 rounded-full border border-gray-300"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

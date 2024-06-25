@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useState } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { FiUser } from "react-icons/fi"; // Importer l'icône de personne depuis react-icons
 
@@ -44,9 +45,24 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
   const isAccepted = initialData.is_verified === "Accepted";
   const isDeclined = initialData.is_verified === "Declined";
 
+  const [showAllCandidates, setShowAllCandidates] = useState(false);
+
+  const toggleShowAllCandidates = () => {
+    setShowAllCandidates(!showAllCandidates);
+  };
+
+  const displayedApplications = showAllCandidates
+    ? initialData.applications
+    : initialData.applications.slice(0, 4);
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg max-w-md mx-auto mt-8 p-6">
-      <h1 className="text-lg font-semibold mb-2">{initialData.titre}</h1>
+      <h1 className="text-lg font-semibold mb-2 relative">
+        {initialData.titre}
+        <span className="absolute right-0 top-0 bg-green-700 text-white rounded-full px-2 py-1 text-xs">
+          {initialData.candidats_count} Candidats
+        </span>
+      </h1>
       <p className="text-gray-600 text-center mt-4">
         {initialData.description}
       </p>
@@ -76,41 +92,46 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
 
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Candidats</h2>
-          {initialData.applications.map((application, index) => (
-            <div key={index} className="flex items-center space-x-2 mb-2">
-              {application.candidat.image ? (
-                <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                  <Image
-                    src={application.candidat.image}
-                    alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
-                    layout="fill"
-                    objectFit="cover"
-                    objectPosition="center"
-                  />
+          <div className="max-h-60 overflow-y-auto">
+            {displayedApplications.map((application, index) => (
+              <div key={index} className="flex items-center space-x-2 mb-2">
+                {application.candidat.image ? (
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                    <Image
+                      src={application.candidat.image}
+                      alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
+                      layout="fill"
+                      objectFit="cover"
+                      objectPosition="center"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                    <FiUser className="text-gray-400 h-6 w-6" />
+                  </div>
+                )}
+                <div>
+                  <p className="text-gray-600">{`${application.candidat.first_name} ${application.candidat.last_name}`}</p>
+                  <a
+                    href={application.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    Voir le lien
+                  </a>
                 </div>
-              ) : (
-                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                  <FiUser className="text-gray-400 h-6 w-6" />
-                </div>
-              )}
-              <div>
-                <p className="text-gray-600">{`${application.candidat.first_name} ${application.candidat.last_name}`}</p>
-                <a
-                  href={application.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  Voir le lien
-                </a>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Nombre des postulants</h2>
-          <p className="text-gray-600">{initialData.candidats_count}</p>
+            ))}
+          </div>
+          {initialData.applications.length > 4 && (
+            <button
+              onClick={toggleShowAllCandidates}
+              className="text-blue-500 hover:underline mt-2 block"
+            >
+              {showAllCandidates ? "Voir moins" : "Voir plus"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -143,3 +164,5 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
     </div>
   );
 };
+
+export default JobForm;

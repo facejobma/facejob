@@ -38,6 +38,8 @@ export type Job = {
   sector: Sector;
   contractType: string;
   is_verified: string;
+  postuler_offres_count: number;
+
 };
 
 export type CV = {

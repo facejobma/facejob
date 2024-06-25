@@ -38,6 +38,10 @@ export const columns: ColumnDef<Job>[] = [
     header: "SECTEUR",
   },
   {
+    accessorKey: "postuler_offres_count",
+    header: "POSTULANTS",
+  },
+  {
     accessorKey: "contractType",
     header: "CONTRAT",
   },

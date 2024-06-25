@@ -11,7 +11,7 @@ interface JobProps {
 }
 
 export const JobRequests: FC<JobProps> = ({ data }) => {
-
+  console.log("data : ", data);
   data = data.map((job) => {
     return {
       ...job,

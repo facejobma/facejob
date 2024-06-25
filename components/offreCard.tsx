@@ -17,6 +17,7 @@ interface OffreCardProps {
   titre: string;
   entreprise_name: string;
   sector_name: string;
+  job_name: string;
   location: string;
   contract_type: string;
   date_debut: string;
@@ -29,6 +30,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   titre,
   entreprise_name,
   sector_name,
+  job_name,
   location,
   contract_type,
   date_debut,
@@ -41,6 +43,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
     titre: '',
     entreprise_name: '',
     sector_name: '',
+    job_name: '',
   });
   const [videos, setVideos] = useState<
     { id: string; link: string; job_name: string; secteur_name: string }[]
@@ -95,7 +98,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   const openModal = () => {
-    setModalData({ titre, entreprise_name, sector_name });
+    setModalData({ titre, entreprise_name, sector_name, job_name });
     setModalIsOpen(true);
   };
 
@@ -152,7 +155,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 p-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-2xl font-bold text-primary">{titre}</h3>
+        <h3 className="text-2xl font-bold text-primary">{job_name}</h3>
         <button
           className="flex items-center text-white bg-primary rounded-lg px-4 py-2"
           onClick={openModal}
@@ -220,6 +223,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
         onClose={closeModal}
         onValidate={handleValidate}
         titre={modalData.titre}
+        job_name={modalData.job_name}
         entreprise_name={modalData.entreprise_name}
         sector_name={modalData.sector_name}
         videos={videos}

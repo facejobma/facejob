@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import BreadCrumb from "@/components/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +11,24 @@ interface Sector {
   name: string;
 }
 
+interface Candidat {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  tel: string;
+  sex: string;
+  bio: string;
+  years_of_experience: number;
+  is_completed: number;
+  job_id: number;
+  image: string | null;
+  created_at: string;
+  updated_at: string;
+  address: string | null;
+  zip_code: string | null;
+}
+
 interface JobData {
   id: number;
   titre: string;
@@ -22,6 +39,11 @@ interface JobData {
   sector_name: string;
   contractType: string;
   is_verified: string;
+  applications: {
+    candidat: Candidat;
+    link: string;
+  }[];
+  candidats_count: number;
 }
 
 export default function Page() {
@@ -46,35 +68,13 @@ export default function Page() {
                 Authorization: `Bearer ${authToken}`,
                 "Content-Type": "application/json",
               },
-            },
+            }
           );
           const data = await response.json();
 
-          const {
-            id,
-            titre,
-            description,
-            date_debut,
-            date_fin,
-            company_name,
-            sector_name,
-            contractType,
-            is_verified,
-          } = data;
-
-          setJobData({
-            id,
-            titre,
-            description,
-            date_debut,
-            date_fin,
-            company_name,
-            sector_name,
-            contractType, // Add the contractType property here
-            is_verified,
-          });
+          setJobData(data);
         } catch (error) {
-          // console.log(error);
+          console.error("Error fetching job data:", error);
         }
       };
 

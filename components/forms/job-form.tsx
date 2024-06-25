@@ -1,6 +1,23 @@
 import Image from "next/image";
 import { CheckCircle, XCircle } from "lucide-react";
 
+interface Candidat {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  tel: string;
+  sex: string;
+  bio: string;
+  years_of_experience: number;
+  is_completed: number;
+  job_id: number;
+  image: string | null;
+  created_at: string;
+  updated_at: string;
+  address: string | null;
+  zip_code: string | null;
+}
 
 interface JobData {
   id: number;
@@ -12,6 +29,11 @@ interface JobData {
   sector_name: string;
   contractType: string;
   is_verified: string;
+  applications: {
+    candidat: Candidat;
+    link: string;
+  }[];
+  candidats_count: number;
 }
 
 export const JobForm: React.FC<{ initialData: JobData }> = ({
@@ -46,9 +68,31 @@ export const JobForm: React.FC<{ initialData: JobData }> = ({
           </p>
         </div>
 
-        <div>
+        <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Secteur</h2>
           <p className="text-gray-600">{initialData.sector_name}</p>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">Candidats</h2>
+          {initialData.applications.map((application, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <p className="text-gray-600">{`${application.candidat.first_name} ${application.candidat.last_name}`}</p>
+              <a
+                href={application.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                Voir le lien
+              </a>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Nombre de candidats</h2>
+          <p className="text-gray-600">{initialData.candidats_count}</p>
         </div>
       </div>
 

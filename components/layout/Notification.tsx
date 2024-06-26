@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
 import Cookies from "js-cookie";
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 interface Notification {
   id: number;
   data: {
-    [key: string]: any;
+    offre: number;
+    msg: string;
+    userId: number;
   };
   created_at: string;
   is_read: boolean;
@@ -24,6 +28,7 @@ const Notification: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -45,7 +50,7 @@ const Notification: React.FC = () => {
               Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "")}`,
               "Content-Type": "application/json",
             },
-          },
+          }
         );
         if (response.ok) {
           const data = await response.json();
@@ -76,16 +81,32 @@ const Notification: React.FC = () => {
       });
 
       window.Echo.private("App.Models.Entreprise." + userId).notification(
-        (notification: any) => {
+        (notification: Notification) => {
           console.log("notification: ", notification);
           fetchNotifications();
           toast.success("You have a new notification");
-        },
+        }
       );
     }
 
     fetchNotifications();
   }, [userId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setIsVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [notificationRef]);
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
@@ -104,14 +125,14 @@ const Notification: React.FC = () => {
             Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "")}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       if (response.ok) {
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) => ({
             ...notification,
             is_read: true,
-          })),
+          }))
         );
       } else {
         console.error("Failed to mark notifications as read");
@@ -122,36 +143,11 @@ const Notification: React.FC = () => {
   };
 
   const unreadNotifications = notifications.some(
-    (notification) => !notification.is_read,
+    (notification) => !notification.is_read
   );
 
-  const formatHumanDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-  };
-
-  const renderData = (data: { [key: string]: any }) => {
-    return Object.entries(data).map(([key, value]) => {
-      if (typeof value === "object" && value !== null) {
-        return (
-          <div key={key} className="mb-1">
-            <strong>{key}:</strong>
-            <div className="ml-4">{renderData(value)}</div>
-          </div>
-        );
-      } else {
-        return (
-          <div key={key} className="text-sm text-gray-800 mb-1">
-            <strong>{key}:</strong>{" "}
-            {value !== null && value !== undefined ? value.toString() : "N/A"}
-          </div>
-        );
-      }
-    });
-  };
-
   return (
-    <div className="relative">
+    <div className="relative" ref={notificationRef}>
       <div className="flex items-center gap-2">
         <button
           onClick={toggleVisibility}
@@ -177,9 +173,26 @@ const Notification: React.FC = () => {
                 className="relative hover:bg-gray-100 transition-colors duration-200"
               >
                 <div className="flex justify-between px-4 py-2">
-                  <div className="w-3/4">{renderData(notification.data)}</div>
-                  <div className="w-2/4 text-right text-xs text-gray-500">
-                    {formatHumanDate(notification.created_at)}
+                  <div className="w-full">
+                    <div className="text-sm text-gray-800 mb-1">
+                      {notification.data.msg}
+                    </div>
+                    <div className="text-left text-base mt-2">
+                      <Link
+                        href="/dashboard/entreprise/mes-offres/[offer_id]"
+                        as={`/dashboard/entreprise/mes-offres/${notification.data.offre}`}
+                        legacyBehavior
+                      >
+                        <a className="self-start text-primary font-semibold ml-1">
+                          consult
+                        </a>
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="w-1/4 text-right text-xs text-gray-500">
+                    {formatDistanceToNow(new Date(notification.created_at), {
+                      addSuffix: true,
+                    })}
                   </div>
                 </div>
                 <div className="absolute top-0 left-0 w-full h-full invisible group-hover:visible"></div>

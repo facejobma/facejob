@@ -24,14 +24,14 @@ export default function HeaderCandidat() {
             <Send className="w-4 h-4" />
             Postuler
           </button>
-          <div className="relative flex items-center">
+          {/* <div className="relative flex items-center">
             <input
               type="text"
               className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Search..."
             />
             <Search className="absolute right-2 w-5 h-5 text-gray-400" />
-          </div>
+          </div> */}
           <div className="flex items-center ml-48 gap-10">
             <a
               href="/offres"

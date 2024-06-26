@@ -188,7 +188,7 @@ const Hiring: React.FC = () => {
                   onClick={() => handleGenerateCV(candidate.id)}
                   className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
                 >
-                  Consulter CV
+                  Extraire CV
                 </button>
               )}
             </div>

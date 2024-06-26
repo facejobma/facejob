@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
 import { Inter } from "next/font/google";
 import dynamic from "next/dynamic";
+import HeaderCandidat from "@/components/layout/header-candidat";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +23,7 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Header />
+      <HeaderCandidat />
 
       {/* <body className={`${inter.className}`}> */}
       <div className={`flex h-screen ${inter.className}`}>

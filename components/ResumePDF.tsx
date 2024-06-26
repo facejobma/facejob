@@ -128,7 +128,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
   const userRole = sessionStorage.getItem("userRole");
   const abbreviatedLastName =
     userRole === "entreprise"
-      ? `${userProfile.last_name.charAt(0)}.`
+      ? `${userProfile.last_name?.charAt(0)}.`
       : userProfile.last_name;
 
   return (

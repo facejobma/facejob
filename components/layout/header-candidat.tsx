@@ -7,7 +7,7 @@ import Notification from "@/components/layout/Notification";
 import { useRouter } from "next/navigation";
 import { Send, Search } from "lucide-react";
 
-export default function Header() {
+export default function HeaderCandidat() {
   const router = useRouter();
 
   return (
@@ -57,7 +57,7 @@ export default function Header() {
           <MobileSidebar />
         </div>
         <div className="flex items-center gap-5">
-          <Notification />gi
+          <Notification />
           <UserNav />
         </div>
       </nav>

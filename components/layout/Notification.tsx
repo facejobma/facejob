@@ -161,9 +161,9 @@ const Notification: React.FC = () => {
         </button>
       </div>
       {isVisible && (
-        <div className="absolute w-96 top-10 right-0 bg-white rounded-md shadow-xl z-20 transition-all transform origin-top">
+        <div className="absolute w-80 sm:w-96 top-10 right-0 bg-white border border-gray-200 rounded-md shadow-xl z-20 transition-all transform origin-top scale-100 opacity-100">
           <ul
-            className={`overflow-y-auto max-h-96 transition-opacity duration-300 ${
+            className={`overflow-y-auto max-h-96 transition-all duration-300 ${
               isVisible ? "h-auto opacity-100" : "h-0 opacity-0"
             }`}
           >

@@ -1,0 +1,115 @@
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Job } from "@/constants/data";
+import {
+  CheckSquare,
+  XSquare,
+  // Edit,
+  MoreHorizontal,
+  View,
+} from "lucide-react";
+
+import { useState } from "react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ResumePDF from "@/components/ResumePDF";
+
+interface Candidat {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  tel: string;
+  sex: string;
+  bio: string;
+  years_of_experience: number;
+  is_completed: number;
+  job_id: number;
+  image: string | null;
+  created_at: string;
+  updated_at: string;
+  address: string | null;
+  zip_code: string | null;
+}
+
+export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
+  data,
+}) => {
+  // const [loading, setLoading] = useState(false);
+  const authToken = Cookies.get("authToken");
+  const router = useRouter();
+
+  const onVerify = async (isVerified: string) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/job/accept/${data.id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            isVerified,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        console.log("Candidate deleted successfully!");
+      } else {
+        console.error("Failed to delete candidate");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      {/* <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onDelete}
+        loading={loading}
+      /> */}
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => {
+              onVerify("Declined");
+            }}
+          >
+            <XSquare className="mr-2 h-4 w-4" /> Consume
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+          <View className="mr-2 h-4 w-4" />
+            <PDFDownloadLink
+              document={<ResumePDF candidateId={data.id} />}
+              fileName="resume.pdf"
+              // className=" h-4 w-4"
+            >
+              {({ loading }) => (loading ? "Generating..." : "Consulter CV")}
+            </PDFDownloadLink>
+            
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+};

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
-import { FiUser } from "react-icons/fi"; // Importer l'icône de personne depuis react-icons
+import { FiUser } from "react-icons/fi";
+import { OfferCandidatActions } from "../OfferCandidatActions";
 
 interface Candidat {
   id: number;
@@ -13,7 +14,7 @@ interface Candidat {
   years_of_experience: number;
   is_completed: number;
   job_id: number;
-  image: string | null; // Assurez-vous que chaque candidat a une propriété image
+  image: string | null;
   created_at: string;
   updated_at: string;
   address: string | null;
@@ -58,7 +59,10 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         setShowModal(false);
       }
     };
@@ -127,7 +131,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
                     <FiUser className="text-gray-400 h-6 w-6" />
                   </div>
                 )}
-                <div>
+                <div className="flex-grow">
                   <p className="text-gray-600">{`${application.candidat.first_name} ${application.candidat.last_name}`}</p>
                   <a
                     href="#"
@@ -140,6 +144,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
                     Voir Cv video
                   </a>
                 </div>
+                <OfferCandidatActions data={application.candidat} />
               </div>
             ))}
           </div>
@@ -183,7 +188,10 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
 
       {showModal && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <div ref={modalRef} className="bg-white rounded-lg overflow-hidden shadow-lg max-w-xl mx-auto p-6">
+          <div
+            ref={modalRef}
+            className="bg-white rounded-lg overflow-hidden shadow-lg max-w-xl mx-auto p-6"
+          >
             <iframe
               title="CV vidéo"
               src={videoLink || ""}

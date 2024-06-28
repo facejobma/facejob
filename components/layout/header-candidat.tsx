@@ -56,7 +56,7 @@ export default function HeaderCandidat() {
         <div className={cn("block lg:!hidden")}>
           <MobileSidebar />
         </div>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-10">
           <Notification />
           <UserNav />
         </div>

@@ -138,7 +138,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             {first_name} {last_name}
           </h1>
           <p className="text-gray-600 mb-2">{headline}</p>
-          {location && <p className="text-gray-600 mb-3">{location}</p>}
+          {/* {location && <p className="text-gray-600 mb-3">{location}</p>} */}
           <PDFDownloadLink
             document={
               <ResumePDF

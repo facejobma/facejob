@@ -8,6 +8,7 @@ import ResumePDF from "@/components/ResumePDF";
 
 interface Candidate {
   id: number;
+  image: string;
   first_name: string;
   last_name: string;
   link: string;
@@ -43,12 +44,11 @@ const Hiring: React.FC = () => {
     }
   }, [selectedSector, sectors]);
 
-
   const fetchSectors = async () => {
     try {
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
-        { 
+        {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
@@ -94,7 +94,8 @@ const Hiring: React.FC = () => {
 
   const filteredCandidates = candidates.filter((candidate) => {
     return (
-      (!selectedSector || candidate.job?.sector_id === Number(selectedSector)) &&
+      (!selectedSector ||
+        candidate.job?.sector_id === Number(selectedSector)) &&
       (!selectedJob || candidate.job.id === Number(selectedJob))
     );
   });
@@ -164,33 +165,41 @@ const Hiring: React.FC = () => {
                 Your browser does not support the video tag.
               </video>
             </div>
-            <div className="p-4">
+            <div className="p-4 text-center">
               <h3 className="text-xl font-semibold text-gray-800">
-                {candidate.first_name} {candidate.last_name}
+                {candidate.first_name} {candidate.last_name[0]}.
               </h3>
               <p className="text-gray-600">{candidate.job?.name}</p>
               <p className="text-gray-600">
                 {candidate.nb_experiences} years of experience
               </p>
-              {selectedCandidate === candidate.id &&
-              loadingPDF[candidate.id] ? (
-                <PDFDownloadLink
-                  document={<ResumePDF candidateId={candidate.id} />}
-                  fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                  className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
-                >
-                  {({ loading }) =>
-                    loading ? "Generating..." : "Consulter CV"
-                  }
-                </PDFDownloadLink>
-              ) : (
+              <div className="mt-2">
+                {selectedCandidate === candidate.id &&
+                loadingPDF[candidate.id] ? (
+                  <PDFDownloadLink
+                    document={<ResumePDF candidateId={candidate.id} />}
+                    fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
+                    className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-xl border border-primary mb-4"
+                  >
+                    {({ loading }) =>
+                      loading ? "Generating..." : "Consulter CV"
+                    }
+                  </PDFDownloadLink>
+                ) : (
+                  <button
+                    onClick={() => handleGenerateCV(candidate.id)}
+                    className="bg-primary hover:bg-primary-2 text-white font-medium py-1 px-3 rounded-lg border border-primary mb-4"
+                  >
+                    Extraire CV
+                  </button>
+                )}
                 <button
                   onClick={() => handleGenerateCV(candidate.id)}
-                  className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
+                  className="bg-white hover:bg-white-2 mx-3 text-primary font-semibold py-1 px-3 rounded-lg border border-primary mb-4"
                 >
-                  Extraire CV
+                  Consumer
                 </button>
-              )}
+              </div>
             </div>
           </div>
         ))}

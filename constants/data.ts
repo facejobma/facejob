@@ -182,7 +182,7 @@ export const navItemsEntreprise: NavItem[] = [
     label: "mesOffres",
   },
   {
-    title: "Service de Paiment",
+    title: "Services",
     href: "/dashboard/entreprise/payments",
     icon: "payments",
     label: "payments",

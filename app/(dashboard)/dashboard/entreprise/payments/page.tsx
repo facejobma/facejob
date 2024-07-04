@@ -8,6 +8,7 @@ import {
   VideoCameraIcon,
   BriefcaseIcon,
 } from "@heroicons/react/24/outline";
+import { useState } from "react";
 const breadcrumbItems = [
   { title: "Recharger compte d'entreprise", link: "/dashboard/payments" },
 ];
@@ -81,6 +82,24 @@ const plans = [
 ];
 
 function ServicePlanPage() {
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(null);
+
+  const handleUpgradeClick = (plan: any) => {
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
+
+  const handlePaymentMethodChange = (method: any) => {
+    setPaymentMethod(method);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setPaymentMethod(null);
+  };
+
   return (
     <>
       <ScrollArea className="h-full">
@@ -201,7 +220,10 @@ function ServicePlanPage() {
                             {plan.popular ? "Oui" : "Non"}
                           </div>
                           <div className="text-center">
-                            <button className="bg-primary hover:bg-primary-dark mt-4 text-white font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <button
+                              className="bg-primary hover:bg-primary-dark mt-4 text-white font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                              onClick={() => handleUpgradeClick(plan)}
+                            >
                               Mettre à niveau le plan
                             </button>
                           </div>
@@ -258,7 +280,10 @@ function ServicePlanPage() {
                             {plan.popular ? "Oui" : "Non"}
                           </div>
                           <div className="text-center">
-                            <button className="bg-primary hover:bg-primary-dark mt-4 text-white font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <button
+                              className="bg-primary hover:bg-primary-dark mt-4 text-white font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                              onClick={() => handleUpgradeClick(plan)}
+                            >
                               Mettre à niveau le plan
                             </button>
                           </div>
@@ -269,6 +294,127 @@ function ServicePlanPage() {
                 </TabsContent>
               </Tabs>
             </div>
+
+            {isModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg max-w-md w-full">
+                  <h3 className="text-xl font-semibold mb-4 text-center">
+                    {selectedPlan.name}
+                  </h3>
+                  <div className="space-y-4 mb-4">
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Prix mensuel :</span>
+                      <span>{selectedPlan.monthly_price} DHs</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Prix annuel :</span>
+                      <span>{selectedPlan.annual_price} DHs</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">
+                        Création de compte incluse :
+                      </span>
+                      <span>
+                        {selectedPlan.account_creation_included ? "Oui" : "Non"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">
+                        Accès aux vidéos CV :
+                      </span>
+                      <span>
+                        {selectedPlan.cv_video_access ? "Oui" : "Non"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">
+                        Consultations vidéos CV :
+                      </span>
+                      <span>{selectedPlan.cv_video_consultations}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">
+                        Publications d'offres d'emploi :
+                      </span>
+                      <span>{selectedPlan.job_postings}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Support dédié :</span>
+                      <span>
+                        {selectedPlan.dedicated_support ? "Oui" : "Non"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Exclusif :</span>
+                      <span>{selectedPlan.exclusif ? "Oui" : "Non"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Populaire :</span>
+                      <span>{selectedPlan.popular ? "Oui" : "Non"}</span>
+                    </div>
+                  </div>
+
+                  <div className="relative w-full mb-4">
+                    <div className="flex items-center space-x-4">
+                      <label className="block w-1/2">
+                        <input
+                          type="radio"
+                          name="payment_method"
+                          value="virement"
+                          className="hidden peer"
+                          onChange={() => handlePaymentMethodChange("virement")}
+                        />
+                        <div className="w-full py-2 px-4 border border-gray-300 rounded-md bg-white text-center cursor-pointer peer-checked:border-primary focus:outline-none focus:ring-2 focus:ring-blue-200">
+                          Paiement via virement
+                        </div>
+                      </label>
+                      <label className="block w-1/2">
+                        <input
+                          type="radio"
+                          name="payment_method"
+                          value="contact"
+                          className="hidden peer"
+                          onChange={() => handlePaymentMethodChange("contact")}
+                        />
+                        <div className="w-full py-2 px-4 border border-gray-300 rounded-md bg-white text-center cursor-pointer peer-checked:border-primary focus:outline-none focus:ring-2 focus:ring-green-200">
+                          Paiement via contact
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {paymentMethod === "virement" && (
+                    <div className="space-y-2">
+                      <div>
+                        <strong>RIB :</strong> 1233882264829876
+                      </div>
+                      <div>
+                        <label>
+                          Référence du paiement :
+                          <input
+                            type="text"
+                            placeholder="Référence du paiement" 
+                            className="border border-gray-400 rounded-lg p-2 mt-1 w-full"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-center mt-8">
+                    <button
+                      className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-1 px-2 rounded mr-2"
+                      onClick={handleCloseModal}
+                    >
+                      Annuler
+                    </button>
+                    <button className="bg-primary hover:bg-primary-dark text-white font-bold py-1 px-2 rounded">
+                      Confirmer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </ScrollArea>

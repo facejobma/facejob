@@ -297,7 +297,7 @@ function ServicePlanPage() {
 
             {isModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="bg-white p-6 rounded-lg max-w-md w-full">
+                <div className="bg-white p-10 rounded-lg max-w-md w-full">
                   <h3 className="text-xl font-semibold mb-4 text-center">
                     {selectedPlan.name}
                   </h3>
@@ -383,8 +383,24 @@ function ServicePlanPage() {
                     </div>
                   </div>
 
+                  {paymentMethod === "contact" && (
+                    <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white">
+                      <h3 className="text-lg font-semibold mb-2">
+                        Contact Informations
+                      </h3>
+                      <div className="space-y-1">
+                        <p>
+                          <strong>Phone:</strong> +212 8 08588918
+                        </p>
+                        <p>
+                          <strong>Email:</strong> contact@facejob.ma
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {paymentMethod === "virement" && (
-                    <div className="space-y-2">
+                    <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white">
                       <div>
                         <strong>RIB :</strong> 1233882264829876
                       </div>
@@ -393,7 +409,7 @@ function ServicePlanPage() {
                           Référence du paiement :
                           <input
                             type="text"
-                            placeholder="Référence du paiement" 
+                            placeholder="Référence du paiement"
                             className="border border-gray-400 rounded-lg p-2 mt-1 w-full"
                           />
                         </label>

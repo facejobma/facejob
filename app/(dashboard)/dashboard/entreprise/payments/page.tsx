@@ -168,7 +168,7 @@ function ServicePlanPage() {
                             {plan.name}
                           </CardTitle>
                           <div className="text-xl font-semibold text-primary">
-                            {plan.monthly_price} FCFA / mois
+                            {plan.monthly_price} DHs / mois
                           </div>
                         </CardHeader>
                         <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
@@ -225,7 +225,7 @@ function ServicePlanPage() {
                             {plan.name}
                           </CardTitle>
                           <div className="text-xl font-semibold text-primary">
-                            {plan.annual_price} FCFA / année
+                            {plan.annual_price} DHs / année
                           </div>
                         </CardHeader>
                         <CardContent className="mt-4 space-y-2 text-base font-normal text-start">

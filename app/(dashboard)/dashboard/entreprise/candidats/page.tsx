@@ -5,6 +5,11 @@ import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ResumePDF from "@/components/ResumePDF";
+import BreadCrumb from "@/components/breadcrumb";
+
+const breadcrumbItems = [
+  { title: "Les CVs videos de candidats", link: "/dashboard/candidats" },
+];
 
 interface Candidate {
   id: number;
@@ -23,11 +28,13 @@ interface Candidate {
 
 const Hiring: React.FC = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-
   const [selectedCandidate, setSelectedCandidate] = useState<number | null>(
     null,
   );
   const [loadingPDF, setLoadingPDF] = useState<{ [key: number]: boolean }>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [candidateToConsume, setCandidateToConsume] =
+    useState<Candidate | null>(null);
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [sectors, setSectors] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
@@ -92,6 +99,25 @@ const Hiring: React.FC = () => {
     setSelectedCandidate(candidateId);
   };
 
+  const handleConsumeClick = (candidate: Candidate) => {
+    setCandidateToConsume(candidate);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmConsume = () => {
+    if (candidateToConsume) {
+      toast.success(
+        `${candidateToConsume.first_name} ${candidateToConsume.last_name} consommé!`,
+      );
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleCancelConsume = () => {
+    setIsModalOpen(false);
+    setCandidateToConsume(null);
+  };
+
   const filteredCandidates = candidates.filter((candidate) => {
     return (
       (!selectedSector ||
@@ -102,6 +128,7 @@ const Hiring: React.FC = () => {
 
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 bg-gray-100">
+      <BreadCrumb items={breadcrumbItems} />
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">
           Candidate Videos
@@ -194,7 +221,7 @@ const Hiring: React.FC = () => {
                   </button>
                 )}
                 <button
-                  onClick={() => handleGenerateCV(candidate.id)}
+                  onClick={() => handleConsumeClick(candidate)}
                   className="bg-white hover:bg-white-2 mx-3 text-primary font-semibold py-1 px-3 rounded-lg border border-primary mb-4"
                 >
                   Consumer
@@ -204,6 +231,31 @@ const Hiring: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {isModalOpen && candidateToConsume && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-8 rounded-lg shadow-lg z-10">
+            <h2 className="text-xl font-semibold mb-8">
+              Êtes-vous sûr de vouloir consommer cette vidéo de CV ?
+            </h2>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleCancelConsume}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleConfirmConsume}
+                className="px-4 py-2 bg-primary text-white rounded-md"
+              >
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

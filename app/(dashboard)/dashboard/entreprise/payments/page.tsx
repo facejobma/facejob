@@ -297,11 +297,11 @@ function ServicePlanPage() {
 
             {isModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="bg-white p-10 rounded-lg max-w-md w-full">
+                <div className="bg-white p-10 rounded-lg max-w-xl w-full">
                   <h3 className="text-xl font-semibold mb-4 text-center">
                     {selectedPlan.name}
                   </h3>
-                  <div className="space-y-4 mb-4">
+                  <div className="space-y-4 mb-4 p-4 border border-gray-300 rounded-md bg-white">
                     <div className="flex justify-between">
                       <span className="font-semibold">Prix mensuel :</span>
                       <span>{selectedPlan.monthly_price} DHs</span>

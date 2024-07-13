@@ -43,7 +43,7 @@ export function DashboardNav({ items, setOpen }: DashboardNavProps) {
                 )}
               >
                 <Icon className="mr-2 h-5 w-5" />
-                <span className="flex-shrink-0">{item.title}</span>
+                <span className="flex-shrink-0 text-lg font-medium">{item.title}</span>
               </span>
             </Link>
           )

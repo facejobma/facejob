@@ -37,7 +37,8 @@ import {
   Send,
   MessageCircleQuestion,
   Users,
-  BriefcaseBusiness 
+  BriefcaseBusiness, 
+  SquareKanban
 } from "lucide-react";
 import { MdSupport } from "react-icons/md";
 
@@ -83,5 +84,6 @@ export const Icons = {
   entreprises: Building2,
   support: MessageCircleQuestion,
   candidats: Users,
-  mesOffres: BriefcaseBusiness
+  mesOffres: BriefcaseBusiness,
+  services: SquareKanban,
 };

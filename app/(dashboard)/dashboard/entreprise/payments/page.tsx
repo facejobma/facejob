@@ -7,14 +7,19 @@ import {
   CheckCircleIcon,
   VideoCameraIcon,
   BriefcaseIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { toast } from "react-hot-toast";
+
 const breadcrumbItems = [
   { title: "Recharger compte d'entreprise", link: "/dashboard/payments" },
 ];
 
 const plans = [
   {
+    id: 1,
     name: "Pannel gratuit",
     monthly_price: 0,
     quarterly_price: 0,
@@ -28,6 +33,7 @@ const plans = [
     popular: false,
   },
   {
+    id: 2,
     name: "Pannel de base",
     monthly_price: 1000,
     quarterly_price: 2700,
@@ -41,6 +47,7 @@ const plans = [
     popular: true,
   },
   {
+    id: 3,
     name: "Pannel Intérmédiaire",
     monthly_price: 1900,
     quarterly_price: 5100,
@@ -54,6 +61,7 @@ const plans = [
     popular: true,
   },
   {
+    id: 4,
     name: "Pannel Essentiel",
     monthly_price: 3000,
     quarterly_price: 8100,
@@ -67,6 +75,7 @@ const plans = [
     popular: false,
   },
   {
+    id: 5,
     name: "Pannel Premium",
     monthly_price: 5000,
     quarterly_price: 13500,
@@ -82,9 +91,43 @@ const plans = [
 ];
 
 function ServicePlanPage() {
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(null);
+  const [selectedPeriod, setSelectedPeriod] = useState("monthly");
+  const [paymentReference, setPaymentReference] = useState("");
+  const [lastPayment, setLastPayment] = useState<any>(null);
+  const [currentPlanId, setCurrentPlanId] = useState(null);
+
+  const company = sessionStorage.getItem("user");
+  const companyId = company ? JSON.parse(company).id : null;
+  const fetchLastPayment = async () => {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/payments/${companyId}/last`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setLastPayment(data);
+        setCurrentPlanId(data.plan_id);
+      } else {
+        console.error("Failed to fetch last payment");
+      }
+    } catch (error) {
+      console.error("Error fetching last payment:", error);
+    }
+  };
+  useEffect(() => {
+    fetchLastPayment();
+  }, []);
 
   const handleUpgradeClick = (plan: any) => {
     setSelectedPlan(plan);
@@ -98,6 +141,127 @@ function ServicePlanPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setPaymentMethod(null);
+  };
+
+  const handlePeriodChange = (period: string) => {
+    setSelectedPeriod(period);
+  };
+
+  const handlePaymentReferenceChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setPaymentReference(e.target.value);
+  };
+
+  const handleConfirmClick = async () => {
+    if (!selectedPlan || !selectedPeriod) return;
+
+    let price, endDate, paymentPeriod, cvVideoConsumed, jobPosted;
+
+    const startDate = new Date();
+
+    switch (selectedPeriod) {
+      case "monthly":
+        price = selectedPlan.monthly_price;
+        endDate = new Date(new Date().setMonth(startDate.getMonth() + 1));
+        paymentPeriod = "monthly";
+        // cvVideoConsumed =
+        //   selectedPlan.cv_video_consultations === "Illimité"
+        //     ? "Illimité"
+        //     : selectedPlan.cv_video_consultations;
+        // jobPosted =
+        //   selectedPlan.job_postings === "Illimité"
+        //     ? "Illimité"
+        //     : selectedPlan.job_postings;
+        break;
+      case "quarterly":
+        price = selectedPlan.quarterly_price;
+        endDate = new Date(new Date().setMonth(startDate.getMonth() + 3));
+        paymentPeriod = "quarterly";
+        // cvVideoConsumed =
+        //   selectedPlan.cv_video_consultations === "Illimité"
+        //     ? "Illimité"
+        //     : selectedPlan.cv_video_consultations * 3;
+        // jobPosted =
+        //   selectedPlan.job_postings === "Illimité"
+        //     ? "Illimité"
+        //     : selectedPlan.job_postings * 3;
+        break;
+      case "yearly":
+        price = selectedPlan.annual_price;
+        endDate = new Date(new Date().setFullYear(startDate.getFullYear() + 1));
+        paymentPeriod = "yearly";
+        // cvVideoConsumed =
+        //   selectedPlan.cv_video_consultations === "Illimité"
+        //     ? "Illimité"
+        //     : selectedPlan.cv_video_consultations * 12;
+        // jobPosted =
+        //   selectedPlan.job_postings === "Illimité"
+        //     ? "Illimité"
+        //     : selectedPlan.job_postings * 12;
+        break;
+      default:
+        return;
+    }
+
+    const paymentData = {
+      price: price,
+      start_date: startDate.toISOString().split("T")[0], // Format to 'YYYY-MM-DD'
+      end_date: endDate.toISOString().split("T")[0], // Format to 'YYYY-MM-DD'
+      payment_method: paymentMethod,
+      reference: paymentReference,
+      payment_period: paymentPeriod,
+      status: "pending",
+      cv_video_consumed: 0,
+      job_posted: 0,
+      entreprise_id: companyId, // Replace with actual entreprise_id if dynamic
+      plan_id: selectedPlan.id, // Ensure plans have an id field
+    };
+
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/payments",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(paymentData),
+        },
+      );
+
+      if (response.ok) {
+        // Handle successful payment creation
+        toast.success("Payment created successfully!");
+        fetchLastPayment();
+        handleCloseModal();
+      } else {
+        // Handle error response
+        toast.error("Error creating payment!");
+      }
+    } catch (error) {
+      // Handle network or other errors
+      console.error("Error:", error);
+    }
+  };
+
+  const isCurrentPlanDisabled = (plan: any) => {
+    if (
+      currentPlanId !== plan.id ||
+      lastPayment?.payment_period !== selectedPeriod
+    ) {
+      return false;
+    }
+
+    const currentDate = new Date().toISOString().split("T")[0];
+    
+    const endDate = lastPayment?.end_date;
+
+    // console.log("Current date:", currentDate);
+    // console.log("End date:", endDate);
+
+    return currentDate <= endDate;
   };
 
   return (
@@ -114,7 +278,22 @@ function ServicePlanPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 text-center">Pannel Essentiel</p>
+                <p className="text-gray-700 text-center">
+                  {lastPayment ? lastPayment.plan_name : "-"}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
+              <ClockIcon className="h-8 w-8 text-gray-500 mb-2" />
+              <CardHeader className="flex flex-col items-center space-y-0 pb-2">
+                <CardTitle className="font-medium text-center">
+                  Votre periode de pannel actuel
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 text-center">
+                  {lastPayment ? lastPayment?.payment_period : "-"}
+                </p>
               </CardContent>
             </Card>
             <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
@@ -125,7 +304,9 @@ function ServicePlanPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 text-center">25</p>
+                <p className="text-gray-700 text-center">
+                  {lastPayment ? lastPayment.cv_video_consumed : "-"}
+                </p>
               </CardContent>
             </Card>
             <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
@@ -136,7 +317,9 @@ function ServicePlanPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 text-center">25</p>
+                <p className="text-gray-700 text-center">
+                  {lastPayment ? lastPayment.cv_video_remaining : "-"}
+                </p>
               </CardContent>
             </Card>
             <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
@@ -147,7 +330,9 @@ function ServicePlanPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 text-center">10</p>
+                <p className="text-gray-700 text-center">
+                  {lastPayment ? lastPayment.job_posted : "-"}
+                </p>
               </CardContent>
             </Card>
             <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
@@ -158,7 +343,9 @@ function ServicePlanPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 text-center">10</p>
+                <p className="text-gray-700 text-center">
+                  {lastPayment ? lastPayment.job_remaining : "-"}
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -169,8 +356,18 @@ function ServicePlanPage() {
             <div className="flex justify-center">
               <Tabs defaultValue="monthly" className="space-y-4">
                 <TabsList className="flex justify-center mb-4">
-                  <TabsTrigger value="monthly">Mensuel</TabsTrigger>
-                  <TabsTrigger value="yearly">Annuel</TabsTrigger>
+                  <TabsTrigger
+                    value="monthly"
+                    onClick={() => handlePeriodChange("monthly")}
+                  >
+                    Mensuel
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="yearly"
+                    onClick={() => handlePeriodChange("yearly")}
+                  >
+                    Annuel
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent
                   value="monthly"
@@ -221,10 +418,17 @@ function ServicePlanPage() {
                           </div>
                           <div className="text-center">
                             <button
-                              className="bg-primary hover:bg-primary-dark mt-4 text-white font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                              className={`${
+                                isCurrentPlanDisabled(plan)
+                                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                  : "bg-primary hover:bg-primary-dark text-white"
+                              } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
                               onClick={() => handleUpgradeClick(plan)}
+                              disabled={isCurrentPlanDisabled(plan)}
                             >
-                              Mettre à niveau le plan
+                              {isCurrentPlanDisabled(plan)
+                                ? `Plan actuel - ${plan.name}`
+                                : "Mettre à niveau le plan"}
                             </button>
                           </div>
                         </CardContent>
@@ -281,10 +485,17 @@ function ServicePlanPage() {
                           </div>
                           <div className="text-center">
                             <button
-                              className="bg-primary hover:bg-primary-dark mt-4 text-white font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                              className={`${
+                                isCurrentPlanDisabled(plan)
+                                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                  : "bg-primary hover:bg-primary-dark text-white"
+                              } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
                               onClick={() => handleUpgradeClick(plan)}
+                              disabled={isCurrentPlanDisabled(plan)}
                             >
-                              Mettre à niveau le plan
+                              {isCurrentPlanDisabled(plan)
+                                ? `Plan actuel - ${plan.name}`
+                                : "Mettre à niveau le plan"}
                             </button>
                           </div>
                         </CardContent>
@@ -411,6 +622,8 @@ function ServicePlanPage() {
                             type="text"
                             placeholder="Référence du paiement"
                             className="border border-gray-400 rounded-lg p-2 mt-1 w-full"
+                            value={paymentReference}
+                            onChange={handlePaymentReferenceChange}
                           />
                         </label>
                       </div>
@@ -419,12 +632,15 @@ function ServicePlanPage() {
 
                   <div className="flex justify-center mt-8">
                     <button
-                      className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-1 px-2 rounded mr-2"
+                      className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded mr-2"
                       onClick={handleCloseModal}
                     >
                       Annuler
                     </button>
-                    <button className="bg-primary hover:bg-primary-dark text-white font-bold py-1 px-2 rounded">
+                    <button
+                      className="bg-primary hover:bg-primary-dark text-white font-bold py-1 px-2 rounded"
+                      onClick={handleConfirmClick}
+                    >
                       Confirmer
                     </button>
                   </div>

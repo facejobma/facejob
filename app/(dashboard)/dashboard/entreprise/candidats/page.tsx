@@ -26,6 +26,12 @@ interface Candidate {
   nb_experiences: number;
 }
 
+interface Payment {
+  id: number;
+  entreprise_id: number;
+  cv_video_remaining: number;
+}
+
 const Hiring: React.FC = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedCandidate, setSelectedCandidate] = useState<number | null>(
@@ -35,11 +41,16 @@ const Hiring: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [candidateToConsume, setCandidateToConsume] =
     useState<Candidate | null>(null);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [lastPayment, setLastPayment] = useState<Payment | null>(null);
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [sectors, setSectors] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
+
+  const company = sessionStorage.getItem("user");
+  const companyId = company ? JSON.parse(company).id : null;
 
   useEffect(() => {
     if (selectedSector) {
@@ -70,6 +81,25 @@ const Hiring: React.FC = () => {
     }
   };
 
+  const fetchLastPayment = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await response.json();
+      setLastPayment(data);
+    } catch (error) {
+      console.error("Error fetching last payment:", error);
+      toast.error("Error fetching last payment!");
+    }
+  };
+
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
@@ -92,7 +122,8 @@ const Hiring: React.FC = () => {
 
     fetchCandidates();
     fetchSectors();
-  }, [authToken]);
+    fetchLastPayment();
+  }, [authToken, companyId]);
 
   const handleGenerateCV = (candidateId: number) => {
     setLoadingPDF((prev) => ({ ...prev, [candidateId]: true }));
@@ -100,22 +131,55 @@ const Hiring: React.FC = () => {
   };
 
   const handleConsumeClick = (candidate: Candidate) => {
-    setCandidateToConsume(candidate);
-    setIsModalOpen(true);
+    if (lastPayment && lastPayment.cv_video_remaining > 0) {
+      setCandidateToConsume(candidate);
+      setIsModalOpen(true);
+    } else {
+      setIsUpgradeModalOpen(true);
+    }
   };
 
-  const handleConfirmConsume = () => {
+  const handleConfirmConsume = async () => {
     if (candidateToConsume) {
-      toast.success(
-        `${candidateToConsume.first_name} ${candidateToConsume.last_name} consommé!`,
-      );
+      try {
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              postuler_id: candidateToConsume.id,
+              entreprise_id: companyId,
+            }),
+          },
+        );
+
+        if (response.ok) {
+          toast.success("Video consommée !");
+          fetchLastPayment(); // Refresh last payment data
+        } else {
+          toast.error("Failed to consume video.");
+        }
+      } catch (error) {
+        console.error("Error consuming video:", error);
+        toast.error("Error consuming video!");
+      }
     }
     setIsModalOpen(false);
+    setCandidateToConsume(null);
   };
 
   const handleCancelConsume = () => {
     setIsModalOpen(false);
     setCandidateToConsume(null);
+  };
+
+  const handleUpgradePlan = () => {
+    // Redirect to the upgrade plan page
+    window.location.href = "/dashboard/entreprise/services";
   };
 
   const filteredCandidates = candidates.filter((candidate) => {
@@ -127,56 +191,57 @@ const Hiring: React.FC = () => {
   });
 
   return (
-    <div className="flex-1 space-y-8 p-4 md:p-8 bg-gray-100">
+    <div className="flex-1 space-y-8 p-4 md:p-8 bg-gradient-to-r from-white to-gray-300 rounded-lg shadow-xl ">
       <BreadCrumb items={breadcrumbItems} />
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">
-          Candidate Videos
+        <h1 className="text-4xl font-bold text-gray-800 mb-2">
+          Vidéos des candidats
         </h1>
-        <p className="text-gray-600">
-          Browse through the videos to find your ideal candidate
+        <p className="text-gray-600 mb-4">
+          Parcourez les vidéos pour trouver votre candidat idéal
         </p>
-      </div>
-      <div className="flex justify-center space-x-4 mb-8">
-        <div className="relative w-64">
-          <select
-            className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-            value={selectedSector}
-            onChange={(e) => setSelectedSector(e.target.value)}
-          >
-            <option value="">Select Sector</option>
-            {sectors.map((sector) => (
-              <option key={sector.id} value={sector.id}>
-                {sector.name}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
-              <path d="M7 10l5 5 5-5H7z" />
-            </svg>
+        <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+          <div className="relative">
+            <select
+              className="block appearance-none w-full md:w-64 bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow focus:outline-none focus:shadow-outline"
+              value={selectedSector}
+              onChange={(e) => setSelectedSector(e.target.value)}
+            >
+              <option value="">Sélectionner le secteur</option>
+              {sectors.map((sector) => (
+                <option key={sector.id} value={sector.id}>
+                  {sector.name}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                <path d="M7 10l5 5 5-5H7z" />
+              </svg>
+            </div>
+          </div>
+          <div className="relative">
+            <select
+              className="block appearance-none w-full md:w-64 bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg shadow focus:outline-none focus:shadow-outline"
+              value={selectedJob}
+              onChange={(e) => setSelectedJob(e.target.value)}
+            >
+              <option value="">Sélectionner le poste</option>
+              {filteredJobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.name}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                <path d="M7 10l5 5 5-5H7z" />
+              </svg>
+            </div>
           </div>
         </div>
-        <div className="relative w-64">
-          <select
-            className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-            value={selectedJob}
-            onChange={(e) => setSelectedJob(e.target.value)}
-          >
-            <option value="">Select Job</option>
-            {filteredJobs.map((job) => (
-              <option key={job.id} value={job.id}>
-                {job.name}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
-              <path d="M7 10l5 5 5-5H7z" />
-            </svg>
-          </div>
-        </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCandidates.map((candidate) => (
           <div
@@ -198,7 +263,7 @@ const Hiring: React.FC = () => {
               </h3>
               <p className="text-gray-600">{candidate.job?.name}</p>
               <p className="text-gray-600">
-                {candidate.nb_experiences} years of experience
+                {candidate.nb_experiences} ans d'expérience
               </p>
               <div className="mt-2">
                 {selectedCandidate === candidate.id &&
@@ -209,7 +274,7 @@ const Hiring: React.FC = () => {
                     className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-xl border border-primary mb-4"
                   >
                     {({ loading }) =>
-                      loading ? "Generating..." : "Consulter CV"
+                      loading ? "Génération..." : "Consulter CV"
                     }
                   </PDFDownloadLink>
                 ) : (
@@ -224,7 +289,7 @@ const Hiring: React.FC = () => {
                   onClick={() => handleConsumeClick(candidate)}
                   className="bg-white hover:bg-white-2 mx-3 text-primary font-semibold py-1 px-3 rounded-lg border border-primary mb-4"
                 >
-                  Consumer
+                  Consommer
                 </button>
               </div>
             </div>
@@ -232,7 +297,7 @@ const Hiring: React.FC = () => {
         ))}
       </div>
 
-      {isModalOpen && candidateToConsume && (
+      {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="bg-white p-8 rounded-lg shadow-lg z-10">
@@ -251,6 +316,25 @@ const Hiring: React.FC = () => {
                 className="px-4 py-2 bg-primary text-white rounded-md"
               >
                 Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isUpgradeModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-8 rounded-lg shadow-lg z-10">
+            <h2 className="text-xl font-semibold mb-8">
+              Vous avez atteint la limite de consommation de vidéos de CV.
+              Veuillez mettre à niveau votre plan.
+            </h2>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleUpgradePlan}
+                className="px-4 py-2 bg-primary text-white rounded-md"
+              >
+                Mettre à niveau
               </button>
             </div>
           </div>

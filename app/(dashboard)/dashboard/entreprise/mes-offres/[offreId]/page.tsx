@@ -34,7 +34,6 @@ interface JobData {
   titre: string;
   description: string;
   date_debut: string;
-  date_fin: string;
   company_name: string;
   sector_name: string;
   contractType: string;

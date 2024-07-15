@@ -26,7 +26,6 @@ interface JobData {
   titre: string;
   description: string;
   date_debut: string;
-  date_fin: string;
   company_name: string;
   sector_name: string;
   contractType: string;
@@ -95,12 +94,6 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
           <h2 className="text-lg font-semibold mb-2">Date de début</h2>
           <p className="text-gray-600">{initialData.date_debut}</p>
         </div>
-
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Date de fin</h2>
-          <p className="text-gray-600">{initialData.date_fin}</p>
-        </div>
-
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Nom de l'entreprise</h2>
           <p className="text-blue-500 hover:underline">

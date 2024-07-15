@@ -51,7 +51,7 @@ export default function HeaderEntreprise() {
         <div className="flex items-center gap-10">
           <button
             className="flex items-center gap-2 px-2 py-2 text-sm text-white font-semibold font-default rounded-md shadow-lg transition duration-300 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800"
-            onClick={() => router.push("/dashboard/entreprise/payments")}
+            onClick={() => router.push("/dashboard/entreprise/services")}
           >
             <Star className="w-4 h-4" />
             Upgrade Plan

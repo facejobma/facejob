@@ -41,6 +41,7 @@ export interface Statistiques {
 }
 
 
+
 export interface EnterpriseData {
   entreprise_logo: string;
   company_name: string;

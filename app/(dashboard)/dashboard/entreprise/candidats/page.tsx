@@ -194,7 +194,7 @@ const Hiring: React.FC = () => {
             </div>
             <div className="p-4 text-center">
               <h3 className="text-xl font-semibold text-gray-800">
-                {candidate.first_name} {candidate.last_name[0]}.
+                {candidate.first_name} .
               </h3>
               <p className="text-gray-600">{candidate.job?.name}</p>
               <p className="text-gray-600">

@@ -53,6 +53,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
 
   const authToken = Cookies.get('authToken');
   const user = sessionStorage.getItem('user');
@@ -100,11 +101,13 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const openModal = () => {
     setModalData({ titre, entreprise_name, sector_name, job_name });
     setModalIsOpen(true);
+    setAlreadyApplied(false); // Reset applied state when modal opens
   };
 
   const closeModal = () => {
     setModalIsOpen(false);
     setIsConfirmationVisible(false); // Reset confirmation message visibility
+    setAlreadyApplied(false); // Reset applied state when closing modal
   };
 
   const handleVideoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -118,11 +121,9 @@ const OffreCard: React.FC<OffreCardProps> = ({
     }
 
     try {
-      // Simulate API call with timeout
       setLoading(true);
       setIsButtonDisabled(true); // Disable button during API call
 
-      // Replace this with actual API call
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/postuler-offre`, {
         method: 'POST',
         headers: {
@@ -133,16 +134,19 @@ const OffreCard: React.FC<OffreCardProps> = ({
           video_url: selectedVideo,
           candidat_id: userId,
           offre_id: offreId,
-        }),
+        }),      
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        if (response.status === 400) {
+          setAlreadyApplied(true); // Set flag indicating already applied
+        } else {
+          throw new Error('Failed to submit application');
+        }
+      } else {
+        setIsConfirmationVisible(true);
+        setSelectedVideo(''); // Clear selected video after success (optional)
       }
-
-      // Reset state after successful submission
-      setIsConfirmationVisible(true);
-      setSelectedVideo(''); // Clear selected video after success (optional)
 
     } catch (error) {
       console.error('Error submitting application:', error);
@@ -230,6 +234,22 @@ const OffreCard: React.FC<OffreCardProps> = ({
         selectedVideo={selectedVideo}
         onVideoChange={handleVideoChange}
       />
+
+      {alreadyApplied && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg p-6 relative w-[600px] max-w-full">
+            <h2 className="text-xl font-bold text-center my-4">
+              Vous avez déjà postulé à cette offre avec cette vidéo.
+            </h2>
+            <button
+              className="bg-primary text-white rounded-lg px-4 py-2 mx-auto block"
+              onClick={closeModal}
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
 
       {isConfirmationVisible && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">

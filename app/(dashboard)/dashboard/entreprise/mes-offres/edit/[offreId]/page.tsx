@@ -62,7 +62,13 @@ const PublishOffer: React.FC = () => {
       const fetchOffer = async () => {
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${id}`
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${id}`,
+            {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json",
+                },
+              }
           );
           if (!response.ok) {
             throw new Error("Failed to fetch offer");
@@ -100,7 +106,7 @@ const PublishOffer: React.FC = () => {
         const user = JSON.parse(userData);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/update_offre/${id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update_offre/${id}`,
           {
             method: "PUT",
             headers: {

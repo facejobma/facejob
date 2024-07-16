@@ -11,13 +11,15 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { useSession } from "@/app/providers/SessionProvider";
+// import { useSession } from "@/app/providers/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
 
 export function UserNav() {
-  const { session } = useSession();
+  // const { session } = useSession();
+  const userdata =  sessionStorage.getItem("user");
+  const user = JSON.parse(userdata as string);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -47,17 +49,17 @@ export function UserNav() {
     ;
   }
 
-  if (session) {
+  if (user) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={session.user?.image ?? ""}
-                alt={session.user?.name ?? ""}
+                src={user?.image ?? user?.logo}
+                alt={user?.first_name ?? user?.company_name}
               />
-              <AvatarFallback>{session.user?.name?.[0]}</AvatarFallback>
+              <AvatarFallback>{user?.first_name?.[0] ?? user?.company_name?.[0]}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -65,10 +67,10 @@ export function UserNav() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {session.user?.name}
+                {user?.first_name ?? user?.company_name}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {session.user?.email}
+                {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>

@@ -198,12 +198,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
         </p>
       </div>
       <div className="mb-4 flex items-center">
-        <Calendar className="mr-2 text-primary" />
-        <p>
-          <strong>Date de Fin:</strong> {date_fin ? date_fin.split(' ')[0] : ''}
-        </p>
-      </div>
-      <div className="mb-4 flex items-center">
         <FileText className="mr-2 text-primary" />
         <p>
           <strong>Description:</strong>

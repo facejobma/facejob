@@ -28,6 +28,7 @@ const Notification: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ const Notification: React.FC = () => {
       const user = sessionStorage.getItem("user");
       const userId = user ? JSON.parse(user).id : null;
       setUserId(userId);
+      console.log("userRole, ", sessionStorage.getItem("userRole"));
     }
   }, []);
 
@@ -50,7 +52,7 @@ const Notification: React.FC = () => {
               Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "")}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         if (response.ok) {
           const data = await response.json();
@@ -85,7 +87,15 @@ const Notification: React.FC = () => {
           console.log("notification: ", notification);
           fetchNotifications();
           toast.success("You have a new notification");
-        }
+        },
+      );
+
+      window.Echo.private("App.Models.Candidat." + userId).notification(
+        (notification: Notification) => {
+          console.log("notification: ", notification);
+          fetchNotifications();
+          toast.success("You have a new notification");
+        },
       );
     }
 
@@ -125,14 +135,14 @@ const Notification: React.FC = () => {
             Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "")}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (response.ok) {
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) => ({
             ...notification,
             is_read: true,
-          }))
+          })),
         );
       } else {
         console.error("Failed to mark notifications as read");
@@ -143,7 +153,7 @@ const Notification: React.FC = () => {
   };
 
   const unreadNotifications = notifications.some(
-    (notification) => !notification.is_read
+    (notification) => !notification.is_read,
   );
 
   return (
@@ -177,17 +187,21 @@ const Notification: React.FC = () => {
                     <div className="text-sm text-gray-800 mb-1">
                       {notification.data.msg}
                     </div>
-                    <div className="text-left text-base mt-2">
-                      <Link
-                        href="/dashboard/entreprise/mes-offres/[offer_id]"
-                        as={`/dashboard/entreprise/mes-offres/${notification.data.offre}`}
-                        legacyBehavior
-                      >
-                        <a className="self-start text-primary font-semibold ml-1">
-                          consult
-                        </a>
-                      </Link>
-                    </div>
+                    {sessionStorage.getItem("userRole") == "entreprise" ? (
+                      <div className="text-left text-base mt-2">
+                        <Link
+                          href="/dashboard/entreprise/mes-offres/[offer_id]"
+                          as={`/dashboard/entreprise/mes-offres/${notification.data.offre}`}
+                          legacyBehavior
+                        >
+                          <a className="self-start text-primary font-semibold ml-1">
+                            consult
+                          </a>
+                        </Link>
+                      </div>
+                    ) : (
+                      <></>
+                    )}
                   </div>
                   <div className="w-1/4 text-right text-xs text-gray-500">
                     {formatDistanceToNow(new Date(notification.created_at), {

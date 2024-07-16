@@ -164,7 +164,7 @@ function ServicePlanPage() {
       case "monthly":
         price = selectedPlan.monthly_price;
         endDate = new Date(new Date().setMonth(startDate.getMonth() + 1));
-        paymentPeriod = "monthly";
+        paymentPeriod = "Mensuel";
         // cvVideoConsumed =
         //   selectedPlan.cv_video_consultations === "Illimité"
         //     ? "Illimité"
@@ -177,7 +177,7 @@ function ServicePlanPage() {
       case "quarterly":
         price = selectedPlan.quarterly_price;
         endDate = new Date(new Date().setMonth(startDate.getMonth() + 3));
-        paymentPeriod = "quarterly";
+        paymentPeriod = "Trimestriel";
         // cvVideoConsumed =
         //   selectedPlan.cv_video_consultations === "Illimité"
         //     ? "Illimité"
@@ -190,7 +190,7 @@ function ServicePlanPage() {
       case "yearly":
         price = selectedPlan.annual_price;
         endDate = new Date(new Date().setFullYear(startDate.getFullYear() + 1));
-        paymentPeriod = "yearly";
+        paymentPeriod = "Annuel";
         // cvVideoConsumed =
         //   selectedPlan.cv_video_consultations === "Illimité"
         //     ? "Illimité"
@@ -206,16 +206,16 @@ function ServicePlanPage() {
 
     const paymentData = {
       price: price,
-      start_date: startDate.toISOString().split("T")[0], // Format to 'YYYY-MM-DD'
-      end_date: endDate.toISOString().split("T")[0], // Format to 'YYYY-MM-DD'
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
       payment_method: paymentMethod,
       reference: paymentReference,
       payment_period: paymentPeriod,
       status: "pending",
       cv_video_consumed: 0,
       job_posted: 0,
-      entreprise_id: companyId, // Replace with actual entreprise_id if dynamic
-      plan_id: selectedPlan.id, // Ensure plans have an id field
+      entreprise_id: companyId,
+      plan_id: selectedPlan.id,
     };
 
     try {
@@ -232,16 +232,13 @@ function ServicePlanPage() {
       );
 
       if (response.ok) {
-        // Handle successful payment creation
         toast.success("Payment created successfully!");
         fetchLastPayment();
         handleCloseModal();
       } else {
-        // Handle error response
         toast.error("Error creating payment!");
       }
     } catch (error) {
-      // Handle network or other errors
       console.error("Error:", error);
     }
   };
@@ -255,7 +252,7 @@ function ServicePlanPage() {
     }
 
     const currentDate = new Date().toISOString().split("T")[0];
-    
+
     const endDate = lastPayment?.end_date;
 
     // console.log("Current date:", currentDate);
@@ -363,6 +360,12 @@ function ServicePlanPage() {
                     Mensuel
                   </TabsTrigger>
                   <TabsTrigger
+                    value="quarterly"
+                    onClick={() => handlePeriodChange("quarterly")}
+                  >
+                    Trimestre
+                  </TabsTrigger>
+                  <TabsTrigger
                     value="yearly"
                     onClick={() => handlePeriodChange("yearly")}
                   >
@@ -385,6 +388,73 @@ function ServicePlanPage() {
                           </CardTitle>
                           <div className="text-xl font-semibold text-primary">
                             {plan.monthly_price} DHs / mois
+                          </div>
+                        </CardHeader>
+                        <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
+                          <div>
+                            <strong>Création de compte incluse :</strong>{" "}
+                            {plan.account_creation_included ? "Oui" : "Non"}
+                          </div>
+                          <div>
+                            <strong>Accès aux vidéos CV :</strong>{" "}
+                            {plan.cv_video_access ? "Oui" : "Non"}
+                          </div>
+                          <div>
+                            <strong>Consultations vidéos CV :</strong>{" "}
+                            {plan.cv_video_consultations}
+                          </div>
+                          <div>
+                            <strong>Publications d'offres d'emploi :</strong>{" "}
+                            {plan.job_postings}
+                          </div>
+                          <div>
+                            <strong>Support dédié :</strong>{" "}
+                            {plan.dedicated_support ? "Oui" : "Non"}
+                          </div>
+                          <div>
+                            <strong>Exclusif :</strong>{" "}
+                            {plan.exclusif ? "Oui" : "Non"}
+                          </div>
+                          <div>
+                            <strong>Populaire :</strong>{" "}
+                            {plan.popular ? "Oui" : "Non"}
+                          </div>
+                          <div className="text-center">
+                            <button
+                              className={`${
+                                isCurrentPlanDisabled(plan)
+                                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                  : "bg-primary hover:bg-primary-dark text-white"
+                              } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
+                              onClick={() => handleUpgradeClick(plan)}
+                              disabled={isCurrentPlanDisabled(plan)}
+                            >
+                              {isCurrentPlanDisabled(plan)
+                                ? `Plan actuel - ${plan.name}`
+                                : "Mettre à niveau le plan"}
+                            </button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </TabsContent>
+                <TabsContent
+                  value="quarterly"
+                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
+                >
+                  {plans.map((plan, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-center lg:justify-start"
+                    >
+                      <Card className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                        <CardHeader className="flex justify-between items-center mb-4">
+                          <CardTitle className="text-lg font-bold">
+                            {plan.name}
+                          </CardTitle>
+                          <div className="text-xl font-semibold text-primary">
+                            {plan.quarterly_price} DHs / trimestre
                           </div>
                         </CardHeader>
                         <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
@@ -617,10 +687,10 @@ function ServicePlanPage() {
                       </div>
                       <div>
                         <label>
-                          Référence du paiement :
+                          Nom complete :
                           <input
                             type="text"
-                            placeholder="Référence du paiement"
+                            placeholder="Nom complete"
                             className="border border-gray-400 rounded-lg p-2 mt-1 w-full"
                             value={paymentReference}
                             onChange={handlePaymentReferenceChange}

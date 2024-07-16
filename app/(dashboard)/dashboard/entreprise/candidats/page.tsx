@@ -159,7 +159,7 @@ const Hiring: React.FC = () => {
 
         if (response.ok) {
           toast.success("Video consommée !");
-          fetchLastPayment(); // Refresh last payment data
+          fetchLastPayment();
         } else {
           toast.error("Failed to consume video.");
         }

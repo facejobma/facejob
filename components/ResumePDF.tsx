@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 80,
     height: 80,
-    borderRadius: "50%",  
+    borderRadius: "50%",
     marginRight: 20,
   },
   avatarBlur: {
@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
     marginRight: 20,
     opacity: 0,
     display: "none",
-    
   },
   name: {
     fontSize: 24,

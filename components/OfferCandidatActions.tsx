@@ -15,11 +15,12 @@ import {
   View,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ResumePDF from "@/components/ResumePDF";
+import { toast } from "react-hot-toast";
 
 interface Candidat {
   id: number;
@@ -39,38 +40,100 @@ interface Candidat {
   zip_code: string | null;
 }
 
+interface Payment {
+  id: number;
+  entreprise_id: number;
+  cv_video_remaining: number;
+}
+
 export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
   data,
 }) => {
   // const [loading, setLoading] = useState(false);
   const authToken = Cookies.get("authToken");
   const router = useRouter();
+  const [lastPayment, setLastPayment] = useState<Payment | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [candidateToConsume, setCandidateToConsume] = useState<Candidat | null>(
+    null,
+  );
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const company = sessionStorage.getItem("user");
+  const companyId = company ? JSON.parse(company).id : null;
 
-  const onVerify = async (isVerified: string) => {
+  const fetchLastPayment = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/job/accept/${data.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
         {
-          method: "PUT",
           headers: {
             Authorization: `Bearer ${authToken}`,
-            Accept: "application/json",
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            isVerified,
-          }),
         },
       );
-
-      if (response.ok) {
-        console.log("Candidate deleted successfully!");
-      } else {
-        console.error("Failed to delete candidate");
-      }
+      const data = await response.json();
+      setLastPayment(data);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching last payment:", error);
+      toast.error("Error fetching last payment!");
     }
+  };
+
+  useEffect(() => {
+    fetchLastPayment();
+  }, [authToken, companyId]);
+
+  const handleConsumeClick = (candidate: Candidat) => {
+    if (lastPayment && lastPayment.cv_video_remaining > 0) {
+      setCandidateToConsume(candidate);
+      setIsModalOpen(true);
+    } else {
+      setIsUpgradeModalOpen(true);
+    }
+  };
+
+  const handleConfirmConsume = async () => {
+    if (candidateToConsume) {
+      try {
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              postuler_id: candidateToConsume.id,
+              entreprise_id: companyId,
+            }),
+          },
+        );
+
+        if (response.ok) {
+          toast.success("Video consommée !");
+          fetchLastPayment();
+        } else {
+          toast.error("Failed to consume video.");
+        }
+      } catch (error) {
+        console.error("Error consuming video:", error);
+        toast.error("Error consuming video!");
+      }
+    }
+    setIsModalOpen(false);
+    setCandidateToConsume(null);
+  };
+
+  const handleCancelConsume = () => {
+    setIsModalOpen(false);
+    setCandidateToConsume(null);
+  };
+
+  const handleUpgradePlan = () => {
+    // Redirect to the upgrade plan page
+    window.location.href = "/dashboard/entreprise/services";
   };
 
   return (
@@ -90,15 +153,11 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => {
-              onVerify("Declined");
-            }}
-          >
-            <XSquare className="mr-2 h-4 w-4" /> Consume
+          <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
+            <XSquare className="mr-2 h-4 w-4" /> Consommer
           </DropdownMenuItem>
           <DropdownMenuItem>
-          <View className="mr-2 h-4 w-4" />
+            <View className="mr-2 h-4 w-4" />
             <PDFDownloadLink
               document={<ResumePDF candidateId={data.id} />}
               fileName="resume.pdf"
@@ -106,10 +165,52 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
             >
               {({ loading }) => (loading ? "Generating..." : "Consulter CV")}
             </PDFDownloadLink>
-            
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-8 rounded-lg shadow-lg z-10">
+            <h2 className="text-xl font-semibold mb-8">
+              Êtes-vous sûr de vouloir consommer cette vidéo de CV ?
+            </h2>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleCancelConsume}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleConfirmConsume}
+                className="px-4 py-2 bg-primary text-white rounded-md"
+              >
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isUpgradeModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-8 rounded-lg shadow-lg z-10">
+            <h2 className="text-xl font-semibold mb-8">
+              Vous avez atteint la limite de consommation de vidéos de CV.
+              Veuillez mettre à niveau votre plan.
+            </h2>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleUpgradePlan}
+                className="px-4 py-2 bg-primary text-white rounded-md"
+              >
+                Mettre à niveau
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

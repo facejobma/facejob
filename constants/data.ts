@@ -124,12 +124,12 @@ export const navItemsCandidat: NavItem[] = [
     icon: "offres",
     label: "offres",
   },
-  {
-    title: "Entreprises",
-    href: "/dashboard/candidat/entreprises",
-    icon: "entreprises",
-    label: "entreprises",
-  },
+  // {
+  //   title: "Entreprises",
+  //   href: "/dashboard/candidat/entreprises",
+  //   icon: "entreprises",
+  //   label: "entreprises",
+  // },
   {
     title: "Postuler",
     href: "/dashboard/candidat/postuler",
@@ -187,12 +187,12 @@ export const navItemsEntreprise: NavItem[] = [
     icon: "services",
     label: "services",
   },
-  {
-    title: "Paiements",
-    href: "/dashboard/entreprise/payments",
-    icon: "payments",
-    label: "payments",
-  },
+  // {
+  //   title: "Paiements",
+  //   href: "/dashboard/entreprise/payments",
+  //   icon: "payments",
+  //   label: "payments",
+  // },
   {
     title: "Profile",
     href: "/dashboard/entreprise/profile",

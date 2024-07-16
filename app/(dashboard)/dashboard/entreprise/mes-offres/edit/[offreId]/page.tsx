@@ -107,7 +107,7 @@ const PublishOffer: React.FC = () => {
     <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-medium mb-8 text-center">
-          Publier votre offre
+          Modifier votre offre
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -255,7 +255,7 @@ const PublishOffer: React.FC = () => {
               }`}
               disabled={uploadStatus === "uploading"}
             >
-              {uploadStatus === "uploading" ? "Publishing..." : "Publish Offer"}
+              {uploadStatus === "uploading" ? "Updating..." : "Update Offer"}
             </button>
           </div>
         </form>

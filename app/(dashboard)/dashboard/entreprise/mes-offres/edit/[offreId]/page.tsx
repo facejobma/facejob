@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 
 const ReactQuill = dynamic(import("react-quill"), {
   ssr: false,
-  loading: () => <p>chargement ...</p>,
+  loading: () => <p>Loading...</p>,
 });
 
 interface Job {
@@ -22,13 +22,15 @@ interface Sector {
 }
 
 const PublishOffer: React.FC = () => {
+  const id = sessionStorage.getItem("offreid");
+
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [contractType, setContractType] = useState("");
   const [startDate, setStartDate] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedSector, setSelectedSector] = useState("");
-  const [selectedJob, setSelectedJob] = useState("");
+  const [selectedSector, setSelectedSector] = useState<string>("");
+  const [selectedJob, setSelectedJob] = useState<string>("");
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [uploadStatus, setUploadStatus] = useState("idle");
 
@@ -39,8 +41,11 @@ const PublishOffer: React.FC = () => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sectors`
         );
+        if (!response.ok) {
+          throw new Error("Failed to fetch sectors");
+        }
         const data = await response.json();
         setSectors(data);
       } catch (error) {
@@ -52,10 +57,38 @@ const PublishOffer: React.FC = () => {
     fetchSectors();
   }, []);
 
+  useEffect(() => {
+    if (id) {
+      const fetchOffer = async () => {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${id}`
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch offer");
+          }
+          const data = await response.json();
+          console.log(data);
+          setTitle(data.titre || "");
+          setLocation(data.location || "");
+          setContractType(data.contractType || "");
+          setStartDate(data.date_debut?.split(" ")[0] || "");
+          setDescription(data.description || "");
+          setSelectedSector(data.sector_id ? data.sector_id.toString() : "");
+          setSelectedJob(data.job_id ? data.job_id.toString() : "");
+        } catch (error) {
+          console.error("Error fetching offer:", error);
+          toast.error("Error fetching offer!");
+        }
+      };
+
+      fetchOffer();
+    }
+  }, [id]);
+
   // Filter jobs based on selected sector
   const filteredJobs =
-    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
-    [];
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,9 +100,9 @@ const PublishOffer: React.FC = () => {
         const user = JSON.parse(userData);
 
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/offre/create",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/update_offre/${id}`,
           {
-            method: "POST",
+            method: "PUT",
             headers: {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
@@ -84,24 +117,23 @@ const PublishOffer: React.FC = () => {
               job_id: selectedJob,
               entreprise_id: user.id,
             }),
-          },
+          }
         );
+
         if (response.ok) {
-          toast.success("Offer published successfully!");
+          toast.success("Offer updated successfully!");
           setUploadStatus("completed");
         } else {
-          toast.error("Failed to publish offer!");
+          toast.error("Failed to update offer!");
           setUploadStatus("failed");
         }
       }
     } catch (error) {
-      console.error("Error publishing offer:", error);
-      toast.error("An error occurred while publishing the offer!");
+      console.error("Error updating offer:", error);
+      toast.error("An error occurred while updating the offer!");
       setUploadStatus("failed");
     }
   };
-
-  
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
@@ -200,7 +232,7 @@ const PublishOffer: React.FC = () => {
             >
               <option value="">Sélectionnez le secteur</option>
               {sectors.map((sector) => (
-                <option key={sector.id} value={sector.id}>
+                <option key={sector.id} value={sector.id.toString()}>
                   {sector.name}
                 </option>
               ))}
@@ -223,7 +255,7 @@ const PublishOffer: React.FC = () => {
             >
               <option value="">Sélectionnez le métier</option>
               {filteredJobs.map((job) => (
-                <option key={job.id} value={job.id}>
+                <option key={job.id} value={job.id.toString()}>
                   {job.name}
                 </option>
               ))}
@@ -255,7 +287,7 @@ const PublishOffer: React.FC = () => {
               }`}
               disabled={uploadStatus === "uploading"}
             >
-              {uploadStatus === "uploading" ? "Updating..." : "Update Offer"}
+              {uploadStatus === "uploading" ? "En cours..." : "Mettre à jour"}
             </button>
           </div>
         </form>

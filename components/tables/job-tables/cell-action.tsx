@@ -39,7 +39,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
-            sessionStorage.setItem("offreid", data.id);
+            sessionStorage.setItem("offreid", data.id.toString());
             router.push(`/dashboard/entreprise/mes-offres/edit/${data.id}`);
           }}
         >

@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Modal } from "@/components/ui/modal";
+import { useRouter } from "next/navigation"; // Ensure this import matches your project setup
+import { Modal } from "@/components/ui/modal"; // Adjust the path as per your project structure
 import Cookies from "js-cookie";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import ResumePDF from "@/components/ResumePDF";
-import { Edit } from "lucide-react";
+import { Edit, Key } from "lucide-react"; // Assuming you have Lucide icons installed
 
 interface ProfileHeaderProps {
   id: number;
@@ -41,6 +40,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   educations,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  const router = useRouter(); // Using useRouter from next/navigation
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -103,6 +103,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     }));
   };
 
+  const handlePasswordChangeClick = () => {
+    router.push("/dashboard/candidat/change-password"); // Adjust the route according to your project structure
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden relative">
       {coverImageUrl && (
@@ -114,13 +118,19 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       )}
 
       <div className="p-10 relative">
-        <div className="absolute top-4 right-6">
+        <div className="absolute top-4 right-6 flex gap-4">
           <button
             className="text-gray-400 hover:text-gray-600"
             onClick={handleEditClick}
           >
             <Edit />
-            {/* Edit */}
+          </button>
+          <button
+            className="text-gray-400 hover:text-gray-600"
+            title="Change Password"
+            onClick={handlePasswordChangeClick}
+          >
+            <Key />
           </button>
         </div>
         {avatarUrl && (
@@ -139,17 +149,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </h1>
           <p className="text-gray-600 mb-2">{headline}</p>
           {/* {location && <p className="text-gray-600 mb-3">{location}</p>} */}
-          <PDFDownloadLink
-            document={
-              <ResumePDF
-                candidateId={id}
-              />
-            }
-            fileName="resume.pdf"
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
-          >
-            {({ loading }) => (loading ? "Generating..." : "Consulter CV")}
-          </PDFDownloadLink>
+          {/* Add any additional content here */}
         </div>
 
         {companyName && companyLogoUrl && (
@@ -174,7 +174,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         <form onSubmit={handleProfileUpdate}>
           {/* Name */}
           <label htmlFor="newFirstName" className="block mb-2 font-bold">
-            Prenom
+            First Name
           </label>
           <input
             type="text"
@@ -182,12 +182,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             name="newFirstName"
             value={formData.newFirstName}
             onChange={handleInputChange}
-            placeholder="Enter new name"
+            placeholder="Enter new first name"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          <label htmlFor="newName" className="block mb-2 font-bold">
-            Nom
+          <label htmlFor="newLastName" className="block mb-2 font-bold">
+            Last Name
           </label>
           <input
             type="text"
@@ -195,7 +195,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             name="newLastName"
             value={formData.newLastName}
             onChange={handleInputChange}
-            placeholder="Enter new name"
+            placeholder="Enter new last name"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 

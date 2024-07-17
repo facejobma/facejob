@@ -1,9 +1,9 @@
 "use client";
-
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
-import { Edit } from "lucide-react";
+import { Edit, Key } from "lucide-react";
 
 interface ProfileEntrepHeaderProps {
   id: number;
@@ -29,6 +29,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   creationDate,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  const router = useRouter(); // Using useRouter from next/router
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -51,10 +52,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
     e.preventDefault();
   
     try {
-      // Parse the creation date string
       const creationDate = new Date(formData.newCreationDate);
-      
-      // Format the date as "yyyy-MM-dd"
       const formattedCreationDate = creationDate.toISOString().split('T')[0];
   
       const response = await fetch(
@@ -70,7 +68,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             sector_id: formData.newSector,
             adresse: formData.newSiegeSocial,
             site_web: formData.newWebsite,
-            created_at: formattedCreationDate, // Use the formatted date
+            created_at: formattedCreationDate,
           }),
         },
       );
@@ -86,7 +84,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       console.error("Error updating profile data:", error);
     }
   };
-  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -96,6 +93,10 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const handlePasswordChangeClick = () => {
+    router.push("/dashboard/entreprise/change-password"); // Adjust the route according to your project structure
   };
 
   return (
@@ -109,12 +110,19 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       )}
 
       <div className="p-6 relative">
-        <div className="absolute top-4 right-6">
+        <div className="absolute top-4 right-6 flex gap-4">
           <button
             className="text-gray-400 hover:text-gray-600"
             onClick={handleEditClick}
           >
             <Edit />
+          </button>
+          <button
+            className="text-gray-400 hover:text-gray-600"
+            title="Change Password"
+            onClick={handlePasswordChangeClick}
+          >
+            <Key />
           </button>
         </div>
         {avatarUrl && (
@@ -151,7 +159,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         )}
       </div>
 
-      {/* Modal for editing profile */}
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
@@ -159,7 +166,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         description="Update your profile information"
       >
         <form onSubmit={handleProfileUpdate}>
-          {/* Company Name */}
           <label htmlFor="newCompanyName" className="block mb-2 font-bold">
             Company Name
           </label>
@@ -173,7 +179,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          {/* Sector */}
           <label htmlFor="newSector" className="block mb-2 font-bold">
             Sector
           </label>
@@ -187,7 +192,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          {/* Website */}
           <label htmlFor="newWebsite" className="block mb-2 font-bold">
             Website
           </label>
@@ -201,7 +205,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          {/* Creation Date */}
           <label htmlFor="newCreationDate" className="block mb-2 font-bold">
             Creation Date
           </label>
@@ -214,7 +217,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          {/* Siege Social */}
           <label htmlFor="newSiegeSocial" className="block mb-2 font-bold">
             Siege Social
           </label>
@@ -228,7 +230,6 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"

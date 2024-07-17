@@ -15,7 +15,7 @@ function handleLinkedinLogin() {
   //     todo
 }
 
-const LoginForm = (props: { loginFor: "candidat" | "entreprise" }) => {
+const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -61,8 +61,8 @@ const LoginForm = (props: { loginFor: "candidat" | "entreprise" }) => {
 
       toast.success("connecté avec succès");
 
-      if (props.loginFor === "candidat") {
-        router.push("/dashboard/candidat");
+      if (props.loginFor === "candidate") {
+        router.push("/dashboard/candidate");
       } else if (props.loginFor == "entreprise") {
         router.push("/dashboard/entreprise");
       }

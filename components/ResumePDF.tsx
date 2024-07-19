@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
 
 // Define the Resume component
 const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
+  console.log("candidateId from ResumePDF", candidateId);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

@@ -240,6 +240,12 @@ const Hiring: React.FC = () => {
             </div>
           </div>
         </div>
+        <button
+          className="bg-primary hover:bg-primary-2 text-white font-medium py-1 px-3 rounded-lg border border-primary mb-4"
+          onClick={() => window.location.href = "/dashboard/entreprise/consumed-cvs"}
+        >
+          Voir Mes CV videos Consommees
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

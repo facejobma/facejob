@@ -79,18 +79,21 @@ const styles = StyleSheet.create({
   },
 });
 
-// Define the Resume component
 const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cvConsumed, setCvConsumed] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
       const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+      const company =
+        typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
+      const companyId = company ? JSON.parse(company).id : null;
 
       try {
-        const response = await fetch(
+        const profileResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${candidateId}`,
           {
             headers: {
@@ -99,11 +102,28 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             },
           },
         );
-        const data = await response.json();
-        setUserProfile(data);
+        const profileData = await profileResponse.json();
+        setUserProfile(profileData);
+
+        const consumeResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
+          {
+            method: "POST", 
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              candidat_id: candidateId,
+              entreprise_id: companyId,
+            }),
+          },
+        );
+        const consumeData = await consumeResponse.json();
+        setCvConsumed(consumeData.consumed);
       } catch (error) {
-        setError("Error fetching candidate profile");
-        toast.error("Error fetching candidate profile");
+        setError("Error fetching data");
+        toast.error("Error fetching data");
       } finally {
         setLoading(false);
       }
@@ -124,9 +144,10 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
     return <Text>No profile data available</Text>;
   }
 
-  const userRole = sessionStorage.getItem("userRole");
+  const userRole =
+    typeof window !== "undefined" ? sessionStorage.getItem("userRole") : null;
   const abbreviatedLastName =
-    userRole === "entreprise"
+    userRole === "entreprise" && !cvConsumed
       ? `${userProfile.last_name?.charAt(0)}.`
       : userProfile.last_name;
 
@@ -138,7 +159,9 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
           {userProfile.image && (
             <Image
               style={
-                userRole === "entreprise" ? styles.avatarBlur : styles.avatar
+                userRole === "entreprise" && !cvConsumed
+                  ? styles.avatarBlur
+                  : styles.avatar
               }
               src={userProfile.image}
             />

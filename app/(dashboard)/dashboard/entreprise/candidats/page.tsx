@@ -56,11 +56,11 @@ const Hiring: React.FC = () => {
     if (selectedSector) {
       const sector = sectors.find((sec) => sec.id === Number(selectedSector));
       setFilteredJobs(sector ? sector.jobs : []);
-      setSelectedJob(""); // Reset selected job when sector changes
+      setSelectedJob(""); 
     } else {
       setFilteredJobs([]);
     }
-  }, [selectedSector, sectors]);
+  }, [selectedSector]);
 
   const fetchSectors = async () => {
     try {
@@ -277,7 +277,7 @@ const Hiring: React.FC = () => {
                   <PDFDownloadLink
                     document={<ResumePDF candidateId={candidate.id} />}
                     fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                    className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-xl border border-primary mb-4"
+                    className="bg-primary hover:bg-primary-2 text-white font-medium py-1 px-3 rounded-lg border border-primary mb-4"
                   >
                     {({ loading }) =>
                       loading ? "Génération..." : "Consulter CV"

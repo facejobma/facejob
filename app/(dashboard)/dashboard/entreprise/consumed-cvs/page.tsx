@@ -66,7 +66,9 @@ const ConsumedCVs: React.FC = () => {
   const [consumedCVs, setConsumedCVs] = useState<ConsumedCV[]>([]);
   const [error, setError] = useState<string | null>(null);
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const company = sessionStorage.getItem("user");
+  const company = typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("user")
+    : null
   const entrepriseId = company ? JSON.parse(company).id : null;
 
   useEffect(() => {

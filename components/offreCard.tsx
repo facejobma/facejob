@@ -56,7 +56,9 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const [alreadyApplied, setAlreadyApplied] = useState(false);
 
   const authToken = Cookies.get('authToken');
-  const user = sessionStorage.getItem('user');
+  const user = typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("user") || '{}'
+    : '{}';
   const userId = user ? JSON.parse(user).id : null;
 
   useEffect(() => {

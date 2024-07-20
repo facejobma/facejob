@@ -71,7 +71,9 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
   const handleSubmit = async () => {
     try {
       const formData = {
-        userId: sessionStorage.getItem("userId"),
+        userId: typeof window !== "undefined"
+          ? window.sessionStorage?.getItem("user") || '{}'
+          : '{}',
         bio,
         sector: sector ? sector : customSector,
         image,

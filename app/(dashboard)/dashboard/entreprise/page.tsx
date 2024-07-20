@@ -39,7 +39,11 @@ const Dashboard: React.FC = () => {
   const authToken = Cookies.get("authToken");
 
   useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const userData=typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user") || '{}'
+      : '{}'
+
+    const user = JSON.parse(  userData);
     const userId = user.id;
 
     if (!userId) {

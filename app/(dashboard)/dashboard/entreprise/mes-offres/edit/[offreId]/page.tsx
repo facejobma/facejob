@@ -1,14 +1,9 @@
 "use client";
-import dynamic from "next/dynamic";
-import React, { useState, useEffect } from "react";
-import "react-quill/dist/quill.snow.css";
-import Cookies from "js-cookie";
-import { toast } from "react-hot-toast";
 
-const ReactQuill = dynamic(import("react-quill"), {
-  ssr: false,
-  loading: () => <p>Loading...</p>,
-});
+import Cookies from "js-cookie";
+import {useEffect, useState } from "react";
+import toast from "react-hot-toast";
+
 
 interface Job {
   id: number;
@@ -22,7 +17,10 @@ interface Sector {
 }
 
 const PublishOffer: React.FC = () => {
-  const id = sessionStorage.getItem("offreid");
+  const id =  typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("offerid")
+    : null
+
 
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
@@ -35,7 +33,9 @@ const PublishOffer: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState("idle");
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const userData = sessionStorage.getItem("user");
+  const userData =  typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("user")
+    : null
 
   useEffect(() => {
     const fetchSectors = async () => {
@@ -275,9 +275,9 @@ const PublishOffer: React.FC = () => {
             >
               Description du poste
             </label>
-            <ReactQuill
+            <input
               value={description}
-              onChange={setDescription}
+              onChange={(e)=>setDescription(e.target.value)}
               className="h-40 mb-6"
               placeholder="Entrez la description du poste"
             />

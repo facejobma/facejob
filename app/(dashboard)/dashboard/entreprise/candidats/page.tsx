@@ -30,6 +30,7 @@ interface Payment {
   id: number;
   entreprise_id: number;
   cv_video_remaining: number;
+  status: string;
 }
 
 const Hiring: React.FC = () => {
@@ -133,7 +134,7 @@ const Hiring: React.FC = () => {
   };
 
   const handleConsumeClick = (candidate: Candidate) => {
-    if (lastPayment && lastPayment.cv_video_remaining > 0) {
+    if (lastPayment && lastPayment.status != "pending" && lastPayment.cv_video_remaining > 0) {
       setCandidateToConsume(candidate);
       setIsModalOpen(true);
     } else {

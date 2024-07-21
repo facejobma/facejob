@@ -54,7 +54,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
 
   const displayedApplications = showAllCandidates
     ? initialData.applications
-    : initialData.applications.slice(0, 4);
+    : initialData?.applications?.slice(0, 4);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -109,7 +109,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Candidats</h2>
           <div className="max-h-60 overflow-y-auto">
-            {displayedApplications.map((application, index) => (
+            {displayedApplications?.map((application, index) => (
               <div key={index} className="flex items-center space-x-2 mb-2">
                 {application.candidat.image ? (
                   <div className="relative w-10 h-10 rounded-full overflow-hidden">
@@ -141,7 +141,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
               </div>
             ))}
           </div>
-          {initialData.applications.length > 4 && (
+          {initialData?.applications?.length > 4 && (
             <button
               onClick={toggleShowAllCandidates}
               className="text-blue-500 hover:underline mt-2 block"

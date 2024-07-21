@@ -58,7 +58,9 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
     null,
   );
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const company = sessionStorage.getItem("user");
+  const company = typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("user") || '{}'
+    : '{}';
   const companyId = company ? JSON.parse(company).id : null;
 
   const fetchLastPayment = async () => {

@@ -9,7 +9,9 @@ const SignupCandidatPage = () => {
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    const userId = sessionStorage.getItem("userId");
+    const userId =typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("userId") || '{}'
+      : '{}';
 
     // ? JHere if the userId already existed in session (means he created his account) skip the step 1
     if (userId) {

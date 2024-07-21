@@ -12,7 +12,9 @@ export default function UsersPage() {
   const [jobs, setJobs] = useState([]);
   const { toast } = useToast();
   const authToken = Cookies.get("authToken");
-  const userData = sessionStorage.getItem("user");
+  const userData =   typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("user")
+    : null
   console.log("user data : ", userData);
 
   useEffect(() => {

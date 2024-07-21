@@ -50,7 +50,9 @@ const Hiring: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
 
-  const company = sessionStorage.getItem("user");
+  const company =  typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("user")
+    : null
   const companyId = company ? JSON.parse(company).id : null;
 
   useEffect(() => {

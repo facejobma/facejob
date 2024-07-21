@@ -13,7 +13,9 @@ const CompanyProfile: React.FC = () => {
 
   useEffect(() => {
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-    const company = sessionStorage.getItem("user");
+    const company = typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user") || '{}'
+      : '{}'
     const companyId = company ? JSON.parse(company).id : null;
 
     if (companyId) {

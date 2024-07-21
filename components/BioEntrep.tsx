@@ -3,19 +3,14 @@
 import React, { useState} from "react";
 import { Edit } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import "react-quill/dist/quill.snow.css";
 import Cookies from "js-cookie";
-import dynamic from "next/dynamic";
+
 
 interface BioEntrepSectionProps {
   id: number;
   bio: string;
 }
 
-const ReactQuill = dynamic(import('react-quill'), {
-  ssr: false,
-  loading: () => <p>chargement ...</p>,
-})
 
 
 const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
@@ -91,9 +86,9 @@ const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
         description="Update the company description"
       >
         <form onSubmit={handleBioUpdate}>
-          <ReactQuill
+          <input
             value={newBio}
-            onChange={handleInputChange}
+            onChange={(e)=>handleInputChange(e.target.value)}
             className="h-40 mb-6"
             placeholder="Entrez la description du poste"
           />

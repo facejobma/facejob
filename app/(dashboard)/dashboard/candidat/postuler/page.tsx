@@ -28,7 +28,10 @@ const PublishVideo: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState("idle");
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const userData = sessionStorage.getItem("user");
+  const userData = typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user")
+      : null;
+
   const user = userData ? JSON.parse(userData) : null;
 
   useEffect(() => {

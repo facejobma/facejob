@@ -62,7 +62,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       toast.success("connecté avec succès");
 
       if (props.loginFor === "candidate") {
-        router.push("/dashboard/candidate");
+        router.push("/dashboard/candidat");
       } else if (props.loginFor == "entreprise") {
         router.push("/dashboard/entreprise");
       }

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/jadoo-travel-agency.iml" filepath="$PROJECT_DIR$/.idea/jadoo-travel-agency.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/facejob_client.iml" filepath="$PROJECT_DIR$/.idea/facejob_client.iml" />
     </modules>
   </component>
 </project>

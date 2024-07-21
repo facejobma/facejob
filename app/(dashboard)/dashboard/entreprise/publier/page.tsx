@@ -1,14 +1,8 @@
 "use client";
-import dynamic from "next/dynamic";
+
 import React, { useState, useEffect } from "react";
-import "react-quill/dist/quill.snow.css";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-
-const ReactQuill = dynamic(import("react-quill"), {
-  ssr: false,
-  loading: () => <p>chargement ...</p>,
-});
 
 interface Job {
   id: number;
@@ -46,7 +40,10 @@ const PublishOffer: React.FC = () => {
   const companyId = company ? JSON.parse(company).id : null;
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const userData = sessionStorage.getItem("user");
+  const userData =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user") || "{}"
+      : "{}";
 
   useEffect(() => {
     const fetchSectors = async () => {
@@ -145,6 +142,7 @@ const PublishOffer: React.FC = () => {
       setIsUpgradeModalOpen(true);
     }
   };
+
 
   const handleUpgradePlan = () => {
     window.location.href = "/dashboard/entreprise/services";
@@ -284,10 +282,10 @@ const PublishOffer: React.FC = () => {
             >
               Description du poste
             </label>
-            <ReactQuill
+            <textarea
               value={description}
-              onChange={setDescription}
-              className="h-40 mb-6"
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Entrez la description du poste"
             />
           </div>

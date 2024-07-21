@@ -18,7 +18,9 @@ import { useToast } from "@/components/ui/use-toast";
 
 export function UserNav() {
   // const { session } = useSession();
-  const userdata =  sessionStorage.getItem("user");
+  const userdata = typeof window !== "undefined"
+    ? window.sessionStorage?.getItem("user") || '{}'
+    : '{}';
   const user = JSON.parse(userdata as string);
   const router = useRouter();
   const { toast } = useToast();

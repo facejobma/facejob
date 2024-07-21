@@ -98,7 +98,10 @@ export default function UsersPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const { toast } = useToast();
   const authToken = Cookies.get("authToken");
-  const user = sessionStorage.getItem("user");
+  const user =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user")
+      : null;
   const userId = user ? JSON.parse(user).id : null;
 
   useEffect(() => {

@@ -33,7 +33,9 @@ const Notification: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const user = sessionStorage.getItem("user");
+      const user = typeof window !== "undefined"
+        ? window.sessionStorage?.getItem("user") || '{}'
+        : '{}';
       const userId = user ? JSON.parse(user).id : null;
       setUserId(userId);
       console.log("userRole, ", sessionStorage.getItem("userRole"));

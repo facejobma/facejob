@@ -17,8 +17,9 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
-    const userData = sessionStorage.getItem("user");
-    console.log("user data : ", userData);
+    const userData = typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user")
+      : null;
 
     if (userData) {
       const user = JSON.parse(userData);

@@ -11,9 +11,7 @@ import linkedin from "../../../public/svg/linkedin.svg";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-function handleLinkedinLogin() {
-  //     todo
-}
+
 
 const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const [email, setEmail] = useState("");
@@ -93,6 +91,26 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       toast.error("Une erreur s’est produite lors de la connexion");
     }
   };
+
+  const handleLinkedinLogin = async () => { 
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin",
+      );
+  
+      if (!response.ok) {
+        toast.error("Erreur lors de la connexion avec Linkedin");
+        return;
+      }
+  
+      const data = await response.json();
+  
+      window.location.href = data.url;
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Une erreur s’est produite lors de la connexion");
+    }
+  }
 
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

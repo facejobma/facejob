@@ -72,7 +72,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
     try {
       const formData = {
         userId: typeof window !== "undefined"
-          ? window.sessionStorage?.getItem("user") || '{}'
+          ? window.sessionStorage?.getItem("userId") || '{}'
           : '{}',
         bio,
         sector: sector ? sector : customSector,
@@ -83,7 +83,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
       console.log("formData, ", formData);
 
       // if (image) {
-      //   formData.append("image", image);
+      //   formData.append("image", image)  ;
       // }
 
       const response = await fetch(
@@ -114,12 +114,12 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center font-default rounded-lg border border-newColor p-4">
-      <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4">
+    <div className="flex flex-col items-center font-default rounded-lg border border-newColor px-4 pb-4">
+      <h2 className="text-3xl font-semibold text-second my-4 pb-4 mb-4">
         Additional Information (Optional)
       </h2>
 
-      <div className="w-96 mb-4">
+      <div className="w-96 mb-2">
         <textarea
           placeholder="écrire une description de vous-même (votre carrière professionnelle..)"
           value={bio}
@@ -133,7 +133,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
         </p>
       </div>
 
-      <div className="w-96 mb-4">
+      <div className="w-96 mb-2">
         <select
           value={sector}
           //   onChange={(e) => SetSector(e.target.value)}

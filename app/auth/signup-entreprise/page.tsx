@@ -10,35 +10,35 @@ const SignupEntreprisePage = () => {
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    const userId =typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("userId") || '{}'
-      : '{}';
+    const userId =
+      typeof window !== "undefined"
+        ? window.sessionStorage?.getItem("userId") || ""
+        : "";
 
-    // ? JHere if the userId already existed in session (means he created his account) skip the step 1
+    // If the userId already exists in session storage, skip to Step 2
     if (userId) {
       setStep(2);
     }
   }, []);
 
   const handleNextStep = () => {
-    // setAdditionalInfo(info);
-    setStep(step + 1);
+    setStep((prevStep) => prevStep + 1);
   };
 
   const handleSkip = () => {
-    setStep(step + 1);
+    setStep((prevStep) => prevStep + 1);
   };
 
   return (
     <>
       <NavBar />
-      {step === 1 && (
-        <>
-          <div className="flex flex-col md:flex-row items-center mt-8">
+      <div className="flex flex-col md:flex-row items-center mt-8">
+        {step === 1 && (
+          <>
             <div className="w-full md:w-1/2 px-4">
               <SignupFormEntreprise onNextStep={handleNextStep} />
             </div>
-            <div className="w-0 p-4 md:w-1/2">
+            <div className="w-full md:w-1/2 p-4">
               <Image
                 src="/img6.jpg"
                 className="rounded-3xl w-full md:w-2/5 md:-my-56 md:absolute"
@@ -47,17 +47,16 @@ const SignupEntreprisePage = () => {
                 height={1000}
               />
             </div>
+          </>
+        )}
+        {step === 2 && (
+          <div className="mx-auto w-full md:w-1/2 px-4">
+            <NextStepSignupEntreprise onSkip={handleSkip} />
           </div>
-        </>
-      )}
-      {
-        <div className="mx-auto w-full md:w-1/2 px-4">
-          {step === 2 && <NextStepSignupEntreprise onSkip={handleSkip} />}
-        </div>
-      }
+        )}
+      </div>
     </>
   );
 };
 
 export default SignupEntreprisePage;
-

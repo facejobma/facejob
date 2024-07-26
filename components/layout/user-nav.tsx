@@ -78,24 +78,24 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              Profile
-              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Billing
-              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
+            {/*<DropdownMenuItem>*/}
+            {/*  Profile*/}
+            {/*  <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>*/}
+            {/*</DropdownMenuItem>*/}
+            {/*<DropdownMenuItem>*/}
+            {/*  Billing*/}
+            {/*  <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>*/}
+            {/*</DropdownMenuItem>*/}
+            <DropdownMenuItem onClick={()=>router.push('/dashboard/entreprise/profile')}>
               Settings
               <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
-            <DropdownMenuItem>New Team</DropdownMenuItem>
+            {/*<DropdownMenuItem>New Team</DropdownMenuItem>*/}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => signOut()}>
             Log out
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            {/*<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>*/}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

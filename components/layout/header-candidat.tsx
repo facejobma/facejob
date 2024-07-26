@@ -5,7 +5,7 @@ import { UserNav } from "./user-nav";
 import { Logo } from "@/components/ui/logo";
 import Notification from "@/components/layout/Notification";
 import { useRouter } from "next/navigation";
-import { Send, Search } from "lucide-react";
+import { Send } from "lucide-react";
 
 export default function HeaderCandidat() {
   const router = useRouter();
@@ -33,12 +33,12 @@ export default function HeaderCandidat() {
             <Search className="absolute right-2 w-5 h-5 text-gray-400" />
           </div> */}
           <div className="flex items-center ml-48 gap-10">
-            <a
-              href="/offres"
-              className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
-            >
-              OFFRES
-            </a>
+            {/*<a*/}
+            {/*  href="/offres"*/}
+            {/*  className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"*/}
+            {/*>*/}
+            {/*  OFFRES*/}
+            {/*</a>*/}
             <a
               href="/blogs"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
@@ -46,7 +46,7 @@ export default function HeaderCandidat() {
               BLOGS
             </a>
             <a
-              href="/support"
+              href="/dashboard/entreprise/support"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
             >
               SUPPORT

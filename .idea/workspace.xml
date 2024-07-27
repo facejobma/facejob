@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92b7253-a11e-4f4b-8b9f-e1740c014bac" name="Changes" comment="Fix path to completed path">
+    <list default="true" id="c92b7253-a11e-4f4b-8b9f-e1740c014bac" name="Changes" comment="Remove offers , and fix navigation links">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/layout/user-nav.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/layout/user-nav.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,7 +29,9 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;ts.external.directory.path&quot;: &quot;/home/sohaib/Desktop/freelance_old/Freelance/facejob_client/node_modules/typescript/lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -52,6 +53,8 @@
       <option name="presentableId" value="Default" />
       <updated>1722013290977</updated>
       <workItem from="1722013294488" duration="271000" />
+      <workItem from="1722034633296" duration="1021000" />
+      <workItem from="1722077552859" duration="421000" />
     </task>
     <task id="LOCAL-00001" summary="Fix path to completed path">
       <option name="closed" value="true" />
@@ -61,7 +64,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722013520065</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Remove offers , and fix navigation links">
+      <option name="closed" value="true" />
+      <created>1722035032021</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1722035032021</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -70,6 +81,19 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Fix path" />
     <MESSAGE value="Fix path to completed path" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix path to completed path" />
+    <MESSAGE value="Remove offers , and fix navigation links" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove offers , and fix navigation links" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/app/auth/reset-password/page.tsx</url>
+          <line>13</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

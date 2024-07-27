@@ -46,7 +46,7 @@ export default function HeaderCandidat() {
               BLOGS
             </a>
             <a
-              href="/dashboard/entreprise/support"
+              href="/dashboard/support"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
             >
               SUPPORT

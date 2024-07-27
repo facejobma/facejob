@@ -24,7 +24,8 @@ const ForgetPasswordForm = () => {
     }
 
     const formData = {
-      email
+      email,
+      actor
     };
 
     try {
@@ -32,7 +33,7 @@ const ForgetPasswordForm = () => {
         process.env.NEXT_PUBLIC_BACKEND_URL + `/api/auth/forgot-password`,
         {
           method: "POST",
-          headers: {
+          headers: {  
             "Content-Type": "application/json"
           },
           body: JSON.stringify(formData)

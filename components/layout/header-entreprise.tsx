@@ -6,12 +6,14 @@ import { Logo } from "@/components/ui/logo";
 import Notification from "@/components/layout/Notification";
 import { useRouter } from "next/navigation";
 import { Send, Star } from "lucide-react";
+import Link from "next/link";
 
 export default function HeaderEntreprise() {
   const router = useRouter();
 
   return (
-    <div className="fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 font-default">
+    <div
+      className="fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 font-default">
       <nav className="h-14 flex items-center justify-between px-4">
         <div className="flex items-center gap-5">
           <div className="hidden lg:block my-2 mr-40">
@@ -25,24 +27,24 @@ export default function HeaderEntreprise() {
             Publier
           </button>
           <div className="hidden lg:flex items-center ml-48 gap-10">
-            <a
-              href="/offres"
+            <Link
+              href="/dashboard/entreprise/services"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
             >
-              OFFRES
-            </a>
-            <a
+              SERVICES
+            </Link>
+            <Link
               href="/blogs"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
             >
               BLOGS
-            </a>
-            <a
-              href="/support"
+            </Link>
+            <Link
+              href="/dashboard/entreprise/support"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
             >
               SUPPORT
-            </a>
+            </Link>
           </div>
         </div>
         <div className={cn("block lg:!hidden")}>

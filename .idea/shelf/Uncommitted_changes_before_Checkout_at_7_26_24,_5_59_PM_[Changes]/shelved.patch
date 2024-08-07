@@ -1,0 +1,77 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"ef4994ac-fe85-4391-bcc0-7c81044f7963\" name=\"Changes\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/.gitignore\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/.name\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/postuler/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/postuler/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/profile/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/profile/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/candidats/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/candidats/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/consumed-cvs/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/consumed-cvs/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/edit/[offreId]/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/edit/[offreId]/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/profile/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/profile/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/publier/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/publier/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/services/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/services/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/auth/signup-candidate/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/auth/signup-candidate/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/auth/signup-entreprise/page.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/auth/signup-entreprise/page.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/components/BioEntrep.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/components/BioEntrep.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/components/OfferCandidatActions.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/components/OfferCandidatActions.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/components/auth/signup/NextStepSignupCandidat.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/components/auth/signup/NextStepSignupCandidat.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/components/layout/Notification.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/components/layout/Notification.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/components/layout/user-nav.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/components/layout/user-nav.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/components/offreCard.tsx\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/components/offreCard.tsx\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/package-lock.json\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/package-lock.json\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/package.json\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/package.json\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 1\n}</component>\n  <component name=\"ProjectId\" id=\"2jWeOgL5hzR9V6UdgGiMC9Wmvdr\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\n    &quot;last_opened_file_path&quot;: &quot;/home/sohaib/Desktop/freelance_old/Freelance/facejob_client&quot;,\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\n    &quot;ts.external.directory.path&quot;: &quot;/home/sohaib/Desktop/freelance_old/Freelance/facejob_client/node_modules/typescript/lib&quot;,\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\n  }\n}</component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.17890.13\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"ef4994ac-fe85-4391-bcc0-7c81044f7963\" name=\"Changes\" comment=\"\" />\n      <created>1721507229266</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1721507229266</updated>\n      <workItem from=\"1721507230322\" duration=\"568000\" />\n      <workItem from=\"1721507829672\" duration=\"31000\" />\n      <workItem from=\"1721507880379\" duration=\"400000\" />\n    </task>\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n</project>
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -5,30 +5,7 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="ef4994ac-fe85-4391-bcc0-7c81044f7963" name="Changes" comment="">
+-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/postuler/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/postuler/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/profile/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/candidat/profile/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/candidats/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/candidats/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/consumed-cvs/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/consumed-cvs/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/edit/[offreId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/edit/[offreId]/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/mes-offres/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/profile/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/profile/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/publier/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/publier/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/services/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/dashboard/entreprise/services/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/auth/signup-candidate/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/auth/signup-candidate/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/auth/signup-entreprise/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/auth/signup-entreprise/page.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/components/BioEntrep.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/BioEntrep.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/components/OfferCandidatActions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/OfferCandidatActions.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/components/auth/signup/NextStepSignupCandidat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/auth/signup/NextStepSignupCandidat.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/components/layout/Notification.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/layout/Notification.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/components/layout/user-nav.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/layout/user-nav.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/components/offreCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/offreCard.tsx" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -49,13 +26,14 @@
+   <component name="PropertiesComponent">{
+   &quot;keyToString&quot;: {
+     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;fix&quot;,
+     &quot;last_opened_file_path&quot;: &quot;/home/sohaib/Desktop/freelance_old/Freelance/facejob_client&quot;,
+     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+     &quot;ts.external.directory.path&quot;: &quot;/home/sohaib/Desktop/freelance_old/Freelance/facejob_client/node_modules/typescript/lib&quot;,
+     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+@@ -63,7 +41,7 @@
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.17890.13" />
++        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.18034.50" />
+       </set>
+     </attachedChunks>
+   </component>
+@@ -78,6 +56,11 @@
+       <workItem from="1721507230322" duration="568000" />
+       <workItem from="1721507829672" duration="31000" />
+       <workItem from="1721507880379" duration="400000" />
++      <workItem from="1721516143057" duration="553000" />
++      <workItem from="1721572295800" duration="2462000" />
++      <workItem from="1721770554397" duration="291000" />
++      <workItem from="1722008434578" duration="176000" />
++      <workItem from="1722012397736" duration="610000" />
+     </task>
+     <servers />
+   </component>

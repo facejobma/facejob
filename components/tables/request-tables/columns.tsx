@@ -31,12 +31,12 @@ export const columns: ColumnDef<Entreprise>[] = [
     cell: ({ row }) => (
       <TableCell>
         <div className="w-10 h-10 relative rounded-full overflow-hidden">
-          <Image
+          {row.original.logo && <Image
             src={row.original.logo}
             alt={`${row.original.company_name} Logo`}
             layout="fill"
             objectFit="cover"
-          />
+          />}
         </div>
       </TableCell>
     ),

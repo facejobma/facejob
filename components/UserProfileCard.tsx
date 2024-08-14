@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { FC } from "react";
-import Cookies from "js-cookie";
+
 
 interface UserProfileCardProps {
   name: string;

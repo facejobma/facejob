@@ -40,13 +40,13 @@ const BlogPage: React.FC = () => {
                             className="bg-white p-6 rounded-md shadow-md transform transition-transform duration-700 hover:scale-105"
                         >
                             <div className="mb-4">
-                                <Image
-                                    src={blog.image}
-                                    alt={`Blog ${index + 1}`}
-                                    className="w-full h-40 object-cover rounded-md"
-                                    width={1000}
-                                    height={1000}
-                                />
+                                {blog.image && <Image
+                                  src={blog.image}
+                                  alt={`Blog ${index + 1}`}
+                                  className="w-full h-40 object-cover rounded-md"
+                                  width={1000}
+                                  height={1000}
+                                />}
                             </div>
                             <div>
                                 <h2 className="text-xl font-semibold mb-4">{blog.title}</h2>

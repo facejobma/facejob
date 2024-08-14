@@ -48,12 +48,12 @@ export default function FileUpload({
                                 </Button>
                             </div>
                             <div>
-                                <Image
-                                    fill
-                                    className="object-cover"
-                                    alt="Image"
-                                    src={item.fileUrl || ""}
-                                />
+                              {item.fileUrl && <Image
+                                fill
+                                className="object-cover"
+                                alt="Image"
+                                src={item.fileUrl}
+                              />}
                             </div>
                         </div>
                     ))}

@@ -28,7 +28,8 @@ const PublishVideo: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState("idle");
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const userData = typeof window !== "undefined"
+  const userData =
+    typeof window !== "undefined"
       ? window.sessionStorage?.getItem("user")
       : null;
 
@@ -38,7 +39,7 @@ const PublishVideo: React.FC = () => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
         );
         const data = await response.json();
         setSectors(data);
@@ -52,7 +53,8 @@ const PublishVideo: React.FC = () => {
   }, []);
 
   const filteredJobs =
-    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [];
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
+    [];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -79,7 +81,7 @@ const PublishVideo: React.FC = () => {
             sector_id: selectedSector,
             candidat_id: user.id,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -99,6 +101,22 @@ const PublishVideo: React.FC = () => {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded-md text-yellow-700">
+          <p className="text-sm">
+            Before uploading your CV video, we recommend compressing it to
+            reduce the file size. You can use this free online tool to compress
+            your video:{" "}
+            <a
+              href="https://clideo.com/fr/compress-video"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-blue-600 hover:text-blue-800"
+            >
+              Compress Video
+            </a>
+            .
+          </p>
+        </div>
         <h2 className="text-2xl font-medium mb-8 text-center">
           Publish Your CV Video
         </h2>

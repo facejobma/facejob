@@ -76,6 +76,7 @@ const PublishVideo: React.FC = () => {
             video_url: videoUrl,
             nb_experiences: experiences,
             job_id: selectedJob,
+            sector_id: selectedSector,
             candidat_id: user.id,
           }),
         }

@@ -214,7 +214,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           />
 
           {/* Location */}
-          <label htmlFor="newLocation" className="block mb-2 font-bold">
+          {/* <label htmlFor="newLocation" className="block mb-2 font-bold">
             Location
           </label>
           <input
@@ -225,7 +225,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             onChange={handleInputChange}
             placeholder="Enter new location"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
+          /> */}
 
           {/* Company Name */}
           <label htmlFor="newCompanyName" className="block mb-2 font-bold">

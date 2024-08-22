@@ -172,7 +172,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
               {userProfile.first_name} {abbreviatedLastName}
             </Text>
             <Text style={styles.headline}>{userProfile.headline}</Text>
-            <Text style={styles.location}>{userProfile.location}</Text>
+            {/* <Text style={styles.location}>{userProfile.location}</Text> */}
           </View>
         </View>
 

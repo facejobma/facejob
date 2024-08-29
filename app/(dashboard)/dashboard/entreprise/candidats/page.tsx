@@ -13,6 +13,7 @@ const breadcrumbItems = [
 
 interface Candidate {
   id: number;
+  cv_id: number;
   image: string;
   first_name: string;
   last_name: string;
@@ -50,20 +51,25 @@ const Hiring: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
 
-  const company =  typeof window !== "undefined"
-    ? window.sessionStorage?.getItem("user")
-    : null
+  const company =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user")
+      : null;
   const companyId = company ? JSON.parse(company).id : null;
 
   useEffect(() => {
     if (selectedSector) {
       const sector = sectors.find((sec) => sec.id === Number(selectedSector));
       setFilteredJobs(sector ? sector.jobs : []);
-      setSelectedJob(""); 
+
+      // console.log("sector, ", sector.jobs);
+      // console.log("filtered Jobs, ", filteredJobs);
+
+      setSelectedJob("");
     } else {
       setFilteredJobs([]);
     }
-  }, [selectedSector]);
+  }, [selectedSector, sectors]);
 
   const fetchSectors = async () => {
     try {
@@ -134,7 +140,11 @@ const Hiring: React.FC = () => {
   };
 
   const handleConsumeClick = (candidate: Candidate) => {
-    if (lastPayment && lastPayment.status != "pending" && lastPayment.cv_video_remaining > 0) {
+    if (
+      lastPayment &&
+      lastPayment.status != "pending" &&
+      lastPayment.cv_video_remaining > 0
+    ) {
       setCandidateToConsume(candidate);
       setIsModalOpen(true);
     } else {
@@ -186,10 +196,14 @@ const Hiring: React.FC = () => {
   };
 
   const filteredCandidates = candidates.filter((candidate) => {
+    // console.log("selectedSector, ", selectedSector);
+    // console.log("selectedJob, ", selectedJob);
+
     return (
       (!selectedSector ||
-        candidate.job?.sector_id === Number(selectedSector)) &&
-      (!selectedJob || candidate.job.id === Number(selectedJob))
+      candidate.job?.sector_id === Number(selectedSector)) &&
+      (!selectedJob ||
+      candidate.job.id === Number(selectedJob))
     );
   });
 
@@ -245,7 +259,9 @@ const Hiring: React.FC = () => {
         </div>
         <button
           className="bg-primary hover:bg-primary-2 text-white font-medium py-1 px-3 rounded-lg border border-primary mb-4"
-          onClick={() => window.location.href = "/dashboard/entreprise/consumed-cvs"}
+          onClick={() =>
+            (window.location.href = "/dashboard/entreprise/consumed-cvs")
+          }
         >
           Voir Mes CV videos Consommees
         </button>
@@ -254,7 +270,7 @@ const Hiring: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCandidates.map((candidate) => (
           <div
-            key={candidate.id}
+            key={`${candidate.cv_id}`}
             className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
           >
             <div className="relative">
@@ -268,7 +284,7 @@ const Hiring: React.FC = () => {
             </div>
             <div className="p-4 text-center">
               <h3 className="text-xl font-semibold text-gray-800">
-                {candidate.first_name} .
+                {candidate.first_name} {candidate.last_name[0]}.
               </h3>
               <p className="text-gray-600">{candidate.job?.name}</p>
               <p className="text-gray-600">

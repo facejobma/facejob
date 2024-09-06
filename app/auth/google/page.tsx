@@ -1,39 +1,60 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation"; // For redirection
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Circles } from "react-loader-spinner";
 
 function GoogleCallback() {
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
-    // Fetch the user data using the Google OAuth callback
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google/callback?code=${code}`, {
-      headers: new Headers({ accept: "application/json" }),
-    })
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google/callback?code=${code}`,
+      {
+        headers: new Headers({ accept: "application/json" }),
+      },
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.json();
       })
-      .then(() => {
-        // Redirect the user to the appropriate dashboard based on their role
+      .then((responseData) => {
+        sessionStorage.setItem("user", JSON.stringify(responseData.user));
         const userRole = sessionStorage.getItem("userRole");
+
         if (userRole === "candidat") {
           router.push("/dashboard/candidat");
         } else if (userRole === "entreprise") {
           router.push("/dashboard/entreprise");
         }
+
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error during authentication:", error);
+        setLoading(false);
       });
   }, [router]);
 
-  // Do not render any content, as the redirection happens immediately
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-220px)]">
+        <Circles
+          height={80}
+          width={80}
+          color="#4fa94d"
+          ariaLabel="circles-loading"
+          visible={true}
+        />
+      </div>
+    );
+  }
+
   return null;
 }
 

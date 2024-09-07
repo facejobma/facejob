@@ -132,8 +132,10 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
     <div className="flex flex-col items-center rounded-lg border border-newColor p-4 font-default max-w-md mx-auto md:max-w-2xl">
       {" "}
       <h2 className="text-2xl font-semibold text-second my-2 py-4 mb-4 text-center">
-       Connectez-vous à votre compte ou inscrivez-vous pour créer votre espace Entreprise
-      </h2>
+     {props.loginFor === "candidate"
+        ? "Connectez-vous et trouvez le travail de vos rêves !"
+        : "Connectez-vous à votre compte ou inscrivez-vous pour créer votre espace Entreprise"}
+    </h2>
       <div className="mt-4 grid space-y-4">
         <button
           type="submit"

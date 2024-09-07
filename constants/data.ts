@@ -112,14 +112,14 @@ export interface ProfileSectionProps {
 
 export const navItemsCandidat: NavItem[] = [
   {
-    title: "Dashboard",
+    title: "Tableau de Bord",
     href: "/dashboard/candidat",
     icon: "dashboard",
     label: "Dashboard",
   },
 
   {
-    title: "Offres",
+    title: "Offres d’emploi",
     href: "/dashboard/candidat/offres",
     icon: "offres",
     label: "offres",
@@ -137,7 +137,7 @@ export const navItemsCandidat: NavItem[] = [
     label: "postuler",
   },
   {
-    title: "Profile",
+    title: "Profil",
     href: "/dashboard/candidat/profile",
     icon: "profile",
     label: "Profile",
@@ -149,7 +149,7 @@ export const navItemsCandidat: NavItem[] = [
     label: "support",
   },
   {
-    title: "Logout",
+    title: "Déconnexion",
     href: "/",
     icon: "logout",
     label: "logout",

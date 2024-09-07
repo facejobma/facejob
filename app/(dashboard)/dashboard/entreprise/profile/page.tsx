@@ -37,7 +37,7 @@ const CompanyProfile: React.FC = () => {
           const profileData = {
             id: companyData.id,
             company_name: companyData.company_name,
-            sector_name: companyData.sector.name,
+            sector_name: companyData.sector?.name,
             site_web: companyData.site_web,
             linkedin: companyData.linkedin,
             phone: companyData.phone,

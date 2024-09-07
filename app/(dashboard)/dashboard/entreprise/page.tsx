@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Total des offres d’emploi diffusés</CardTitle>
+              <CardTitle>Total des offres d’emploi diffusées</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold">{stats.totalOffres}</p>
@@ -147,7 +147,8 @@ const Dashboard: React.FC = () => {
         <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
           <Card>
             <CardHeader>
-              <CardTitle>Nombre des offres d’emploi diffusés / mois</CardTitle>
+              <CardTitle> Nombre des offres d’emploi diffusées / mois
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Bar 

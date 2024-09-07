@@ -170,7 +170,7 @@ export const navItemsEntreprise: NavItem[] = [
     label: "candidats",
   },
   { 
-    title: "Publier",
+    title: "Publier une offre",
     href: "/dashboard/entreprise/publier",
     icon: "postuler",
     label: "publier",
@@ -194,19 +194,19 @@ export const navItemsEntreprise: NavItem[] = [
   //   label: "payments",
   // },
   {
-    title: "Profile",
+    title: "Profil",
     href: "/dashboard/entreprise/profile",
     icon: "profile",
     label: "Profile",
   },
   {
     title: "Support",
-    href: "/dashboard/entreprise/support",
+    href: "/dashboard/support",
     icon: "support",
     label: "support",
   },
   {
-    title: "Logout",
+    title: "Se déconnecter",
     href: "/",
     icon: "logout",
     label: "logout",

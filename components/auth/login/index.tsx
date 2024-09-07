@@ -132,7 +132,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
     <div className="flex flex-col items-center rounded-lg border border-newColor p-4 font-default max-w-md mx-auto md:max-w-2xl">
       {" "}
       <h2 className="text-2xl font-semibold text-second my-2 py-4 mb-4 text-center">
-        Inscrivez-vous pour trouver un travail que vous aimez
+       Connectez-vous à votre compte ou inscrivez-vous pour créer votre espace Entreprise
       </h2>
       <div className="mt-4 grid space-y-4">
         <button
@@ -175,7 +175,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       </div>
       <div className="flex items-center justify-center space-x-2 my-5">
         <span className="h-px w-16 bg-gray-200"></span>
-        <span className="text-gray-400 font-normal">or</span>
+        <span className="text-gray-400 font-normal">Ou</span>
         <span className="h-px w-16 bg-gray-200"></span>
       </div>
       <form className="flex flex-col space-y-4 w-full" onSubmit={handleSubmit}>
@@ -208,12 +208,12 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
           <p className="text-red-500 text-sm">{passwordError}</p>
         )}
         <p className="text-base text-second text-center">
-          <span className="mx-1">Oublié votre</span>
+          <span className="mx-1"> Mot de passe</span>
           <Link
             href={`/auth/${props.loginFor}/forget-password`}
             className="text-primary"
           >
-            mot de passe?
+            oublié ?
           </Link>
         </p>
         <button

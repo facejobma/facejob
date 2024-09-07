@@ -72,7 +72,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
   return (
     <div className="flex flex-col items-center font-default rounded-lg border border-newColor p-4 max-w-xl mx-auto">
       <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4 text-center">
-        Créez votre compte et trouvez le job idéal
+      Créez votre compte Entreprise et commencez dès maintenant à chercher vos prochain(e)s collaborateurs-trices
       </h2>
       <div className="mt-4 grid space-y-4">
         <button
@@ -176,15 +176,15 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
                 setAcceptTerms((prv) => !prv);
               }}
             />
-            <label
-              htmlFor="termsCheckbox"
-              className="text-gray-500 font-normal text-sm"
-            >
-              Oui, je comprends et j&apos;accepte{" "};
-              <Link href="/termes/entreprise" className="text-primary">
-                les conditions d&apos;utilisation de facejob.
-              </Link>
-            </label>
+           <label
+                htmlFor="termsCheckbox"
+                className="text-gray-500 font-normal text-sm"
+              >
+                Oui, je comprends et j’accepte{' '}
+                <Link href="/termes/entreprise" className="text-primary">
+                  les conditions d’utilisation de facejob
+                </Link>
+              </label>
           </div>
         </div>
         <button

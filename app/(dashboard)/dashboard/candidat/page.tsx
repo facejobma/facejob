@@ -58,7 +58,7 @@ const columns: ColumnDef<CV>[] = [
   },
   {
     accessorKey: "link",
-    header: "VIDEO",
+    header: "Vidéo",
     cell: ({ row }) => (
       <video width="100" height="60" controls>
         <source src={row.original.link} type="video/mp4" />
@@ -68,15 +68,15 @@ const columns: ColumnDef<CV>[] = [
   },
   {
     accessorKey: "job_name",
-    header: "Metier",
+    header: "Métier",
   },
   {
     accessorKey: "secteur_name",
-    header: "SECTEUR",
+    header: "Secteur",
   },
   {
     accessorKey: "is_verified",
-    header: "Status",
+    header: "Statut",
     cell: ({ row }) => (
       <div
         className={
@@ -209,7 +209,7 @@ export default function UsersPage() {
       <div className="flex items-start justify-between">
         <Heading
           title={`Mes CVs vidéos (${filteredUsers.length})`}
-          description="Voir tous mes CV vidéos."
+          description=""
         />
       </div>
       <div className="flex space-x-2">
@@ -218,17 +218,17 @@ export default function UsersPage() {
           onChange={handleStatusChange}
           className="border bg-white text-gray-500 p-2 rounded-md focus:outline-none focus:border-accent focus:ring focus:ring-accent disabled:opacity-50 w-60"
         >
-          <option value="">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="Accepted">Accepted</option>
-          <option value="Declined">Declined</option>
+          <option value="">Tous les Statuts</option>
+          <option value="Pending">En cours</option>
+          <option value="Accepted">Accepté</option>
+          <option value="Declined">Décliné</option>
         </select>
         <select
           value={selectedSector}
           onChange={handleSectorChange}
           className="border bg-white text-gray-500 p-2 rounded-md focus:outline-none focus:border-accent focus:ring focus:ring-accent disabled:opacity-50 w-60"
         >
-          <option value="">All Sectors</option>
+          <option value="">Tous les secteurs</option>
           {Array.from(new Set(users.map((user) => user.secteur_name))).map(
             (option) => (
               <option key={option} value={option}>
@@ -242,7 +242,7 @@ export default function UsersPage() {
           onChange={handleJobChange}
           className="border bg-white text-gray-500 p-2 rounded-md focus:outline-none focus:border-accent focus:ring focus:ring-accent disabled:opacity-50 w-60"
         >
-          <option value="">All Jobs</option>
+          <option value="">Tous les Postes</option>
           {jobOptions.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -288,7 +288,7 @@ export default function UsersPage() {
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getRowModel().rows.length} row(s) selected.
+          {table.getRowModel().rows.length} ligne(s) sélectionnée(s).
         </div>
         <div className="space-x-2">
           <Button
@@ -297,7 +297,7 @@ export default function UsersPage() {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            Précédent
           </Button>
           <Button
             variant="outline"
@@ -305,7 +305,7 @@ export default function UsersPage() {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            Suivant
           </Button>
         </div>
       </div>

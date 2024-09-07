@@ -158,7 +158,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
       <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Projects</h2>
+        <h2 className="text-xl font-bold">Projets</h2>
         <button
           onClick={() => handleEditClick(null)} // Add new project
           className="text-gray-400 hover:text-gray-600"
@@ -199,13 +199,13 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title={selectedProject ? "Edit Project" : "Add Project"}
+        title={selectedProject ? "Modifier projet" : "Ajouter Projet"}
         description={
-          selectedProject ? "Update project details" : "Add a new project"
+          selectedProject ? "Modifier les details du projets" : "Ajouter un nouveau projet"
         }
       >
         <form onSubmit={handleProjectUpdate}>
-          <label htmlFor="title">Title:</label>
+          <label htmlFor="title">Titre:</label>
           <input
             type="text"
             id="title"
@@ -224,7 +224,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            {selectedProject ? "Save Changes" : "Add Project"}
+            {selectedProject ? "Enregistrer les changements " : "Ajouter un projet"}
           </button>
         </form>
       </Modal>

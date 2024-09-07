@@ -62,7 +62,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
       <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Bio</h2>
+        <h2 className="text-xl font-bold">Votre Description</h2>
         <button
           onClick={handleEditClick}
           className="text-gray-400 hover:text-gray-600"
@@ -84,7 +84,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
       >
         <form onSubmit={handleBioUpdate}>
           <label htmlFor="newBio" className="block mb-2 font-bold">
-            Bio
+          Votre Description
           </label>
           <textarea
             id="newBio"
@@ -99,7 +99,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            Save
+            Enregistrer
           </button>
         </form>
       </Modal>

@@ -144,7 +144,7 @@ export const navItemsCandidat: NavItem[] = [
   },
   {
     title: "Support",
-    href: "/dashboard/candidat/support",
+    href: "/dashboard/support",
     icon: "support",
     label: "support",
   },

@@ -132,7 +132,7 @@ const OffresPage: React.FC = () => {
               value={selectedSector}
               onChange={(e) => setSelectedSector(e.target.value)}
             >
-              <option value="">Select Sector</option>
+              <option value="">Sélectionner le Secteur</option>
               {sectors.map((sector) => (
                 <option key={sector.id} value={sector.id}>
                   {sector.name}
@@ -151,7 +151,7 @@ const OffresPage: React.FC = () => {
               value={selectedJob}
               onChange={(e) => setSelectedJob(e.target.value)}
             >
-              <option value="">Select Job</option>
+              <option value="">Sélectionner le Poste</option>
               {filteredJobs.map((job) => (
                 <option key={job.id} value={job.id}>
                   {job.name}
@@ -170,7 +170,7 @@ const OffresPage: React.FC = () => {
               value={selectedEntreprise}
               onChange={(e) => setSelectedEntreprise(e.target.value)}
             >
-              <option value="">Select Entreprise</option>
+              <option value="">Sélectionner l’Entreprise</option>
               {entreprises.map((entreprise) => (
                 <option key={entreprise.id} value={entreprise.id}>
                   {entreprise.company_name}{" "}

@@ -122,7 +122,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
       <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Skills</h2>
+        <h2 className="text-xl font-bold">Compétences</h2>
         <button
           onClick={handleEditClick}
           className="text-gray-400 hover:text-gray-600"

@@ -103,22 +103,21 @@ const PublishVideo: React.FC = () => {
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded-md text-yellow-700">
           <p className="text-sm">
-            Before uploading your CV video, we recommend compressing it to
-            reduce the file size. You can use this free online tool to compress
-            your video:{" "}
+          Avant de déposer votre cv vidéo, nous vous recommandons de le compresser pour réduire sa taille. Vous pouvez utiliser ce compresseur en ligne gratuit.
+          {" "}
             <a
               href="https://clideo.com/fr/compress-video"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-blue-600 hover:text-blue-800"
             >
-              Compress Video
+               Compresser ma vidéo
             </a>
             .
           </p>
         </div>
         <h2 className="text-2xl font-medium mb-8 text-center">
-          Publish Your CV Video
+        Publiez votre CV Vidéo
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -127,7 +126,7 @@ const PublishVideo: React.FC = () => {
               className="block text-sm font-bold mb-2 text-gray-700"
               htmlFor="video"
             >
-              Upload CV Video
+             Dépose votre CV Vidéo
             </label>
             <UploadDropzone<OurFileRouter>
               endpoint="videoUpload"
@@ -148,7 +147,7 @@ const PublishVideo: React.FC = () => {
               className="block text-sm font-bold mb-2 text-gray-700"
               htmlFor="experiences"
             >
-              Number of Experiences
+              Années d’expérience
             </label>
             <input
               type="number"
@@ -156,7 +155,7 @@ const PublishVideo: React.FC = () => {
               value={experiences}
               onChange={(e) => setExperiences(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter number of experiences"
+              placeholder="Entrez votre nombre d’années d’expérience"
             />
           </div>
 
@@ -212,13 +211,13 @@ const PublishVideo: React.FC = () => {
             <button
               type="submit"
               className={`bg-primary hover:bg-primary-2 text-white font-medium py-2 px-6 rounded-md shadow-lg transition duration-300 ${
-                uploadStatus === "uploading"
+                uploadStatus === "chargement"
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
-              disabled={uploadStatus === "uploading"}
+              disabled={uploadStatus === "chargement"}
             >
-              {uploadStatus === "uploading" ? "Publishing..." : "Publish Video"}
+              {uploadStatus === "chargement" ? "Publication..." : "Publiez votre Vidéo ! "}
             </button>
           </div>
         </form>

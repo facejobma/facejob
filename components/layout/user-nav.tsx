@@ -87,14 +87,14 @@ export function UserNav() {
             {/*  <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>*/}
             {/*</DropdownMenuItem>*/}
             <DropdownMenuItem onClick={()=>router.push('/dashboard/entreprise/profile')}>
-              Settings
+            Paramètres
               <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
             {/*<DropdownMenuItem>New Team</DropdownMenuItem>*/}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => signOut()}>
-            Log out
+          Déconnexion
             {/*<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>*/}
           </DropdownMenuItem>
         </DropdownMenuContent>

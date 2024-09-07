@@ -184,7 +184,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       <div className="mb-4 flex items-center">
         <MapPin className="mr-2 text-primary" />
         <p>
-          <strong>Location:</strong> {location}
+          <strong>Localisation:</strong> {location}
         </p>
       </div>
       <div className="mb-4 flex items-center">
@@ -196,7 +196,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       <div className="mb-4 flex items-center">
         <Calendar className="mr-2 text-primary" />
         <p>
-          <strong>Date de Début:</strong> {date_debut.split(' ')[0]}
+          <strong>Date de Démarrage souhaitée:</strong> {date_debut.split(' ')[0]}
         </p>
       </div>
       <div className="mb-4 flex items-center">

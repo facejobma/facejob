@@ -183,7 +183,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
       <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Experiences</h2>
+        <h2 className="text-xl font-bold">Expériences</h2>
         <button
           onClick={() => handleEditClick(null)} // Add new experience
           className="text-gray-400 hover:text-gray-600"

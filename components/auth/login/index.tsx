@@ -237,3 +237,12 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
 };
 
 export default LoginForm;
+
+
+/*
+
+l'error dans l'entreprise 
+
+
+
+*/

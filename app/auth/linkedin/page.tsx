@@ -1,23 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
-
-interface UserData {
-  // Define your user data structure here
-}
-
-interface LinkedinCallbackProps {
-  data: any; // Adjust the type accordingly based on your API response
-}
+import { useRouter } from "next/navigation";
+import { Circles } from "react-loader-spinner";
 
 function LinkedinCallback() {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<any>({});
-  const [user, setUser] = useState<UserData | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
-
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/linkedin/callback?code=${code}`,
       {
@@ -31,58 +23,38 @@ function LinkedinCallback() {
         return response.json();
       })
       .then((responseData) => {
-        console.log("User data:", responseData);
+        sessionStorage.setItem("user", JSON.stringify(responseData.user));
+        const userRole = sessionStorage.getItem("userRole");
+
+        if (userRole === "candidat") {
+          router.push("/dashboard/candidat");
+        } else if (userRole === "entreprise") {
+          router.push("/dashboard/entreprise");
+        }
+
         setLoading(false);
-        setData(responseData);
       })
       .catch((error) => {
-        console.error("Error fetching user data:", error);
+        console.error("Error during authentication:", error);
         setLoading(false);
       });
-  }, []);
-
-  function fetchUserData() {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user`, {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: "Bearer " + data?.access_token,
-      },
-    })
-      .then((response) => response.json())
-      .then((userData: UserData) => {
-        setUser(userData);
-      });
-  }
+  }, [router]);
 
   if (loading) {
-    return <DisplayLoading />;
-  } else {
-    if (user != null) {
-      return <DisplayData data={user} />;
-    } else {
-      return (
-        <div>
-          <DisplayData data={data} />
-          <div style={{ marginTop: 10 }}>
-            <button onClick={fetchUserData}>Fetch User</button>
-          </div>
-        </div>
-      );
-    }
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-220px)]">
+        <Circles
+          height={80}
+          width={80}
+          color="#4fa94d"
+          ariaLabel="circles-loading"
+          visible={true}
+        />
+      </div>
+    );
   }
-}
 
-function DisplayLoading() {
-  return <div>Loading....</div>;
-}
-
-function DisplayData({ data }: LinkedinCallbackProps) {
-  return (
-    <div>
-      <samp>{JSON.stringify(data, null, 2)}</samp>
-    </div>
-  );
+  return null;
 }
 
 export default LinkedinCallback;

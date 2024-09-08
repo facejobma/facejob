@@ -40,7 +40,7 @@ export default function HeaderEntreprise() {
               BLOGS
             </Link>
             <Link
-              href="/dashboard/support"
+              href="/dashboard/entreprise/support"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
             >
               SUPPORT

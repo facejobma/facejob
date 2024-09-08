@@ -144,7 +144,7 @@ export const navItemsCandidat: NavItem[] = [
   },
   {
     title: "Support",
-    href: "/dashboard/support",
+    href: "/dashboard/candidat/support",
     icon: "support",
     label: "support",
   },
@@ -201,7 +201,7 @@ export const navItemsEntreprise: NavItem[] = [
   },
   {
     title: "Support",
-    href: "/dashboard/support",
+    href: "/dashboard/entreprise/support",
     icon: "support",
     label: "support",
   },

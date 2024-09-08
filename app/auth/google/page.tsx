@@ -27,7 +27,7 @@ function GoogleCallback() {
         sessionStorage.setItem("user", JSON.stringify(responseData.user));
         const userRole = sessionStorage.getItem("userRole");
 
-        if (userRole === "candidat") {
+        if (userRole === "candidate") {
           router.push("/dashboard/candidat");
         } else if (userRole === "entreprise") {
           router.push("/dashboard/entreprise");

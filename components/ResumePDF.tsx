@@ -77,6 +77,15 @@ const styles = StyleSheet.create({
     width: "48%",
     paddingHorizontal: 5,
   },
+  experienceContainer: {
+    marginBottom: 20,
+  },
+
+  separatorLine: {
+    marginVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eaeaea",
+  },
 });
 
 const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
@@ -109,7 +118,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
         const consumeResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
           {
-            method: "POST", 
+            method: "POST",
             headers: {
               Authorization: `Bearer ${authToken}`,
               "Content-Type": "application/json",
@@ -210,20 +219,37 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             </View>
           </View>
 
-          {/* Right Column: Experiences and Education */}
           <View style={styles.column}>
-            {/* Experiences Section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Experiences</Text>
               {userProfile.experiences?.map((exp: any, index: number) => (
-                <View key={index} style={styles.section}>
-                  <Text style={[styles.text, styles.bold]}>
-                    {exp.poste} at {exp.organisme}
-                  </Text>
-                  <Text style={styles.text}>
-                    {exp.date_debut} - {exp.date_fin}
-                  </Text>
-                  <Text style={styles.text}>{exp.description}</Text>
+                <View key={index} style={styles.experienceContainer}>
+                  <View
+                    style={{ flexDirection: "row", alignItems: "flex-start" }}
+                  >
+                    <Text style={[styles.text, { fontSize: 14 }]}>•</Text>
+                    <View style={{ marginLeft: 10 }}>
+                      <Text
+                        style={[styles.text, styles.bold, { fontSize: 14 }]}
+                      >
+                        {exp.poste} at {exp.organisme}
+                      </Text>
+
+                      <Text
+                        style={[styles.text, { color: "#888", fontSize: 12 }]}
+                      >
+                        {exp.date_debut} - {exp.date_fin}
+                      </Text>
+
+                      <Text style={[styles.text, { marginTop: 5 }]}>
+                        {exp.description}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {index < userProfile.experiences.length - 1 && (
+                    <View style={styles.separatorLine} />
+                  )}
                 </View>
               ))}
             </View>

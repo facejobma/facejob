@@ -80,11 +80,14 @@ const styles = StyleSheet.create({
   experienceContainer: {
     marginBottom: 20,
   },
-
   separatorLine: {
     marginVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#eaeaea",
+  },
+  bullet: {
+    fontSize: 14,
+    marginRight: 5,
   },
 });
 
@@ -181,7 +184,6 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
               {userProfile.first_name} {abbreviatedLastName}
             </Text>
             <Text style={styles.headline}>{userProfile.headline}</Text>
-            {/* <Text style={styles.location}>{userProfile.location}</Text> */}
           </View>
         </View>
 
@@ -199,9 +201,17 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Skills</Text>
               {userProfile.skills?.map((skill: any, index: number) => (
-                <Text key={index} style={styles.text}>
-                  {skill.title}
-                </Text>
+                <View key={index} style={styles.experienceContainer}>
+                  <View
+                    style={{ flexDirection: "row", alignItems: "flex-start" }}
+                  >
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.text}>{skill.title}</Text>
+                  </View>
+                  {index < userProfile.skills.length - 1 && (
+                    <View style={styles.separatorLine} />
+                  )}
+                </View>
               ))}
             </View>
 
@@ -209,17 +219,29 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Projects</Text>
               {userProfile.projects?.map((project: any, index: number) => (
-                <View key={index} style={styles.section}>
-                  <Text style={[styles.text, styles.bold]}>
-                    {project.title}
-                  </Text>
-                  <Text style={styles.text}>{project.description}</Text>
+                <View key={index} style={styles.experienceContainer}>
+                  <View
+                    style={{ flexDirection: "row", alignItems: "flex-start" }}
+                  >
+                    <Text style={styles.bullet}>•</Text>
+                    <View style={{ marginLeft: 10 }}>
+                      <Text style={[styles.text, styles.bold]}>
+                        {project.title}
+                      </Text>
+                      <Text style={styles.text}>{project.description}</Text>
+                    </View>
+                  </View>
+                  {index < userProfile.projects.length - 1 && (
+                    <View style={styles.separatorLine} />
+                  )}
                 </View>
               ))}
             </View>
           </View>
 
+          {/* Right Column: Experiences and Education */}
           <View style={styles.column}>
+            {/* Experiences Section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Experiences</Text>
               {userProfile.experiences?.map((exp: any, index: number) => (
@@ -227,26 +249,19 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
                   <View
                     style={{ flexDirection: "row", alignItems: "flex-start" }}
                   >
-                    <Text style={[styles.text, { fontSize: 14 }]}>•</Text>
+                    <Text style={styles.bullet}>•</Text>
                     <View style={{ marginLeft: 10 }}>
-                      <Text
-                        style={[styles.text, styles.bold, { fontSize: 14 }]}
-                      >
+                      <Text style={[styles.text, styles.bold]}>
                         {exp.poste} at {exp.organisme}
                       </Text>
-
                       <Text
                         style={[styles.text, { color: "#888", fontSize: 12 }]}
                       >
                         {exp.date_debut} - {exp.date_fin}
                       </Text>
-
-                      <Text style={[styles.text, { marginTop: 5 }]}>
-                        {exp.description}
-                      </Text>
+                      <Text style={styles.text}>{exp.description}</Text>
                     </View>
                   </View>
-
                   {index < userProfile.experiences.length - 1 && (
                     <View style={styles.separatorLine} />
                   )}
@@ -258,14 +273,24 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Education</Text>
               {userProfile.educations?.map((edu: any, index: number) => (
-                <View key={index} style={styles.section}>
-                  <Text style={[styles.text, styles.bold]}>
-                    {edu.school_name}
-                  </Text>
-                  <Text style={styles.text}>
-                    {edu.degree}, {edu.title}
-                  </Text>
-                  <Text style={styles.text}>{edu.graduation_date}</Text>
+                <View key={index} style={styles.experienceContainer}>
+                  <View
+                    style={{ flexDirection: "row", alignItems: "flex-start" }}
+                  >
+                    <Text style={styles.bullet}>•</Text>
+                    <View style={{ marginLeft: 10 }}>
+                      <Text style={[styles.text, styles.bold]}>
+                        {edu.school_name}
+                      </Text>
+                      <Text style={styles.text}>
+                        {edu.degree}, {edu.title}
+                      </Text>
+                      <Text style={styles.text}>{edu.graduation_date}</Text>
+                    </View>
+                  </View>
+                  {index < userProfile.educations.length - 1 && (
+                    <View style={styles.separatorLine} />
+                  )}
                 </View>
               ))}
             </View>

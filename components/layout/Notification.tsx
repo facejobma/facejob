@@ -154,9 +154,9 @@ const Notification: React.FC = () => {
     }
   };
 
-  const unreadNotifications = notifications.some(
-    (notification) => !notification.is_read,
-  );
+  // const unreadNotifications = notifications.some(
+  //   (notification) => !notification.is_read,
+  // );
 
   return (
     <div className="relative" ref={notificationRef}>
@@ -167,9 +167,9 @@ const Notification: React.FC = () => {
           aria-label="Notification"
         >
           <Bell size={24} className="text-gray-600" />
-          {unreadNotifications && (
+          {/* {unreadNotifications && (
             <div className="absolute w-3 h-3 rounded-full bg-red-600 top-0 right-0"></div>
-          )}
+          )} */}
         </button>
       </div>
       {isVisible && (

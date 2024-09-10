@@ -95,7 +95,7 @@ function ServicePlanPage() {
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState("monthly");
+  const [selectedPeriod, setSelectedPeriod] = useState("Mensuel");
   const [paymentReference, setPaymentReference] = useState("");
   const [lastPayment, setLastPayment] = useState<any>(null);
   const [currentPlanId, setCurrentPlanId] = useState(null);
@@ -163,7 +163,7 @@ function ServicePlanPage() {
     const startDate = new Date();
 
     switch (selectedPeriod) {
-      case "monthly":
+      case "Mensuel":
         price = selectedPlan.monthly_price;
         endDate = new Date(new Date().setMonth(startDate.getMonth() + 1));
         paymentPeriod = "Mensuel";
@@ -176,7 +176,7 @@ function ServicePlanPage() {
         //     ? "Illimité"
         //     : selectedPlan.job_postings;
         break;
-      case "quarterly":
+      case "Trimestriel":
         price = selectedPlan.quarterly_price;
         endDate = new Date(new Date().setMonth(startDate.getMonth() + 3));
         paymentPeriod = "Trimestriel";
@@ -189,7 +189,7 @@ function ServicePlanPage() {
         //     ? "Illimité"
         //     : selectedPlan.job_postings * 3;
         break;
-      case "yearly":
+      case "Annuel":
         price = selectedPlan.annual_price;
         endDate = new Date(new Date().setFullYear(startDate.getFullYear() + 1));
         paymentPeriod = "Annuel";
@@ -353,29 +353,29 @@ function ServicePlanPage() {
               Choisissez un plan qui vous convient
             </h2>
             <div className="flex justify-center">
-              <Tabs defaultValue="monthly" className="space-y-4">
+              <Tabs defaultValue="Mensuel" className="space-y-4">
                 <TabsList className="flex justify-center mb-4">
                   <TabsTrigger
-                    value="monthly"
-                    onClick={() => handlePeriodChange("monthly")}
+                    value="Mensuel"
+                    onClick={() => handlePeriodChange("Mensuel")}
                   >
                     Mensuel
                   </TabsTrigger>
                   <TabsTrigger
-                    value="quarterly"
-                    onClick={() => handlePeriodChange("quarterly")}
+                    value="Trimestriel"
+                    onClick={() => handlePeriodChange("Trimestriel")}
                   >
                     Trimestre
                   </TabsTrigger>
                   <TabsTrigger
-                    value="yearly"
-                    onClick={() => handlePeriodChange("yearly")}
+                    value="Annuel"
+                    onClick={() => handlePeriodChange("Annuel")}
                   >
                     Annuel
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent
-                  value="monthly"
+                  value="Mensuel"
                   className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
                 >
                   {plans.map((plan, index) => (
@@ -442,7 +442,7 @@ function ServicePlanPage() {
                   ))}
                 </TabsContent>
                 <TabsContent
-                  value="quarterly"
+                  value="Trimestriel"
                   className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
                 >
                   {plans.map((plan, index) => (
@@ -509,7 +509,7 @@ function ServicePlanPage() {
                   ))}
                 </TabsContent>
                 <TabsContent
-                  value="yearly"
+                  value="Annuel"
                   className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
                 >
                   {plans.map((plan, index) => (

@@ -89,9 +89,11 @@ const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
           <input
             value={newBio}
             onChange={(e)=>handleInputChange(e.target.value)}
-            className="h-40 mb-6"
+            className="w-full border border-gray-300 rounded-md p-2 mt 6 h-32"
             placeholder="Entrez la description du poste"
           />
+          <br></br>
+          <br></br>
 
           <button
             type="submit"

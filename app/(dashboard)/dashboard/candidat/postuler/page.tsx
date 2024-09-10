@@ -6,6 +6,8 @@ import { UploadDropzone } from "@uploadthing/react";
 import { OurFileRouter } from "@/app/api/uploadthing/core";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
+import { FaTrash } from "react-icons/fa";
+
 
 interface Job {
   id: number;
@@ -39,7 +41,7 @@ const PublishVideo: React.FC = () => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
         );
         const data = await response.json();
         setSectors(data);
@@ -81,7 +83,7 @@ const PublishVideo: React.FC = () => {
             sector_id: selectedSector,
             candidat_id: user.id,
           }),
-        },
+        }
       );
 
       if (response.ok) {
@@ -103,21 +105,22 @@ const PublishVideo: React.FC = () => {
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <div className="mb-6 p-4 bg-yellow-100 border border-yellow-300 rounded-md text-yellow-700">
           <p className="text-sm">
-          Avant de déposer votre cv vidéo, nous vous recommandons de le compresser pour réduire sa taille. Vous pouvez utiliser ce compresseur en ligne gratuit.
-          {" "}
+            Avant de déposer votre cv vidéo, nous vous recommandons de le
+            compresser pour réduire sa taille. Vous pouvez utiliser ce
+            compresseur en ligne gratuit.{" "}
             <a
               href="https://clideo.com/fr/compress-video"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-blue-600 hover:text-blue-800"
             >
-               Compresser ma vidéo
+              Compresser ma vidéo
             </a>
             .
           </p>
         </div>
         <h2 className="text-2xl font-medium mb-8 text-center">
-        Publiez votre CV Vidéo
+          Publiez votre CV Vidéo
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -126,20 +129,38 @@ const PublishVideo: React.FC = () => {
               className="block text-sm font-bold mb-2 text-gray-700"
               htmlFor="video"
             >
-             Dépose votre CV Vidéo
+              Dépose votre CV Vidéo
             </label>
-            <UploadDropzone<OurFileRouter>
-              endpoint="videoUpload"
-              onClientUploadComplete={(res: any) => {
-                console.log("Files: ", res);
-                setVideoUrl(res[0].fileUrl);
-                toast.success("Upload Completed!");
-              }}
-              onUploadError={(error: Error) => {
-                toast.error(`Upload Error: ${error.message}`);
-              }}
-              className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors border-gray-300"
-            />
+            {videoUrl ? (
+              <div className="mb-4">
+                <video
+                  src={videoUrl}
+                  controls
+                  className="w-full h-auto rounded-md"
+                />
+               <button
+                  type="button"
+                  onClick={() => setVideoUrl(null)}
+                  className="mt-2 flex items-center text-red-600 hover:text-red-800"
+                >
+                  <FaTrash className="mr-2" />
+                  Supprimer la vidéo
+                </button>
+              </div>
+            ) : (
+              <UploadDropzone<OurFileRouter>
+                endpoint="videoUpload"
+                onClientUploadComplete={(res: any) => {
+                  console.log("Files: ", res);
+                  setVideoUrl(res[0].fileUrl);
+                  toast.success("Upload Completed!");
+                }}
+                onUploadError={(error: Error) => {
+                  toast.error(`Upload Error: ${error.message}`);
+                }}
+                className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors border-gray-300"
+              />
+            )}
           </div>
 
           <div className="mb-6">
@@ -217,7 +238,9 @@ const PublishVideo: React.FC = () => {
               }`}
               disabled={uploadStatus === "chargement"}
             >
-              {uploadStatus === "chargement" ? "Publication..." : "Publiez votre Vidéo ! "}
+              {uploadStatus === "chargement"
+                ? "Publication..."
+                : "Publiez votre Vidéo ! "}
             </button>
           </div>
         </form>

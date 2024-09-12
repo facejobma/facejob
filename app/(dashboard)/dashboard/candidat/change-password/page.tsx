@@ -53,10 +53,10 @@ const ChangePassword: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Change Password</h2>
+      <h2 className="text-2xl font-bold mb-4">Modifier le Mot de Passe</h2>
       <form onSubmit={handleChangePassword}>
         <div className="mb-4">
-          <label htmlFor="oldPassword" className="block font-bold mb-2">Old Password</label>
+          <label htmlFor="oldPassword" className="block font-bold mb-2">Ancien Mot de Passe</label>
           <input
             type="password"
             id="oldPassword"
@@ -68,7 +68,7 @@ const ChangePassword: React.FC = () => {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="newPassword" className="block font-bold mb-2">New Password</label>
+          <label htmlFor="newPassword" className="block font-bold mb-2">Nouveau Mot de Passe</label>
           <input
             type="password"
             id="newPassword"
@@ -80,7 +80,7 @@ const ChangePassword: React.FC = () => {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="confirmPassword" className="block font-bold mb-2">Confirm New Password</label>
+          <label htmlFor="confirmPassword" className="block font-bold mb-2">Confirmer Nouveau Mot de Passe</label>
           <input
             type="password"
             id="confirmPassword"
@@ -95,7 +95,7 @@ const ChangePassword: React.FC = () => {
           type="submit"
           className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
         >
-          Change Password
+          Sauvegarder
         </button>
       </form>
     </div>

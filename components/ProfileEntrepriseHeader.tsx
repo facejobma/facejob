@@ -119,7 +119,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           </button>
           <button
             className="text-gray-400 hover:text-gray-600"
-            title="Change Password"
+            title="Modifier le Mot de Passe"
             onClick={handlePasswordChangeClick}
           >
             <Key />
@@ -162,12 +162,12 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title="Edit Profile"
-        description="Update your profile information"
+        title="Modifier le Profil"
+        description="Mettre à jour vos informations"
       >
         <form onSubmit={handleProfileUpdate}>
           <label htmlFor="newCompanyName" className="block mb-2 font-bold">
-            Company Name
+          Nom de l’Entreprise
           </label>
           <input
             type="text"
@@ -180,7 +180,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           />
 
           <label htmlFor="newSector" className="block mb-2 font-bold">
-            Sector
+          Secteur
           </label>
           <input
             type="text"
@@ -193,7 +193,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           />
 
           <label htmlFor="newWebsite" className="block mb-2 font-bold">
-            Website
+          Site Internet
           </label>
           <input
             type="text"
@@ -206,7 +206,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           />
 
           <label htmlFor="newCreationDate" className="block mb-2 font-bold">
-            Creation Date
+          Date de Création de l’Entreprise
           </label>
           <input
             type="date"
@@ -218,7 +218,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           />
 
           <label htmlFor="newSiegeSocial" className="block mb-2 font-bold">
-            Siege Social
+          Adresse du Siège Social
           </label>
           <input
             type="text"
@@ -234,7 +234,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            Save
+            Sauvegarder
           </button>
         </form>
       </Modal>

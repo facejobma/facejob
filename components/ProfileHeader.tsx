@@ -127,7 +127,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </button>
           <button
             className="text-gray-400 hover:text-gray-600"
-            title="Change Password"
+            title="Modifier le Mot de Passe"
             onClick={handlePasswordChangeClick}
           >
             <Key />
@@ -168,13 +168,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title="Edit Profile"
-        description="Update your profile information"
+        title="Modifier le Profil"
+        description="Mettre à jour vos informations"
       >
         <form onSubmit={handleProfileUpdate}>
           {/* Name */}
           <label htmlFor="newFirstName" className="block mb-2 font-bold">
-            First Name
+          Prénom
           </label>
           <input
             type="text"
@@ -187,7 +187,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           />
 
           <label htmlFor="newLastName" className="block mb-2 font-bold">
-            Last Name
+          Nom
           </label>
           <input
             type="text"
@@ -201,7 +201,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
           {/* Headline */}
           <label htmlFor="newHeadline" className="block mb-2 font-bold">
-            Headline
+          Titre ou Poste recherché
           </label>
           <input
             type="text"
@@ -209,7 +209,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             name="newHeadline"
             value={formData.newHeadline}
             onChange={handleInputChange}
-            placeholder="Enter new headline"
+            placeholder="Entrez votre poste"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
@@ -229,7 +229,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
           {/* Company Name */}
           <label htmlFor="newCompanyName" className="block mb-2 font-bold">
-            Company Name
+          Entreprise actuelle
           </label>
           <input
             type="text"
@@ -237,7 +237,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             name="newCompanyName"
             value={formData.newCompanyName}
             onChange={handleInputChange}
-            placeholder="Enter new company name"
+            placeholder="Entrez votre entreprise"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
@@ -246,7 +246,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            Save
+            Sauvegarder
           </button>
         </form>
       </Modal>

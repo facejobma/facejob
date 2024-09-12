@@ -87,7 +87,7 @@ const PublishVideo: React.FC = () => {
       );
 
       if (response.ok) {
-        toast.success("Video published successfully!");
+        toast.success("Votre CV a bien été téléchargé, il est disponible sur votre Dashboard!");
         setUploadStatus("completed");
       } else {
         toast.error("Failed to publish video!");

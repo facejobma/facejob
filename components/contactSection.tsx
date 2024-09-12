@@ -107,8 +107,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title="Edit Contact Information"
-        description="Update the company's contact information"
+        title="Modifier les informations de Contact"
+        description="Mettre à jour les coordonnées de Contact de l’entreprise"
       >
         <form onSubmit={handleContactUpdate}>
           <label className="block mb-2">
@@ -121,7 +121,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
             />
           </label>
           <label className="block mb-2">
-            Phone
+          Téléphone
             <input
               type="text"
               value={newPhone}
@@ -130,7 +130,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
             />
           </label>
           <label className="block mb-2">
-            LinkedIn
+          LinkedIn
             <input
               type="text"
               value={newLinkedin}
@@ -139,7 +139,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
             />
           </label>
           <label className="block mb-2">
-            Address
+          Adresse Postale
             <input
               type="text"
               value={newAdresse}
@@ -151,7 +151,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            Save
+            Sauvegarder
           </button>
         </form>
       </Modal>

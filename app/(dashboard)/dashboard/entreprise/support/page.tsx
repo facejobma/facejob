@@ -5,7 +5,7 @@ const SupportPage: React.FC = () => {
   return (
     <div className="flex justify-center items-center ">
       <div className="mt-24 p-6 border border-gray-300 rounded-lg bg-white max-w-md w-full shadow-lg">
-        <h3 className="text-3xl font-semibold  mb-4">Contact Informations</h3>
+        <h3 className="text-3xl font-semibold  mb-4">Contact</h3>
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
             <FiPhone className="text-green-700 text-2xl" />

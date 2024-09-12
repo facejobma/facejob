@@ -79,8 +79,8 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title="Edit Bio"
-        description="Update your bio"
+        title="Editer Description "
+        description="Mettre à jour votre description"
       >
         <form onSubmit={handleBioUpdate}>
           <label htmlFor="newBio" className="block mb-2 font-bold">
@@ -91,7 +91,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
             name="newBio"
             value={newBio}
             onChange={handleInputChange}
-            placeholder="Enter new bio"
+            placeholder="Qu’est-ce qui vous caractérise ?"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
@@ -99,7 +99,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            Enregistrer
+            Enregistrer 
           </button>
         </form>
       </Modal>

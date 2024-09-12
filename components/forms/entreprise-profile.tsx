@@ -30,7 +30,7 @@ export const EntrepriseProfile: React.FC<{ initialData: EnterpriseData }> = ({
 
       <div className="mt-6">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Contact Information</h2>
+          <h2 className="text-lg font-semibold mb-2">Contact</h2>
           <p className="text-gray-600">{initialData.email}</p>
           <p className="text-gray-600">{initialData.phone}</p>
         </div>

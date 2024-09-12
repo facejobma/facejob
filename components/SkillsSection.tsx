@@ -154,8 +154,8 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title="Edit Skills"
-        description="Update your skills"
+        title="Editer vos Compétences"
+        description="Ajouter un savoir-faire ou un savoir-être"
       >
         <div className="space-y-4">
           {editedSkills.map((skill: Skill, index: number) => (
@@ -179,7 +179,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
               type="text"
               value={newSkill}
               onChange={(e) => setNewSkill(e.target.value)}
-              placeholder="Add new skill"
+              placeholder="Ajouter une nouvelle compétence"
               className="w-full border-gray-300 rounded-md py-2 px-3 mb-2"
             />
             <button
@@ -193,7 +193,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
             onClick={handleSkillsUpdate}
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            Save
+           Sauvegarder
           </button>
         </div>
       </Modal>

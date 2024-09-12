@@ -229,15 +229,15 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title={selectedExperience ? "Edit Experience" : "Add Experience"}
+        title={selectedExperience ? " Modifier l'expérience" : "Ajouter une Expérience"}
         description={
           selectedExperience
-            ? "Update experience details"
-            : "Add a new experience"
+            ? "Modifier les details de l'expérience"
+            : "Ajouter une nouvelle expérience"
         }
       >
         <form onSubmit={handleExperienceUpdate}>
-          <label htmlFor="poste">Role:</label>
+          <label htmlFor="poste">Poste</label>
           <input
             type="text"
             id="poste"
@@ -245,7 +245,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             onChange={(e) => handleInputChange("poste", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="organisme">Organisme:</label>
+          <label htmlFor="organisme">Entreprise</label>
           <input
             type="text"
             id="organisme"
@@ -253,7 +253,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             onChange={(e) => handleInputChange("organisme", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="location">Location:</label>
+          <label htmlFor="location">Lieu</label>
           <input
             type="text"
             id="location"
@@ -261,14 +261,14 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             onChange={(e) => handleInputChange("location", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="description">Description:</label>
+          <label htmlFor="description">Description</label>
           <textarea
             id="description"
             value={formData.description}
             onChange={(e) => handleInputChange("description", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="date_debut">Start Date:</label>
+          <label htmlFor="date_debut">Date de démarrage</label>
           <input
             type="date"
             id="date_debut"
@@ -276,7 +276,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             onChange={(e) => handleInputChange("date_debut", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="date_fin">End Date:</label>
+          <label htmlFor="date_fin">Date de fin</label>
           <input
             type="date"
             id="date_fin"
@@ -288,7 +288,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            {selectedExperience ? "Save Changes" : "Add Experience"}
+            {selectedExperience ? "Enregistrer les changements" : "Ajouter l’expérience"}
           </button>
         </form>
       </Modal>

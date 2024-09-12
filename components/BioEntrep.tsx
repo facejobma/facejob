@@ -82,15 +82,15 @@ const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title="Edit Description"
-        description="Update the company description"
+        title="Modifier la Description"
+        description="Mettre à jour la Description de votre Entreprise"
       >
         <form onSubmit={handleBioUpdate}>
           <input
             value={newBio}
             onChange={(e)=>handleInputChange(e.target.value)}
             className="w-full border border-gray-300 rounded-md p-2 mt 6 h-32"
-            placeholder="Entrez la description du poste"
+            placeholder="Entrez la description de l’entreprise"
           />
           <br></br>
           <br></br>
@@ -99,7 +99,7 @@ const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            Save
+            Sauvegarder
           </button>
         </form>
       </Modal>

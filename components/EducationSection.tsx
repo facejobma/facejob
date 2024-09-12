@@ -238,15 +238,15 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title={selectedEducation ? "Edit Education" : "Add Education"}
+        title={selectedEducation ? "Modifier une Formation" : "Ajouter une Formation"}
         description={
           selectedEducation
-            ? "Update education details"
-            : "Add a new education entry"
+            ? "Modifier un diplôme ou une certification"
+            : "Ajouter un diplôme ou une certification"
         }
       >
         <form onSubmit={handleEducationUpdate}>
-          <label htmlFor="school_name">School Name:</label>
+          <label htmlFor="school_name">Structure de Formation</label>
           <input
             type="text"
             id="school_name"
@@ -254,14 +254,14 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             onChange={(e) => handleInputChange("school_name", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="degree">Degree:</label>
+          <label htmlFor="degree">Equivalence de Diplôme</label>
           <select
             id="degree"
             value={formData.degree}
             onChange={(e) => handleInputChange("degree", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           >
-            <option value="">Select a degree</option>
+            <option value="">Titre </option>
             {degrees.map((degree) => (
               <option key={degree.id} value={degree.titre}>
                 {degree.titre}
@@ -276,7 +276,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             onChange={(e) => handleInputChange("title", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="graduation_date">Graduation Date:</label>
+          <label htmlFor="graduation_date">Date de diplomation </label>
           <input
             type="date"
             id="graduation_date"
@@ -290,7 +290,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             type="submit"
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-            {selectedEducation ? "Save Changes" : "Add Education"}
+            {selectedEducation ? "Modifier les changements" : "Ajouter la Formation"}
           </button>
         </form>
       </Modal>

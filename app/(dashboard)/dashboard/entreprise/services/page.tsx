@@ -100,9 +100,10 @@ function ServicePlanPage() {
   const [lastPayment, setLastPayment] = useState<any>(null);
   const [currentPlanId, setCurrentPlanId] = useState(null);
 
-  const company = typeof window !== "undefined"
-    ? window.sessionStorage?.getItem("user") || '{}'
-    : '{}';
+  const company =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user") || "{}"
+      : "{}";
   const companyId = company ? JSON.parse(company).id : null;
   const fetchLastPayment = async () => {
     try {
@@ -668,9 +669,7 @@ function ServicePlanPage() {
 
                   {paymentMethod === "contact" && (
                     <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white">
-                      <h3 className="text-lg font-semibold mb-2">
-                        Contact Informations
-                      </h3>
+                      <h3 className="text-lg font-semibold mb-2">Contact</h3>
                       <div className="space-y-1">
                         <p>
                           <strong>Phone:</strong> +212 8 08588918

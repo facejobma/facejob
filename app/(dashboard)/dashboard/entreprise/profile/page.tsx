@@ -45,7 +45,7 @@ const CompanyProfile: React.FC = () => {
             creationDate: companyData.created_at.split('T')[0], // Format to yyyy-MM-dd
             adresse: companyData.adresse,
             description: companyData.description || "",
-            coverImageUrl: companyData.coverImageUrl || "https://via.placeholder.com/150",
+            // coverImageUrl: companyData.coverImageUrl || "https://via.placeholder.com/150",
             avatarUrl: companyData.avatarUrl || "https://via.placeholder.com/150",
             logo: companyData.logo || "https://via.placeholder.com/150",
           };
@@ -87,7 +87,7 @@ const CompanyProfile: React.FC = () => {
           website={companyProfile.site_web}
           creationDate={companyProfile.creationDate}
           siegeSocial={companyProfile.adresse}
-          coverImageUrl={companyProfile.coverImageUrl}
+          // coverImageUrl={companyProfile.coverImageUrl}
           avatarUrl={companyProfile.avatarUrl}
         />
 

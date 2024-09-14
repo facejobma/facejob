@@ -21,7 +21,7 @@ const Profile: React.FC = () => {
       first_name: "John",
       last_name: "Doe",
       avatarUrl: "https://via.placeholder.com/150",
-      coverImageUrl: "",
+      // coverImageUrl: "",
       location: "New York, USA",
       companyName: "Example Company",
       companyLogoUrl: "https://via.placeholder.com/150",
@@ -77,7 +77,7 @@ const Profile: React.FC = () => {
           last_name={userProfile.last_name}
           headline={userProfile.job.name}
           avatarUrl={userProfile.avatarUrl}
-          coverImageUrl={userProfile.coverImageUrl}
+          // coverImageUrl={userProfile.coverImageUrl}
           location={userProfile.location}
           companyName={userProfile.companyName}
           companyLogoUrl={userProfile.companyLogoUrl}

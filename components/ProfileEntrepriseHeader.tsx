@@ -10,7 +10,7 @@ interface ProfileEntrepHeaderProps {
   company_name: string;
   sector_name: string;
   avatarUrl?: string;
-  coverImageUrl?: string;
+  // coverImageUrl?: string;
   siegeSocial?: string;
   companyLogoUrl?: string;
   website?: string;
@@ -22,7 +22,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   company_name,
   sector_name,
   avatarUrl,
-  coverImageUrl,
+  // coverImageUrl,
   siegeSocial,
   companyLogoUrl,
   website,
@@ -100,14 +100,14 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden relative">
-      {coverImageUrl && (
+    <div className="bg-white rounded-lg shadow-lg mb-6 pb-20 overflow-hidden relative">
+      {/* {coverImageUrl && (
         <img
           src={coverImageUrl}
           alt="Cover"
           className="w-full h-40 object-cover relative"
         />
-      )}
+      )} */}
 
       <div className="p-6 relative">
         <div className="absolute top-4 right-6 flex gap-4">

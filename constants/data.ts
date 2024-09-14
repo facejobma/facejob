@@ -75,7 +75,7 @@ export interface ProfileData {
   name: string;
   headline: string;
   avatarUrl: string;
-  coverImageUrl: string;
+  // coverImageUrl: string;
   location: string;
   companyName: string;
   companyLogoUrl: string;

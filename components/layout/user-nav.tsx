@@ -9,46 +9,57 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 // import { useSession } from "@/app/providers/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+import Cookies from "js-cookie";
 
+const userDataString =
+  typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
 
 export function UserNav() {
   // const { session } = useSession();
-  const userdata = typeof window !== "undefined"
-    ? window.sessionStorage?.getItem("user") || '{}'
-    : '{}';
+  const userdata =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user") || "{}"
+      : "{}";
   const user = JSON.parse(userdata as string);
   const router = useRouter();
   const { toast } = useToast();
 
+  const userRole =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("userRole")
+      : null;
+
+  console.log("The actual userRole => ", userRole);
+
+  const authToken = Cookies.get("authToken");
+
   function signOut() {
     // Your sign out logic here
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/admin/logout", {
-      method: "POST",
+    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/logout", {
+      method: "GET",
       headers: {
-        "Content-Type": "application/json"
-      }
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
     })
       .then(async (res) => {
-          if (res.ok) {
-            // redirect to login
-            router.push("/login");
-          }
+        if (res.ok) {
+          // redirect to login
+          router.push(`/auth/login-${userRole}`);
         }
-      )
+      })
       .catch((error) => {
-          toast({
-            title: "Whoops!",
-            variant: "destructive",
-            description: error.message
-          });
-        }
-      )
-    ;
+        toast({
+          title: "Whoops!",
+          variant: "destructive",
+          description: error.message,
+        });
+      });
   }
 
   if (user) {
@@ -61,7 +72,9 @@ export function UserNav() {
                 src={user?.image ?? user?.logo}
                 alt={user?.first_name ?? user?.company_name}
               />
-              <AvatarFallback>{user?.first_name?.[0] ?? user?.company_name?.[0]}</AvatarFallback>
+              <AvatarFallback>
+                {user?.first_name?.[0] ?? user?.company_name?.[0]}
+              </AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -86,15 +99,20 @@ export function UserNav() {
             {/*  Billing*/}
             {/*  <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>*/}
             {/*</DropdownMenuItem>*/}
-            <DropdownMenuItem onClick={()=>router.push('/dashboard/entreprise/profile')}>
-            Paramètres
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            <DropdownMenuItem
+              onClick={() => {
+                router.push(
+                  `/dashboard/${userRole == "entreprise" ? "entreprise" : "candidat"}/profile`,
+                );
+              }}
+            >
+              Paramètres
             </DropdownMenuItem>
             {/*<DropdownMenuItem>New Team</DropdownMenuItem>*/}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => signOut()}>
-          Déconnexion
+            Déconnexion
             {/*<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>*/}
           </DropdownMenuItem>
         </DropdownMenuContent>

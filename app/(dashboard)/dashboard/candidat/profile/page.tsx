@@ -45,7 +45,7 @@ const Profile: React.FC = () => {
             avatarUrl:
               "https://media.licdn.com/dms/image/D4E03AQH8Ypj6IDAEdA/profile-displayphoto-shrink_800_800/0/1713374020480?e=2147483647&v=beta&t=0XQNiawmx_JwIMUDBaxrGjcThowNbarkOyNZ0MhDigg" ||
               "https://via.placeholder.com/150",
-            coverImageUrl: "",
+            // coverImageUrl: "",
             location: user.address || "",
             companyName: userData.companyName || "",
             companyLogoUrl: "https://via.placeholder.com/150",
@@ -94,7 +94,7 @@ const Profile: React.FC = () => {
           last_name={userProfile.last_name}
           headline={userProfile.job.name}
           avatarUrl={userProfile.avatarUrl}
-          coverImageUrl={userProfile.coverImageUrl}
+          // coverImageUrl={userProfile.coverImageUrl}
           location={userProfile.location}
           companyName={userProfile.companyName}
           companyLogoUrl={userProfile.companyLogoUrl}

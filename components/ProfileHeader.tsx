@@ -12,7 +12,7 @@ interface ProfileHeaderProps {
   last_name: string;
   headline: string;
   avatarUrl?: string;
-  coverImageUrl?: string;
+  // coverImageUrl?: string;
   location?: string;
   companyName?: string;
   companyLogoUrl?: string;
@@ -29,7 +29,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   last_name,
   headline,
   avatarUrl,
-  coverImageUrl,
+  // coverImageUrl,
   location,
   companyName,
   companyLogoUrl,
@@ -104,18 +104,18 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   };
 
   const handlePasswordChangeClick = () => {
-    router.push("/dashboard/candidat/change-password"); // Adjust the route according to your project structure
+    router.push("/dashboard/candidat/change-password");
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden relative">
-      {coverImageUrl && (
+    <div className="bg-white rounded-lg shadow-lg mb-6 pb-16 overflow-hidden relative">
+      {/* {coverImageUrl && (
         <img
           src={coverImageUrl}
           alt="Cover"
           className="w-full h-40 object-cover relative"
         />
-      )}
+      )} */}
 
       <div className="p-10 relative">
         <div className="absolute top-4 right-6 flex gap-4">

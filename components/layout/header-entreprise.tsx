@@ -56,7 +56,7 @@ export default function HeaderEntreprise() {
             onClick={() => router.push("/dashboard/entreprise/services")}
           >
             <Star className="w-4 h-4" />
-            Upgrade Plan
+            Mise à niveau
           </button>
           <Notification />
           <UserNav />

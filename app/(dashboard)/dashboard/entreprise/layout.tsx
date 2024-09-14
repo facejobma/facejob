@@ -23,10 +23,12 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+    <div className={`${inter.className}`}>
       <HeaderEntreprise />
-      <div className={`flex h-screen ${inter.className}`}>
+      <div className={`flex h-screen`}>
         <Sidebar />
         <main className="w-full pt-16">{children}</main>
+      </div>
       </div>
     </>
   );

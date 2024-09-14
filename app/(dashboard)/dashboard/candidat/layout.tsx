@@ -23,12 +23,14 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <HeaderCandidat />
+      <div className={`${inter.className}`}>
+        <HeaderCandidat />
 
-      {/* <body className={`${inter.className}`}> */}
-      <div className={`flex h-screen ${inter.className}`}>
-        <Sidebar />
-        <main className="w-full pt-16">{children}</main>
+        {/* <body className={`${inter.className}`}> */}
+        <div className={`flex h-screen`}>
+          <Sidebar />
+          <main className="w-full pt-16">{children}</main>
+        </div>
       </div>
     </>
   );

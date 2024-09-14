@@ -79,7 +79,7 @@ export function UserNav() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
+          <DropdownMenuLabel >
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
                 {user?.first_name ?? user?.company_name}

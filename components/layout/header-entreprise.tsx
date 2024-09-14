@@ -8,19 +8,24 @@ import { useRouter } from "next/navigation";
 import { Send, Star } from "lucide-react";
 import Link from "next/link";
 
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
+
+
 export default function HeaderEntreprise() {
   const router = useRouter();
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 font-default">
+      className={`fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 ${inter.className}`}>
       <nav className="h-14 flex items-center justify-between px-4">
         <div className="flex items-center gap-5">
           <div className="hidden lg:block my-2 mr-40">
             <Logo />
           </div>
           <button
-            className="flex items-center gap-2 px-4 py-2 text-white bg-primary hover:bg-primary-1 font-semibold font-default rounded-md shadow-lg transition duration-300"
+            className="flex items-center gap-2 px-4 py-2 text-white bg-primary hover:bg-primary-1 font-semibold  rounded-md shadow-lg transition duration-300"
             onClick={() => router.push("/dashboard/entreprise/publier")}
           >
             <Send className="w-4 h-4" />
@@ -52,7 +57,7 @@ export default function HeaderEntreprise() {
         </div>
         <div className="flex items-center gap-10">
           <button
-            className="flex items-center gap-2 px-2 py-2 text-sm text-white font-semibold font-default rounded-md shadow-lg transition duration-300 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800"
+            className="flex items-center gap-2 px-2 py-2 text-sm text-white font-semibold  rounded-md shadow-lg transition duration-300 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800"
             onClick={() => router.push("/dashboard/entreprise/services")}
           >
             <Star className="w-4 h-4" />

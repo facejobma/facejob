@@ -182,6 +182,12 @@ export const navItemsEntreprise: NavItem[] = [
     label: "mesOffres",
   },
   {
+    title: "Mes CVs consommés",
+    href:"/dashboard/entreprise/consumed-cvs",
+    icon: "mesOffres",
+    label: "consumedCvs",
+  },
+  {
     title: "Services",
     href: "/dashboard/entreprise/services",
     icon: "services",

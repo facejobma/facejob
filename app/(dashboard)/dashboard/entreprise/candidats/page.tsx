@@ -123,6 +123,7 @@ const Hiring: React.FC = () => {
         );
         const data = await response.json();
         setCandidates(data);
+        console.log("data, ", data);
       } catch (error) {
         console.error("Error fetching candidates:", error);
         toast.error("Error fetching candidates!");

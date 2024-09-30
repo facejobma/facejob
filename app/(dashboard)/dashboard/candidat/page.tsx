@@ -86,7 +86,7 @@ const columns: ColumnDef<CV>[] = [
       <div
         className={
           row.original.is_verified === "Accepted"
-            ? "bg-green-200 text-green-800 rounded-full py-1 px-2 text-center"
+            ? "bg-green-200 text-green-800 rounded-full py-1 px-2 text-center "
             : row.original.is_verified === "Declined"
             ? "bg-yellow-200 text-yellow-800 rounded-full py-1 px-2 text-center"
             : "bg-gray-200 text-gray-800 rounded-full py-1 px-2 text-center"
@@ -113,14 +113,14 @@ const columns: ColumnDef<CV>[] = [
             </button>
           ) : (
             <div className="flex space-x-2">
-              {/* Edit and Delete Icons */}
+              {/* Edit and Delete Icons
               <FaEdit
                 className="text-green-900 cursor-pointer"
                 onClick={() => {
                   handleEdit(row.original.id);
                   setIsMenuOpen(false); // Close the menu after action
                 }}
-              />
+              /> */}
               <FaTrashAlt
                 className="text-red-500 cursor-pointer"
                 onClick={() => {

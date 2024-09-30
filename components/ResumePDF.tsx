@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
   },
@@ -47,9 +47,11 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 10,
   },
-  location: {
-    fontSize: 14,
+  contactInfo: {
+    fontSize: 12,
     color: "#666",
+    marginBottom: 5,
+    textAlign: "right",
   },
   section: {
     marginBottom: 20,
@@ -92,7 +94,6 @@ const styles = StyleSheet.create({
 });
 
 const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
-  console.log("candidateId from ResumePDF", candidateId);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -185,6 +186,17 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             </Text>
             <Text style={styles.headline}>{userProfile.headline}</Text>
           </View>
+
+          {/* Contact Information */}
+          {cvConsumed && (
+            <View>
+              <Text style={styles.contactInfo}>Phone: {userProfile.tel}</Text>
+              <Text style={styles.contactInfo}>Email: {userProfile.email}</Text>
+              <Text style={styles.contactInfo}>
+                Address: {userProfile.address}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Bio Section */}
@@ -280,12 +292,14 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
                     <Text style={styles.bullet}>•</Text>
                     <View style={{ marginLeft: 10 }}>
                       <Text style={[styles.text, styles.bold]}>
-                        {edu.school_name}
+                        {edu.title}
                       </Text>
-                      <Text style={styles.text}>
-                        {edu.degree}, {edu.title}
+                      <Text style={styles.text}>{edu.institution}</Text>
+                      <Text
+                        style={[styles.text, { color: "#888", fontSize: 12 }]}
+                      >
+                        {edu.date_debut} - {edu.date_fin}
                       </Text>
-                      <Text style={styles.text}>{edu.graduation_date}</Text>
                     </View>
                   </View>
                   {index < userProfile.educations.length - 1 && (

@@ -1,6 +1,7 @@
 "use client";
 
 import Cookies from "js-cookie";
+import { useParams } from "next/navigation";
 import {useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -17,9 +18,9 @@ interface Sector {
 }
 
 const PublishOffer: React.FC = () => {
-  const id =  typeof window !== "undefined"
-    ? window.sessionStorage?.getItem("offerid")
-    : null
+
+  //get the param from the url
+  const { offreId } = useParams();
 
 
   const [title, setTitle] = useState("");
@@ -58,11 +59,11 @@ const PublishOffer: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (id) {
+    if (offreId) {
       const fetchOffer = async () => {
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${id}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${offreId}`,
             {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
@@ -74,7 +75,7 @@ const PublishOffer: React.FC = () => {
             throw new Error("Failed to fetch offer");
           }
           const data = await response.json();
-          console.log(data);
+          console.log("data", data);
           setTitle(data.titre || "");
           setLocation(data.location || "");
           setContractType(data.contractType || "");
@@ -90,7 +91,7 @@ const PublishOffer: React.FC = () => {
 
       fetchOffer();
     }
-  }, [id]);
+  }, [offreId]);
 
   // Filter jobs based on selected sector
   const filteredJobs =
@@ -106,7 +107,7 @@ const PublishOffer: React.FC = () => {
         const user = JSON.parse(userData);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update_offre/${id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update_offre/${offreId}`,
           {
             method: "PUT",
             headers: {
@@ -275,10 +276,12 @@ const PublishOffer: React.FC = () => {
             >
               Description du poste
             </label>
-            <input
+           <textarea
+              id="description"
               value={description}
-              onChange={(e)=>setDescription(e.target.value)}
-              className="h-40 mb-6"
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              rows={5}
               placeholder="Entrez la description du poste"
             />
           </div>

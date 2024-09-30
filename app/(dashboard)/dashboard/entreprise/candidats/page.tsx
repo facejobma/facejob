@@ -197,14 +197,12 @@ const Hiring: React.FC = () => {
   };
 
   const filteredCandidates = candidates.filter((candidate) => {
-    // console.log("selectedSector, ", selectedSector);
-    // console.log("selectedJob, ", selectedJob);
-
     return (
+      lastPayment && 
+      lastPayment.cv_video_remaining > 0 &&
       (!selectedSector ||
-      candidate.job?.sector_id === Number(selectedSector)) &&
-      (!selectedJob ||
-      candidate.job.id === Number(selectedJob))
+        candidate.job?.sector_id === Number(selectedSector)) &&
+      (!selectedJob || candidate.job.id === Number(selectedJob))
     );
   });
 

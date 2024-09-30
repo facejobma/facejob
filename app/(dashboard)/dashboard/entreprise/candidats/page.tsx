@@ -164,7 +164,7 @@ const Hiring: React.FC = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              postuler_id: candidateToConsume.id,
+              postuler_id: candidateToConsume.cv_id,
               entreprise_id: companyId,
             }),
           },
@@ -284,7 +284,7 @@ const Hiring: React.FC = () => {
             </div>
             <div className="p-4 text-center">
               <h3 className="text-xl font-semibold text-gray-800">
-                {candidate.first_name} {candidate.last_name[0]}.
+                {candidate.first_name[0]}. {candidate.last_name[0]}.
               </h3>
               <p className="text-gray-600">{candidate.job?.name}</p>
               <p className="text-gray-600">

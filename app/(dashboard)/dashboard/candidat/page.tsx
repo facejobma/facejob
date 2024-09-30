@@ -2,6 +2,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import { Circles } from "react-loader-spinner";
+import "@reach/menu-button/styles.css"; // Importez les styles de Reach MenuButton si nécessaire
+import { Menu, MenuButton, MenuItem, MenuList } from "@reach/menu-button";
 import {
   ColumnDef,
   flexRender,
@@ -31,6 +33,9 @@ interface CV {
   is_verified: string;
   job_name: string;
 }
+
+import { FaEdit, FaTrashAlt, FaEllipsisV } from "react-icons/fa"; // Import icons
+import toast from "react-hot-toast";
 
 const columns: ColumnDef<CV>[] = [
   {
@@ -91,7 +96,87 @@ const columns: ColumnDef<CV>[] = [
       </div>
     ),
   },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const [isMenuOpen, setIsMenuOpen] = useState(false); // State to track menu open/close
+
+      const toggleMenu = () => setIsMenuOpen(!isMenuOpen); // Toggle the menu state
+
+      return (
+        <div className="relative">
+          {/* Toggle only the menu button (three dots) */}
+          {!isMenuOpen ? (
+            <button onClick={toggleMenu} className="border px-1 py-1 rounded-md">
+              <FaEllipsisV />
+            </button>
+          ) : (
+            <div className="flex space-x-2">
+              {/* Edit and Delete Icons */}
+              <FaEdit
+                className="text-green-900 cursor-pointer"
+                onClick={() => {
+                  handleEdit(row.original.id);
+                  setIsMenuOpen(false); // Close the menu after action
+                }}
+              />
+              <FaTrashAlt
+                className="text-red-500 cursor-pointer"
+                onClick={() => {
+                  handleDelete(row.original.id);
+                  setIsMenuOpen(false); // Close the menu after action
+                }}
+              />
+              {/* Option to close the icons and show three dots again */}
+              <button onClick={toggleMenu} className="text-black-900 cursor-pointer text-bold">
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    },
+  },
 ];
+
+// Exemple de fonctions pour gérer l'édition et la suppression
+const handleEdit = (id: number) => {
+  console.log("Éditer l'élément avec l'ID:", id);
+  // Vous pouvez rediriger vers une page d'édition ou ouvrir une modal ici
+};
+
+const handleDelete = async (id: number) => {
+  const authToken = Cookies.get("authToken");
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-video/delete/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Add the Bearer token for authorization
+        "Content-Type": "application/json",   // Set content type
+      },
+    });
+
+    if (response.ok) {
+      toast.success(`l'élément est supprimé avec succès`);
+      //refresh the page
+      window.location.reload();
+      // Perform any UI updates here
+    } else {
+      toast.error(`Erreur lors de la suppression de l'élément`);
+      // Handle the error accordingly
+    }
+  } catch (error) {
+    console.error('Error deleting element:', error);
+    // Handle any network or unexpected errors
+  }
+};
+
+
+
+
+
 
 export default function UsersPage() {
   const [users, setUsers] = useState<CV[]>([]);
@@ -103,6 +188,7 @@ export default function UsersPage() {
       ? window.sessionStorage?.getItem("user")
       : null;
   const userId = user ? JSON.parse(user).id : null;
+  
 
   useEffect(() => {
     const fetchData = async () => {

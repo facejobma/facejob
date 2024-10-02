@@ -5,15 +5,19 @@ import { useRouter } from "next/navigation"; // Ensure this import matches your 
 import { Modal } from "@/components/ui/modal"; // Adjust the path as per your project structure
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react"; // Assuming you have Lucide icons installed
+import { FaPhone, FaEnvelope, FaMapPin } from "react-icons/fa";
 
 interface ProfileHeaderProps {
   id: number;
   first_name: string;
   last_name: string;
+  tel: string;
+  email: string;
+  zip_code: string;
   headline: string;
   avatarUrl?: string;
   // coverImageUrl?: string;
-  location?: string;
+  address?: string;
   companyName?: string;
   companyLogoUrl?: string;
   bio?: string;
@@ -29,8 +33,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   last_name,
   headline,
   avatarUrl,
-  // coverImageUrl,
-  location,
+  tel,
+  email,
+  zip_code,
+  address,
   companyName,
   companyLogoUrl,
   bio,
@@ -47,8 +53,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     newFirstName: first_name,
     newLastName: last_name,
     newHeadline: headline,
-    newLocation: location || "",
+    newaddress: address || "",
     newCompanyName: companyName || "",
+    newTel: tel,
+    newEmail: email,
+    newAddress: address || "",
   });
 
   const handleEditClick = () => {
@@ -75,8 +84,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             first_name: formData.newFirstName,
             last_name: formData.newLastName,
             sector: formData.newHeadline,
-            location: formData.newLocation,
-            // companyName: formData.newCompanyName,
+            address: formData.newaddress,
+            company: formData.newCompanyName,
+            tel: formData.newTel,
+            email: formData.newEmail,
           }),
         },
       );
@@ -108,7 +119,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 pb-16 overflow-hidden relative">
+    <div className="bg-white rounded-lg shadow-lg mb-6 pb-2 overflow-hidden relative">
       {/* {coverImageUrl && (
         <img
           src={coverImageUrl}
@@ -148,20 +159,27 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             {first_name} {last_name}
           </h1>
           <p className="text-gray-600 mb-2">{headline}</p>
-          {/* {location && <p className="text-gray-600 mb-3">{location}</p>} */}
+          {/* {address && <p className="text-gray-600 mb-3">{address}</p>} */}
           {/* Add any additional content here */}
         </div>
+        <br></br>
 
-        {companyName && companyLogoUrl && (
-          <div className="flex items-center absolute bottom-6 right-6">
-            <img
-              src={companyLogoUrl}
-              alt={companyName}
-              className="w-10 h-10 rounded-full mr-2"
-            />
-            <p className="text-sm text-gray-600">{companyName}</p>
+        {/* add tel and email and zip_code */}
+
+        <div className="ml-6 md:ml-36 mt-32 md:mt-0">
+          <div className="flex items-center mb-2">
+            <FaPhone className="text-green-600 mr-2" />
+            <p className="text-gray-600">{tel}</p>
           </div>
-        )}
+          <div className="flex items-center mb-2">
+            <FaEnvelope className="text-green-600 mr-2" />
+            <p className="text-gray-600">{email}</p>
+          </div>
+          <div className="flex items-center mb-2">
+            <FaMapPin className="text-green-600 mr-2" />
+            <p className="text-gray-600">{address}</p>
+          </div>
+        </div>
       </div>
 
       {/* Modal for editing profile */}
@@ -174,7 +192,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         <form onSubmit={handleProfileUpdate}>
           {/* Name */}
           <label htmlFor="newFirstName" className="block mb-2 font-bold">
-          Prénom
+            Prénom
           </label>
           <input
             type="text"
@@ -187,7 +205,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           />
 
           <label htmlFor="newLastName" className="block mb-2 font-bold">
-          Nom
+            Nom
           </label>
           <input
             type="text"
@@ -199,9 +217,52 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
+          {/* Email */}
+          <label htmlFor="newEmail" className="block mb-2 font-bold">
+            Email
+          </label>
+
+          <input
+            type="email"
+            id="newEmail"
+            name="newEmail"
+            value={formData.newEmail}
+            onChange={handleInputChange}
+            placeholder="Enter new email"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
+          {/* Tel */}
+          <label htmlFor="newTel" className="block mb-2 font-bold">
+            Téléphone
+          </label>
+          <input
+            type="text"
+            id="newTel"
+            name="newTel"
+            value={formData.newTel}
+            onChange={handleInputChange}
+            placeholder="Enter new tel"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
+          {/* Zip_code */}
+          <label htmlFor="newAddress" className="block mb-2 font-bold">
+            Adresse
+          </label>
+          <input
+            type="text"
+            id="newAddress"
+            name="newAddress"
+            value={formData.newAddress}
+            onChange={handleInputChange}
+            placeholder="Enter nouvelle adresse"
+            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+          />
+
           {/* Headline */}
           <label htmlFor="newHeadline" className="block mb-2 font-bold">
-          Titre ou Poste recherché
+            Titre ou Poste recherché
           </label>
           <input
             type="text"
@@ -213,23 +274,23 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          {/* Location */}
-          {/* <label htmlFor="newLocation" className="block mb-2 font-bold">
-            Location
+          {/* address */}
+          {/* <label htmlFor="newaddress" className="block mb-2 font-bold">
+            address
           </label>
           <input
             type="text"
-            id="newLocation"
-            name="newLocation"
-            value={formData.newLocation}
+            id="newaddress"
+            name="newaddress"
+            value={formData.newaddress}
             onChange={handleInputChange}
-            placeholder="Enter new location"
+            placeholder="Enter new address"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           /> */}
 
           {/* Company Name */}
           <label htmlFor="newCompanyName" className="block mb-2 font-bold">
-          Entreprise actuelle
+            Entreprise actuelle
           </label>
           <input
             type="text"

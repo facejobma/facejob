@@ -42,6 +42,8 @@ const Profile: React.FC = () => {
             id: user.id,
             first_name: user.first_name,
             last_name: user.last_name,
+            tel : user.tel,
+            email: user.email,
             avatarUrl:
               "https://media.licdn.com/dms/image/D4E03AQH8Ypj6IDAEdA/profile-displayphoto-shrink_800_800/0/1713374020480?e=2147483647&v=beta&t=0XQNiawmx_JwIMUDBaxrGjcThowNbarkOyNZ0MhDigg" ||
               "https://via.placeholder.com/150",
@@ -61,6 +63,7 @@ const Profile: React.FC = () => {
 
           setUserProfile(profileData);
           setLoading(false);
+          console.log("user data : ", profileData);
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
@@ -91,11 +94,14 @@ const Profile: React.FC = () => {
         <ProfileHeader
           id={userProfile.id}
           first_name={userProfile.first_name}
+          tel={userProfile.tel}
+          email={userProfile.email}
+          zip_code={userProfile.zip_code}
           last_name={userProfile.last_name}
           headline={userProfile.job.name}
           avatarUrl={userProfile.avatarUrl}
           // coverImageUrl={userProfile.coverImageUrl}
-          location={userProfile.location}
+          address={userProfile.location}
           companyName={userProfile.companyName}
           companyLogoUrl={userProfile.companyLogoUrl}
           bio={userProfile.bio}

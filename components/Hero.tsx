@@ -29,7 +29,7 @@ export default function Hero({}: Props) {
             viewport={{ once: true }}
             className="flex-1 mx-2 md:mx-8 md:mt-2"
           >
-            <div className="flex items-center mt-8 md:mt-0">
+            {/* <div className="flex items-center mt-8 md:mt-0">
               <Image
                 className="w-12 h-auto mr-4"
                 src="/toggle.png"
@@ -40,7 +40,7 @@ export default function Hero({}: Props) {
               <p className="font-semibold text-lg text-secondary font-default">
                 Trouvez votre emploi de rêve.
               </p>
-            </div>
+            </div> */}
 
             {/*<div className="my-5 px-1 text-2xl leading-10 space-y-2 font-bold font-default text-secondary md:text-4xl md:px-2">*/}
             {/*  <p>*/}
@@ -89,13 +89,13 @@ export default function Hero({}: Props) {
               width={1000}
               height={1000}
             />
-            <Image
+            {/* <Image
               src="/message2.png"
               alt="plane"
               className="absolute -top-52 left-44  md:left-[28rem] mt-60 md:mt-72"
               width={200}
               height={200}
-            />
+            /> */}
           </motion.div>
         </div>
       </header>

@@ -27,6 +27,7 @@ const PublishOffer: React.FC = () => {
   const [location, setLocation] = useState("");
   const [contractType, setContractType] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState(""); // New state for end date
   const [description, setDescription] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
@@ -71,7 +72,11 @@ const PublishOffer: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (lastPayment && lastPayment.status != "pending" && lastPayment.job_remaining > 0) {
+    if (
+      lastPayment &&
+      lastPayment.status != "pending" &&
+      lastPayment.job_remaining > 0
+    ) {
       setUploadStatus("uploading");
 
       try {
@@ -91,6 +96,7 @@ const PublishOffer: React.FC = () => {
                 location,
                 contractType,
                 date_debut: startDate,
+                date_fin: contractType === "CDD" ? endDate : null, // Conditionally add end date
                 description,
                 sector_id: selectedSector,
                 job_id: selectedJob,
@@ -142,7 +148,6 @@ const PublishOffer: React.FC = () => {
       setIsUpgradeModalOpen(true);
     }
   };
-
 
   const handleUpgradePlan = () => {
     window.location.href = "/dashboard/entreprise/services";
@@ -208,6 +213,9 @@ const PublishOffer: React.FC = () => {
               <option value="CDD">CDD</option>
               <option value="Temps plein">Temps plein</option>
               <option value="Temps partiel">Temps partiel</option>
+              <option value="Intérim ">Intérim</option>
+              <option value="Contrat de chantier">Contrat de chantier</option>
+              <option value="Freelance">Freelance</option>
             </select>
           </div>
 
@@ -227,6 +235,24 @@ const PublishOffer: React.FC = () => {
             />
           </div>
 
+          {contractType === "CDD" && ( // Conditionally render Date de fin
+            <div className="mb-6">
+              <label
+                className="block text-sm font-bold mb-2 text-gray-700"
+                htmlFor="endDate"
+              >
+                Date de fin
+              </label>
+              <input
+                type="date"
+                id="endDate"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+          )}
+
           <div className="mb-6">
             <label
               className="block text-sm font-bold mb-2 text-gray-700"
@@ -243,7 +269,7 @@ const PublishOffer: React.FC = () => {
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option value="">Sélectionnez le secteur</option>
+              <option value="">Sélectionnez un secteur</option>
               {sectors.map((sector) => (
                 <option key={sector.id} value={sector.id}>
                   {sector.name}
@@ -255,18 +281,17 @@ const PublishOffer: React.FC = () => {
           <div className="mb-6">
             <label
               className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="metier"
+              htmlFor="job"
             >
               Métier
             </label>
             <select
-              id="metier"
+              id="job"
               value={selectedJob}
               onChange={(e) => setSelectedJob(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              disabled={!selectedSector}
             >
-              <option value="">Sélectionnez le métier</option>
+              <option value="">Sélectionnez un métier</option>
               {filteredJobs.map((job) => (
                 <option key={job.id} value={job.id}>
                   {job.name}
@@ -275,56 +300,39 @@ const PublishOffer: React.FC = () => {
             </select>
           </div>
 
-          <div className="mb-14">
+          <div className="mb-6">
             <label
               className="block text-sm font-bold mb-2 text-gray-700"
               htmlFor="description"
             >
-              Description du poste
+              Description
             </label>
             <textarea
+              id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Entrez la description du poste"
+              placeholder="Entrez la description de l'offre"
             />
           </div>
 
           <div className="flex justify-center">
             <button
               type="submit"
-              className={`bg-primary hover:bg-primary-2 text-white font-medium py-2 px-6 rounded-md shadow-lg transition duration-300 ${
-                uploadStatus === "uploading"
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
               disabled={uploadStatus === "uploading"}
+              className={`${
+                uploadStatus === "uploading"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-primary"
+              } text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
             >
-              {uploadStatus === "uploading" ? "Publishing..." : "Publish Offer"}
+              {uploadStatus === "uploading"
+                ? "En cours de publication..."
+                : "Publier l'offre"}
             </button>
           </div>
         </form>
       </div>
-
-      {isUpgradeModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="fixed inset-0 bg-black opacity-50"></div>
-          <div className="bg-white p-8 rounded-lg shadow-lg z-10">
-            <h2 className="text-xl font-semibold mb-8">
-              Vous avez atteint la limite de consommation de vidéos de CV.
-              Veuillez mettre à niveau votre plan.
-            </h2>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={handleUpgradePlan}
-                className="px-4 py-2 bg-primary text-white rounded-md"
-              >
-                Mettre à niveau
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

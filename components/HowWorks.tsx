@@ -3,10 +3,40 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { FaUserPlus, FaVideo } from "react-icons/fa";
 import { MdOutlineWork } from "react-icons/md";
+import { useEffect, useState } from 'react';
+
 
 type Props = {};
 
+
 export default function HowWorks({}: Props) {
+  const [offre, setOffre] = useState({
+    titre: "",
+    contractType: "",
+    location: "",
+  });
+
+  useEffect(() => {
+    const fetchRandomOffre = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/random/`
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("data", data);
+        setOffre(data);
+      } catch (error) {
+        console.error("Error fetching the random offer:", error);
+      }
+    };
+
+    fetchRandomOffre();
+  }, []);
+
+// export default function HowWorks({}: Props) {
   return (
     <section className="w-3/4 pb-10 mx-auto mt-32 mb-16 font-default">
       <div className="max-w-lg text-center text-gray-800 md:text-start ">
@@ -82,12 +112,15 @@ export default function HowWorks({}: Props) {
               height={50}
             />
             <p className="mt-4 text-lg">
-              Un emploi de développeur Web est nécessaire
+            {offre.titre || 'Titre par défaut'}
             </p>
             <div className="flex text-[#64636e] font-poppins text-base my-2">
-              <p className="mx-1">80000 -9000 DH</p>
+              <p className="mx-1">{offre.contractType || 'Type de contrat par défaut'}</p>
               <p className="mx-2">|</p>
-              <p>par capgemini</p>
+              <p>par Facejob</p>
+              <p className="mx-2">|</p>
+              <p>{offre.location || 'ville par défaut'}</p>
+
             </div>
             <div className="flex gap-4 mt-2 mb-8">
               <div className="grid w-10 h-10 rounded-full place-items-center bg-[#F5F5F5] cursor-pointer">
@@ -343,3 +376,4 @@ export default function HowWorks({}: Props) {
     </section>
   );
 }
+

@@ -31,20 +31,20 @@ const Profile: React.FC = () => {
       job: { name: "Software Engineer" },
       experiences: [
         { id: 1, title: "Experience 1", description: "Description 1" },
-        { id: 2, title: "Experience 2", description: "Description 2" }
+        { id: 2, title: "Experience 2", description: "Description 2" },
       ],
       skills: [
         { id: 1, name: "Skill 1" },
-        { id: 2, name: "Skill 2" }
+        { id: 2, name: "Skill 2" },
       ],
       projects: [
         { id: 1, name: "Project 1", description: "Description 1" },
-        { id: 2, name: "Project 2", description: "Description 2" }
+        { id: 2, name: "Project 2", description: "Description 2" },
       ],
       education: [
         { id: 1, institution: "University 1", degree: "Degree 1" },
-        { id: 2, institution: "University 2", degree: "Degree 2" }
-      ]
+        { id: 2, institution: "University 2", degree: "Degree 2" },
+      ],
     };
 
     setUserProfile(staticUserData);
@@ -78,7 +78,7 @@ const Profile: React.FC = () => {
           headline={userProfile.job.name}
           avatarUrl={userProfile.avatarUrl}
           // coverImageUrl={userProfile.coverImageUrl}
-          location={userProfile.location}
+          address={userProfile.location}
           companyName={userProfile.companyName}
           companyLogoUrl={userProfile.companyLogoUrl}
           bio={userProfile.bio}
@@ -86,6 +86,9 @@ const Profile: React.FC = () => {
           skills={userProfile.skills}
           projects={userProfile.projects}
           educations={userProfile.education}
+          tel={userProfile.tel}
+          email={userProfile.email}
+          zip_code={userProfile.zip_code}
         />
 
         <BioSection id={userProfile.id} bio={userProfile.bio} />

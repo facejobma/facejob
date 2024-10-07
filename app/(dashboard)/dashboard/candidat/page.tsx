@@ -2,8 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import { Circles } from "react-loader-spinner";
-import "@reach/menu-button/styles.css"; // Importez les styles de Reach MenuButton si nécessaire
-import { Menu, MenuButton, MenuItem, MenuList } from "@reach/menu-button";
+// Removed the import statement for @reach/menu-button/styles.css
 import {
   ColumnDef,
   flexRender,
@@ -34,7 +33,7 @@ interface CV {
   job_name: string;
 }
 
-import { FaEdit, FaTrashAlt, FaEllipsisV } from "react-icons/fa"; // Import icons
+import { FaTrashAlt } from "react-icons/fa"; // Import only the delete icon
 import toast from "react-hot-toast";
 
 const columns: ColumnDef<CV>[] = [
@@ -99,53 +98,24 @@ const columns: ColumnDef<CV>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const [isMenuOpen, setIsMenuOpen] = useState(false); // State to track menu open/close
-
-      const toggleMenu = () => setIsMenuOpen(!isMenuOpen); // Toggle the menu state
-
-      return (
-        <div className="relative">
-          {/* Toggle only the menu button (three dots) */}
-          {!isMenuOpen ? (
-            <button onClick={toggleMenu} className="border px-1 py-1 rounded-md">
-              <FaEllipsisV />
-            </button>
-          ) : (
-            <div className="flex space-x-2">
-              {/* Edit and Delete Icons */}
-              <FaEdit
-                className="text-green-900 cursor-pointer"
-                onClick={() => {
-                  handleEdit(row.original.id);
-                  setIsMenuOpen(false); // Close the menu after action
-                }}
-              />
-              <FaTrashAlt
-                className="text-red-500 cursor-pointer"
-                onClick={() => {
-                  handleDelete(row.original.id);
-                  setIsMenuOpen(false); // Close the menu after action
-                }}
-              />
-              {/* Option to close the icons and show three dots again */}
-              <button onClick={toggleMenu} className="text-black-900 cursor-pointer text-bold">
-                ✕
-              </button>
-            </div>
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="relative flex items-center gap-2">
+        <FaTrashAlt
+          className="text-red-500 cursor-pointer"
+          onClick={() => handleDelete(row.original.id)}
+        />
+        <span
+          className="text-red-500 cursor-pointer"
+          onClick={() => handleDelete(row.original.id)}
+        >
+          Supprimer
+        </span>
+      </div>
+    ),
   },
 ];
 
-// Exemple de fonctions pour gérer l'édition et la suppression
-const handleEdit = (id: number) => {
-  console.log("Éditer l'élément avec l'ID:", id);
-  // Vous pouvez rediriger vers une page d'édition ou ouvrir une modal ici
-};
-
+// Exemple de fonctions pour gérer la suppression
 const handleDelete = async (id: number) => {
   const authToken = Cookies.get("authToken");
 
@@ -171,11 +141,6 @@ const handleDelete = async (id: number) => {
     // Handle any network or unexpected errors
   }
 };
-
-
-
-
-
 
 export default function UsersPage() {
   const [users, setUsers] = useState<CV[]>([]);

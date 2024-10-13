@@ -207,7 +207,7 @@ const Hiring: React.FC = () => {
   });
 
   return (
-    <div className="flex-1 space-y-8 p-4 md:p-8 bg-gradient-to-r from-white to-gray-300 rounded-lg shadow-xl ">
+    <div className="flex-1 h-full space-y-8 p-4 md:p-8 bg-gradient-to-r from-white to-gray-300 rounded-lg shadow-xl ">
       <BreadCrumb items={breadcrumbItems} />
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">

@@ -112,16 +112,16 @@ export default function HowWorks({}: Props) {
               height={50}
             />
             <p className="mt-4 text-lg">
-            {offre.titre || 'Titre par défaut'}
+            {offre.titre || 'Un emploi de développeur Web'}
             </p>
             <div className="flex text-[#64636e] font-poppins text-base my-2">
-              <p className="mx-1">{offre.contractType || 'Type de contrat par défaut'}</p>
+              <p className="mx-1">{offre.contractType || 'CDI'}</p>
               <p className="mx-2">|</p>
-              <p>par Facejob</p>
+              <p>par facejob</p>
               <p className="mx-2">|</p>
-              <p>{offre.location || 'ville par défaut'}</p>
+              <p>{offre.location || 'Tanger'}</p>
 
-            </div>
+            </div>  
             <div className="flex gap-4 mt-2 mb-8">
               <div className="grid w-10 h-10 rounded-full place-items-center bg-[#F5F5F5] cursor-pointer">
                 <svg

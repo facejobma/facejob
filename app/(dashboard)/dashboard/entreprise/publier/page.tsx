@@ -292,11 +292,13 @@ const PublishOffer: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Sélectionnez un métier</option>
+
               {filteredJobs.map((job) => (
                 <option key={job.id} value={job.id}>
                   {job.name}
                 </option>
               ))}
+              <option value={1}>Autre</option>
             </select>
           </div>
 

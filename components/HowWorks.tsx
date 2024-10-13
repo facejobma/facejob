@@ -319,7 +319,7 @@ export default function HowWorks({}: Props) {
                     </g>
                   </g>
                 </svg>
-                <p className="text-[#64636e]">Rejoignez 10 autres personnes</p>
+                <p className="text-[#64636e]">783 candidat(e)s ont déjà trouvé leur emploi de rêve grâce à facejob !</p>
               </div>
               {/*<div className="relative group">*/}
               {/*    <svg*/}

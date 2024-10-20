@@ -95,6 +95,22 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       if (response.ok) {
         const updatedData = await response.json();
         console.log("Updated profile data:", updatedData);
+
+        // Update the session storage with new data
+        const userData = {
+          id: id,
+          first_name: formData.newFirstName,
+          last_name: formData.newLastName,
+          sector: formData.newHeadline,
+          address: formData.newaddress,
+          company: formData.newCompanyName,
+          tel: formData.newTel,
+          email: formData.newEmail,
+        };
+
+        // Store in session storage
+        window.sessionStorage.setItem("user", JSON.stringify(userData));
+
         setIsEditing(false);
       } else {
         console.error("Failed to update profile data");

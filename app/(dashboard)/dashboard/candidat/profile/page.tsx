@@ -21,6 +21,7 @@ const Profile: React.FC = () => {
       ? window.sessionStorage?.getItem("user")
       : null;
 
+
     if (userData) {
       const user = JSON.parse(userData);
       const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${user.id}`;
@@ -45,8 +46,7 @@ const Profile: React.FC = () => {
             tel : user.tel,
             email: user.email,
             avatarUrl:
-              "https://media.licdn.com/dms/image/D4E03AQH8Ypj6IDAEdA/profile-displayphoto-shrink_800_800/0/1713374020480?e=2147483647&v=beta&t=0XQNiawmx_JwIMUDBaxrGjcThowNbarkOyNZ0MhDigg" ||
-              "https://via.placeholder.com/150",
+              user.avatarUrl || "https://via.placeholder.com/150",
             // coverImageUrl: "",
             location: user.address || "",
             companyName: userData.companyName || "",

@@ -2,9 +2,8 @@
 
 import Cookies from "js-cookie";
 import { useParams } from "next/navigation";
-import {useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
 
 interface Job {
   id: number;
@@ -18,10 +17,8 @@ interface Sector {
 }
 
 const PublishOffer: React.FC = () => {
-
   //get the param from the url
   const { offreId } = useParams();
-
 
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
@@ -34,15 +31,16 @@ const PublishOffer: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState("idle");
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const userData =  typeof window !== "undefined"
-    ? window.sessionStorage?.getItem("user")
-    : null
+  const userData =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user")
+      : null;
 
   useEffect(() => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sectors`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sectors`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch sectors");
@@ -65,11 +63,11 @@ const PublishOffer: React.FC = () => {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${offreId}`,
             {
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                  "Content-Type": "application/json",
-                },
-              }
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+              },
+            },
           );
           if (!response.ok) {
             throw new Error("Failed to fetch offer");
@@ -95,7 +93,8 @@ const PublishOffer: React.FC = () => {
 
   // Filter jobs based on selected sector
   const filteredJobs =
-    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [];
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
+    [];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -124,7 +123,7 @@ const PublishOffer: React.FC = () => {
               job_id: selectedJob,
               entreprise_id: user.id,
             }),
-          }
+          },
         );
 
         if (response.ok) {
@@ -200,8 +199,11 @@ const PublishOffer: React.FC = () => {
               <option value="">Sélectionnez le type de contrat</option>
               <option value="CDI">CDI</option>
               <option value="CDD">CDD</option>
-              <option value="Temps plein">Temps plein</option>
-              <option value="Temps partiel">Temps partiel</option>
+              {/* <option value="Temps plein">Temps plein</option>
+              <option value="Temps partiel">Temps partiel</option> */}
+              <option value="Intérim ">Intérim</option>
+              <option value="Contrat de chantier">Contrat de chantier</option>
+              <option value="Freelance">Freelance</option>
             </select>
           </div>
 
@@ -276,7 +278,7 @@ const PublishOffer: React.FC = () => {
             >
               Description du poste
             </label>
-           <textarea
+            <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}

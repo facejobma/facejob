@@ -184,7 +184,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             <Text style={styles.name}>
               {userProfile.first_name} {abbreviatedLastName}
             </Text>
-            <Text style={styles.headline}>{userProfile.headline}</Text>
+            <Text style={styles.headline}>{userProfile.job.name}</Text>
           </View>
 
           {/* Contact Information */}

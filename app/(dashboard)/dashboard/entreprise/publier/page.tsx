@@ -96,7 +96,7 @@ const PublishOffer: React.FC = () => {
                 location,
                 contractType,
                 date_debut: startDate,
-                date_fin: contractType === "CDD" ? endDate : null, // Conditionally add end date
+                date_fin: contractType === "CDD" ? endDate : ".", // Conditionally add end date
                 description,
                 sector_id: selectedSector,
                 job_id: selectedJob,
@@ -211,8 +211,8 @@ const PublishOffer: React.FC = () => {
               <option value="">Sélectionnez le type de contrat</option>
               <option value="CDI">CDI</option>
               <option value="CDD">CDD</option>
-              <option value="Temps plein">Temps plein</option>
-              <option value="Temps partiel">Temps partiel</option>
+              {/* <option value="Temps plein">Temps plein</option>
+              <option value="Temps partiel">Temps partiel</option> */}
               <option value="Intérim ">Intérim</option>
               <option value="Contrat de chantier">Contrat de chantier</option>
               <option value="Freelance">Freelance</option>

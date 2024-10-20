@@ -61,7 +61,7 @@ export default function Page() {
           const authToken = Cookies.get("authToken");
 
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${offreId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres_by_id/${offreId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -69,8 +69,9 @@ export default function Page() {
               },
             }
           );
+          
           const data = await response.json();
-
+          console.log("data du response : ", data);
           setJobData(data);
         } catch (error) {
           console.error("Error fetching job data:", error);

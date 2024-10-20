@@ -47,7 +47,7 @@ export default function Footer({}: Props) {
         </div>
 
         <div className="flex flex-col mb-10 sm:mb-0 font-default">
-          <h4 className="font-bold text-secondary">Company</h4>
+          <h4 className="font-bold text-secondary">Entreprise</h4>
           <ul className="space-y-2 text-sm font-light text-gray-600">
             <li className="mt-4">
               <Link href="/apropsdenous">À propos</Link>

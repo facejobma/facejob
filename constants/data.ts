@@ -176,7 +176,7 @@ export const navItemsEntreprise: NavItem[] = [
     label: "publier",
   },
   { 
-    title: "Mes Offres",
+    title: "Mes Offres d’emploi",
     href: "/dashboard/entreprise/mes-offres",
     icon: "mesOffres",
     label: "mesOffres",
@@ -188,7 +188,7 @@ export const navItemsEntreprise: NavItem[] = [
     label: "consumedCvs",
   },
   {
-    title: "Services",
+    title: "Mon panel",
     href: "/dashboard/entreprise/services",
     icon: "services",
     label: "services",
@@ -200,7 +200,7 @@ export const navItemsEntreprise: NavItem[] = [
   //   label: "payments",
   // },
   {
-    title: "Profil",
+    title: "Mon profil",
     href: "/dashboard/entreprise/profile",
     icon: "profile",
     label: "Profile",

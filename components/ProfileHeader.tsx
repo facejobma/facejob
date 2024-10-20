@@ -146,12 +146,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         </div>
         {avatarUrl && (
           <div className="absolute left-10 top-6 md:top-12">
-            <img
-              src={avatarUrl}
-              alt="Profile Avatar"
-              className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
-            />
-          </div>
+          <img
+            src={avatarUrl || 'https://media.istockphoto.com/id/1337144146/fr/vectoriel/vecteur-dic%C3%B4ne-de-profil-davatar-par-d%C3%A9faut.jpg?s=612x612&w=0&k=20&c=BsQEN372p6cSuFnPGx06xUJ8eMhSjirWMAhodUi74uI='}
+            alt="Profile Avatar"
+            className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+          />
+        </div>
         )}
 
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
@@ -184,133 +184,124 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
       {/* Modal for editing profile */}
       <Modal
-        isOpen={isEditing}
-        onClose={handleCloseModal}
-        title="Modifier le Profil"
-        description="Mettre à jour vos informations"
+  isOpen={isEditing}
+  onClose={handleCloseModal}
+  title="Modifier le Profil"
+  description="Mettre à jour vos informations"
+>
+  <form onSubmit={handleProfileUpdate}>
+    {/* Définir une largeur maximale pour le formulaire */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+      {/* Colonne de gauche */}
+      <div className="w-full">
+        <label htmlFor="newFirstName" className="block mb-2 font-bold">
+          Prénom
+        </label>
+        <input
+          type="text"
+          id="newFirstName"
+          name="newFirstName"
+          value={formData.newFirstName}
+          onChange={handleInputChange}
+          placeholder="Enter votre prénom"
+          className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+        />
+
+        <label htmlFor="newEmail" className="block mb-2 font-bold">
+          Email
+        </label>
+        <input
+          type="email"
+          id="newEmail"
+          name="newEmail"
+          value={formData.newEmail}
+          onChange={handleInputChange}
+          placeholder="Enter votre email"
+          className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+        />
+
+        <label htmlFor="newAddress" className="block mb-2 font-bold">
+          Adresse
+        </label>
+        <input
+          type="text"
+          id="newAddress"
+          name="newAddress"
+          value={formData.newAddress}
+          onChange={handleInputChange}
+          placeholder="Enter votre adresse"
+          className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+        />
+
+        <label htmlFor="newHeadline" className="block mb-2 font-bold">
+          Titre ou Poste recherché
+        </label>
+        <input
+          type="text"
+          id="newHeadline"
+          name="newHeadline"
+          value={formData.newHeadline}
+          onChange={handleInputChange}
+          placeholder="Entrez votre poste"
+          className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+        />
+      </div>
+
+      {/* Colonne de droite */}
+      <div className="w-full">
+        <label htmlFor="newLastName" className="block mb-2 font-bold">
+          Nom
+        </label>
+        <input
+          type="text"
+          id="newLastName"
+          name="newLastName"
+          value={formData.newLastName}
+          onChange={handleInputChange}
+          placeholder="Enter votre nom"
+          className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+        />
+
+        <label htmlFor="newTel" className="block mb-2 font-bold">
+          Téléphone
+        </label>
+        <input
+          type="text"
+          id="newTel"
+          name="newTel"
+          value={formData.newTel}
+          onChange={handleInputChange}
+          placeholder="Enter votre téléphone"
+          className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+        />
+
+        <label htmlFor="newCompanyName" className="block mb-2 font-bold">
+          Entreprise actuelle
+        </label>
+        <input
+          type="text"
+          id="newCompanyName"
+          name="newCompanyName"
+          value={formData.newCompanyName}
+          onChange={handleInputChange}
+          placeholder="Entrez votre entreprise"
+          className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+        />
+      </div>
+    </div>
+
+    {/* Submit Button */}
+    <div className="mt-6 text-center">
+      <button
+        type="submit"
+        className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
       >
-        <form onSubmit={handleProfileUpdate}>
-          {/* Name */}
-          <label htmlFor="newFirstName" className="block mb-2 font-bold">
-            Prénom
-          </label>
-          <input
-            type="text"
-            id="newFirstName"
-            name="newFirstName"
-            value={formData.newFirstName}
-            onChange={handleInputChange}
-            placeholder="Enter new first name"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
+        Sauvegarder
+      </button>
+    </div>
+  </form>
+</Modal>
 
-          <label htmlFor="newLastName" className="block mb-2 font-bold">
-            Nom
-          </label>
-          <input
-            type="text"
-            id="newLastName"
-            name="newLastName"
-            value={formData.newLastName}
-            onChange={handleInputChange}
-            placeholder="Enter new last name"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-
-          {/* Email */}
-          <label htmlFor="newEmail" className="block mb-2 font-bold">
-            Email
-          </label>
-
-          <input
-            type="email"
-            id="newEmail"
-            name="newEmail"
-            value={formData.newEmail}
-            onChange={handleInputChange}
-            placeholder="Enter new email"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-
-          {/* Tel */}
-          <label htmlFor="newTel" className="block mb-2 font-bold">
-            Téléphone
-          </label>
-          <input
-            type="text"
-            id="newTel"
-            name="newTel"
-            value={formData.newTel}
-            onChange={handleInputChange}
-            placeholder="Enter new tel"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-
-          {/* Zip_code */}
-          <label htmlFor="newAddress" className="block mb-2 font-bold">
-            Adresse
-          </label>
-          <input
-            type="text"
-            id="newAddress"
-            name="newAddress"
-            value={formData.newAddress}
-            onChange={handleInputChange}
-            placeholder="Enter nouvelle adresse"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-
-          {/* Headline */}
-          <label htmlFor="newHeadline" className="block mb-2 font-bold">
-            Titre ou Poste recherché
-          </label>
-          <input
-            type="text"
-            id="newHeadline"
-            name="newHeadline"
-            value={formData.newHeadline}
-            onChange={handleInputChange}
-            placeholder="Entrez votre poste"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-
-          {/* address */}
-          {/* <label htmlFor="newaddress" className="block mb-2 font-bold">
-            address
-          </label>
-          <input
-            type="text"
-            id="newaddress"
-            name="newaddress"
-            value={formData.newaddress}
-            onChange={handleInputChange}
-            placeholder="Enter new address"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          /> */}
-
-          {/* Company Name */}
-          <label htmlFor="newCompanyName" className="block mb-2 font-bold">
-            Entreprise actuelle
-          </label>
-          <input
-            type="text"
-            id="newCompanyName"
-            name="newCompanyName"
-            value={formData.newCompanyName}
-            onChange={handleInputChange}
-            placeholder="Entrez votre entreprise"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
-          >
-            Sauvegarder
-          </button>
-        </form>
-      </Modal>
     </div>
   );
 };

@@ -153,7 +153,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         {creationDate && (
           <div className="flex items-center absolute bottom-6 right-6">
             <p className="text-gray-600 text-sm">
-              Creation Date: {new Date(creationDate).toLocaleDateString()}
+            Date de création: {new Date(creationDate).toLocaleDateString()}
             </p>
           </div>
         )}

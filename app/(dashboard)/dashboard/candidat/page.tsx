@@ -84,9 +84,9 @@ const columns: ColumnDef<CV>[] = [
     cell: ({ row }) => (
       <div
         className={
-          row.original.is_verified === "Accepted"
+          row.original.is_verified === "Accepté"
             ? "bg-green-200 text-green-800 rounded-full py-1 px-2 text-center"
-            : row.original.is_verified === "Declined"
+            : row.original.is_verified === "Refusé"
             ? "bg-yellow-200 text-yellow-800 rounded-full py-1 px-2 text-center"
             : "bg-gray-200 text-gray-800 rounded-full py-1 px-2 text-center"
         }
@@ -272,7 +272,7 @@ export default function UsersPage() {
           <option value="Pending">En cours</option>
           <option value="Accepted">Accepté</option>
           <option value="Declined">Décliné</option>
-        </select>
+        </select> 
         <select
           value={selectedSector}
           onChange={handleSectorChange}

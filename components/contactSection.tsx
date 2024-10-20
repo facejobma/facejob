@@ -69,7 +69,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
       <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Contact Information</h2>
+        <h2 className="text-xl font-bold">Coordonnées de l’entreprise</h2>
         <button
           onClick={handleEditClick}
           className="text-gray-400 hover:text-gray-600"

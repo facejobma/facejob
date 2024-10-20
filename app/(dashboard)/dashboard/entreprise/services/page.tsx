@@ -20,7 +20,7 @@ const breadcrumbItems = [
 const plans = [
   {
     id: 1,
-    name: "Pannel gratuit",
+    name: "Panel gratuit",
     monthly_price: 0,
     quarterly_price: 0,
     annual_price: 0,
@@ -34,7 +34,7 @@ const plans = [
   },
   {
     id: 2,
-    name: "Pannel de base",
+    name: "Panel de base",
     monthly_price: 1000,
     quarterly_price: 2700,
     annual_price: 9600,
@@ -48,7 +48,7 @@ const plans = [
   },
   {
     id: 3,
-    name: "Pannel Intérmédiaire",
+    name: "Panel intermédiaire",
     monthly_price: 1900,
     quarterly_price: 5100,
     annual_price: 18000,
@@ -62,7 +62,7 @@ const plans = [
   },
   {
     id: 4,
-    name: "Pannel Essentiel",
+    name: "Panel Essentiel",
     monthly_price: 3000,
     quarterly_price: 8100,
     annual_price: 28000,
@@ -76,7 +76,7 @@ const plans = [
   },
   {
     id: 5,
-    name: "Pannel Premium",
+    name: "Panel Premium",
     monthly_price: 5000,
     quarterly_price: 13500,
     annual_price: 48000,
@@ -274,7 +274,7 @@ function ServicePlanPage() {
               <CheckCircleIcon className="h-8 w-8 text-green-500 mb-2" />
               <CardHeader className="flex flex-col items-center space-y-0 pb-2">
                 <CardTitle className="font-medium text-center">
-                  Votre plan de paiement actuel
+                Votre panel actuel
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -287,7 +287,7 @@ function ServicePlanPage() {
               <ClockIcon className="h-8 w-8 text-gray-500 mb-2" />
               <CardHeader className="flex flex-col items-center space-y-0 pb-2">
                 <CardTitle className="font-medium text-center">
-                  Votre periode de pannel actuel
+                Votre période de panel actuel
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -326,7 +326,7 @@ function ServicePlanPage() {
               <BriefcaseIcon className="h-8 w-8 text-yellow-500 mb-2" />
               <CardHeader className="flex flex-col items-center space-y-4 pb-2">
                 <CardTitle className="font-medium text-center">
-                  Nombre des offres d’emploi diffusés
+                Nombre des offres d’emploi diffusées
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -339,7 +339,7 @@ function ServicePlanPage() {
               <BriefcaseIcon className="h-8 w-8 text-red-500 mb-2" />
               <CardHeader className="flex flex-col items-center space-y-0 pb-2">
                 <CardTitle className="font-medium text-center">
-                  Nombre des offres d’emploi restants
+                Nombre des offres d’emploi restantes
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -351,8 +351,8 @@ function ServicePlanPage() {
           </div>
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight mb-6">
-              Choisissez un plan qui vous convient
-            </h2>
+            Choisissez un panel qui vous convient
+          </h2>
             <div className="flex justify-center">
               <Tabs defaultValue="Mensuel" className="space-y-4">
                 <TabsList className="flex justify-center mb-4">
@@ -399,15 +399,15 @@ function ServicePlanPage() {
                             {plan.account_creation_included ? "Oui" : "Non"}
                           </div>
                           <div>
-                            <strong>Accès aux vidéos CV :</strong>{" "}
+                            <strong>Accès aux CVs vidéos :</strong>{" "}
                             {plan.cv_video_access ? "Oui" : "Non"}
                           </div>
                           <div>
-                            <strong>Consultations vidéos CV :</strong>{" "}
+                            <strong>Consultation de CVs vidéos :</strong>{" "}
                             {plan.cv_video_consultations}
                           </div>
                           <div>
-                            <strong>Publications d'offres d'emploi :</strong>{" "}
+                            <strong>Publication des offres d'emploi :</strong>{" "}
                             {plan.job_postings}
                           </div>
                           <div>
@@ -434,7 +434,7 @@ function ServicePlanPage() {
                             >
                               {isCurrentPlanDisabled(plan)
                                 ? `Plan actuel - ${plan.name}`
-                                : "Mettre à niveau le plan"}
+                                : "Mettre à niveau le panel"}
                             </button>
                           </div>
                         </CardContent>
@@ -466,15 +466,15 @@ function ServicePlanPage() {
                             {plan.account_creation_included ? "Oui" : "Non"}
                           </div>
                           <div>
-                            <strong>Accès aux vidéos CV :</strong>{" "}
+                            <strong>Accès aux CVs vidéos:</strong>{" "}
                             {plan.cv_video_access ? "Oui" : "Non"}
                           </div>
                           <div>
-                            <strong>Consultations vidéos CV :</strong>{" "}
+                            <strong>Consultation de CVs vidéos :</strong>{" "}
                             {plan.cv_video_consultations}
                           </div>
                           <div>
-                            <strong>Publications d'offres d'emploi :</strong>{" "}
+                            <strong>Publications des offres d'emploi :</strong>{" "}
                             {plan.job_postings}
                           </div>
                           <div>
@@ -533,15 +533,15 @@ function ServicePlanPage() {
                             {plan.account_creation_included ? "Oui" : "Non"}
                           </div>
                           <div>
-                            <strong>Accès aux vidéos CV :</strong>{" "}
+                            <strong>Accès aux CVs vidéos :</strong>{" "}
                             {plan.cv_video_access ? "Oui" : "Non"}
                           </div>
                           <div>
-                            <strong>Consultations vidéos CV :</strong>{" "}
+                            <strong>Consultation de CVs vidéos :</strong>{" "}
                             {plan.cv_video_consultations}
                           </div>
                           <div>
-                            <strong>Publications d'offres d'emploi :</strong>{" "}
+                            <strong>Publications des offres d'emploi :</strong>{" "}
                             {plan.job_postings}
                           </div>
                           <div>
@@ -604,7 +604,7 @@ function ServicePlanPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold">
-                        Accès aux vidéos CV :
+                      Accès aux CVs vidéos :
                       </span>
                       <span>
                         {selectedPlan.cv_video_access ? "Oui" : "Non"}
@@ -612,13 +612,13 @@ function ServicePlanPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold">
-                        Consultations vidéos CV :
+                      Consultation de CVs vidéos :
                       </span>
                       <span>{selectedPlan.cv_video_consultations}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-semibold">
-                        Publications d'offres d'emploi :
+                      Publications des offres d'emploi :
                       </span>
                       <span>{selectedPlan.job_postings}</span>
                     </div>

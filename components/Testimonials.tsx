@@ -45,7 +45,7 @@ export default function Testimonials({}: Props) {
             viewport={{ once: true }}
             className="max-w-lg text-center mb-32 text-gray-800 md:text-start font-default"
           >
-            <p className="text-gray-600">Ce que disent les gens</p>
+            <p className="text-gray-600">Ce qu’ils disent de nous</p>
             <h2 className="my-4 text-3xl font-bold text-gray-800 md:text-5xl font-default">
               Témoignages
             </h2>

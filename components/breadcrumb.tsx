@@ -19,7 +19,7 @@ export default function BreadCrumb({ items }: BreadCrumbPropsType) {
         href={"/dashboard"}
         className="overflow-hidden text-ellipsis whitespace-nowrap"
       >
-        Dashboard
+        Tableau de Bord
       </Link>
       {items?.map((item: BreadCrumbType, index: number) => (
         <React.Fragment key={item.title}>

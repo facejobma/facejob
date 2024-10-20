@@ -57,8 +57,8 @@ const ContactPage: React.FC = () => {
         <div className="w-full md:w-1/2 p-8 bg-white rounded-lg shadow-lg font-default">
           <h1 className="text-3xl font-semibold mb-6">Contactez-nous</h1>
           <p className="text-gray-600 mb-6">
-            Nous aimerions avoir de vos nouvelles! Remplissez le formulaire
-            ci-dessous pour entrer prendre contact avec nous.
+          Nous aimerions avoir de vos nouvelles ! Remplissez le formulaire ci-dessous pour prendre contact.
+           Nous reviendrons vers vous dans les meilleurs délais.
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">

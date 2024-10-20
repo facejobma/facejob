@@ -23,8 +23,8 @@ export const JobRequests: FC<JobProps> = ({ data }) => {
     <>
       <div className="flex items-start justify-between">
         <Heading
-          title={`Offres (${data.length})`}
-          description="Consultez mes offres"
+          title={`Mes Offres d’emploi (${data.length})`}
+          description="consulter mes offres"
         />
       </div>
       <Separator />

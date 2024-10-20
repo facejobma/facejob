@@ -42,7 +42,7 @@ export default function HowWorks({}: Props) {
       <div className="max-w-lg text-center text-gray-800 md:text-start ">
         <p className="text-gray-600">Facile et rapide</p>
         <h2 className="my-4 text-4xl font-bold text-gray-800 md:text-5xl">
-          Explorez les étapes suivantes .
+        Enregistrez-vous et trouvez votre job en 5mn !
         </h2>
       </div>
 

@@ -37,7 +37,9 @@ interface JobData {
   candidats_count: number;
 }
 
+
 const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
+  console.log("jobdata0", initialData);
   const isPending = initialData.is_verified === "Pending";
   const isAccepted = initialData.is_verified === "Accepted";
   const isDeclined = initialData.is_verified === "Declined";

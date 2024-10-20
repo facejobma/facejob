@@ -32,7 +32,7 @@ const BlogPage: React.FC = () => {
         <div>
             <NavBar/>
             <div className="container mx-auto mt-10 p-10 font-default">
-                <h1 className="text-3xl font-semibold mb-6">Latest Blogs</h1>
+                <h1 className="text-3xl font-semibold mb-6">Derniers Articles</h1>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {blogs.map((blog, index) => (
                         <div

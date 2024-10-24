@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useParams } from "next/navigation";
 import Cookies from "js-cookie";
 import JobForm from "@/components/forms/job-form";
+import { Circles } from "react-loader-spinner";
 
 interface Sector {
   id: number;
@@ -48,13 +49,15 @@ interface JobData {
 export default function Page() {
   const [jobData, setJobData] = useState<JobData | null>(null);
   const { offreId } = useParams();
-
+  const [loading, setLoading] = useState<boolean>(true);
+  
   const breadcrumbItems = [
     { title: "Offre", link: "/dashboard/entreprise/mes-offres" },
     { title: "Consulter", link: `/dashboard/entreprise/mes-offres/${offreId}` },
   ];
 
   useEffect(() => {
+    setLoading(true);
     if (offreId) {
       const fetchJobData = async () => {
         try {
@@ -73,7 +76,9 @@ export default function Page() {
           const data = await response.json();
           console.log("data du response : ", data);
           setJobData(data);
+          setLoading(false);
         } catch (error) {
+          setLoading(false);
           console.error("Error fetching job data:", error);
         }
       };
@@ -89,7 +94,17 @@ export default function Page() {
         {jobData ? (
           <JobForm initialData={jobData} key={offreId as string} />
         ) : (
-          <p>Loading...</p>
+        <div className="flex items-center justify-center h-[calc(80vh-220px)]">
+          <Circles
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="circles-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        </div>
         )}
       </div>
     </ScrollArea>

@@ -155,9 +155,6 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
-            <XSquare className="mr-2 h-4 w-4" /> Consommer
-          </DropdownMenuItem>
           <DropdownMenuItem>
             <View className="mr-2 h-4 w-4" />
             <PDFDownloadLink
@@ -168,6 +165,11 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
               {({ loading }) => (loading ? "Generating..." : "Consulter CV")}
             </PDFDownloadLink>
           </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
+            <CheckSquare className="mr-2 h-4 w-4" /> Consommer
+          </DropdownMenuItem>
+     
         </DropdownMenuContent>
       </DropdownMenu>
       {isModalOpen && (

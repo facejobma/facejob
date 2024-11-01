@@ -33,7 +33,7 @@ export function JobDataTable<TData, TValue>({
   searchKey,
 }: DataTableProps<TData, TValue>) {
   const [searchValue, setSearchValue] = useState<string>("");
-  const [selectValue, setSelectValue] = useState<string>("Pending");
+  const [selectValue, setSelectValue] = useState<string>("Accepted");
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {

@@ -103,60 +103,51 @@ const ConsumedCVs: React.FC = () => {
   }
 
   return (
-    <div className="p-4 md:p-8 bg-white">
+    <div className="p-4 md:p-8 bg-gray-100 min-h-screen">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">CVs Consommés</h1>
         <p className="text-gray-600">
           Voici la liste des CVs vidéos que vous avez consommés
         </p>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto shadow-md rounded-lg">
         <table className="min-w-full bg-white border border-gray-300">
-          <thead>
+          <thead className="bg-gray-200">
             <tr>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-center leading-4 text-black tracking-wider border-r-2 border-gray-300">
-                Vidéo
-              </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-center leading-4 text-black tracking-wider border-r-2 border-gray-300">
-                Nom du Candidat
-              </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-center leading-4 text-black tracking-wider border-r-2 border-gray-300">
-                Années d'Expérience
-              </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-center leading-4 text-black tracking-wider border-r-2 border-gray-300">
-                Date de Consommation
-              </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-center leading-4 text-black tracking-wider border-r-2 border-gray-300">
-                Voir CV
-              </th>
+              <th className="px-6 py-3 text-center font-semibold text-gray-800 border-b border-gray-300">Vidéo</th>
+              <th className="px-6 py-3 text-center font-semibold text-gray-800 border-b border-gray-300">Nom du Candidat</th>
+              <th className="px-6 py-3 text-center font-semibold text-gray-800 border-b border-gray-300">Années d'Expérience</th>
+              <th className="px-6 py-3 text-center font-semibold text-gray-800 border-b border-gray-300">Date de Consommation</th>
+              <th className="px-6 py-3 text-center font-semibold text-gray-800 border-b border-gray-300">Voir CV</th>
             </tr>
           </thead>
           <tbody>
             {consumedCVs.map((cv) => (
-              <tr key={cv.id}>
-                <td className="px-6 py-4 border-b border-gray-300 text-center border-r border-gray-300">
-                  <video
-                    src={cv.postuler.link}
-                    className="w-42 h-34 object-cover"
-                    controls
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                </td>
-                <td className="px-6 py-4 border-b border-gray-300 text-center border-r border-gray-300">
+              <tr key={cv.id} className="even:bg-gray-50 hover:bg-gray-100">
+                <td className="px-6 py-4 border-b border-gray-300 text-center">
+                <video
+                  src={cv.postuler.link}
+                  className="w-40 h-32 object-cover rounded-lg"
+                  controls
+                  style={{ width: "160px", height: "120px" }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </td>
+                <td className="px-6 py-4 border-b border-gray-300 text-center">
                   {cv.postuler.candidat.first_name} {cv.postuler.candidat.last_name}
                 </td>
-                <td className="px-6 py-4 border-b border-gray-300 text-center border-r border-gray-300">
+                <td className="px-6 py-4 border-b border-gray-300 text-center">
                   {cv.postuler.nb_experiences} ans
                 </td>
-                <td className="px-6 py-4 border-b border-gray-300 text-center border-r border-gray-300">
+                <td className="px-6 py-4 border-b border-gray-300 text-center">
                   {new Date(cv.created_at).toLocaleDateString("fr-FR")}
                 </td>
-                <td className="px-6 py-4 border-b border-gray-300 text-center border-r border-gray-300">
+                <td className="px-6 py-4 border-b border-gray-300 text-center">
                   <PDFDownloadLink
                     document={<ResumePDF candidateId={cv.postuler.candidat.id} />}
                     fileName={`cv-${cv.postuler.candidat.first_name}-${cv.postuler.candidat.last_name}.pdf`}
-                    className="text-primary font-medium"
+                    className="text-green-900 font-medium hover:underline"
                   >
                     {({ loading }) =>
                       loading ? "Génération..." : "Télécharger CV"

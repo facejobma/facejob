@@ -15,6 +15,7 @@ export default function HowWorks({}: Props) {
     contractType: "",
     location: "",
   });
+  const [randomImage, setRandomImage] = useState("");
 
   useEffect(() => {
     const fetchRandomOffre = async () => {
@@ -34,7 +35,22 @@ export default function HowWorks({}: Props) {
     };
 
     fetchRandomOffre();
+    // Array of image paths
+    const images = [
+      "/LandingImages/Image 1.jpg",
+      "/LandingImages/Image 2.jpg",
+      "/LandingImages/Image 3.jpg",
+      "/LandingImages/Image 4.jpg",
+      "/LandingImages/Image 5.jpg",
+      "/LandingImages/Image 6.jpg",
+    ];
+
+    // Select a random image
+    const randomIndex = Math.floor(Math.random() * images.length);
+    setRandomImage(images[randomIndex]);
   }, []);
+
+  
 
 // export default function HowWorks({}: Props) {
   return (
@@ -104,10 +120,10 @@ export default function HowWorks({}: Props) {
           className="z-20 p-6 mt-6 bg-white shadow-xl md:-mt-16 rounded-2xl"
         >
           <div className="flex flex-col mt-0 font-poppins">
-            <Image
-              src="/img4.jpg"
+          <Image
+              src={randomImage}
               className="z-10 object-cover"
-              alt="image of a girl that got a job"
+              alt="Random job-related image"
               width={1000}
               height={50}
             />

@@ -16,6 +16,7 @@ interface Notification {
   };
   created_at: string;
   is_read: boolean;
+  read_at: string;
 }
 
 declare global {
@@ -33,9 +34,10 @@ const Notification: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const user = typeof window !== "undefined"
-        ? window.sessionStorage?.getItem("user") || '{}'
-        : '{}';
+      const user =
+        typeof window !== "undefined"
+          ? window.sessionStorage?.getItem("user") || "{}"
+          : "{}";
       const userId = user ? JSON.parse(user).id : null;
       setUserId(userId);
       console.log("userRole, ", sessionStorage.getItem("userRole"));
@@ -130,33 +132,36 @@ const Notification: React.FC = () => {
   const markNotificationsAsRead = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/notifications/mark-as-read",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notifications/mark-as-read`,
         {
           method: "POST",
           headers: {
             Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "")}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       if (response.ok) {
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) => ({
             ...notification,
-            is_read: true,
-          })),
+            read_at: new Date().toISOString(),
+          }))
         );
+        console.log("All notifications marked as read.");
       } else {
-        console.error("Failed to mark notifications as read");
+        console.error("Failed to mark notifications as read.");
       }
     } catch (error) {
       console.error("Error marking notifications as read:", error);
     }
   };
+  
+  
 
-  // const unreadNotifications = notifications.some(
-  //   (notification) => !notification.is_read,
-  // );
+  const unreadNotifications = notifications.some(
+    (notification) => !notification.read_at
+  );
 
   return (
     <div className="relative" ref={notificationRef}>
@@ -167,9 +172,9 @@ const Notification: React.FC = () => {
           aria-label="Notification"
         >
           <Bell size={24} className="text-gray-600" />
-          {/* {unreadNotifications && (
+          {unreadNotifications && (
             <div className="absolute w-3 h-3 rounded-full bg-red-600 top-0 right-0"></div>
-          )} */}
+          )}
         </button>
       </div>
       {isVisible && (

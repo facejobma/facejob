@@ -103,13 +103,13 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const openModal = () => {
     setModalData({ titre, entreprise_name, sector_name, job_name });
     setModalIsOpen(true);
-    setAlreadyApplied(false); // Reset applied state when modal opens
+    setAlreadyApplied(false);
   };
 
   const closeModal = () => {
     setModalIsOpen(false);
-    setIsConfirmationVisible(false); // Reset confirmation message visibility
-    setAlreadyApplied(false); // Reset applied state when closing modal
+    setIsConfirmationVisible(false); 
+    setAlreadyApplied(false); 
   };
 
   const handleVideoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -119,12 +119,12 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
   const handleValidate = async (selectedVideo: string) => {
     if (!selectedVideo) {
-      return; // Do nothing if no video is selected
+      return; 
     }
 
     try {
       setLoading(true);
-      setIsButtonDisabled(true); // Disable button during API call
+      setIsButtonDisabled(true);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/postuler-offre`, {
         method: 'POST',

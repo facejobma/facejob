@@ -134,7 +134,6 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
   };
 
   const handleUpgradePlan = () => {
-    // Redirect to the upgrade plan page
     window.location.href = "/dashboard/entreprise/services";
   };
 

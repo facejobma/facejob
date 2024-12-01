@@ -42,6 +42,7 @@ interface JobData {
   applications: {
     candidat: Candidat;
     link: string;
+    created_at: string;
   }[];
   candidats_count: number;
 }

@@ -33,6 +33,7 @@ interface JobData {
   applications: {
     candidat: Candidat;
     link: string;
+    created_at: string;
   }[];
   candidats_count: number;
 }
@@ -128,6 +129,15 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
                 )}
                 <div className="flex-grow">
                   <p className="text-gray-600">{`${application.candidat.first_name} ${application.candidat.last_name}`}</p>
+                    <p className="text-gray-500 text-sm">
+                    {new Date(application.created_at).toLocaleString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    </p>
                   <a
                     href="#"
                     onClick={() => {

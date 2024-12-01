@@ -131,7 +131,7 @@ export const navItemsCandidat: NavItem[] = [
   //   label: "entreprises",
   // },
   {
-    title: "Postuler",
+    title: "Créer mes CV vidéos",
     href: "/dashboard/candidat/postuler",
     icon: "postuler",
     label: "postuler",

@@ -57,7 +57,7 @@ const Modal: React.FC<ModalProps> = ({
             >
               <option value="">Sélectionner une vidéo</option>
               {videos.map((video) => (
-                <option key={video.id} value={video.link}>
+                <option key={video.id} value={video.id}>
                   {`${video.job_name} - ${video.secteur_name}`}
                 </option>
               ))}

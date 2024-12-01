@@ -30,6 +30,11 @@ interface Candidat {
   zip_code: string | null;
 }
 
+interface Postuler {
+  id: number;
+  link: string
+}
+
 interface JobData {
   id: number;
   titre: string;
@@ -45,6 +50,7 @@ interface JobData {
     candidat: Candidat;
     link: string;
     created_at: string;
+    postuler: Postuler;
   }[];
   candidats_count: number;
 }

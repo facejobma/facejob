@@ -59,6 +59,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const user = typeof window !== "undefined"
     ? window.sessionStorage?.getItem("user") || '{}'
     : '{}';
+    
   const userId = user ? JSON.parse(user).id : null;
 
   useEffect(() => {
@@ -136,18 +137,19 @@ const OffreCard: React.FC<OffreCardProps> = ({
           video_url: selectedVideo,
           candidat_id: userId,
           offre_id: offreId,
+          postuler_id: selectedVideo,
         }),      
       });
 
       if (!response.ok) {
         if (response.status === 400) {
-          setAlreadyApplied(true); // Set flag indicating already applied
+          setAlreadyApplied(true); 
         } else {
           throw new Error('Failed to submit application');
         }
       } else {
         setIsConfirmationVisible(true);
-        setSelectedVideo(''); // Clear selected video after success (optional)
+        setSelectedVideo(''); 
       }
 
     } catch (error) {

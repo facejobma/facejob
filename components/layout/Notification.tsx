@@ -16,7 +16,7 @@ interface Notification {
   };
   created_at: string;
   is_read: boolean;
-  read_at: string;
+  read_at: string | null;
 }
 
 declare global {
@@ -148,7 +148,6 @@ const Notification: React.FC = () => {
             read_at: new Date().toISOString(),
           }))
         );
-        console.log("All notifications marked as read.");
       } else {
         console.error("Failed to mark notifications as read.");
       }
@@ -159,7 +158,7 @@ const Notification: React.FC = () => {
   
   
 
-  const unreadNotifications = notifications.some(
+  const unreadNotifications = Array.isArray(notifications) && notifications.some(
     (notification) => !notification.read_at
   );
 

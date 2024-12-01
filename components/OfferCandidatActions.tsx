@@ -40,14 +40,20 @@ interface Candidat {
   zip_code: string | null;
 }
 
+interface Postuler {
+  id: number;
+  link: string
+}
+
 interface Payment {
   id: number;
   entreprise_id: number;
   cv_video_remaining: number;
 }
 
-export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
+export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler }> = ({
   data,
+  postuler
 }) => {
   // const [loading, setLoading] = useState(false);
   const authToken = Cookies.get("authToken");
@@ -55,6 +61,9 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
   const [lastPayment, setLastPayment] = useState<Payment | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [candidateToConsume, setCandidateToConsume] = useState<Candidat | null>(
+    null,
+  );
+  const [postulerToConsume, setPostulerToConsume] = useState<Postuler | null>(
     null,
   );
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
@@ -86,9 +95,10 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
     fetchLastPayment();
   }, [authToken, companyId]);
 
-  const handleConsumeClick = (candidate: Candidat) => {
+  const handleConsumeClick = (candidate: Candidat, postuler: Postuler) => {
     if (lastPayment && lastPayment.cv_video_remaining > 0) {
       setCandidateToConsume(candidate);
+      setPostulerToConsume(postuler)
       setIsModalOpen(true);
     } else {
       setIsUpgradeModalOpen(true);
@@ -165,9 +175,9 @@ export const OfferCandidatActions: React.FC<{ data: Candidat }> = ({
             </PDFDownloadLink>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
+          {/* <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
             <CheckSquare className="mr-2 h-4 w-4" /> Consommer
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
      
         </DropdownMenuContent>
       </DropdownMenu>

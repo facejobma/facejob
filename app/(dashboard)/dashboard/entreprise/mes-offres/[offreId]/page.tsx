@@ -36,7 +36,9 @@ interface JobData {
   description: string;
   date_debut: string;
   company_name: string;
-  sector_name: string;
+  sector_id: number;
+  job_id: number;
+  location: string;
   contractType: string;
   is_verified: string;
   applications: {

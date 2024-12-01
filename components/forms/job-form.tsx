@@ -3,6 +3,19 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { FiUser } from "react-icons/fi";
 import { OfferCandidatActions } from "../OfferCandidatActions";
 
+
+
+interface Job {
+  id: number;
+  name: string;
+}
+
+interface Sector {
+  id: number;
+  name: string;
+  jobs: Job[];
+}
+
 interface Candidat {
   id: number;
   first_name: string;
@@ -27,7 +40,9 @@ interface JobData {
   description: string;
   date_debut: string;
   company_name: string;
-  sector_name: string;
+  sector_id: number;
+  job_id: number;
+  location: string;
   contractType: string;
   is_verified: string;
   applications: {
@@ -40,7 +55,6 @@ interface JobData {
 
 
 const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
-  // console.log("jobdata0", initialData);
   const isPending = initialData.is_verified === "Pending";
   const isAccepted = initialData.is_verified === "Accepted";
   const isDeclined = initialData.is_verified === "Declined";
@@ -48,6 +62,9 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
   const [showAllCandidates, setShowAllCandidates] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [videoLink, setVideoLink] = useState<string | null>(null);
+  const [selectedSector, setSelectedSector] = useState<string>("");
+  const [selectedJob, setSelectedJob] = useState<string>("");
+  const [sectors, setSectors] = useState<Sector[]>([]);
 
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +97,49 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
     };
   }, [showModal]);
 
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sectors`,
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch sectors");
+        }
+        const data = await response.json();
+        console.log("sectors data : ", data);
+        setSectors(data);
+      } catch (error) {
+        console.error("Error fetching sectors:", error);
+      }
+    };
+
+    fetchSectors();
+  }, []);
+
+  // Mettre à jour les secteurs et métiers uniquement lors du montage du composant
+  useEffect(() => {
+    if (initialData.sector_id) {
+      setSelectedSector(initialData.sector_id.toString());
+    }
+    if (initialData.job_id) {
+      setSelectedJob(initialData.job_id.toString());
+    }
+  }, [initialData.sector_id, initialData.job_id]);
+
+  // Fonction pour obtenir le nom du secteur par son ID
+  const getSectorName = (sectorId: number) => {
+    const sector = sectors.find(s => s.id === sectorId);
+    return sector ? sector.name : "Secteur inconnu";
+  };
+
+  // Fonction pour obtenir le nom du job par son ID
+  const getJobName = (jobId: number) => {
+    const sector = sectors.find(s => s.id === initialData.sector_id);
+    const job = sector?.jobs.find(j => j.id === jobId);
+    return job ? job.name : "Métier inconnu";
+  };
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-lg max-w-md mx-auto mt-8 p-6">
       <h1 className="text-lg font-semibold mb-2 relative">
@@ -88,26 +148,39 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
           {initialData.candidats_count} Candidats
         </span>
       </h1>
-      <p className="text-gray-600 text-center mt-4">
-        {initialData.description}
-      </p>
-
+      <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">Nom de l'entreprise</h2>
+          <p className="text-blue-500 hover:underline">
+            {initialData.company_name}
+          </p>
+        </div>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">Description</h2>
+          <p className="text-gray-600">{initialData.description}</p>
+        </div>
       <div className="mt-6">
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Date de début</h2>
           <p className="text-gray-600">{initialData.date_debut}</p>
         </div>
         <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Nom de l'entreprise</h2>
-          <p className="text-blue-500 hover:underline">
-            {initialData.company_name}
-          </p>
+          <h2 className="text-lg font-semibold mb-2">Type de contrat</h2>
+          <p className="text-gray-600">{initialData.contractType}</p>
         </div>
 
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Secteur</h2>
-          <p className="text-gray-600">{initialData.sector_name}</p>
+          <p className="text-gray-600">
+            {getSectorName(initialData.sector_id)}
+          </p>
         </div>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">Metier</h2>
+          <p className="text-gray-600">
+            {getJobName(initialData.job_id)}
+          </p>
+        </div>
+
 
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Candidats</h2>
@@ -167,50 +240,46 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
       <div className="flex justify-end mt-6 space-x-4">
         {isPending && (
           <>
-            <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">
+            <button className="px-4 py-2 bg-gray-500 text-white rounded-full hover:bg-gray-600">
               Accepter
             </button>
-            <button className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600">
+            <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600">
               Refuser
             </button>
           </>
         )}
-
         {isAccepted && (
-          <div className="flex items-center space-x-2">
-            <CheckCircle className="text-green-500 h-6 w-6" />
-            <span className="text-green-500">Accepté</span>
-          </div>
+          <button className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600">
+            Approuvé
+          </button>
         )}
-
         {isDeclined && (
-          <div className="flex items-center space-x-2">
-            <XCircle className="text-red-500 h-6 w-6" />
-            <span className="text-red-500">Refusé</span>
-          </div>
+          <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600">
+            Refusé
+          </button>
         )}
       </div>
 
       {showModal && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
           <div
             ref={modalRef}
-            className="bg-white rounded-lg overflow-hidden shadow-lg max-w-xl mx-auto p-6"
+            className="bg-white p-6 rounded-lg max-w-lg w-full space-y-4"
           >
-            <iframe
-              title="CV vidéo"
-              src={videoLink || ""}
-              className="w-full h-96"
-              allowFullScreen
-            ></iframe>
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-gray-700 px-4 py-2 rounded-full border border-gray-300"
-              >
-                Fermer
-              </button>
-            </div>
+            <h2 className="text-lg font-semibold">CV vidéo</h2>
+            {videoLink && (
+              <video
+                src={videoLink}
+                controls
+                className="w-full h-60 object-cover"
+              />
+            )}
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
+            >
+              Fermer
+            </button>
           </div>
         </div>
       )}

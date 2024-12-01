@@ -175,9 +175,9 @@ export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler
             </PDFDownloadLink>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
+          {/* <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
             <CheckSquare className="mr-2 h-4 w-4" /> Consommer
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
      
         </DropdownMenuContent>
       </DropdownMenu>

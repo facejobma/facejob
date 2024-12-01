@@ -21,6 +21,11 @@ interface Candidat {
   zip_code: string | null;
 }
 
+interface Postuler {
+  id: number;
+  link: string
+}
+
 interface JobData {
   id: number;
   titre: string;
@@ -34,6 +39,7 @@ interface JobData {
     candidat: Candidat;
     link: string;
     created_at: string;
+    postuler: Postuler;
   }[];
   candidats_count: number;
 }
@@ -149,7 +155,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
                     Voir Cv video
                   </a>
                 </div>
-                <OfferCandidatActions data={application.candidat} />
+                <OfferCandidatActions data={application.candidat} postuler={application.postuler} />
               </div>
             ))}
           </div>

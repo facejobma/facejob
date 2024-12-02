@@ -198,8 +198,8 @@ const Hiring: React.FC = () => {
 
   const filteredCandidates = candidates.filter((candidate) => {
     return (
-      lastPayment && 
-      lastPayment.cv_video_remaining > 0 &&
+      // lastPayment && 
+      // lastPayment.cv_video_remaining > 0 &&
       (!selectedSector ||
         candidate.job?.sector_id === Number(selectedSector)) &&
       (!selectedJob || candidate.job.id === Number(selectedJob))

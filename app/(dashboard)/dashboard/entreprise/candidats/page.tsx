@@ -156,6 +156,35 @@ const Hiring: React.FC = () => {
   const handleConfirmConsume = async () => {
     if (candidateToConsume) {
       try {
+        // Check if the video has already been consumed by the enterprise
+        const checkResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              candidat_id: candidateToConsume.id,
+              entreprise_id: companyId,
+            }),
+          }
+        );
+  
+        if (!checkResponse.ok) {
+          toast.error("Failed to check consumption status.");
+          return;
+        }
+  
+        const checkData = await checkResponse.json();
+  
+        if (checkData.consumed) {
+          toast.error("This video has already been consumed by your enterprise.");
+          return;
+        }
+  
+        // If not consumed, proceed to consume the video
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
           {
@@ -168,9 +197,9 @@ const Hiring: React.FC = () => {
               postuler_id: candidateToConsume.cv_id,
               entreprise_id: companyId,
             }),
-          },
+          }
         );
-
+  
         if (response.ok) {
           toast.success("Video consommée !");
           fetchLastPayment();
@@ -185,6 +214,7 @@ const Hiring: React.FC = () => {
     setIsModalOpen(false);
     setCandidateToConsume(null);
   };
+  
 
   const handleCancelConsume = () => {
     setIsModalOpen(false);

@@ -14,7 +14,8 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   const [isEditing, setIsEditing] = useState(false);
-  const [newBio, setNewBio] = useState(bio);
+  const [currentBio, setCurrentBio] = useState(bio); // State for current bio
+  const [newBio, setNewBio] = useState(bio); // State for editing
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -22,7 +23,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
 
   const handleCloseModal = () => {
     setIsEditing(false);
-    setNewBio(bio); 
+    setNewBio(currentBio); // Reset newBio to the current bio
   };
 
   const handleBioUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -46,6 +47,11 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
       if (response.ok) {
         const updatedData = await response.json();
         console.log("Updated bio:", updatedData);
+
+        // Update the bio state to reflect changes
+        setCurrentBio(newBio);
+
+        // Close modal
         setIsEditing(false);
       } else {
         console.error("Failed to update bio");
@@ -72,7 +78,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
       </div>
       <div className="p-6 relative">
         <div className="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-between">
-          <p>{bio}</p>
+          <p>{currentBio}</p>
         </div>
       </div>
 
@@ -84,7 +90,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
       >
         <form onSubmit={handleBioUpdate}>
           <label htmlFor="newBio" className="block mb-2 font-bold">
-          Votre Description
+            Votre Description
           </label>
           <textarea
             id="newBio"

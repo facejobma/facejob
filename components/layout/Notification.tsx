@@ -70,7 +70,7 @@ const Notification: React.FC = () => {
     };
 
     if (typeof window !== "undefined" && !window.Echo) {
-      Pusher.logToConsole = true;
+      Pusher.logToConsole = true;      
 
       window.Echo = new Echo({
         broadcaster: "pusher",

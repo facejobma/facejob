@@ -220,7 +220,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
                   <a
                     href="#"
                     onClick={() => {
-                      setVideoLink(application.link);
+                      setVideoLink(application.postuler.link);
                       setShowModal(true);
                     }}
                     className="text-blue-500 hover:underline"
@@ -228,7 +228,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
                     Voir Cv video
                   </a>
                 </div>
-                <OfferCandidatActions data={application.candidat} postuler={application.postuler} />
+                <OfferCandidatActions candidat={application.candidat} postuler={application.postuler} />
               </div>
             ))}
           </div>

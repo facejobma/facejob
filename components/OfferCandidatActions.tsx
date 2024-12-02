@@ -42,7 +42,7 @@ interface Candidat {
 
 interface Postuler {
   id: number;
-  link: string
+  link: string;
 }
 
 interface Payment {
@@ -51,10 +51,10 @@ interface Payment {
   cv_video_remaining: number;
 }
 
-export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler }> = ({
-  data,
-  postuler
-}) => {
+export const OfferCandidatActions: React.FC<{
+  candidat: Candidat;
+  postuler: Postuler;
+}> = ({ candidat, postuler }) => {
   // const [loading, setLoading] = useState(false);
   const authToken = Cookies.get("authToken");
   const router = useRouter();
@@ -66,10 +66,12 @@ export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler
   const [postulerToConsume, setPostulerToConsume] = useState<Postuler | null>(
     null,
   );
+
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const company = typeof window !== "undefined"
-    ? window.sessionStorage?.getItem("user") || '{}'
-    : '{}';
+  const company =
+    typeof window !== "undefined"
+      ? window.sessionStorage?.getItem("user") || "{}"
+      : "{}";
   const companyId = company ? JSON.parse(company).id : null;
 
   const fetchLastPayment = async () => {
@@ -95,10 +97,10 @@ export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler
     fetchLastPayment();
   }, [authToken, companyId]);
 
-  const handleConsumeClick = (candidate: Candidat, postuler: Postuler) => {
+  const handleConsumeClick = (postuler: Postuler) => {
     if (lastPayment && lastPayment.cv_video_remaining > 0) {
-      setCandidateToConsume(candidate);
-      setPostulerToConsume(postuler)
+      // setCandidateToConsume(candidat);
+      setPostulerToConsume(postuler);
       setIsModalOpen(true);
     } else {
       setIsUpgradeModalOpen(true);
@@ -106,8 +108,33 @@ export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler
   };
 
   const handleConfirmConsume = async () => {
-    if (candidateToConsume) {
+    if (postulerToConsume) {
       try {
+        const checkResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              candidat_id: candidat.id,
+              entreprise_id: companyId,
+            }),
+          },
+        );
+
+        const checkData = await checkResponse.json();
+
+        if (checkData.consumed) {
+          toast.error("La vidéo de CV a déjà été consommée.");
+          setIsModalOpen(false);
+          setCandidateToConsume(null);
+          return;
+        }
+
+        // Proceed to consume the CV video if not already consumed
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
           {
@@ -117,23 +144,24 @@ export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              postuler_id: candidateToConsume.id,
+              postuler_id: postulerToConsume.id,
               entreprise_id: companyId,
             }),
           },
         );
 
         if (response.ok) {
-          toast.success("Video consommée !");
+          toast.success("Vidéo consommée !");
           fetchLastPayment();
         } else {
-          toast.error("Failed to consume video.");
+          toast.error("Échec de la consommation de la vidéo.");
         }
       } catch (error) {
         console.error("Error consuming video:", error);
-        toast.error("Error consuming video!");
+        toast.error("Erreur lors de la consommation de la vidéo !");
       }
     }
+
     setIsModalOpen(false);
     setCandidateToConsume(null);
   };
@@ -167,7 +195,7 @@ export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler
           <DropdownMenuItem>
             <View className="mr-2 h-4 w-4" />
             <PDFDownloadLink
-              document={<ResumePDF candidateId={data.id} />}
+              document={<ResumePDF candidateId={candidat.id} />}
               fileName="resume.pdf"
               // className=" h-4 w-4"
             >
@@ -175,10 +203,9 @@ export const OfferCandidatActions: React.FC<{ data: Candidat, postuler: Postuler
             </PDFDownloadLink>
           </DropdownMenuItem>
 
-          {/* <DropdownMenuItem onClick={() => handleConsumeClick(data)}>
+          <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
             <CheckSquare className="mr-2 h-4 w-4" /> Consommer
-          </DropdownMenuItem> */}
-     
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {isModalOpen && (

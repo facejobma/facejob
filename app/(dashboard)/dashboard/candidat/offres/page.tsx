@@ -83,7 +83,7 @@ const OffresPage: React.FC = () => {
         }
 
         const data = await response.json();
-        console.log("Offres data:", data);
+        // console.log("Offres data:", data);
         setOffres(data);
         setLoading(false);
       } catch (error) {

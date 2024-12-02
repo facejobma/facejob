@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import { Edit, Trash, PlusSquare } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
@@ -38,6 +38,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     date_fin: "",
   });
 
+  // This useEffect will sync the form data with the selected experience
   useEffect(() => {
     if (selectedExperience) {
       setFormData({
@@ -99,10 +100,11 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         );
 
         if (response.ok) {
-          // const updatedExperience = await response.json();
-          // const updatedExperiences = editedExperiences.map((exp) =>
-          //   exp.id === selectedExperience.id ? updatedExperience : exp,
-          // );
+          const updatedExperience = await response.json();
+          const updatedExperiences = editedExperiences.map((exp) =>
+            exp.id === selectedExperience.id ? updatedExperience : exp,
+          );
+          setEditedExperiences(updatedExperiences);
         } else {
           console.error("Failed to update experience");
         }
@@ -133,8 +135,15 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         );
 
         if (response.ok) {
-          // const newExperience = await response.json();
-          // const updatedExperiences = [...editedExperiences, newExperience];
+          const result = await response.json();
+          if (result.success) {
+            setEditedExperiences((prevExperiences) => [
+              ...prevExperiences,
+              result.experience, 
+            ]);
+          } else {
+            console.error("Failed to add experience:", result.message);
+          }
         } else {
           console.error("Failed to add new experience");
         }
@@ -143,6 +152,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       }
     }
 
+    // Close modal and reset state after adding or updating
     setIsEditing(false);
     setSelectedExperience(null);
   };
@@ -173,10 +183,10 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         );
         setEditedExperiences(updatedExperienceList);
       } else {
-        console.error("Failed to delete education");
+        console.error("Failed to delete experience");
       }
     } catch (error) {
-      console.error("Error deleting education:", error);
+      console.error("Error deleting experience:", error);
     }
   };
 
@@ -192,7 +202,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         </button>
       </div>
       <div className="p-6 relative">
-        {experiences.map((exp: Experience) => (
+        {editedExperiences.map((exp: Experience) => (
           <div
             key={exp.id}
             className="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-between"
@@ -229,10 +239,14 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title={selectedExperience ? " Modifier l'expérience" : "Ajouter une Expérience"}
+        title={
+          selectedExperience
+            ? "Modifier l'expérience"
+            : "Ajouter une Expérience"
+        }
         description={
           selectedExperience
-            ? "Modifier les details de l'expérience"
+            ? "Modifier les détails de l'expérience"
             : "Ajouter une nouvelle expérience"
         }
       >
@@ -268,7 +282,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             onChange={(e) => handleInputChange("description", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="date_debut">Date de démarrage</label>
+          <label htmlFor="date_debut">Date de début</label>
           <input
             type="date"
             id="date_debut"
@@ -286,9 +300,9 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           />
           <button
             type="submit"
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md"
           >
-            {selectedExperience ? "Enregistrer les changements" : "Ajouter l’expérience"}
+            {selectedExperience ? "Mettre à jour" : "Ajouter"}
           </button>
         </form>
       </Modal>
@@ -296,5 +310,4 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   );
 };
 
-// @ts-ignore
 export default ExperiencesSection;

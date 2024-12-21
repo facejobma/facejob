@@ -48,7 +48,6 @@ const Profile: React.FC = () => {
             avatarUrl:
               user.avatarUrl || "https://via.placeholder.com/150",
             // coverImageUrl: "",
-            location: user.address || "",
             companyName: userData.companyName || "",
             companyLogoUrl: "https://via.placeholder.com/150",
             bio: userData.bio || "",
@@ -101,14 +100,14 @@ const Profile: React.FC = () => {
           headline={userProfile.job.name}
           avatarUrl={userProfile.avatarUrl}
           // coverImageUrl={userProfile.coverImageUrl}
-          address={userProfile.location}
+          address={userProfile.address}
           companyName={userProfile.companyName}
-          companyLogoUrl={userProfile.companyLogoUrl}
-          bio={userProfile.bio}
-          experiences={userProfile.experiences}
-          skills={userProfile.skills}
-          projects={userProfile.projects}
-          educations={userProfile.education}
+          // companyLogoUrl={userProfile.companyLogoUrl}
+          // bio={userProfile.bio}
+          // experiences={userProfile.experiences}
+          // skills={userProfile.skills}
+          // projects={userProfile.projects}
+          // educations={userProfile.education}
         />
 
         <BioSection id={userProfile.id} bio={userProfile.bio} />

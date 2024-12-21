@@ -70,7 +70,7 @@ const Notification: React.FC = () => {
     };
 
     if (typeof window !== "undefined" && !window.Echo) {
-      Pusher.logToConsole = true;      
+      Pusher.logToConsole = true;
 
       window.Echo = new Echo({
         broadcaster: "pusher",
@@ -84,6 +84,7 @@ const Notification: React.FC = () => {
             Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "")}`,
           },
         },
+        enabledTransports: ["ws", "wss"],
       });
 
       window.Echo.private("App.Models.Entreprise." + userId).notification(
@@ -139,14 +140,14 @@ const Notification: React.FC = () => {
             Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "")}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (response.ok) {
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) => ({
             ...notification,
             read_at: new Date().toISOString(),
-          }))
+          })),
         );
       } else {
         console.error("Failed to mark notifications as read.");
@@ -155,12 +156,10 @@ const Notification: React.FC = () => {
       console.error("Error marking notifications as read:", error);
     }
   };
-  
-  
 
-  const unreadNotifications = Array.isArray(notifications) && notifications.some(
-    (notification) => !notification.read_at
-  );
+  const unreadNotifications =
+    Array.isArray(notifications) &&
+    notifications.some((notification) => !notification.read_at);
 
   return (
     <div className="relative" ref={notificationRef}>

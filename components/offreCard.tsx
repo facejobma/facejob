@@ -198,16 +198,17 @@ const OffreCard: React.FC<OffreCardProps> = ({
         },
       );
 
-      if (!response.ok) {
-        if (response.status === 400) {
-          setAlreadyApplied(true);
-        } else {
-          throw new Error("Failed to submit application");
-        }
-      } else {
+      // ! Uncomment this after
+      // if (!response.ok) {
+      //   if (response.status === 400) {
+      //     setAlreadyApplied(true);
+      //   } else {
+      //     throw new Error("Failed to submit application");
+      //   }
+      // } else {
         setIsConfirmationVisible(true);
         setSelectedVideo("");
-      }
+      // }
     } catch (error) {
       console.error("Error submitting application:", error);
     } finally {

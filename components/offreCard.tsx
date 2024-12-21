@@ -151,10 +151,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   const openModal = () => {
-    checkProfileCompletion(); 
-    if (!isProfileComplete) {
-      return;
-    }
+    // !! Must Uncommenting these
+    // checkProfileCompletion(); 
+    // if (!isProfileComplete) {
+    //   return;
+    // }
     setModalData({ titre, entreprise_name, sector_name, job_name });
     setModalIsOpen(true);
     setAlreadyApplied(false);

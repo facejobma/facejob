@@ -29,6 +29,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   const [selectedExperience, setSelectedExperience] =
     useState<Experience | null>(null);
   const [editedExperiences, setEditedExperiences] = useState([...experiences]);
+  const [isCurrentJob, setIsCurrentJob] = useState(false);
   const [formData, setFormData] = useState<Partial<Experience>>({
     poste: "",
     organisme: "",
@@ -38,7 +39,6 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     date_fin: "",
   });
 
-  // This useEffect will sync the form data with the selected experience
   useEffect(() => {
     if (selectedExperience) {
       setFormData({
@@ -49,6 +49,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         date_debut: selectedExperience.date_debut || "",
         date_fin: selectedExperience.date_fin || "",
       });
+      setIsCurrentJob(!selectedExperience.date_fin); // If date_fin is empty, user is still working
     } else {
       setFormData({
         poste: "",
@@ -58,8 +59,19 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         date_debut: "",
         date_fin: "",
       });
+      setIsCurrentJob(false);
     }
   }, [selectedExperience]);
+
+  const handleCurrentJobToggle = () => {
+    setIsCurrentJob((prev) => !prev);
+    if (!isCurrentJob) {
+      setFormData((prevData) => ({
+        ...prevData,
+        date_fin: "", // Clear date_fin if checkbox is selected
+      }));
+    }
+  };
 
   const handleEditClick = (experience: Experience | null) => {
     setSelectedExperience(experience);
@@ -139,7 +151,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           if (result.success) {
             setEditedExperiences((prevExperiences) => [
               ...prevExperiences,
-              result.experience, 
+              result.experience,
             ]);
           } else {
             console.error("Failed to add experience:", result.message);
@@ -162,6 +174,15 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       ...prevData,
       [key]: value,
     }));
+  };
+
+  const formatDate = (date: string | Date | undefined) => {
+    if (!date) return "";
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "short",
+    };
+    return new Date(date).toLocaleDateString("en-US", options);
   };
 
   const handleDeleteExperience = async (experience: Experience) => {
@@ -215,6 +236,11 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                   Location: {exp.location}
                 </p>
               )}
+              {/* Display the date range */}
+              <p className="text-sm text-gray-600">
+                {formatDate(exp.date_debut)} -{" "}
+                {exp.date_fin ? formatDate(exp.date_fin) : "Present"}
+              </p>
             </div>
             <div className="flex items-center">
               <button
@@ -290,14 +316,28 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             onChange={(e) => handleInputChange("date_debut", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
-          <label htmlFor="date_fin">Date de fin</label>
-          <input
-            type="date"
-            id="date_fin"
-            value={formData.date_fin || ""}
-            onChange={(e) => handleInputChange("date_fin", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              id="current_job"
+              checked={isCurrentJob}
+              onChange={handleCurrentJobToggle}
+              className="mr-2"
+            />
+            <label htmlFor="current_job">Je travaille toujours ici</label>
+          </div>
+          {!isCurrentJob && (
+            <>
+              <label htmlFor="date_fin">Date de fin</label>
+              <input
+                type="date"
+                id="date_fin"
+                value={formData.date_fin || ""}
+                onChange={(e) => handleInputChange("date_fin", e.target.value)}
+                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+              />
+            </>
+          )}
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md"

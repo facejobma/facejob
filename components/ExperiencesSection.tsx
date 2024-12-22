@@ -340,7 +340,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           )}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md"
+            className="w-full bg-primary hover:bg-primary-1 text-white py-2 px-4 rounded-md"
           >
             {selectedExperience ? "Mettre à jour" : "Ajouter"}
           </button>

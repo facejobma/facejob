@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import { Edit, Trash, PlusSquare } from "lucide-react";
@@ -28,13 +28,13 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
 
   const handleCloseModal = () => {
     setIsEditing(false);
-    // Reset to original skills when closing modal
-    setEditedSkills([...skills]);
-    setNewSkill("");
+    setEditedSkills([...skills]); // Reset to original skills
+    setNewSkill(""); // Clear new skill input
   };
 
   const handleSkillsUpdate = async () => {
-    // Perform update logic with editedSkills
+    console.log("Skills Update, ", editedSkills);
+    
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/skills`,
@@ -51,7 +51,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
       if (response.ok) {
         const updatedSkills = await response.json();
         setEditedSkills(updatedSkills);
-        setIsEditing(false); // Close the modal after updating
+        setIsEditing(false); // Close modal on success
       } else {
         console.error("Failed to update skills");
       }
@@ -80,10 +80,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
       );
 
       if (response.ok) {
-        const updatedSkillList = editedSkills.filter(
-          (sk) => sk.id !== skill.id,
-        );
-        setEditedSkills(updatedSkillList);
+        setEditedSkills((prev) => prev.filter((sk) => sk.id !== skill.id));
       } else {
         console.error("Failed to delete skill");
       }
@@ -93,7 +90,11 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
   };
 
   const handleAddSkill = async () => {
-    if (newSkill.trim() === "") return;
+
+    console.log("HANDLE ADD SKILL, ", newSkill);
+    
+    if (!newSkill.trim()) return;
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/skills`,
@@ -109,8 +110,8 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
 
       if (response.ok) {
         const addedSkill = await response.json();
-        setEditedSkills((prevSkills) => [...prevSkills, addedSkill]);
-        setNewSkill("");
+        setEditedSkills((prev) => [...prev, addedSkill]); // Append new skill
+        setNewSkill(""); // Clear input field
       } else {
         console.error("Failed to add skill");
       }
@@ -193,7 +194,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
             onClick={handleSkillsUpdate}
             className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
           >
-           Sauvegarder
+            Sauvegarder
           </button>
         </div>
       </Modal>

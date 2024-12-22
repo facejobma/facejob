@@ -239,7 +239,6 @@ const Hiring: React.FC = () => {
   });
 
   // console.log("filteredCandidates, ", filteredCandidates);
-  
 
   return (
     <div className="flex-1 h-full space-y-8 p-4 md:p-8 bg-gradient-to-r from-white to-gray-300 rounded-lg shadow-xl ">

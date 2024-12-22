@@ -14,6 +14,7 @@ const breadcrumbItems = [
 interface Candidate {
   id: number;
   cv_id: number;
+  is_verified: string;
   image: string;
   first_name: string;
   last_name: string;
@@ -228,6 +229,7 @@ const Hiring: React.FC = () => {
 
   const filteredCandidates = candidates.filter((candidate) => {
     return (
+      (candidate.is_verified === "Accepted")  &&
       // lastPayment && 
       // lastPayment.cv_video_remaining > 0 &&
       (!selectedSector ||
@@ -235,6 +237,9 @@ const Hiring: React.FC = () => {
       (!selectedJob || candidate.job.id === Number(selectedJob))
     );
   });
+
+  // console.log("filteredCandidates, ", filteredCandidates);
+  
 
   return (
     <div className="flex-1 h-full space-y-8 p-4 md:p-8 bg-gradient-to-r from-white to-gray-300 rounded-lg shadow-xl ">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   CheckCircle,
   XCircle,
+  User,
   MapPin,
   Building,
   Briefcase,
@@ -202,7 +203,10 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
         <p className="text-gray-600">{initialData.description}</p>
       </div>
       <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Candidats</h2>
+        <div className="mb-4 flex items-center">
+          <User className="mr-2 text-primary" />
+          <h2 className="text-lg font-semibold">Candidats</h2>
+        </div>
         <div className="max-h-60 overflow-y-auto border border-gray-300 rounded-lg p-4">
           {displayedApplications?.map((application, index) => (
             <div

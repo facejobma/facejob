@@ -88,7 +88,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       // Check required fields and collect missing ones
       const requiredFields = [
         "bio",
-        "job",
+        // "job",
         "projects",
         "skills",
         "educations",

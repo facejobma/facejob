@@ -169,7 +169,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
       >
         <input {...getInputProps()} />
         <p className="text-secondary">
-          Faites glisser un logo ici ou cliquez pour sélectionner un logo
+          Faites glisser un photo de profil ici ou cliquez pour sélectionner un photo
         </p>
         {image && (
           <div className="mt-5 flex justify-center items-center flex-col ">

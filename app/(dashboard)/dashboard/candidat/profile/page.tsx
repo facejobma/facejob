@@ -11,7 +11,7 @@ import Cookies from "js-cookie";
 import { Circles } from "react-loader-spinner";
 
 const Profile: React.FC = () => {
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,18 +51,22 @@ const Profile: React.FC = () => {
             companyName: userData.companyName || "",
             companyLogoUrl: "https://via.placeholder.com/150",
             bio: userData.bio || "",
-            address: user.address || "",
+            address: userData.address || "",
             zip_code: user.zip_code || "",
-            job: user.job || [],
+            job: userData.job || [],
             experiences: userData.experiences || [],
             skills: userData.skills || [],
             projects: userData.projects || [],
             education: userData.educations || [],
           };
+          
 
           setUserProfile(profileData);
+
+          
           setLoading(false);
-          console.log("user data : ", profileData);
+          // console.log("user data : ", profileData.job);
+          
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
@@ -86,6 +90,8 @@ const Profile: React.FC = () => {
       </div>
     );
   }
+
+  // console.log("User Job : ", userProfile.job.name);
 
   return (
     <div className="mx-auto bg-gray-100 px-4 py-8">

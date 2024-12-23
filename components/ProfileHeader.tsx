@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
 import { FaPhone, FaEnvelope, FaMapPin } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 interface ProfileHeaderProps {
   id: number;
@@ -16,6 +17,17 @@ interface ProfileHeaderProps {
   avatarUrl?: string;
   address?: string;
   companyName?: string;
+}
+
+interface Job {
+  id: number;
+  name: string;
+}
+
+interface Sector {
+  id: number;
+  name: string;
+  jobs: Job[];
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -35,6 +47,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   // Initial state setup
   const [isEditing, setIsEditing] = useState(false);
+  const [sectors, setSectors] = useState<Sector[]>([]);
+
+  const [selectedSector, setSelectedSector] = useState("");
+  const [selectedJob, setSelectedJob] = useState("");
+
   const [formData, setFormData] = useState({
     newFirstName: first_name,
     newLastName: last_name,
@@ -68,7 +85,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           body: JSON.stringify({
             first_name: formData.newFirstName,
             last_name: formData.newLastName,
-            headline: formData.newHeadline,
+            headline: selectedJob,
             address: formData.newAddress,
             company: formData.newCompanyName,
             tel: formData.newTel,
@@ -104,6 +121,23 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     }
   };
 
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+        );
+        const data = await response.json();
+        setSectors(data);
+      } catch (error) {
+        console.error("Error fetching sectors:", error);
+        toast.error("Error fetching sectors!");
+      }
+    };
+
+    fetchSectors();
+  }, []);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -114,9 +148,17 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     }));
   };
 
+  const filteredJobs =
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
+    [];
+
   const handlePasswordChangeClick = () => {
     router.push("/dashboard/candidat/change-password");
   };
+
+  console.log("Headline ------ , ", formData.newHeadline);
+
+  // console.log("")
 
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 pb-2 overflow-hidden relative">
@@ -153,7 +195,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <h1 className="text-2xl font-bold mb-1">
             {formData.newFirstName} {formData.newLastName}
           </h1>
-          <p className="text-gray-600 mb-2">{formData.newHeadline}</p>
+          <p className="text-secondary mb-3">{formData.newHeadline}</p>
         </div>
 
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
@@ -208,6 +250,26 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
 
+              <label className="block mb-2 font-bold" htmlFor="secteur">
+                Secteur
+              </label>
+              <select
+                id="secteur"
+                value={selectedSector}
+                onChange={(e) => {
+                  setSelectedSector(e.target.value);
+                  setSelectedJob(""); // Reset job selection when sector changes
+                }}
+                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+              >
+                <option value="">Sélectionnez le secteur</option>
+                {sectors.map((sector) => (
+                  <option key={sector.id} value={sector.id}>
+                    {sector.name}
+                  </option>
+                ))}
+              </select>
+
               <label htmlFor="newAddress" className="block mb-2 font-bold">
                 Adresse
               </label>
@@ -218,19 +280,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 value={formData.newAddress}
                 onChange={handleInputChange}
                 placeholder="Enter votre adresse"
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              />
-
-              <label htmlFor="newHeadline" className="block mb-2 font-bold">
-                Titre ou Poste recherché
-              </label>
-              <input
-                type="text"
-                id="newHeadline"
-                name="newHeadline"
-                value={formData.newHeadline}
-                onChange={handleInputChange}
-                placeholder="Entrez votre poste"
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
             </div>
@@ -262,18 +311,36 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
 
-              <label htmlFor="newCompanyName" className="block mb-2 font-bold">
-                Entreprise actuelle
+              {/* <label htmlFor="newHeadline" className="block mb-2 font-bold">
+                Titre ou Poste recherché
               </label>
               <input
                 type="text"
-                id="newCompanyName"
-                name="newCompanyName"
-                value={formData.newCompanyName}
+                id="newHeadline"
+                name="newHeadline"
+                value={formData.newHeadline}
                 onChange={handleInputChange}
-                placeholder="Entrez votre entreprise"
+                placeholder="Entrez votre poste"
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              />
+              /> */}
+
+              <label className="block mb-2 font-bold" htmlFor="metier">
+                Métier
+              </label>
+              <select
+                id="metier"
+                value={selectedJob}
+                onChange={(e) => setSelectedJob(e.target.value)}
+                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+                disabled={!selectedSector}
+              >
+                <option value="">Sélectionnez le métier</option>
+                {filteredJobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

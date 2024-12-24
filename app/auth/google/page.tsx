@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Circles } from "react-loader-spinner";
+import Cookies from "js-cookie";
 
 function GoogleCallback() {
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,13 @@ function GoogleCallback() {
       .then((responseData) => {
         sessionStorage.setItem("user", JSON.stringify(responseData.user));
         const userRole = sessionStorage.getItem("userRole");
+
+        const { access_token } = responseData;
+
+        Cookies.set("authToken", access_token, { expires: 7 });
+
+        console.log("Access Token OAuth : ", access_token);
+        
 
         if (userRole === "candidate") {
           router.push("/dashboard/candidat");

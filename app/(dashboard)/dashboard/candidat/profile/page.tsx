@@ -49,7 +49,7 @@ const Profile: React.FC = () => {
               user.avatarUrl || "https://via.placeholder.com/150",
             // coverImageUrl: "",
             companyName: userData.companyName || "",
-            companyLogoUrl: "https://via.placeholder.com/150",
+            // companyLogoUrl: "https://via.placeholder.com/150",
             bio: userData.bio || "",
             address: userData.address || "",
             zip_code: user.zip_code || "",

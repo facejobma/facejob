@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Circles } from "react-loader-spinner";
+import Cookies from "js-cookie";
+
 
 function LinkedinCallback() {
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,11 @@ function LinkedinCallback() {
         sessionStorage.setItem("user", JSON.stringify(responseData.user));
         const userRole = sessionStorage.getItem("userRole");
 
-        if (userRole === "candidat") {
+        const { access_token } = responseData;
+
+        Cookies.set("authToken", access_token, { expires: 7 });
+
+        if (userRole === "candidate") {
           router.push("/dashboard/candidat");
         } else if (userRole === "entreprise") {
           router.push("/dashboard/entreprise");

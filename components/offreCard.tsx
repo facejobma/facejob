@@ -74,17 +74,17 @@ const OffreCard: React.FC<OffreCardProps> = ({
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch profile");
       }
-  
+
       const profileData = await response.json();
-  
+
       console.log("profile Data of candidat: ", profileData);
-  
+
       // Check required fields and collect missing ones
       const requiredFields = [
         "bio",
@@ -95,11 +95,13 @@ const OffreCard: React.FC<OffreCardProps> = ({
         "experiences",
       ];
       const missingFields = requiredFields.filter(
-        (field) => !profileData[field] || profileData[field].length === 0
+        (field) => !profileData[field] || profileData[field].length === 0,
       );
-  
+
       if (missingFields.length > 0) {
-        toast.error(`Please complete the following fields: ${missingFields.join(", ")}`);
+        toast.error(
+          `Please complete the following fields: ${missingFields.join(", ")}`,
+        );
         setIsProfileComplete(false);
       } else {
         setIsProfileComplete(true);
@@ -152,10 +154,10 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
   const openModal = () => {
     // !! Must Uncommenting these
-    // checkProfileCompletion(); 
-    // if (!isProfileComplete) {
-    //   return;
-    // }
+    checkProfileCompletion();
+    if (!isProfileComplete) {
+      return;
+    }
     setModalData({ titre, entreprise_name, sector_name, job_name });
     setModalIsOpen(true);
     setAlreadyApplied(false);
@@ -199,16 +201,16 @@ const OffreCard: React.FC<OffreCardProps> = ({
       );
 
       // ! Uncomment this after
-      // if (!response.ok) {
-      //   if (response.status === 400) {
-      //     setAlreadyApplied(true);
-      //   } else {
-      //     throw new Error("Failed to submit application");
-      //   }
-      // } else {
+      if (!response.ok) {
+        if (response.status === 400) {
+          setAlreadyApplied(true);
+        } else {
+          throw new Error("Failed to submit application");
+        }
+      } else {
         setIsConfirmationVisible(true);
         setSelectedVideo("");
-      // }
+      }
     } catch (error) {
       console.error("Error submitting application:", error);
     } finally {

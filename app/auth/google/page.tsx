@@ -12,6 +12,11 @@ function GoogleCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
+    console.log("URL PARAMS ---- ", urlParams);
+
+    console.log("CODE ---- ", code);
+    
+
     fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google/callback?code=${code}`,
       {

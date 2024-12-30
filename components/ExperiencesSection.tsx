@@ -239,7 +239,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               {/* Display the date range */}
               <p className="text-sm text-gray-600">
                 {formatDate(exp.date_debut)} -{" "}
-                {exp.date_fin ? formatDate(exp.date_fin) : "Present"}
+                {exp.date_fin ? formatDate(exp.date_fin) : "Poste actuel"}
               </p>
             </div>
             <div className="flex items-center">

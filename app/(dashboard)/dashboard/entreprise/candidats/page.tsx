@@ -130,7 +130,7 @@ const Hiring: React.FC = () => {
         );
         const data = await response.json();
         setCandidates(data);
-        console.log("data, ", data);
+        // console.log("data, ", data);
       } catch (error) {
         console.error("Error fetching candidates:", error);
         toast.error("Error fetching candidates!");
@@ -331,9 +331,9 @@ const Hiring: React.FC = () => {
                   Your browser does not support the video tag.
                 </video>
                 {/* Play Icon Hover Effect */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {/* <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="text-white text-2xl font-semibold">🎥</div>
-                </div>
+                </div> */}
               </div>
 
               {/* Candidate Details Section */}

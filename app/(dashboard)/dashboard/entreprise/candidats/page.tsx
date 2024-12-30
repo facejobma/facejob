@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ResumePDF from "@/components/ResumePDF";
 import BreadCrumb from "@/components/breadcrumb";
+import { Circles } from "react-loader-spinner";
 
 const breadcrumbItems = [
   { title: "Les CVs videos de candidats", link: "/dashboard/candidats" },
@@ -51,6 +52,7 @@ const Hiring: React.FC = () => {
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   const company =
     typeof window !== "undefined"
@@ -93,6 +95,7 @@ const Hiring: React.FC = () => {
 
   const fetchLastPayment = async () => {
     try {
+      // setLoading(true);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
         {
@@ -107,12 +110,15 @@ const Hiring: React.FC = () => {
     } catch (error) {
       console.error("Error fetching last payment:", error);
       toast.error("Error fetching last payment!");
+    } finally {
+      setLoading(false); 
     }
   };
 
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
+        setLoading(true);
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/postule/all",
           {
@@ -134,11 +140,16 @@ const Hiring: React.FC = () => {
     fetchCandidates();
     fetchSectors();
     fetchLastPayment();
+    // setLoading(false);
   }, [authToken, companyId]);
 
   const handleGenerateCV = (candidateId: number) => {
     setLoadingPDF((prev) => ({ ...prev, [candidateId]: true }));
     setSelectedCandidate(candidateId);
+
+    setTimeout(() => {
+      setLoadingPDF((prev) => ({ ...prev, [candidateId]: false }));
+    }, 500); // Simulating loading time
   };
 
   const handleConsumeClick = (candidate: Candidate) => {
@@ -170,21 +181,23 @@ const Hiring: React.FC = () => {
               candidat_id: candidateToConsume.id,
               entreprise_id: companyId,
             }),
-          }
+          },
         );
-  
+
         if (!checkResponse.ok) {
           toast.error("Failed to check consumption status.");
           return;
         }
-  
+
         const checkData = await checkResponse.json();
-  
+
         if (checkData.consumed) {
-          toast.error("This video has already been consumed by your enterprise.");
+          toast.error(
+            "This video has already been consumed by your enterprise.",
+          );
           return;
         }
-  
+
         // If not consumed, proceed to consume the video
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
@@ -198,9 +211,9 @@ const Hiring: React.FC = () => {
               postuler_id: candidateToConsume.cv_id,
               entreprise_id: companyId,
             }),
-          }
+          },
         );
-  
+
         if (response.ok) {
           toast.success("Video consommée !");
           fetchLastPayment();
@@ -215,7 +228,6 @@ const Hiring: React.FC = () => {
     setIsModalOpen(false);
     setCandidateToConsume(null);
   };
-  
 
   const handleCancelConsume = () => {
     setIsModalOpen(false);
@@ -229,8 +241,8 @@ const Hiring: React.FC = () => {
 
   const filteredCandidates = candidates.filter((candidate) => {
     return (
-      (candidate.is_verified === "Accepted")  &&
-      // lastPayment && 
+      candidate.is_verified === "Accepted" &&
+      // lastPayment &&
       // lastPayment.cv_video_remaining > 0 &&
       (!selectedSector ||
         candidate.job?.sector_id === Number(selectedSector)) &&
@@ -241,7 +253,7 @@ const Hiring: React.FC = () => {
   // console.log("filteredCandidates, ", filteredCandidates);
 
   return (
-    <div className="flex-1 h-full space-y-8 p-4 md:p-8 bg-gradient-to-r from-white to-gray-300 rounded-lg shadow-xl ">
+    <div className="flex-1 space-y-8 p-4 md:p-8 bg-gradient-to-br from-white to-gray-300 rounded-lg shadow-xl ">
       <BreadCrumb items={breadcrumbItems} />
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">
@@ -290,70 +302,100 @@ const Hiring: React.FC = () => {
             </div>
           </div>
         </div>
-        {/* <button
-          className="bg-primary hover:bg-primary-2 text-white font-medium py-1 px-3 rounded-lg border border-primary mb-4"
-          onClick={() =>
-            (window.location.href = "/dashboard/entreprise/consumed-cvs")
-          }
-        >
-          Voir Mes CV videos Consommees
-        </button> */}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCandidates.map((candidate) => (
-          <div
-            key={`${candidate.cv_id}`}
-            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-          >
-            <div className="relative">
-              <video
-                src={candidate.link}
-                className="w-full h-56 object-cover"
-                controls
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <div className="p-4 text-center">
-              <h3 className="text-xl font-semibold text-gray-800">
-                {candidate.first_name[0]}. {candidate.last_name[0]}.
-              </h3>
-              <p className="text-gray-600">{candidate.job?.name}</p>
-              <p className="text-gray-600">
-                {candidate.nb_experiences} ans d'expérience
-              </p>
-              <div className="mt-2">
-                {selectedCandidate === candidate.id &&
-                loadingPDF[candidate.id] ? (
-                  <PDFDownloadLink
-                    document={<ResumePDF candidateId={candidate.id} />}
-                    fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                    className="bg-primary hover:bg-primary-2 text-white font-medium py-1 px-3 rounded-lg border border-primary mb-4"
-                  >
-                    {({ loading }) =>
-                      loading ? "Génération..." : "Consulter CV"
-                    }
-                  </PDFDownloadLink>
-                ) : (
-                  <button
-                    onClick={() => handleGenerateCV(candidate.id)}
-                    className="bg-primary hover:bg-primary-2 text-white font-medium py-1 px-3 rounded-lg border border-primary mb-4"
-                  >
-                    Extraire CV
-                  </button>
-                )}
-                <button
-                  onClick={() => handleConsumeClick(candidate)}
-                  className="bg-white hover:bg-white-2 mx-3 text-primary font-semibold py-1 px-3 rounded-lg border border-primary mb-4"
+      {loading ? (
+        <div className="flex items-center justify-center h-[calc(80vh-220px)]">
+          <Circles
+            height={80}
+            width={80}
+            color="#4fa94d"
+            ariaLabel="circles-loading"
+            visible={true}
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCandidates.map((candidate) => (
+            <div
+              key={`${candidate.cv_id}`}
+              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:-translate-y-1 duration-300"
+            >
+              {/* Video Section */}
+              <div className="relative group">
+                <video
+                  src={candidate.link}
+                  className="w-full h-56 object-cover"
+                  controls
                 >
-                  Consommer
-                </button>
+                  Your browser does not support the video tag.
+                </video>
+                {/* Play Icon Hover Effect */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="text-white text-2xl font-semibold">🎥</div>
+                </div>
+              </div>
+
+              {/* Candidate Details Section */}
+              <div className="p-6 text-center">
+                <h3 className="text-xl font-bold text-gray-800">
+                  {candidate.first_name[0]}. {candidate.last_name[0]}.
+                </h3>
+                <p className="text-gray-600">{candidate.job?.name}</p>
+                <p className="text-gray-500 text-sm">
+                  {candidate.nb_experiences} ans d'expérience
+                </p>
+
+                {/* Action Buttons */}
+                <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
+                  {selectedCandidate === candidate.id &&
+                  !loadingPDF[candidate.id] ? (
+                    <PDFDownloadLink
+                      document={<ResumePDF candidateId={candidate.id} />}
+                      fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
+                      className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
+                    >
+                      {({ loading }) =>
+                        loading ? (
+                          <>
+                            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Génération...
+                          </>
+                        ) : (
+                          "Consulter CV"
+                        )
+                      }
+                    </PDFDownloadLink>
+                  ) : (
+                    <button
+                      onClick={() => handleGenerateCV(candidate.id)}
+                      className={`bg-gradient-to-b from-primary to-primary-2 hover:from-primary hover:to-primary text-white font-medium py-2 px-4 rounded-full transition-all duration-300 flex items-center gap-2 ${
+                        loadingPDF[candidate.id] ? "cursor-wait opacity-75" : ""
+                      }`}
+                    >
+                      {loadingPDF[candidate.id] ? (
+                        <>
+                          <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Génération...
+                        </>
+                      ) : (
+                        "Extraire CV"
+                      )}
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleConsumeClick(candidate)}
+                    className="bg-white hover:bg-gray-100 text-primary font-semibold py-2 px-4 rounded-full shadow-lg border border-primary transition-all duration-300 flex items-center gap-2"
+                  >
+                    Consommer
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

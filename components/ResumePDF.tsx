@@ -190,18 +190,16 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
           {/* Contact Information */}
           {cvConsumed && (
             <View>
-              <Text style={styles.contactInfo}>Phone: {userProfile.tel}</Text>
+              <Text style={styles.contactInfo}>Téléphone: {userProfile.tel}</Text>
               <Text style={styles.contactInfo}>Email: {userProfile.email}</Text>
-              <Text style={styles.contactInfo}>
-                Address: {userProfile.address}
-              </Text>
+              <Text style={styles.contactInfo}>Addresse: {userProfile.address}</Text>
             </View>
           )}
         </View>
 
         {/* Bio Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About Me</Text>
+          <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.text}>{userProfile.bio}</Text>
         </View>
 
@@ -211,7 +209,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
           <View style={styles.column}>
             {/* Skills Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Skills</Text>
+              <Text style={styles.sectionTitle}>Compétences</Text>
               {userProfile.skills?.map((skill: any, index: number) => (
                 <View key={index} style={styles.experienceContainer}>
                   <View
@@ -229,7 +227,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
 
             {/* Projects Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Projects</Text>
+              <Text style={styles.sectionTitle}>Projets</Text>
               {userProfile.projects?.map((project: any, index: number) => (
                 <View key={index} style={styles.experienceContainer}>
                   <View
@@ -255,7 +253,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
           <View style={styles.column}>
             {/* Experiences Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Experiences</Text>
+              <Text style={styles.sectionTitle}>Expériences</Text>
               {userProfile.experiences?.map((exp: any, index: number) => (
                 <View key={index} style={styles.experienceContainer}>
                   <View
@@ -283,7 +281,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
 
             {/* Education Section */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Education</Text>
+              <Text style={styles.sectionTitle}>Formation</Text>
               {userProfile.educations?.map((edu: any, index: number) => (
                 <View key={index} style={styles.experienceContainer}>
                   <View

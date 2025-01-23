@@ -688,10 +688,10 @@ function ServicePlanPage() {
                       </div>
                       <div>
                         <label>
-                          Nom complete :
+                        Nom complet :
                           <input
                             type="text"
-                            placeholder="Nom complete"
+                            placeholder="Nom complet"
                             className="border border-gray-400 rounded-lg p-2 mt-1 w-full"
                             value={paymentReference}
                             onChange={handlePaymentReferenceChange}

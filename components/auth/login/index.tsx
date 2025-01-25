@@ -16,10 +16,16 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [isEmailFocused, setIsEmailFocused] = useState(false); // État pour suivre si l'email est sélectionné
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Valider l'email avant la soumission
+    if (!validateEmail(email)) {
+      return toast.error("Veuillez corriger l'email avant de soumettre");
+    }
 
     if (!email || !password) {
       return toast.error("Veuillez remplir tous les champs");
@@ -42,8 +48,6 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
         toast.error("Email ou mot de passe ne sont pas valides");
         return;
       }
-
-      // console.log("Logged in successfully");
 
       const userData = await response.json();
       console.log("Logged in successfully", userData.data);
@@ -112,30 +116,44 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   };
 
   const validateEmail = (value: string) => {
+    if (!value) {
+      setEmailError(""); // Ne pas afficher d'erreur si le champ est vide
+      return false;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
+    
+    if (!emailRegex.test(value)&& value.length > 0) {
       setEmailError("L’adresse mail est invalide");
+      return false;
     } else {
       setEmailError("");
+      return true;
     }
   };
 
   const validatePassword = (value: string) => {
+    if (!value) {
+      setPasswordError(""); // Ne pas afficher d'erreur si le champ est vide
+      return false;
+    }
+
     if (value.length < 8) {
       setPasswordError("Le mot de passe doit comporter au moins 8 caractères");
+      return false;
     } else {
       setPasswordError("");
+      return true;
     }
   };
 
   return (
     <div className="flex flex-col items-center rounded-lg border border-newColor p-4 font-default max-w-md mx-auto md:max-w-2xl">
-      {" "}
       <h2 className="text-2xl font-semibold text-second my-2 py-4 mb-4 text-center">
-     {props.loginFor === "candidate"
-        ? "Connectez-vous et trouvez le travail de vos rêves !"
-        : "Connectez-vous à votre compte ou inscrivez-vous pour créer votre espace Entreprise"}
-    </h2>
+        {props.loginFor === "candidate"
+          ? "Connectez-vous et trouvez le travail de vos rêves !"
+          : "Connectez-vous à votre compte ou inscrivez-vous pour créer votre espace Entreprise"}
+      </h2>
       <div className="mt-4 grid space-y-4">
         <button
           type="submit"
@@ -187,13 +205,22 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
-            validateEmail(e.target.value);
+          }}
+          onFocus={() => setIsEmailFocused(true)} // Champ sélectionné
+          onBlur={() => {
+            setIsEmailFocused(false); // Champ non sélectionné
+            if (email) {
+              validateEmail(email); // Valider uniquement si le champ n'est pas vide
+            }
+            
           }}
           className={`w-full px-4 py-2 rounded border border-gray ${
-            emailError ? "border-red-500" : ""
+            emailError && !isEmailFocused ? "border-red-500" : ""
           }`}
         />
-        {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+        {emailError && !isEmailFocused && (
+          <p className="text-red-500 text-sm">{emailError}</p>
+        )}
         <input
           type="password"
           placeholder="Mot de passe (8 caractères ou plus)"
@@ -239,12 +266,3 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
 };
 
 export default LoginForm;
-
-
-/*
-
-l'error dans l'entreprise 
-
-
-
-*/

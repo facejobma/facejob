@@ -114,7 +114,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
-      setEmailError("L&apos;adresse email invalide");
+      setEmailError("L’adresse mail est invalide");
     } else {
       setEmailError("");
     }

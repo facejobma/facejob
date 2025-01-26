@@ -69,63 +69,73 @@ const PublishOffer: React.FC = () => {
     sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
     [];
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-  
-      // Validate required fields
-      if (!title || !location || !contractType || !startDate || !selectedSector || !selectedJob) {
-          toast.error("Please fill in all required fields!");
-          return;
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Validate required fields
+    if (
+      !title ||
+      !location ||
+      !contractType ||
+      !startDate ||
+      !selectedSector ||
+      !selectedJob
+    ) {
+      toast.error("Please fill in all required fields!");
+      return;
+    }
+
+    if (
+      lastPayment &&
+      lastPayment.status !== "pending" &&
+      lastPayment.job_remaining > 0
+    ) {
+      setUploadStatus("uploading");
+
+      try {
+        const user = JSON.parse(userData);
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offre/create`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              titre: title,
+              location,
+              contractType,
+              date_debut: startDate,
+              date_fin: contractType === "CDD" ? endDate : ".", // Conditionally add end date
+              description,
+              sector_id: selectedSector,
+              job_id: selectedJob,
+              entreprise_id: user.id,
+            }),
+          },
+        );
+
+        // Log response for debugging
+        const responseData = await response.json();
+        if (response.ok) {
+          toast.success("Offer published successfully!");
+          setUploadStatus("completed");
+        } else {
+          console.error("Response error:", responseData);
+          toast.error("Failed to publish offer!");
+          setUploadStatus("failed");
+        }
+      } catch (error) {
+        console.error("Error publishing offer:", error);
+        toast.error("An error occurred while publishing the offer!");
+        setUploadStatus("failed");
       }
-  
-      if (lastPayment && lastPayment.status !== "pending" && lastPayment.job_remaining > 0) {
-          setUploadStatus("uploading");
-  
-          try {
-              const user = JSON.parse(userData);
-  
-              const response = await fetch(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offre/create`,
-                  {
-                      method: "POST",
-                      headers: {
-                          Authorization: `Bearer ${authToken}`,
-                          "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                          titre: title,
-                          location,
-                          contractType,
-                          date_debut: startDate,
-                          date_fin: contractType === "CDD" ? endDate : ".", // Conditionally add end date
-                          description,
-                          sector_id: selectedSector,
-                          job_id: selectedJob,
-                          entreprise_id: user.id,
-                      }),
-                  },
-              );
-  
-              // Log response for debugging
-              const responseData = await response.json();
-              if (response.ok) {
-                  toast.success("Offer published successfully!");
-                  setUploadStatus("completed");
-              } else {
-                  console.error("Response error:", responseData);
-                  toast.error("Failed to publish offer!");
-                  setUploadStatus("failed");
-              }
-          } catch (error) {
-              console.error("Error publishing offer:", error);
-              toast.error("An error occurred while publishing the offer!");
-              setUploadStatus("failed");
-          }
-      } else {
-          setIsUpgradeModalOpen(true);
-      }
+    } else {
+      setIsUpgradeModalOpen(true);
+    }
   };
-  
 
   const fetchLastPayment = async () => {
     try {
@@ -162,7 +172,7 @@ const PublishOffer: React.FC = () => {
     <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-medium mb-8 text-center">
-        Publier votre offre d’emploi
+          Publier votre offre d’emploi
         </h2>
 
         <form onSubmit={handleSubmit}>
@@ -345,8 +355,8 @@ const PublishOffer: React.FC = () => {
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="bg-white p-8 rounded-lg shadow-lg z-10">
             <h2 className="text-xl font-semibold mb-8">
-              Vous avez atteint la limite de consommation de vidéos de CV.
-              Veuillez mettre à niveau votre plan.
+              Vous avez atteint la limite de votre plan, veuillez souscrire à
+              nouveau.
             </h2>
             <div className="flex justify-center space-x-4">
               <button

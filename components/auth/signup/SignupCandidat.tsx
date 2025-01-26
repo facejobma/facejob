@@ -21,10 +21,10 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
 
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!value) {
-          toast.error("Veuillez entrer une adresse email.");
-          return false;
-      }
+    if (!value) {
+      toast.error("Veuillez entrer une adresse email.");
+      return false;
+    }
 
     if (!emailRegex.test(value)) {
       toast.error("Veuillez entrer une adresse email valide.");
@@ -41,53 +41,51 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
     return true;
   };
 
-    const validateFields = () => {
-        let isValid = true;
+  const validateFields = () => {
+    let isValid = true;
 
-        if (!firstName) {
-            toast.error("Veuillez entrer votre prénom.");
-            isValid = false;
-        }
-        if (!lastName) {
-            toast.error("Veuillez entrer votre nom.");
-            isValid = false;
-        }
-        if (!tel) {
-            toast.error("Veuillez entrer votre numéro de téléphone.");
-            isValid = false;
-        }
-        if (!sex) {
-            toast.error("Veuillez choisir votre sexe.");
-            isValid = false;
-        }
-      if (!validateEmail(email)){
-          isValid = false
-      }
+    if (!firstName) {
+      toast.error("Veuillez entrer votre prénom.");
+      isValid = false;
+    }
+    if (!lastName) {
+      toast.error("Veuillez entrer votre nom.");
+      isValid = false;
+    }
+    if (!tel) {
+      toast.error("Veuillez entrer votre numéro de téléphone.");
+      isValid = false;
+    }
+    if (!sex) {
+      toast.error("Veuillez choisir votre sexe.");
+      isValid = false;
+    }
+    if (!validateEmail(email)) {
+      isValid = false;
+    }
 
-        if (!validatePassword(password)) {
-            isValid = false;
-        }
+    if (!validatePassword(password)) {
+      isValid = false;
+    }
 
-        if (password !== passwordConfirm) {
-            toast.error("Les mots de passe ne correspondent pas.");
-            isValid = false;
-        }
-        if (!acceptTerms) {
-            toast.error("Veuillez accepter les conditions d'utilisation.");
-            isValid = false;
-        }
+    if (password !== passwordConfirm) {
+      toast.error("Les mots de passe ne correspondent pas.");
+      isValid = false;
+    }
+    if (!acceptTerms) {
+      toast.error("Veuillez accepter les conditions d'utilisation.");
+      isValid = false;
+    }
 
-
-        return isValid;
-    };
+    return isValid;
+  };
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
-      if (!validateFields()) {
-          return;
-      }
-
+    if (!validateFields()) {
+      return;
+    }
 
     const formData = {
       firstName,
@@ -109,7 +107,7 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (response.ok) {

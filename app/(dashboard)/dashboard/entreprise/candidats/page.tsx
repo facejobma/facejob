@@ -111,7 +111,7 @@ const Hiring: React.FC = () => {
       console.error("Error fetching last payment:", error);
       toast.error("Error fetching last payment!");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -426,8 +426,8 @@ const Hiring: React.FC = () => {
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="bg-white p-8 rounded-lg shadow-lg z-10">
             <h2 className="text-xl font-semibold mb-8">
-              Vous avez atteint la limite de consommation de vidéos de CV.
-              Veuillez mettre à niveau votre plan.
+              Vous avez atteint la limite de votre plan, veuillez souscrire à
+              nouveau.
             </h2>
             <div className="flex justify-center space-x-4">
               <button

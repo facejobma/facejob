@@ -13,9 +13,10 @@ const CompanyProfile: React.FC = () => {
 
   useEffect(() => {
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-    const company = typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user") || '{}'
-      : '{}'
+    const company =
+      typeof window !== "undefined"
+        ? window.sessionStorage?.getItem("user") || "{}"
+        : "{}";
     const companyId = company ? JSON.parse(company).id : null;
 
     if (companyId) {
@@ -42,11 +43,12 @@ const CompanyProfile: React.FC = () => {
             linkedin: companyData.linkedin,
             phone: companyData.phone,
             email: companyData.email, // Add email
-            creationDate: companyData.created_at.split('T')[0], // Format to yyyy-MM-dd
+            creationDate: companyData.created_at.split("T")[0], // Format to yyyy-MM-dd
             adresse: companyData.adresse,
             description: companyData.description || "",
             // coverImageUrl: companyData.coverImageUrl || "https://via.placeholder.com/150",
-            avatarUrl: companyData.avatarUrl || "https://via.placeholder.com/150",
+            avatarUrl:
+              companyData.avatarUrl || "https://via.placeholder.com/150",
             logo: companyData.logo || "https://via.placeholder.com/150",
           };
           console.log("company data : ", profileData);
@@ -91,7 +93,10 @@ const CompanyProfile: React.FC = () => {
           avatarUrl={companyProfile.avatarUrl}
         />
 
-        <BioEntrepSection id={companyProfile.id} bio={companyProfile.description} />
+        <BioEntrepSection
+          id={companyProfile.id}
+          bio={companyProfile.description}
+        />
         <ContactSection
           id={companyProfile.id}
           email={companyProfile.email}

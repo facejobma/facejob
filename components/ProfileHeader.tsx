@@ -97,7 +97,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       if (response.ok) {
         const updatedData = await response.json();
 
-        console.log("API Response:", updatedData);
+        // console.log("API Response:", updatedData);
         
         // Update the state with the new profile data
         setFormData((prevData) => ({

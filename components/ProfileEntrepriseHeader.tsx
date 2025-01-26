@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
@@ -17,6 +17,11 @@ interface ProfileEntrepHeaderProps {
   creationDate: string;
 }
 
+interface SecteurOptions {
+  id: number;
+  name: string;
+}
+
 const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   id,
   company_name,
@@ -31,14 +36,22 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const router = useRouter(); // Using useRouter from next/router
 
+  const [secteur, setSecteur] = useState("");
+  const [secteurOptions, setSecteurOptions] = useState<SecteurOptions[]>([]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     newCompanyName: company_name,
-    newSector: sector_name || "",
+    newSector: secteur || "",
     newSiegeSocial: siegeSocial || "",
     newWebsite: website || "",
-    newCreationDate: creationDate || "",
+      newCreationDate: creationDate || "",
   });
+  const [localCompanyName, setLocalCompanyName] = useState(company_name);
+  const [localSectorName, setLocalSectorName] = useState(sector_name);
+    const [localSiegeSocial, setLocalSiegeSocial] = useState(siegeSocial);
+    const [localWebsite, setLocalWebsite] = useState(website);
+    const [localCreationDate, setLocalCreationDate] = useState(creationDate);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -50,11 +63,11 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     try {
       const creationDate = new Date(formData.newCreationDate);
-      const formattedCreationDate = creationDate.toISOString().split('T')[0];
-  
+      const formattedCreationDate = creationDate.toISOString().split("T")[0];
+
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + `/api/enterprise/updateId/${id}`,
         {
@@ -65,28 +78,54 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           },
           body: JSON.stringify({
             company_name: formData.newCompanyName,
-            sector_id: formData.newSector,
+            sector_id: secteur ? secteur : "",
             adresse: formData.newSiegeSocial,
             site_web: formData.newWebsite,
-            created_at: formattedCreationDate,
+              created_at: formattedCreationDate,
           }),
         },
       );
-  
-      if (response.ok) {
-        const updatedData = await response.json();
-        console.log("Updated profile data:", updatedData);
-        setIsEditing(false);
-      } else {
-        console.error("Failed to update profile data");
-      }
+
+        if (response.ok) {
+          const updatedData = await response.json();
+          // Update local states with the new data
+          setLocalCompanyName(formData.newCompanyName);
+          const selectedSector = secteurOptions.find(opt => opt.id === Number(secteur));
+           setLocalSectorName(selectedSector?.name || "");
+            setLocalSiegeSocial(formData.newSiegeSocial);
+            setLocalWebsite(formData.newWebsite);
+            setLocalCreationDate(formattedCreationDate);
+
+            setIsEditing(false);
+        } else {
+            console.error("Failed to update profile data");
+        }
     } catch (error) {
       console.error("Error updating profile data:", error);
     }
   };
 
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+        );
+        const data = await response.json();
+        setSecteurOptions(data);
+      } catch (error) {
+        console.error("Error fetching sectors:", error);
+        // toast.error("Erreur de récupération des secteurs!");
+      }
+    };
+
+    fetchSectors().then(() => {
+      console.log("sectors fetched");
+    });
+  }, []);
+
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -94,6 +133,10 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       [name]: value,
     }));
   };
+
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSecteur(e.target.value);
+    };
 
   const handlePasswordChangeClick = () => {
     router.push("/dashboard/entreprise/change-password"); // Adjust the route according to your project structure
@@ -135,25 +178,25 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           </div>
         )}
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
-          <h1 className="text-2xl font-bold mb-1">{company_name}</h1>
-          <p className="text-gray-600 mb-2">{sector_name}</p>
-          {siegeSocial && <p className="text-gray-600 mb-3">{siegeSocial}</p>}
-          {website && (
-            <a
-              href={website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              {website}
-            </a>
-          )}
+            <h1 className="text-2xl font-bold mb-1">{localCompanyName}</h1>
+            <p className="text-gray-600 mb-2">{localSectorName}</p>
+            {localSiegeSocial && <p className="text-gray-600 mb-3">{localSiegeSocial}</p>}
+            {localWebsite && (
+                <a
+                    href={localWebsite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                >
+                    {localWebsite}
+                </a>
+            )}
         </div>
 
-        {creationDate && (
+        {localCreationDate && (
           <div className="flex items-center absolute bottom-6 right-6">
             <p className="text-gray-600 text-sm">
-            Date de création: {new Date(creationDate).toLocaleDateString()}
+              Date de création: {new Date(localCreationDate).toLocaleDateString()}
             </p>
           </div>
         )}
@@ -167,7 +210,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       >
         <form onSubmit={handleProfileUpdate}>
           <label htmlFor="newCompanyName" className="block mb-2 font-bold">
-          Nom de l’Entreprise
+            Nom de l’Entreprise
           </label>
           <input
             type="text"
@@ -179,21 +222,25 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          <label htmlFor="newSector" className="block mb-2 font-bold">
-          Secteur
+          <label className="block mb-2 font-bold" htmlFor="secteur">
+            Secteur
           </label>
-          <input
-            type="text"
-            id="newSector"
-            name="newSector"
-            value={formData.newSector}
-            onChange={handleInputChange}
-            placeholder="Enter new sector"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
+            <select
+                id="secteur"
+                value={secteur}
+                onChange={handleSelectChange}
+                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            >
+                <option value="">Sélectionnez le secteur</option>
+                {secteurOptions.map((option, index) => (
+                    <option key={index} value={option.id}>
+                        {option.name}
+                    </option>
+                ))}
+            </select>
 
           <label htmlFor="newWebsite" className="block mb-2 font-bold">
-          Site Internet
+            Site Internet
           </label>
           <input
             type="text"
@@ -205,20 +252,20 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
 
-          <label htmlFor="newCreationDate" className="block mb-2 font-bold">
-          Date de Création de l’Entreprise
-          </label>
-          <input
-            type="date"
-            id="newCreationDate"
-            name="newCreationDate"
-            value={formData.newCreationDate}
-            onChange={handleInputChange}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
+            {/* <label htmlFor="newCreationDate" className="block mb-2 font-bold">
+                Date de Création de l’Entreprise
+            </label>
+            <input
+                type="date"
+                id="newCreationDate"
+                name="newCreationDate"
+                value={formData.newCreationDate}
+                onChange={handleInputChange}
+                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            /> */}
 
           <label htmlFor="newSiegeSocial" className="block mb-2 font-bold">
-          Adresse du Siège Social
+            Adresse du Siège Social
           </label>
           <input
             type="text"

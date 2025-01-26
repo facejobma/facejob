@@ -1,16 +1,27 @@
-"use client"
+"use client";
 import { useState, useEffect, FC, ChangeEvent } from "react";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-interface SecteurOptions {
+// interface SecteurOptions {
+//   id: number;
+//   name: string;
+// }
+
+interface NextStepSignupCandidatProps {
+  onSkip: () => void;
+}
+
+interface Job {
   id: number;
   name: string;
 }
 
-interface NextStepSignupCandidatProps {
-  onSkip: () => void;
+interface Sector {
+  id: number;
+  name: string;
+  jobs: Job[];
 }
 
 const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
@@ -20,7 +31,11 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
   const [sector, SetSector] = useState("");
   const [yearsOfExperience, setYearsOfExperience] = useState("");
   const [image, setImage] = useState<File | null>(null);
-  const [secteurOptions, SetSectorOptions] = useState<SecteurOptions[]>([]);
+  const [sectors, setSectors] = useState<Sector[]>([]);
+
+  const [selectedSector, setSelectedSector] = useState("");
+  const [selectedJob, setSelectedJob] = useState("");
+
   const [customSector, setCustomSector] = useState("");
   const maxLength = 250;
 
@@ -45,18 +60,22 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
         );
         const data = await response.json();
-        SetSectorOptions(data);
+        setSectors(data);
       } catch (error) {
-        toast.error("Erreur de récupération des secteurs!");
         console.error("Error fetching sectors:", error);
+        toast.error("Error fetching sectors!");
       }
     };
 
     fetchSectors();
   }, []);
+
+  const filteredJobs =
+    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
+    [];
 
   const handleSectorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedSector = e.target.value;
@@ -71,11 +90,12 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
   const handleSubmit = async () => {
     try {
       const formData = {
-        userId: typeof window !== "undefined"
-          ? window.sessionStorage?.getItem("userId") || '{}'
-          : '{}',
+        userId:
+          typeof window !== "undefined"
+            ? window.sessionStorage?.getItem("userId") || "{}"
+            : "{}",
         bio,
-        sector: sector ? sector : customSector,
+        job: selectedJob,
         image,
         yearsOfExperience,
       };
@@ -94,7 +114,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (response.ok) {
@@ -135,33 +155,38 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
 
       <div className="w-96 mb-2">
         <select
-          value={sector}
-          //   onChange={(e) => SetSector(e.target.value)}
-          onChange={handleSectorChange}
+          value={selectedSector}
+          onChange={(e) => {
+            setSelectedSector(e.target.value);
+            setSelectedJob(""); // Reset job selection when sector changes
+          }}
           className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         >
           <option value="" disabled>
-            Sélectionnez Secteur.
+            Sélectionnez le secteur.
           </option>
-          {secteurOptions.map((option, index) => (
-            <option key={index} value={option.name}>
-              {option.name}
+          {sectors.map((sector) => (
+            <option key={sector.id} value={sector.id}>
+              {sector.name}
             </option>
           ))}
         </select>
       </div>
-
-      {sector === "Autre" && (
-        <div className="w-96 mb-4">
-          <input
-            type="text"
-            value={customSector}
-            onChange={(e) => setCustomSector(e.target.value)}
-            placeholder="Saisissez un autre secteur"
-            className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-          />
-        </div>
-      )}
+      <div className="w-96 mb-2">
+        <select
+          value={selectedJob}
+          onChange={(e) => setSelectedJob(e.target.value)}
+          className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          disabled={!selectedSector}
+        >
+          <option value="">Sélectionnez le métier.</option>
+          {filteredJobs.map((job) => (
+            <option key={job.id} value={job.id}>
+              {job.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div
         {...getRootProps()}
@@ -169,7 +194,8 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
       >
         <input {...getInputProps()} />
         <p className="text-secondary">
-          Faites glisser un photo de profil ici ou cliquez pour sélectionner un photo
+          Faites glisser un photo de profil ici ou cliquez pour sélectionner un
+          photo
         </p>
         {image && (
           <div className="mt-5 flex justify-center items-center flex-col ">

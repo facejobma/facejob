@@ -2,6 +2,8 @@
 import { FC, FormEvent, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import google from "@/public/svg/google.svg";
+import Image from "next/image";
 
 interface SignupFormCandidatProps {
   onNextStep: () => void;
@@ -42,7 +44,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (response.ok) {
@@ -72,7 +74,8 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
   return (
     <div className="flex flex-col items-center font-default rounded-lg border border-newColor p-4 max-w-xl mx-auto">
       <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4 text-center">
-      Créez votre compte Entreprise et commencez dès maintenant à chercher vos prochain(e)s collaborateurs-trices
+        Créez votre compte Entreprise et commencez dès maintenant à chercher vos
+        prochain(e)s collaborateurs-trices
       </h2>
       <div className="mt-4 grid space-y-4">
         <button
@@ -82,8 +85,8 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
           // onClick={handleGoogleLogin}
         >
           <div className="relative flex items-center space-x-10 justify-center">
-            <img
-              src="https://tailus.io/sources/blocks/social/preview/images/google.svg"
+            <Image
+              src={google}
               className="absolute left-0 w-5"
               alt="google logo"
             />
@@ -176,15 +179,15 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
                 setAcceptTerms((prv) => !prv);
               }}
             />
-           <label
-                htmlFor="termsCheckbox"
-                className="text-gray-500 font-normal text-sm"
-              >
-                Oui, je comprends et j’accepte{' '}
-                <Link href="/termes/entreprise" className="text-primary">
-                  les conditions d’utilisation de facejob
-                </Link>
-              </label>
+            <label
+              htmlFor="termsCheckbox"
+              className="text-gray-500 font-normal text-sm"
+            >
+              Oui, je comprends et j’accepte{" "}
+              <Link href="/termes/entreprise" className="text-primary">
+                les conditions d’utilisation de facejob
+              </Link>
+            </label>
           </div>
         </div>
         <button

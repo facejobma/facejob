@@ -67,7 +67,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             const formData = {
                 user_id: Number(sessionStorage.getItem("userId")) || "",
                 bio,
-                secteur,
+                secteur: Number(secteur),
                 image,
                 adresse,
                 effectif,
@@ -76,7 +76,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             };
 
             const response = await fetch(
-                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/enterprise/complete-enterprise",
+                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/complete-enterprise",
                 {
                     method: "PUT",
                     headers: {
@@ -90,7 +90,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 // const responseData = await response.json();
                 toast.success("Votre compte s’est terminé avec succès!");
 
-                router.push("/auth/enterprise/login-enterprise");
+                router.push("/auth/login-enterprise");
                 sessionStorage.clear();
             } else {
             }
@@ -130,7 +130,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                         Sélectionnez Secteur.
                     </option>
                     {secteurOptions.map((option, index) => (
-                        <option key={index} value={option.name}>
+                        <option key={index} value={option.id}>
                             {option.name}
                         </option>
                     ))}

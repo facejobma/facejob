@@ -6,8 +6,8 @@ import { FormEvent, useState } from "react";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
-import google from "../../../public/svg/google.svg";
-import linkedin from "../../../public/svg/linkedin.svg";
+import google from "@/public/svg/google.svg";
+import linkedin from "@/public/svg/linkedin.svg";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 

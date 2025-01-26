@@ -17,23 +17,78 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
+    const validateEmail = (value: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+            toast.error("Veuillez entrer une adresse email.");
+            return false;
+        }
+
+        if (!emailRegex.test(value)) {
+            toast.error("Veuillez entrer une adresse email valide.");
+            return false;
+        }
+        return true;
+    };
+
+    const validatePassword = (value: string) => {
+        if (value.length < 8) {
+            toast.error("Le mot de passe doit contenir au moins 8 caractères.");
+            return false;
+        }
+        return true;
+    };
+
+    const validateFields = () => {
+        let isValid = true;
+
+        if (!companyName) {
+            toast.error("Veuillez entrer le nom de l'entreprise.");
+            isValid = false;
+        }
+        if (!tel) {
+            toast.error("Veuillez entrer votre numéro de téléphone.");
+            isValid = false;
+        }
+
+        if (!validateEmail(email)){
+            isValid = false
+        }
+
+        if (!validatePassword(password)) {
+            isValid = false;
+        }
+
+        if (password !== passwordConfirm) {
+            toast.error("Les mots de passe ne correspondent pas.");
+            isValid = false;
+        }
+        if (!acceptTerms) {
+            toast.error("Veuillez accepter les conditions d'utilisation.");
+            isValid = false;
+        }
+
+
+        return isValid;
+    };
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
+        if (!validateFields()) {
+            return;
+        }
+
 
     const formData = {
       companyName,
       tel,
-      // secteur,
       email,
       password,
       passwordConfirm,
       acceptTerms,
     };
 
-    if (password !== passwordConfirm) {
-      toast.error("Les mots de passe ne correspondent pas");
-      return;
-    }
 
     try {
       const response = await fetch(
@@ -44,7 +99,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        },
+        }
       );
 
       if (response.ok) {
@@ -67,9 +122,7 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
     }
   }
 
-  const validatePassword = (value: string) => {
-    return value.length < 8;
-  };
+
 
   return (
     <div className="flex flex-col items-center font-default rounded-lg border border-newColor p-4 max-w-xl mx-auto">
@@ -156,7 +209,6 @@ const SignupFormEntreprise: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            validatePassword(e.target.value);
           }}
           className="px-4 py-2 rounded border border-gray w-full"
         />

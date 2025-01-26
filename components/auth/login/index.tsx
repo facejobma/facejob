@@ -1,5 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
-
 "use client";
 
 import { FormEvent, useState } from "react";
@@ -12,257 +10,244 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [isEmailFocused, setIsEmailFocused] = useState(false); // État pour suivre si l'email est sélectionné
-  const router = useRouter();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isEmailFocused, setIsEmailFocused] = useState(false);
+    const router = useRouter();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+    const validateEmail = (value: string) => {
+        if (!value) {
+            toast.error("Veuillez entrer une adresse email.");
+            return false;
+        }
 
-    // Valider l'email avant la soumission
-    if (!validateEmail(email)) {
-      return toast.error("Veuillez corriger l'email avant de soumettre");
-    }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!email || !password) {
-      return toast.error("Veuillez remplir tous les champs");
-    }
+        if (!emailRegex.test(value)) {
+            toast.error("L’adresse mail est invalide.");
+            return false;
+        }
+        return true;
+    };
 
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL +
-          `/api/auth/${props.loginFor}/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        },
-      );
+    const validatePassword = (value: string) => {
+        if (!value) {
+            toast.error("Veuillez entrer votre mot de passe.");
+            return false;
+        }
+        if (value.length < 8) {
+            toast.error("Le mot de passe doit comporter au moins 8 caractères.");
+            return false;
+        }
+        return true;
+    };
 
-      if (!response.ok) {
-        toast.error("Email ou mot de passe ne sont pas valides");
-        return;
-      }
+    const validateFields = () => {
+        let isValid = true;
 
-      const userData = await response.json();
-      console.log("Logged in successfully", userData.data);
+        if (!validateEmail(email)) {
+            isValid = false;
+        }
+        if (!validatePassword(password)) {
+            isValid = false;
+        }
+        return isValid;
+    };
 
-      sessionStorage.setItem("user", JSON.stringify(userData.data));
-      sessionStorage.setItem("userRole", props.loginFor);
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!validateFields()) {
+            return;
+        }
 
-      const { token } = userData;
 
-      Cookies.set("authToken", token, { expires: 7 });
+        try {
+            const response = await fetch(
+                process.env.NEXT_PUBLIC_BACKEND_URL +
+                `/api/auth/${props.loginFor}/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, password }),
+                },
+            );
 
-      toast.success("connecté avec succès");
+            if (!response.ok) {
+                toast.error("Email ou mot de passe ne sont pas valides");
+                return;
+            }
 
-      if (props.loginFor === "candidate") {
-        router.push("/dashboard/candidat");
-      } else if (props.loginFor == "entreprise") {
-        router.push("/dashboard/entreprise");
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(
-        error.message || "Une erreur s’est produite lors de la connexion",
-      );
-    }
-  };
+            const userData = await response.json();
+            console.log("Logged in successfully", userData.data);
 
-  const handleGoogleLogin = async () => {
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google",
-      );
+            sessionStorage.setItem("user", JSON.stringify(userData.data));
+            sessionStorage.setItem("userRole", props.loginFor);
 
-      if (!response.ok) {
-        toast.error("Erreur lors de la connexion avec Google");
-        return;
-      }
+            const { token } = userData;
 
-      const data = await response.json();
+            Cookies.set("authToken", token, { expires: 7 });
 
-      sessionStorage.setItem("userRole", props.loginFor);
-      window.location.href = data.url;
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Une erreur s’est produite lors de la connexion");
-    }
-  };
+            toast.success("connecté avec succès");
 
-  const handleLinkedinLogin = async () => {
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin",
-      );
+            if (props.loginFor === "candidate") {
+                router.push("/dashboard/candidat");
+            } else if (props.loginFor == "entreprise") {
+                router.push("/dashboard/entreprise");
+            }
+        } catch (error: any) {
+            console.error(error);
+            toast.error(
+                error.message || "Une erreur s’est produite lors de la connexion",
+            );
+        }
+    };
 
-      if (!response.ok) {
-        toast.error("Erreur lors de la connexion avec Linkedin");
-        return;
-      }
+    const handleGoogleLogin = async () => {
+        try {
+            const response = await fetch(
+                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google",
+            );
 
-      const data = await response.json();
+            if (!response.ok) {
+                toast.error("Erreur lors de la connexion avec Google");
+                return;
+            }
 
-      window.location.href = data.url;
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Une erreur s’est produite lors de la connexion");
-    }
-  };
+            const data = await response.json();
 
-  const validateEmail = (value: string) => {
-    if (!value) {
-      setEmailError(""); // Ne pas afficher d'erreur si le champ est vide
-      return false;
-    }
+            sessionStorage.setItem("userRole", props.loginFor);
+            window.location.href = data.url;
+        } catch (error: any) {
+            console.error(error);
+            toast.error("Une erreur s’est produite lors de la connexion");
+        }
+    };
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (!emailRegex.test(value)&& value.length > 0) {
-      setEmailError("L’adresse mail est invalide");
-      return false;
-    } else {
-      setEmailError("");
-      return true;
-    }
-  };
+    const handleLinkedinLogin = async () => {
+        try {
+            const response = await fetch(
+                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin",
+            );
 
-  const validatePassword = (value: string) => {
-    if (!value) {
-      setPasswordError(""); // Ne pas afficher d'erreur si le champ est vide
-      return false;
-    }
+            if (!response.ok) {
+                toast.error("Erreur lors de la connexion avec Linkedin");
+                return;
+            }
 
-    if (value.length < 8) {
-      setPasswordError("Le mot de passe doit comporter au moins 8 caractères");
-      return false;
-    } else {
-      setPasswordError("");
-      return true;
-    }
-  };
+            const data = await response.json();
 
-  return (
-    <div className="flex flex-col items-center rounded-lg border border-newColor p-4 font-default max-w-md mx-auto md:max-w-2xl">
-      <h2 className="text-2xl font-semibold text-second my-2 py-4 mb-4 text-center">
-        {props.loginFor === "candidate"
-          ? "Connectez-vous et trouvez le travail de vos rêves !"
-          : "Connectez-vous à votre compte ou inscrivez-vous pour créer votre espace Entreprise"}
-      </h2>
-      <div className="mt-4 grid space-y-4">
-        <button
-          type="submit"
-          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
+            window.location.href = data.url;
+        } catch (error: any) {
+            console.error(error);
+            toast.error("Une erreur s’est produite lors de la connexion");
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center rounded-lg border border-newColor p-4 font-default max-w-md mx-auto md:max-w-2xl">
+            <h2 className="text-2xl font-semibold text-second my-2 py-4 mb-4 text-center">
+                {props.loginFor === "candidate"
+                    ? "Connectez-vous et trouvez le travail de vos rêves !"
+                    : "Connectez-vous à votre compte ou inscrivez-vous pour créer votre espace Entreprise"}
+            </h2>
+            <div className="mt-4 grid space-y-4">
+                <button
+                    type="submit"
+                    className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
         hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
-          onClick={handleGoogleLogin}
-        >
-          <div className="relative flex items-center space-x-10 justify-center">
-            <Image
-              width={100}
-              height={100}
-              src={google}
-              className="absolute left-0 w-5"
-              alt="google logo"
-            />
-            <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
+                    onClick={handleGoogleLogin}
+                >
+                    <div className="relative flex items-center space-x-10 justify-center">
+                        <Image
+                            width={100}
+                            height={100}
+                            src={google}
+                            className="absolute left-0 w-5"
+                            alt="google logo"
+                        />
+                        <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
               Continuer avec Google
             </span>
-          </div>
-        </button>
-        <button
-          className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
+                    </div>
+                </button>
+                <button
+                    className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
     hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
-          onClick={handleLinkedinLogin}
-        >
-          <div className="relative flex items-center space-x-10 justify-center">
-            <Image
-              width={100}
-              height={100}
-              src={linkedin}
-              alt="LinkedIn logo"
-              className="absolute left-0 w-5"
-            />
-            <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
+                    onClick={handleLinkedinLogin}
+                >
+                    <div className="relative flex items-center space-x-10 justify-center">
+                        <Image
+                            width={100}
+                            height={100}
+                            src={linkedin}
+                            alt="LinkedIn logo"
+                            className="absolute left-0 w-5"
+                        />
+                        <span className="block w-max font-semibold tracking-wide text-gray-700 text-sm transition duration-300 group-hover:text-green-700 sm:text-base">
               Continuer avec LinkedIn
             </span>
-          </div>
-        </button>
-      </div>
-      <div className="flex items-center justify-center space-x-2 my-5">
-        <span className="h-px w-16 bg-gray-200"></span>
-        <span className="text-gray-400 font-normal">Ou</span>
-        <span className="h-px w-16 bg-gray-200"></span>
-      </div>
-      <form className="flex flex-col space-y-4 w-full" onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
-          onFocus={() => setIsEmailFocused(true)} // Champ sélectionné
-          onBlur={() => {
-            setIsEmailFocused(false); // Champ non sélectionné
-            if (email) {
-              validateEmail(email); // Valider uniquement si le champ n'est pas vide
-            }
-            
-          }}
-          className={`w-full px-4 py-2 rounded border border-gray ${
-            emailError && !isEmailFocused ? "border-red-500" : ""
-          }`}
-        />
-        {emailError && !isEmailFocused && (
-          <p className="text-red-500 text-sm">{emailError}</p>
-        )}
-        <input
-          type="password"
-          placeholder="Mot de passe (8 caractères ou plus)"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            validatePassword(e.target.value);
-          }}
-          className={`w-full px-4 py-2 rounded border border-gray ${
-            passwordError ? "border-red-500" : ""
-          }`}
-        />
-        {passwordError && (
-          <p className="text-red-500 text-sm">{passwordError}</p>
-        )}
-        <p className="text-base text-second text-center">
-          <span className="mx-1"> Mot de passe</span>
-          <Link
-            href={`/auth/${props.loginFor}/forget-password`}
-            className="text-primary"
-          >
-            oublié ?
-          </Link>
-        </p>
-        <button
-          type="submit"
-          className="w-full py-2 rounded-full font-medium text-base text-white bg-primary"
-        >
-          se connecter
-        </button>
-        <p className="my-2 text-second text-center">
-          Je n’ai pas de compte ?{" "}
-          <Link
-            href={`/auth/signup-${props.loginFor}`}
-            className="text-primary"
-          >
-            s&apos;inscrire
-          </Link>
-        </p>
-      </form>
-    </div>
-  );
+                    </div>
+                </button>
+            </div>
+            <div className="flex items-center justify-center space-x-2 my-5">
+                <span className="h-px w-16 bg-gray-200"></span>
+                <span className="text-gray-400 font-normal">Ou</span>
+                <span className="h-px w-16 bg-gray-200"></span>
+            </div>
+            <form className="flex flex-col space-y-4 w-full" onSubmit={handleSubmit}>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => {
+                        setEmail(e.target.value);
+                    }}
+                    onFocus={() => setIsEmailFocused(true)} // Champ sélectionné
+                    onBlur={() => {
+                        setIsEmailFocused(false); // Champ non sélectionné
+                    }}
+                    className={`w-full px-4 py-2 rounded border border-gray `}
+                />
+
+                <input
+                    type="password"
+                    placeholder="Mot de passe (8 caractères ou plus)"
+                    value={password}
+                    onChange={(e) => {
+                        setPassword(e.target.value);
+                    }}
+                    className={`w-full px-4 py-2 rounded border border-gray `}
+                />
+
+                <p className="text-base text-second text-center">
+                    <span className="mx-1"> Mot de passe</span>
+                    <Link
+                        href={`/auth/${props.loginFor}/forget-password`}
+                        className="text-primary"
+                    >
+                        oublié ?
+                    </Link>
+                </p>
+                <button
+                    type="submit"
+                    className="w-full py-2 rounded-full font-medium text-base text-white bg-primary"
+                >
+                    se connecter
+                </button>
+                <p className="my-2 text-second text-center">
+                    Je n’ai pas de compte ?{" "}
+                    <Link
+                        href={`/auth/signup-${props.loginFor}`}
+                        className="text-primary"
+                    >
+                        s'inscrire
+                    </Link>
+                </p>
+            </form>
+        </div>
+    );
 };
 
 export default LoginForm;

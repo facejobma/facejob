@@ -91,7 +91,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
         // "job",
         "projects",
         "skills",
-        "educations",
+        // "educations",
         "experiences",
       ];
       const missingFields = requiredFields.filter(

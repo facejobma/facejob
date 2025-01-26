@@ -87,7 +87,7 @@ const PublishOffer: React.FC = () => {
 
     if (
       lastPayment &&
-      lastPayment.status !== "pending" &&
+      lastPayment.status == "Accepted" &&
       lastPayment.job_remaining > 0
     ) {
       setUploadStatus("uploading");

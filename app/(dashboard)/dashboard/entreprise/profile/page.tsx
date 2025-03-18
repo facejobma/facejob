@@ -47,8 +47,8 @@ const CompanyProfile: React.FC = () => {
             adresse: companyData.adresse,
             description: companyData.description || "",
             // coverImageUrl: companyData.coverImageUrl || "https://via.placeholder.com/150",
-            avatarUrl:
-              companyData.avatarUrl || "https://via.placeholder.com/150",
+            image:
+              companyData.image || "https://via.placeholder.com/150",
             logo: companyData.logo || "https://via.placeholder.com/150",
           };
           console.log("company data : ", profileData);
@@ -90,7 +90,7 @@ const CompanyProfile: React.FC = () => {
           creationDate={companyProfile.creationDate}
           siegeSocial={companyProfile.adresse}
           // coverImageUrl={companyProfile.coverImageUrl}
-          avatarUrl={companyProfile.avatarUrl}
+          image={companyProfile.image}
         />
 
         <BioEntrepSection

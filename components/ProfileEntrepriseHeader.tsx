@@ -9,7 +9,7 @@ interface ProfileEntrepHeaderProps {
   id: number;
   company_name: string;
   sector_name: string;
-  avatarUrl?: string;
+  image?: string;
   // coverImageUrl?: string;
   siegeSocial?: string;
   companyLogoUrl?: string;
@@ -26,7 +26,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   id,
   company_name,
   sector_name,
-  avatarUrl,
+  image,
   // coverImageUrl,
   siegeSocial,
   companyLogoUrl,
@@ -168,10 +168,10 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             <Key />
           </button>
         </div>
-        {avatarUrl && (
+        {image && (
           <div className="absolute left-10 top-6 md:top-12">
             <img
-              src={avatarUrl}
+              src={image}
               alt="Profile Avatar"
               className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
             />

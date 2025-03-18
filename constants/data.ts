@@ -74,7 +74,7 @@ export interface Experience {
 export interface ProfileData {
   name: string;
   headline: string;
-  avatarUrl: string;
+  image: string;
   // coverImageUrl: string;
   location: string;
   companyName: string;

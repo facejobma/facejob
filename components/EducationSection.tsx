@@ -210,7 +210,8 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             <div>
               <div className="font-bold">{edu.school_name}</div>
               <div>
-                {edu.degree}, {edu.title}
+                {/* {edu.degree},  */}
+                {edu.title}
               </div>
               <div>{edu.graduation_date}</div>
             </div>

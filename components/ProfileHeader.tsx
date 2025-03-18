@@ -3,8 +3,11 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
-import { FaPhone, FaEnvelope, FaMapPin } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaMapPin, FaTrash } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { UploadDropzone } from "@uploadthing/react";
+import "@uploadthing/react/styles.css";
+import { OurFileRouter } from "@/app/api/uploadthing/core";
 
 interface ProfileHeaderProps {
   id: number;
@@ -14,7 +17,7 @@ interface ProfileHeaderProps {
   email: string;
   zip_code: string;
   headline: string;
-  avatarUrl?: string;
+  image?: string;
   address?: string;
   companyName?: string;
 }
@@ -35,7 +38,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   first_name,
   last_name,
   headline,
-  avatarUrl,
+  image,
   tel,
   email,
   zip_code,
@@ -60,6 +63,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     newCompanyName: companyName || "",
     newTel: tel,
     newEmail: email,
+    newImage: image || "", // Initialize with the existing image or empty string
   });
 
   const handleEditClick = () => {
@@ -68,6 +72,24 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const handleCloseModal = () => {
     setIsEditing(false);
+  };
+
+  const handleImageUploadComplete = (res: any) => {
+    if (res && res[0] && res[0].fileUrl) {
+      setFormData((prevData) => ({
+        ...prevData,
+        newImage: res[0].fileUrl,
+      }));
+      toast.success("Image uploaded successfully!");
+    }
+  };
+
+  const handleImageUploadError = (error: Error) => {
+    toast.error(`Image upload error: ${error.message}`);
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prevData) => ({ ...prevData, newImage: "" }));
   };
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -90,6 +112,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             company: formData.newCompanyName,
             tel: formData.newTel,
             email: formData.newEmail,
+            image: formData.newImage,
           }),
         },
       );
@@ -97,8 +120,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       if (response.ok) {
         const updatedData = await response.json();
 
-        // console.log("API Response:", updatedData);
-        
         // Update the state with the new profile data
         setFormData((prevData) => ({
           ...prevData,
@@ -109,17 +130,21 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           newCompanyName: updatedData.data.company,
           newTel: updatedData.data.tel,
           newEmail: updatedData.data.email,
+          newImage: updatedData.data.image,
         }));
 
         // Close the modal
         setIsEditing(false);
 
         window.sessionStorage.setItem("user", JSON.stringify(updatedData.data));
+        router.refresh(); //refresh page
       } else {
         console.error("Failed to update profile data");
+        toast.error("Failed to update profile data");
       }
     } catch (error) {
       console.error("Error updating profile data:", error);
+      toast.error("Error updating profile data");
     }
   };
 
@@ -158,10 +183,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     router.push("/dashboard/candidat/change-password");
   };
 
-  console.log("Headline ------ , ", formData.newHeadline);
-
-  // console.log("")
-
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 pb-2 overflow-hidden relative">
       <div className="p-10 relative">
@@ -180,13 +201,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <Key />
           </button>
         </div>
-        {avatarUrl && (
+        {formData.newImage && (
           <div className="absolute left-10 top-6 md:top-12">
             <img
-              src={
-                avatarUrl ||
-                "https://media.istockphoto.com/id/1337144146/fr/vectoriel/vecteur-dic%C3%B4ne-de-profil-davatar-par-d%C3%A9faut.jpg?s=612x612&w=0&k=20&c=BsQEN372p6cSuFnPGx06xUJ8eMhSjirWMAhodUi74uI="
-              }
+              src={formData.newImage}
               alt="Profile Avatar"
               className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
             />
@@ -313,19 +331,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
 
-              {/* <label htmlFor="newHeadline" className="block mb-2 font-bold">
-                Titre ou Poste recherché
-              </label>
-              <input
-                type="text"
-                id="newHeadline"
-                name="newHeadline"
-                value={formData.newHeadline}
-                onChange={handleInputChange}
-                placeholder="Entrez votre poste"
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              /> */}
-
               <label className="block mb-2 font-bold" htmlFor="metier">
                 Métier
               </label>
@@ -343,6 +348,32 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </option>
                 ))}
               </select>
+
+              <label className="block mb-2 font-bold">Profile Image</label>
+              {formData.newImage ? (
+                <div className="mb-4">
+                  <img
+                    src={formData.newImage}
+                    alt="Profile Preview"
+                    className="w-24 h-24 rounded-full border-2 border-gray-300 mb-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="flex items-center text-red-600 hover:text-red-800"
+                  >
+                    <FaTrash className="mr-2" />
+                    Supprimer
+                  </button>
+                </div>
+              ) : (
+                <UploadDropzone<OurFileRouter>
+                  endpoint="videoUpload"
+                  onClientUploadComplete={handleImageUploadComplete}
+                  onUploadError={handleImageUploadError}
+                  className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer transition-colors border-gray-300"
+                />
+              )}
             </div>
           </div>
 

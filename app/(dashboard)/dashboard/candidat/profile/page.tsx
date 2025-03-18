@@ -45,8 +45,8 @@ const Profile: React.FC = () => {
             last_name: user.last_name,
             tel : user.tel,
             email: user.email,
-            avatarUrl:
-              user.avatarUrl || "https://via.placeholder.com/150",
+            image:
+              user.image || "https://via.placeholder.com/150",
             // coverImageUrl: "",
             companyName: userData.companyName || "",
             // companyLogoUrl: "https://via.placeholder.com/150",
@@ -104,7 +104,7 @@ const Profile: React.FC = () => {
           zip_code={userProfile.zip_code}
           last_name={userProfile.last_name}
           headline={userProfile.job.name}
-          avatarUrl={userProfile.avatarUrl}
+          image={userProfile.image}
           // coverImageUrl={userProfile.coverImageUrl}
           address={userProfile.address}
           companyName={userProfile.companyName}

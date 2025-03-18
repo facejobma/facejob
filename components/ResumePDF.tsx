@@ -117,7 +117,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
           },
         );
         const profileData = await profileResponse.json();
-        setUserProfile(profileData);
+        setUserProfile(profileData || {});
 
         const consumeResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
@@ -184,7 +184,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
             <Text style={styles.name}>
               {userProfile.first_name} {abbreviatedLastName}
             </Text>
-            <Text style={styles.headline}>{userProfile.job.name}</Text>
+            <Text style={styles.headline}>{userProfile.job ? userProfile.job.name : " "}</Text>
           </View>
 
           {/* Contact Information */}

@@ -136,7 +136,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
   return (
     <div className="flex flex-col items-center font-default rounded-lg border border-newColor px-4 pb-4">
       <h2 className="text-3xl font-semibold text-second my-4 pb-4 mb-4">
-        Additional Information (Optional)
+        Informations Complémentaires
       </h2>
 
       <div className="w-96 mb-2">
@@ -148,8 +148,8 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
           className="px-4 py-2 rounded border border-gray w-full h-32 text-secondary resize-none"
         />
         <p className="text-gray-500 text-sm mt-1 text-end">
-          {remainingCharacters} character{remainingCharacters !== 1 ? "s" : ""}{" "}
-          remaining
+          {remainingCharacters} caractères {remainingCharacters !== 1 ? "s" : ""}{" "}
+          restants
         </p>
       </div>
 
@@ -211,7 +211,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({
 
       <input
         type="number"
-        placeholder="Année d'experience"
+        placeholder="Années d’expérience"
         value={yearsOfExperience}
         onChange={(e) => setYearsOfExperience(e.target.value)}
         className="px-4 py-2 rounded border border-gray w-96 mb-4 text-secondary"

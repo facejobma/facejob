@@ -108,7 +108,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
 
             <div className="w-96 mb-4">
         <textarea
-            placeholder="décrire votre entreprise (secteur, environnement)..."
+            placeholder="Décrire votre entreprise (secteur, environnement)..."
             value={bio}
             onChange={handleBioChange}
             maxLength={maxLength}
@@ -161,7 +161,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             <div className="w-96 mb-4">
                 <input
                     type="text"
-                    placeholder="Address"
+                    placeholder="Adresse"
                     value={adresse}
                     onChange={(e) => setAdresse(e.target.value)}
                     className="px-4 py-2 rounded border border-gray w-full text-secondary"

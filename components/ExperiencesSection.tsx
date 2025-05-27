@@ -24,6 +24,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   experiences,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [selectedExperience, setSelectedExperience] =
@@ -87,7 +88,8 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     e: React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
-
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     if (selectedExperience) {
       // Update existing experience
       try {
@@ -122,6 +124,8 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         }
       } catch (error) {
         console.error("Error updating experience:", error);
+      } finally {
+        setIsSubmitting(false); // réactive après soumission
       }
     } else {
       // Add new experience
@@ -161,6 +165,8 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         }
       } catch (error) {
         console.error("Error adding new experience:", error);
+      } finally {
+        setIsSubmitting(false); // réactive après soumission
       }
     }
 
@@ -338,12 +344,20 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               />
             </>
           )}
+
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-primary-1 text-white py-2 px-4 rounded-md"
+            disabled={isSubmitting}
+            className={`w-full py-2 px-4 rounded-md text-white ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-1"
+              }`}
           >
-            {selectedExperience ? "Mettre à jour" : "Ajouter"}
+            {isSubmitting
+              ? "Envoi en cours..."
+              : selectedExperience
+                ? "Mettre à jour"
+                : "Ajouter"}
           </button>
+
         </form>
       </Modal>
     </div>

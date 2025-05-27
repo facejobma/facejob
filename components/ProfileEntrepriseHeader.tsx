@@ -173,7 +173,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             <img
               src={image}
               alt="Profile Avatar"
-              className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+              className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-contain"
             />
           </div>
         )}

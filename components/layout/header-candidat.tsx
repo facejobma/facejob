@@ -36,12 +36,13 @@ export default function HeaderCandidat() {
             <Search className="absolute right-2 w-5 h-5 text-gray-400" />
           </div> */}
           <div className="hidden lg:flex items-center ml-48 gap-10">
+              {/*** 
             <Link
               href="/dashboard/entreprise/services"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
             >
               SERVICES
-            </Link>
+            </Link>*/}
             <Link
               href="/blogs"
               className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"

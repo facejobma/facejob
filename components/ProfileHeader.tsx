@@ -206,7 +206,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <img
               src={formData.newImage}
               alt="Profile Avatar"
-              className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
+              className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-contain"
             />
           </div>
         )}

@@ -103,7 +103,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     return (
         <div className="flex flex-col items-center font-default rounded-lg border border-newColor p-4">
             <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4">
-                Information supplémentaire (Optionnel)
+                Informations complémentaires (optionnel)
             </h2>
 
             <div className="w-96 mb-4">
@@ -115,8 +115,10 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             className="px-4 py-2 rounded border border-gray w-full h-32 text-secondary resize-none"
         />
                 <p className="text-gray-500 text-sm mt-1 text-end">
-                    {remainingCharacters} character{remainingCharacters !== 1 ? "s" : ""}{" "}
-                    Restant
+                    {remainingCharacters} caractère{remainingCharacters !== 1 ? "s" : ""}{" "}
+                    {remainingCharacters} restant{remainingCharacters !== 1 ? "s" : ""}{" "}
+
+                    
                 </p>
             </div>
 

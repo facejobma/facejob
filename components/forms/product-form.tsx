@@ -46,8 +46,8 @@ const formSchema = z.object({
   sector: z
     .string()
     .min(3, { message: "Sector must be at least 3 characters" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  tel: z.string().min(10, { message: "Invalid phone number" }),
+  email: z.string().email({ message: "adresse mail invalide" }),
+  tel: z.string().min(10, { message: "numéro de téléphone invalide" }),
   bio: z.string().min(3, { message: "Bio must be at least 3 characters" })
 });
 

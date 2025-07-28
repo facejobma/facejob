@@ -38,13 +38,10 @@ interface Payment {
 
 const Hiring: React.FC = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [selectedCandidate, setSelectedCandidate] = useState<number | null>(
-    null,
-  );
+  const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
   const [loadingPDF, setLoadingPDF] = useState<{ [key: number]: boolean }>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [candidateToConsume, setCandidateToConsume] =
-    useState<Candidate | null>(null);
+  const [candidateToConsume, setCandidateToConsume] = useState<Candidate | null>(null);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [lastPayment, setLastPayment] = useState<Payment | null>(null);
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
@@ -64,10 +61,6 @@ const Hiring: React.FC = () => {
     if (selectedSector) {
       const sector = sectors.find((sec) => sec.id === Number(selectedSector));
       setFilteredJobs(sector ? sector.jobs : []);
-
-      // console.log("sector, ", sector.jobs);
-      // console.log("filtered Jobs, ", filteredJobs);
-
       setSelectedJob("");
     } else {
       setFilteredJobs([]);
@@ -95,7 +88,6 @@ const Hiring: React.FC = () => {
 
   const fetchLastPayment = async () => {
     try {
-      // setLoading(true);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
         {
@@ -130,7 +122,6 @@ const Hiring: React.FC = () => {
         );
         const data = await response.json();
         setCandidates(data);
-        // console.log("data, ", data);
       } catch (error) {
         console.error("Error fetching candidates:", error);
         toast.error("Error fetching candidates!");
@@ -140,7 +131,6 @@ const Hiring: React.FC = () => {
     fetchCandidates();
     fetchSectors();
     fetchLastPayment();
-    // setLoading(false);
   }, [authToken, companyId]);
 
   const handleGenerateCV = (candidateId: number) => {
@@ -149,13 +139,13 @@ const Hiring: React.FC = () => {
 
     setTimeout(() => {
       setLoadingPDF((prev) => ({ ...prev, [candidateId]: false }));
-    }, 500); // Simulating loading time
+    }, 500);
   };
 
   const handleConsumeClick = (candidate: Candidate) => {
     if (
       lastPayment &&
-      lastPayment.status != "pending" &&
+      lastPayment.status !== "pending" &&
       lastPayment.cv_video_remaining > 0
     ) {
       setCandidateToConsume(candidate);
@@ -168,7 +158,6 @@ const Hiring: React.FC = () => {
   const handleConfirmConsume = async () => {
     if (candidateToConsume) {
       try {
-        // Check if the video has already been consumed by the enterprise
         const checkResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
           {
@@ -192,13 +181,10 @@ const Hiring: React.FC = () => {
         const checkData = await checkResponse.json();
 
         if (checkData.consumed) {
-          toast.error(
-            "This video has already been consumed by your enterprise.",
-          );
+          toast.error("This video has already been consumed by your enterprise.");
           return;
         }
 
-        // If not consumed, proceed to consume the video
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
           {
@@ -235,22 +221,16 @@ const Hiring: React.FC = () => {
   };
 
   const handleUpgradePlan = () => {
-    // Redirect to the upgrade plan page
     window.location.href = "/dashboard/entreprise/services";
   };
 
   const filteredCandidates = candidates.filter((candidate) => {
     return (
       candidate.is_verified === "Accepted" &&
-      // lastPayment &&
-      // lastPayment.cv_video_remaining > 0 &&
-      (!selectedSector ||
-        candidate.job?.sector_id === Number(selectedSector)) &&
+      (!selectedSector || candidate.job?.sector_id === Number(selectedSector)) &&
       (!selectedJob || candidate.job.id === Number(selectedJob))
     );
   });
-
-  // console.log("filteredCandidates, ", filteredCandidates);
 
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 bg-gradient-to-br from-white to-gray-300 rounded-lg shadow-xl ">
@@ -321,7 +301,6 @@ const Hiring: React.FC = () => {
               key={`${candidate.cv_id}`}
               className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:-translate-y-1 duration-300"
             >
-              {/* Video Section */}
               <div className="relative group">
                 <video
                   src={candidate.link}
@@ -330,13 +309,7 @@ const Hiring: React.FC = () => {
                 >
                   Your browser does not support the video tag.
                 </video>
-                {/* Play Icon Hover Effect */}
-                {/* <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="text-white text-2xl font-semibold">🎥</div>
-                </div> */}
               </div>
-
-              {/* Candidate Details Section */}
               <div className="p-6 text-center">
                 <h3 className="text-xl font-bold text-gray-800">
                   {candidate.first_name[0]}. {candidate.last_name[0]}.
@@ -345,27 +318,25 @@ const Hiring: React.FC = () => {
                 <p className="text-gray-500 text-sm">
                   {candidate.nb_experiences} ans d'expérience
                 </p>
-
-                {/* Action Buttons */}
                 <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
                   {selectedCandidate === candidate.id &&
                   !loadingPDF[candidate.id] ? (
-                 <PDFDownloadLink
-                   document={<ResumePDF candidateId={candidate.id} />}
-                   fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                   className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
-                 >
-                   {({ loading }: BlobProviderParams) =>
-                     loading ? (
-                       <span>
-                         <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                         Génération...
-                       </span>
-                     ) : (
-                       <span>Consulter CV</span>
-                     )
-                   }
-                 </PDFDownloadLink>
+                    <PDFDownloadLink
+                      document={<ResumePDF candidateId={candidate.id} />}
+                      fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
+                      className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
+                    >
+                      {({ loading }: BlobProviderParams) =>
+                        loading ? (
+                          <span>
+                            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Génération...
+                          </span>
+                        ) : (
+                          <span>Consulter CV</span>
+                        )
+                      }
+                    </PDFDownloadLink>
                   ) : (
                     <button
                       onClick={() => handleGenerateCV(candidate.id)}

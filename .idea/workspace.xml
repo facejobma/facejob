@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92b7253-a11e-4f4b-8b9f-e1740c014bac" name="Changes" comment="remove left , right ( I don't know If I'll break the ui )">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="c92b7253-a11e-4f4b-8b9f-e1740c014bac" name="Changes" comment="fix: update PDFDownloadLink to use BlobProviderParams for loading state" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +84,7 @@
       <workItem from="1722979444353" duration="2963000" />
       <workItem from="1723398978985" duration="23000" />
       <workItem from="1723650898380" duration="315000" />
-      <workItem from="1753725891265" duration="172000" />
+      <workItem from="1753725891265" duration="510000" />
     </task>
     <task id="LOCAL-00001" summary="Fix path to completed path">
       <option name="closed" value="true" />
@@ -152,7 +150,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723062592933</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="fix: update PDFDownloadLink to use BlobProviderParams for loading state">
+      <option name="closed" value="true" />
+      <created>1753726286912</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1753726286912</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,6 +174,7 @@
     <MESSAGE value="update the maximum allowed size" />
     <MESSAGE value="safe delete date-range-picker" />
     <MESSAGE value="remove left , right ( I don't know If I'll break the ui )" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove left , right ( I don't know If I'll break the ui )" />
+    <MESSAGE value="fix: update PDFDownloadLink to use BlobProviderParams for loading state" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: update PDFDownloadLink to use BlobProviderParams for loading state" />
   </component>
 </project>

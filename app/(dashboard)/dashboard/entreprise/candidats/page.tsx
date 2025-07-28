@@ -350,22 +350,22 @@ const Hiring: React.FC = () => {
                 <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
                   {selectedCandidate === candidate.id &&
                   !loadingPDF[candidate.id] ? (
-                    <PDFDownloadLink
-                      document={<ResumePDF candidateId={candidate.id} />}
-                      fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                      className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
-                    >
-                      {({ loading }: BlobProviderParams) =>
-                        loading ? (
-                          <>
-                            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Génération...
-                          </>
-                        ) : (
-                          <span>Consulter CV</span>
-                        )
-                      }
-                    </PDFDownloadLink>
+                 <PDFDownloadLink
+                   document={<ResumePDF candidateId={candidate.id} />}
+                   fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
+                   className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
+                 >
+                   {({ loading }: BlobProviderParams) =>
+                     loading ? (
+                       <span>
+                         <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                         Génération...
+                       </span>
+                     ) : (
+                       <span>Consulter CV</span>
+                     )
+                   }
+                 </PDFDownloadLink>
                   ) : (
                     <button
                       onClick={() => handleGenerateCV(candidate.id)}

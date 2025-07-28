@@ -326,17 +326,16 @@ const Hiring: React.FC = () => {
                       fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
                       className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
                     >
-                      {/*{({ loading}: any) =>*/}
-                      {/*  loading ? (*/}
-                      {/*    <span>*/}
-                      {/*      <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>*/}
-                      {/*      Génération...*/}
-                      {/*    </span>*/}
-                      {/*  ) : (*/}
-                      {/*    <span>Consulter CV</span>*/}
-                      {/*  )*/}
-                      {/*}*/}
-                      <span>Consulter CV</span>
+                      {({ loading}: any) =>
+                        loading ? (
+                          <span>
+                            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Génération...
+                          </span>
+                        ) : (
+                          <span>Consulter CV</span>
+                        )
+                      }
                     </PDFDownloadLink>
                   ) : (
                     <button

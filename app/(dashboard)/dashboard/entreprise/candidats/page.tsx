@@ -318,7 +318,7 @@ const Hiring: React.FC = () => {
                 <p className="text-gray-500 text-sm">
                   {candidate.nb_experiences} ans d'expérience
                 </p>
-                <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
+            <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
   {selectedCandidate === candidate.id && !loadingPDF[candidate.id] ? (
     <PDFDownloadLink
       document={<ResumePDF candidateId={candidate.id} />}

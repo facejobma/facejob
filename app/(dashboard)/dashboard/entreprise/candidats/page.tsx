@@ -296,76 +296,82 @@ const Hiring: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCandidates.map((candidate) => (
-            <div
-              key={`${candidate.cv_id}`}
-              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:-translate-y-1 duration-300"
-            >
-              <div className="relative group">
-                <video
-                  src={candidate.link}
-                  className="w-full h-56 object-cover"
-                  controls
+        {filteredCandidates.map((candidate) => (
+          <div
+            key={`${candidate.cv_id}`}
+            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:-translate-y-1 duration-300"
+          >
+            <div className="relative group">
+              <video
+                src={candidate.link}
+                className="w-full h-56 object-cover"
+                controls
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+      
+            <div className="p-6 text-center">
+              <h3 className="text-xl font-bold text-gray-800">
+                {candidate.first_name[0]}. {candidate.last_name[0]}.
+              </h3>
+              <p className="text-gray-600">{candidate.job?.name}</p>
+              <p className="text-gray-500 text-sm">
+                {candidate.nb_experiences} ans d'expérience
+              </p>
+      
+              <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
+                {selectedCandidate === candidate.id && !loadingPDF[candidate.id] ? (
+                  <PDFDownloadLink
+                    document={<ResumePDF candidateId={candidate.id} />}
+                    fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
+                    className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
+                  >
+                    {({ loading, error }) => {
+                      if (loading) {
+                        return (
+                          <span className="flex items-center gap-2">
+                            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Génération...
+                          </span>
+                        );
+                      }
+                      if (error) {
+                        return <span>Erreur lors de la génération</span>;
+                      }
+                      return <span>Consulter CV</span>;
+                    }}
+                  </PDFDownloadLink>
+                ) : (
+                  <button
+                    onClick={() => handleGenerateCV(candidate.id)}
+                    className={`bg-gradient-to-b from-primary to-primary-2 hover:from-primary hover:to-primary text-white font-medium py-2 px-4 rounded-full transition-all duration-300 flex items-center gap-2 ${
+                      loadingPDF[candidate.id] ? "cursor-wait opacity-75" : ""
+                    }`}
+                  >
+                    {loadingPDF[candidate.id] ? (
+                      <span className="flex items-center gap-2">
+                        <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Génération...
+                      </span>
+                    ) : (
+                      "Extraire CV"
+                    )}
+                  </button>
+                )}
+      
+                <button
+                  onClick={() => handleConsumeClick(candidate)}
+                  className="bg-white hover:bg-gray-100 text-primary font-semibold py-2 px-4 rounded-full shadow-lg border border-primary transition-all duration-300 flex items-center gap-2"
                 >
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-              <div className="p-6 text-center">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {candidate.first_name[0]}. {candidate.last_name[0]}.
-                </h3>
-                <p className="text-gray-600">{candidate.job?.name}</p>
-                <p className="text-gray-500 text-sm">
-                  {candidate.nb_experiences} ans d'expérience
-                </p>
-            <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
-  {selectedCandidate === candidate.id && !loadingPDF[candidate.id] ? (
-    <PDFDownloadLink
-      document={<ResumePDF candidateId={candidate.id} />}
-      fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-      className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
-    >
-      {({ loading, error }: { loading: boolean; error?: any }) =>
-        loading ? (
-          <span className="flex items-center gap-2">
-            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Génération...
-          </span>
-        ) : (
-          <span>Consulter CV</span>
-        )
-      }
-    </PDFDownloadLink>
-  ) : (
-    <button
-      onClick={() => handleGenerateCV(candidate.id)}
-      className={`bg-gradient-to-b from-primary to-primary-2 hover:from-primary hover:to-primary text-white font-medium py-2 px-4 rounded-full transition-all duration-300 flex items-center gap-2 ${
-        loadingPDF[candidate.id] ? "cursor-wait opacity-75" : ""
-      }`}
-    >
-      {loadingPDF[candidate.id] ? (
-        <span className="flex items-center gap-2">
-          <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          Génération...
-        </span>
-      ) : (
-        "Extraire CV"
-      )}
-    </button>
-  )}
-
-  <button
-    onClick={() => handleConsumeClick(candidate)}
-    className="bg-white hover:bg-gray-100 text-primary font-semibold py-2 px-4 rounded-full shadow-lg border border-primary transition-all duration-300 flex items-center gap-2"
-  >
-    Consommer
-  </button>
-</div>
-
+                  Consommer
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
+      
       )}
 
       {isModalOpen && (

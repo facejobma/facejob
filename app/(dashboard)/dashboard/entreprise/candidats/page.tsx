@@ -325,6 +325,8 @@ const Hiring: React.FC = () => {
       fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
       className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
     >
+
+      
       {({ loading, error }: { loading: boolean; error?: any }) =>
         loading ? (
           <span className="flex items-center gap-2">

@@ -319,49 +319,49 @@ const Hiring: React.FC = () => {
                   {candidate.nb_experiences} ans d'expérience
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
-                  {selectedCandidate === candidate.id &&
-                  !loadingPDF[candidate.id] ? (
-                    <PDFDownloadLink
-                      document={<ResumePDF candidateId={candidate.id} />}
-                      fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                      className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
-                    >
-                      {({ loading}: any) =>
-                        loading ? (
-                          <span>
-                            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Génération...
-                          </span>
-                        ) : (
-                          <span>Consulter CV</span>
-                        )
-                      }
-                    </PDFDownloadLink>
-                  ) : (
-                    <button
-                      onClick={() => handleGenerateCV(candidate.id)}
-                      className={`bg-gradient-to-b from-primary to-primary-2 hover:from-primary hover:to-primary text-white font-medium py-2 px-4 rounded-full transition-all duration-300 flex items-center gap-2 ${
-                        loadingPDF[candidate.id] ? "cursor-wait opacity-75" : ""
-                      }`}
-                    >
-                      {loadingPDF[candidate.id] ? (
-                        <>
-                          <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Génération...
-                        </>
-                      ) : (
-                        "Extraire CV"
-                      )}
-                    </button>
-                  )}
+  {selectedCandidate === candidate.id && !loadingPDF[candidate.id] ? (
+    <PDFDownloadLink
+      document={<ResumePDF candidateId={candidate.id} />}
+      fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
+      className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
+    >
+      {({ loading, error }: { loading: boolean; error?: any }) =>
+        loading ? (
+          <span className="flex items-center gap-2">
+            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Génération...
+          </span>
+        ) : (
+          <span>Consulter CV</span>
+        )
+      }
+    </PDFDownloadLink>
+  ) : (
+    <button
+      onClick={() => handleGenerateCV(candidate.id)}
+      className={`bg-gradient-to-b from-primary to-primary-2 hover:from-primary hover:to-primary text-white font-medium py-2 px-4 rounded-full transition-all duration-300 flex items-center gap-2 ${
+        loadingPDF[candidate.id] ? "cursor-wait opacity-75" : ""
+      }`}
+    >
+      {loadingPDF[candidate.id] ? (
+        <span className="flex items-center gap-2">
+          <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          Génération...
+        </span>
+      ) : (
+        "Extraire CV"
+      )}
+    </button>
+  )}
 
-                  <button
-                    onClick={() => handleConsumeClick(candidate)}
-                    className="bg-white hover:bg-gray-100 text-primary font-semibold py-2 px-4 rounded-full shadow-lg border border-primary transition-all duration-300 flex items-center gap-2"
-                  >
-                    Consommer
-                  </button>
-                </div>
+  <button
+    onClick={() => handleConsumeClick(candidate)}
+    className="bg-white hover:bg-gray-100 text-primary font-semibold py-2 px-4 rounded-full shadow-lg border border-primary transition-all duration-300 flex items-center gap-2"
+  >
+    Consommer
+  </button>
+</div>
+
               </div>
             </div>
           ))}

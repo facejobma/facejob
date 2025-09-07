@@ -68,17 +68,26 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
   const filteredJobs =
     sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [];
 
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (!bio.trim()) newErrors.bio = "La bio est obligatoire.";
-    if (!selectedSector) newErrors.sector = "Veuillez sélectionner un secteur.";
-    if (!selectedJob) newErrors.job = "Veuillez sélectionner un métier.";
-    if (!yearsOfExperience.trim())
-      newErrors.yearsOfExperience = "Veuillez indiquer vos années d’expérience.";
+const validateForm = () => {
+  const newErrors: { [key: string]: string } = {};
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const minBioLength = 15; // nombre minimal de caractères
+
+  if (!bio.trim()) {
+    newErrors.bio = "La description est obligatoire.";
+  } else if (bio.trim().length < minBioLength) {
+    newErrors.bio = `La description doit contenir au moins ${minBioLength} caractères.`;
+  }
+
+  if (!selectedSector) newErrors.sector = "Veuillez sélectionner un secteur.";
+  if (!selectedJob) newErrors.job = "Veuillez sélectionner un métier.";
+  if (!yearsOfExperience.trim())
+    newErrors.yearsOfExperience = "Veuillez indiquer vos années d’expérience.";
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -124,23 +133,21 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
   return (
     <div className="flex flex-col items-center font-default rounded-lg border border-newColor px-4 pb-4">
       <h2 className="text-3xl font-semibold text-second my-4 pb-4 mb-4">
-        Informations complémentaires (test az)
+        Informations complémentaires
       </h2>
 
       {/* Bio */}
       <div className="w-96 mb-2">
         <textarea
-          placeholder="Écrire une description de vous-même..."
+          placeholder="écrire une description de vous-même (votre carrière professionnelle..)"
           value={bio}
           onChange={handleBioChange}
           maxLength={maxLength}
-          className={`px-4 py-2 rounded border w-full h-32 text-secondary resize-none ${
-            errors.bio ? "border-red-500" : "border-gray"
-          }`}
+          className="px-4 py-2 rounded border border-gray w-full h-32 text-secondary resize-none"
         />
         {errors.bio && <p className="text-red-500 text-sm">{errors.bio}</p>}
         <p className="text-gray-500 text-sm mt-1 text-end">
-          {remainingCharacters} caractères restants
+          {remainingCharacters} caractère{remainingCharacters !== 1 ? "s" : ""} restant
         </p>
       </div>
 
@@ -152,11 +159,11 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
             setSelectedSector(e.target.value);
             setSelectedJob("");
           }}
-          className={`px-4 py-2 rounded border w-full appearance-none bg-white ${
-            errors.sector ? "border-red-500" : "border-gray"
-          }`}
+          className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         >
-          <option value="">Sélectionnez le secteur.</option>
+          <option value="" disabled>
+            Sélectionnez le secteur.
+          </option>
           {sectors.map((sector) => (
             <option key={sector.id} value={sector.id}>
               {sector.name}
@@ -172,9 +179,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
           value={selectedJob}
           onChange={(e) => setSelectedJob(e.target.value)}
           disabled={!selectedSector}
-          className={`px-4 py-2 rounded border w-full appearance-none bg-white ${
-            errors.job ? "border-red-500" : "border-gray"
-          }`}
+          className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         >
           <option value="">Sélectionnez le métier.</option>
           {filteredJobs.map((job) => (
@@ -187,12 +192,18 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
       </div>
 
       {/* Image */}
-      <div {...getRootProps()} className="w-96 mb-4 border border-gray p-4 rounded">
+      <div
+        {...getRootProps()}
+        className="w-96 mb-4 border border-gray p-4 rounded"
+      >
         <input {...getInputProps()} />
-        <p className="text-secondary">Déposez une photo ou cliquez pour choisir</p>
+        <p className="text-secondary">
+          Faites glisser un photo de profil ici ou cliquez pour sélectionner un
+          photo
+        </p>
         {image && (
           <div className="mt-5 flex justify-center items-center flex-col ">
-            <p className="text-primary mb-1">Image sélectionnée:</p>
+            <p className="text-primary mb-1">Selected Image:</p>
             <img
               src={URL.createObjectURL(image)}
               alt="image sélectionnée"
@@ -203,23 +214,20 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
       </div>
 
       {/* Années d'expérience */}
-      <div className="w-96 mb-2">
-        <input
-          type="number"
-          placeholder="Années d’expérience"
-          value={yearsOfExperience}
-          onChange={(e) => setYearsOfExperience(e.target.value)}
-          className={`px-4 py-2 rounded border w-full text-secondary ${
-            errors.yearsOfExperience ? "border-red-500" : "border-gray"
-          }`}
-        />
-        {errors.yearsOfExperience && (
-          <p className="text-red-500 text-sm">{errors.yearsOfExperience}</p>
-        )}
-      </div>
-
+      
+      <input
+        type="number"
+        placeholder="Années d’expérience"
+        value={yearsOfExperience}
+        onChange={(e) => setYearsOfExperience(e.target.value)}
+        className="px-4 py-2 rounded border border-gray w-96  text-secondary"
+      />
+      {errors.yearsOfExperience && (
+        <p className="text-red-500 text-sm w-96">{errors.yearsOfExperience}</p>
+      )}
+<div className="mb-4"></div>
       {/* Boutons */}
-      <div className="w-96 mb-1">
+      <div className="w-96 mb-1 flexrounded px-4 py-2">
         <button
           onClick={() => {
             onSkip();
@@ -231,10 +239,10 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
           Ignorer
         </button>
       </div>
-      <div className="w-96">
+      <div className="w-96  flexrounded px-4 py-2">
         <button
           onClick={handleSubmit}
-          className="py-2 px-10 rounded-full font-medium text-base text-white bg-primary w-full"
+          className=" py-2 px-10 rounded-full font-medium text-base text-white bg-primary w-full"
         >
           Soumettre
         </button>

@@ -124,7 +124,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
   return (
     <div className="flex flex-col items-center font-default rounded-lg border border-newColor px-4 pb-4">
       <h2 className="text-3xl font-semibold text-second my-4 pb-4 mb-4">
-        Informations complémentaires (test)
+        Informations complémentaires (test az)
       </h2>
 
       {/* Bio */}

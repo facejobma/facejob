@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { Circles } from "react-loader-spinner";
 import OffreCard from "@/components/offreCard";
 import { toast } from "react-hot-toast";
+import Select from "react-select";
 
 const OffresPage: React.FC = () => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
@@ -16,6 +17,16 @@ const OffresPage: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
   const [selectedEntreprise, setSelectedEntreprise] = useState<string>("");
+  // Trier les entreprises par ordre alphabétique
+  const sortedEntreprises = [...entreprises].sort((a, b) =>
+    a.company_name.localeCompare(b.company_name)
+  );
+
+  // Transformer en format compatible avec react-select
+  const options = sortedEntreprises.map((entreprise) => ({
+    value: entreprise.id,
+    label: entreprise.company_name,
+  }));
 
   useEffect(() => {
     if (selectedSector) {
@@ -165,19 +176,14 @@ const OffresPage: React.FC = () => {
             </div>
           </div>
           <div className="relative w-64">
-            <select
-              className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-              value={selectedEntreprise}
-              onChange={(e) => setSelectedEntreprise(e.target.value)}
-            >
-              <option value="">Sélectionner l’Entreprise</option>
-              {entreprises.map((entreprise) => (
-                <option key={entreprise.id} value={entreprise.id}>
-                  {entreprise.company_name}{" "}
-                  {/* Ensure this is the correct field */}
-                </option>
-              ))}
-            </select>
+           <Select
+      options={options}
+      value={options.find((opt) => opt.value === selectedEntreprise) || null}
+      onChange={(selected) => setSelectedEntreprise(selected ? selected.value : "")}
+      placeholder="Sélectionner l’Entreprise"
+      isClearable
+      className="w-full"
+    />
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
                 <path d="M7 10l5 5 5-5H7z" />

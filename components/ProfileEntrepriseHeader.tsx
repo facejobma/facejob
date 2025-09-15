@@ -4,6 +4,10 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
+import { UploadDropzone } from "@uploadthing/react";
+import { OurFileRouter } from "@/app/api/uploadthing/core";
+import { FaTrash } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 interface ProfileEntrepHeaderProps {
   id: number;
@@ -38,6 +42,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
 
   const [secteur, setSecteur] = useState("");
   const [secteurOptions, setSecteurOptions] = useState<SecteurOptions[]>([]);
+  const [logoUrl, setLogoUrl] = useState<string>("");
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -46,6 +51,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
     newSiegeSocial: siegeSocial || "",
     newWebsite: website || "",
       newCreationDate: creationDate || "",
+      newImage: image || "", 
   });
   const [localCompanyName, setLocalCompanyName] = useState(company_name);
   const [localSectorName, setLocalSectorName] = useState(sector_name);
@@ -82,6 +88,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             adresse: formData.newSiegeSocial,
             site_web: formData.newWebsite,
               created_at: formattedCreationDate,
+              logo:formData.newImage,
           }),
         },
       );
@@ -140,6 +147,22 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
 
   const handlePasswordChangeClick = () => {
     router.push("/dashboard/entreprise/change-password"); // Adjust the route according to your project structure
+  };
+  const handleRemoveImage = () => {
+    setFormData((prevData) => ({ ...prevData, newImage: "" }));
+  };
+  const handleImageUploadComplete = (res: any) => {
+    if (res && res[0] && res[0].fileUrl) {
+      setFormData((prevData) => ({
+        ...prevData,
+        newImage: res[0].fileUrl,
+      }));
+      toast.success("Image uploaded successfully!");
+    }
+  };
+
+  const handleImageUploadError = (error: Error) => {
+    toast.error(`Image upload error: ${error.message}`);
   };
 
   return (
@@ -276,6 +299,31 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             placeholder="Enter new siege social"
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
           />
+            <label className="block mb-2 font-bold">Profile Image</label>
+              {formData.newImage ? (
+                <div className="mb-4">
+                  <img
+                    src={formData.newImage}
+                    alt="Profile Preview"
+                    className="w-24 h-24 rounded-full border-2 border-gray-300 mb-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="flex items-center text-red-600 hover:text-red-800"
+                  >
+                    <FaTrash className="mr-2" />
+                    Supprimer
+                  </button>
+                </div>
+              ) : (
+                <UploadDropzone<OurFileRouter>
+                  endpoint="videoUpload"
+                  onClientUploadComplete={handleImageUploadComplete}
+                  onUploadError={handleImageUploadError}
+                  className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer transition-colors border-gray-300"
+                />
+              )}
 
           <button
             type="submit"

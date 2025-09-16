@@ -65,6 +65,21 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             return;
         }
 
+        // Validation des trois premières informations
+        if (!bio.trim()) {
+            toast.error("Veuillez décrire votre entreprise");
+            return;
+        }
+
+        if (!secteur) {
+            toast.error("Veuillez sélectionner un secteur");
+            return;
+        }
+
+        if (!logoUrl) {
+            toast.error("Veuillez uploader le logo de votre entreprise");
+            return;
+        }
         try {
             const formData = {
                 user_id: Number(sessionStorage.getItem("userId")) || "",
@@ -200,7 +215,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                         </p>
                         {!isUploading ? (
                             <UploadDropzone<OurFileRouter>
-                                endpoint="videoUpload"
+                                endpoint="imageUpload"
                                 onClientUploadComplete={handleUploadComplete}
                                 onUploadError={handleUploadError}
                                 onUploadBegin={handleUploadBegin}

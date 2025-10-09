@@ -10,6 +10,8 @@ import {
   FileText,
   ReceiptText,
   ArrowRightCircle,
+  X,
+  Play,
 } from "lucide-react";
 import { FiUser } from "react-icons/fi";
 import { OfferCandidatActions } from "../OfferCandidatActions";
@@ -131,7 +133,6 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
     fetchSectors();
   }, []);
 
-  // Mettre à jour les secteurs et métiers uniquement lors du montage du composant
   useEffect(() => {
     if (initialData.sector_id) {
       setSelectedSector(initialData.sector_id.toString());
@@ -141,172 +142,254 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
     }
   }, [initialData.sector_id, initialData.job_id]);
 
-  // Fonction pour obtenir le nom du secteur par son ID
   const getSectorName = (sectorId: number) => {
     const sector = sectors.find((s) => s.id === sectorId);
     return sector ? sector.name : "Secteur inconnu";
   };
 
-  // Fonction pour obtenir le nom du job par son ID
   const getJobName = (jobId: number) => {
     const sector = sectors.find((s) => s.id === initialData.sector_id);
     const job = sector?.jobs.find((j) => j.id === jobId);
     return job ? job.name : "Métier inconnu";
   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-lg max-w-xl mx-auto mt-8 p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-primary">{initialData.titre}</h1>
-        <span className="bg-green-700 text-white rounded-full px-2 py-1 text-xs flex-shrink-0 ml-4">
-          {initialData.candidats_count} Candidats
+  const getStatusBadge = () => {
+    if (isPending) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+          En attente
         </span>
-      </div>
-      <div className="mb-4 flex items-center">
-        <Building className="mr-2 text-primary" />
-        <p>
-          <strong>Entreprise :</strong> {initialData.company_name}
-        </p>
-      </div>
-      <div className="mb-4 flex items-center">
-        <ReceiptText className="mr-2 text-primary" />
-        <p>
-          <strong>Métier :</strong> {getJobName(initialData.job_id)}
-        </p>
-      </div>
-      <div className="mb-4 flex items-center">
-        <Calendar className="mr-2 text-primary" />
-        <p>
-          <strong>Date de Démarrage :</strong> {initialData.date_debut}
-        </p>
-      </div>
-      <div className="mb-4 flex items-center">
-        <Briefcase className="mr-2 text-primary" />
-        <p>
-          <strong>Type de Contrat :</strong> {initialData.contractType}
-        </p>
-      </div>
-      <div className="mb-4 flex items-center">
-        <MapPin className="mr-2 text-primary" />
-        <p>
-          <strong>Secteur :</strong> {getSectorName(initialData.sector_id)}
-        </p>
+      );
+    }
+    if (isAccepted) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+          <CheckCircle className="w-3.5 h-3.5" />
+          Approuvé
+        </span>
+      );
+    }
+    if (isDeclined) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+          <XCircle className="w-3.5 h-3.5" />
+          Refusé
+        </span>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-white to-gray-50  shadow-xl max-w-4xl mx-auto mt-8 overflow-hidden border border-gray-100">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+        <div className="flex justify-between items-start mb-3">
+          <h1 className="text-3xl font-bold">{initialData.titre}</h1>
+          {getStatusBadge()}
+        </div>
+        <div className="flex items-center gap-4 text-blue-100">
+          <div className="flex items-center gap-2">
+            <Building className="w-4 h-4" />
+            <span className="text-sm font-medium">{initialData.company_name}</span>
+          </div>
+          <div className="flex items-center gap-2 bg-blue-500/30 px-3 py-1 rounded-full">
+            <User className="w-4 h-4" />
+            <span className="text-sm font-semibold">{initialData.candidats_count} Candidats</span>
+          </div>
+        </div>
       </div>
 
-      <div className="mb-4 flex items-center">
-        <FileText className="mr-2 text-primary" />
-        <p>
-          <strong>Description :</strong>
-        </p>
-      </div>
-      <div className="bg-gray-100 rounded-lg p-4 mb-4">
-        <p className="text-gray-600">{initialData.description}</p>
-      </div>
-      <div className="mb-4">
-        <div className="mb-4 flex items-center">
-          <User className="mr-2 text-primary" />
-          <h2 className="text-lg font-semibold">Candidats</h2>
-        </div>
-        <div className="max-h-60 overflow-y-auto border border-gray-300 rounded-lg p-4">
-          {displayedApplications?.map((application, index) => (
-            <div
-              key={index}
-              className="flex items-center space-x-2 mb-2 border-b border-gray-200 pb-2"
-            >
-              {application.candidat.image ? (
-                <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                  <img
-                    src={application.candidat.image}
-                    alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                  <FiUser className="text-gray-400 h-6 w-6" />
-                </div>
-              )}
-              <div className="flex-grow">
-                <p className="text-gray-600">
-                  {`${application.candidat.first_name} ${application.candidat.last_name}`}
-                </p>
-                <p className="text-gray-500 text-sm">
-                  {new Date(application.created_at).toLocaleString("fr-FR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <a
-                  onClick={() => {
-                    setVideoLink(application.link);
-                    setShowModal(true);
-                  }}
-                  className="text-blue-500 hover:underline"
-                >
-                  Voir Cv vidéo
-                </a>
-              </div>
-              <OfferCandidatActions
-                candidat={application.candidat}
-                postuler={application.postuler}
-              />
+      <div className="p-6 space-y-6">
+        {/* Info Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <ReceiptText className="w-5 h-5 text-blue-600" />
             </div>
-          ))}
+            <div>
+              <p className="text-xs text-gray-500 font-medium">Métier</p>
+              <p className="text-sm font-semibold text-gray-800">{getJobName(initialData.job_id)}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="p-2 bg-green-50 rounded-lg">
+              <Calendar className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-medium">Date de Démarrage</p>
+              <p className="text-sm font-semibold text-gray-800">{initialData.date_debut}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="p-2 bg-purple-50 rounded-lg">
+              <Briefcase className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-medium">Type de Contrat</p>
+              <p className="text-sm font-semibold text-gray-800">{initialData.contractType}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="p-2 bg-orange-50 rounded-lg">
+              <MapPin className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-medium">Secteur</p>
+              <p className="text-sm font-semibold text-gray-800">{getSectorName(initialData.sector_id)}</p>
+            </div>
+          </div>
         </div>
-        {initialData?.applications?.length > 4 && (
-          <button
-            onClick={toggleShowAllCandidates}
-            className="text-blue-500 hover:underline mt-2 block"
-          >
-            {showAllCandidates ? "Voir moins" : "Voir plus"}
-          </button>
-        )}
-      </div>
-      <div className="flex justify-end mt-6 space-x-4">
-        {isPending && (
-          <>
-            <button className="px-4 py-2 bg-gray-500 text-white rounded-full hover:bg-gray-600">
-              Accepter
+
+        {/* Description Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-800">Description</h2>
+          </div>
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4">
+            <p className="text-gray-700 leading-relaxed">{initialData.description}</p>
+          </div>
+        </div>
+
+        {/* Candidates Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <User className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-800">Candidatures</h2>
+          </div>
+          <div className="space-y-3">
+            {displayedApplications?.map((application, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-200 hover:shadow-md transition-all group"
+              >
+                {application.candidat.image ? (
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-blue-100 group-hover:ring-blue-300 transition-all">
+                    <img
+                      src={application.candidat.image}
+                      alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center ring-2 ring-blue-100 group-hover:ring-blue-300 transition-all">
+                    <FiUser className="text-blue-600 h-7 w-7" />
+                  </div>
+                )}
+                <div className="flex-grow">
+                  <p className="font-semibold text-gray-800">
+                    {`${application.candidat.first_name} ${application.candidat.last_name}`}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {new Date(application.created_at).toLocaleString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setVideoLink(application.link);
+                      setShowModal(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium group/button"
+                  >
+                    <Play className="w-3.5 h-3.5 group-hover/button:scale-110 transition-transform" />
+                    Voir CV vidéo
+                  </button>
+                </div>
+                <OfferCandidatActions
+                  candidat={application.candidat}
+                  postuler={application.postuler}
+                />
+              </div>
+            ))}
+          </div>
+          {initialData?.applications?.length > 4 && (
+            <button
+              onClick={toggleShowAllCandidates}
+              className="w-full mt-4 py-2.5 text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
+            >
+              {showAllCandidates ? "Voir moins" : `Voir tous les candidats (${initialData.applications.length})`}
             </button>
-            <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600">
-              Refuser
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
+          {isPending && (
+            <>
+              <button className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Accepter
+              </button>
+              <button className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <XCircle className="w-4 h-4" />
+                Refuser
+              </button>
+            </>
+          )}
+          {isAccepted && (
+            <button className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium shadow-md cursor-default flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Approuvé
             </button>
-          </>
-        )}
-        {isAccepted && (
-          <button className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600">
-            Approuvé
-          </button>
-        )}
-        {isDeclined && (
-          <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600">
-            Refusé
-          </button>
-        )}
+          )}
+          {isDeclined && (
+            <button className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium shadow-md cursor-default flex items-center gap-2">
+              <XCircle className="w-4 h-4" />
+              Refusé
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Modal */}
       {showModal && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div
             ref={modalRef}
-            className="bg-white p-6 rounded-lg max-w-lg w-full space-y-4"
+            className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl animate-in zoom-in duration-200"
           >
-            <h2 className="text-lg font-semibold">CV vidéo</h2>
-            {videoLink && (
-              <video
-                src={videoLink}
-                controls
-                className="w-full h-60 object-cover"
-              />
-            )}
-            <button
-              onClick={() => setShowModal(false)}
-              className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600"
-            >
-              Fermer
-            </button>
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-800">CV Vidéo</h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-6">
+              {videoLink && (
+                <>
+                  {videoLink.endsWith(".mp4") || videoLink.endsWith(".webm") || videoLink.endsWith(".ogg") ? (
+                    <video
+                      src={videoLink}
+                      controls
+                      className="w-full rounded-xl shadow-lg"
+                    />
+                  ) : (
+                    <a
+                      href={videoLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 p-8 bg-blue-50 hover:bg-blue-100 rounded-xl border-2 border-dashed border-blue-300 text-blue-600 font-medium transition-colors"
+                    >
+                      <FileText className="w-6 h-6" />
+                      Ouvrir le fichier dans un nouvel onglet
+                    </a>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

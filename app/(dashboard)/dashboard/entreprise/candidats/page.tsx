@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import { BlobProviderParams, PDFDownloadLink } from "@react-pdf/renderer";
-import ResumePDF from "@/components/ResumePDF";
+import ResumePDF, { downloadResumePDF } from "@/components/ResumePDF";
 import BreadCrumb from "@/components/breadcrumb";
 import { Circles } from "react-loader-spinner";
 
@@ -136,7 +135,7 @@ const Hiring: React.FC = () => {
   const handleGenerateCV = (candidateId: number) => {
     setLoadingPDF((prev) => ({ ...prev, [candidateId]: true }));
     setSelectedCandidate(candidateId);
-
+    downloadResumePDF(candidateId)
     setTimeout(() => {
       setLoadingPDF((prev) => ({ ...prev, [candidateId]: false }));
     }, 500);
@@ -320,29 +319,10 @@ const Hiring: React.FC = () => {
                 {candidate.nb_experiences} ans d'expérience
               </p>
       
+
+
               <div className="mt-6 flex flex-wrap justify-center items-center gap-4">
-                {selectedCandidate === candidate.id && !loadingPDF[candidate.id] ? (
-                  <PDFDownloadLink
-                    document={<ResumePDF candidateId={candidate.id} />}
-                    fileName={`resume-${candidate.first_name}-${candidate.last_name}.pdf`}
-                    className="bg-primary hover:bg-primary text-white font-medium py-2 px-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2"
-                  >
-                    {({ loading, error }) => {
-                      if (loading) {
-                        return (
-                          <span className="flex items-center gap-2">
-                            <div className="loader w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Génération...
-                          </span>
-                        );
-                      }
-                      if (error) {
-                        return <span>Erreur lors de la génération</span>;
-                      }
-                      return <span>Consulter CV</span>;
-                    }}
-                  </PDFDownloadLink>
-                ) : (
+             
                   <button
                     onClick={() => handleGenerateCV(candidate.id)}
                     className={`bg-gradient-to-b from-primary to-primary-2 hover:from-primary hover:to-primary text-white font-medium py-2 px-4 rounded-full transition-all duration-300 flex items-center gap-2 ${
@@ -358,7 +338,7 @@ const Hiring: React.FC = () => {
                       "Extraire CV"
                     )}
                   </button>
-                )}
+                
       
                 <button
                   onClick={() => handleConsumeClick(candidate)}

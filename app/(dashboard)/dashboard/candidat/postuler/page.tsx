@@ -85,10 +85,18 @@ const PublishVideo: React.FC = () => {
           }),
         }
       );
-
       if (response.ok) {
-        toast.success("Votre CV a bien été téléchargé, il est disponible sur votre Dashboard!");
+        toast.success(
+          "Votre CV a bien été téléchargé. Dès que les administrateurs l’auront vérifié, il sera disponible sur votre Dashboard."
+        );
+      
         setUploadStatus("completed");
+      
+        // 🔥 Vider le formulaire après succès
+        setVideoUrl(null);
+        setExperiences("");
+        setSelectedSector("");
+        setSelectedJob("");
       } else {
         toast.error("Failed to publish video!");
         setUploadStatus("failed");
@@ -149,7 +157,7 @@ const PublishVideo: React.FC = () => {
               </div>
             ) : (
               <UploadDropzone<OurFileRouter>
-                endpoint="videoUpload"
+                endpoint="videoUploadOnly"
                 onClientUploadComplete={(res: any) => {
                   console.log("Files: ", res);
                   setVideoUrl(res[0].fileUrl);

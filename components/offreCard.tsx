@@ -170,13 +170,20 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
   const handleValidate = async (selectedVideo: string) => {
     if (!selectedVideo) {
+      toast.error("Veuillez sélectionner une vidéo.");
       return;
     }
-
+  
+    // 🔥 Vérification du profil avant postulation
+    if (!isProfileComplete) {
+      toast.error("Veuillez compléter votre profil avant de postuler.");
+      return;
+    }
+  
     try {
       setLoading(true);
       setIsButtonDisabled(true);
-
+  
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/postuler-offre`,
         {
@@ -191,17 +198,23 @@ const OffreCard: React.FC<OffreCardProps> = ({
             offre_id: offreId,
             postuler_id: selectedVideo,
           }),
-        },
+        }
       );
-
-      setIsConfirmationVisible(true);
-      setSelectedVideo("");
+  
+      if (response.ok) {
+        setIsConfirmationVisible(true);
+        setSelectedVideo("");
+      } else {
+        toast.error("Échec de la candidature. Réessayez plus tard.");
+      }
     } catch (error) {
       console.error("Error submitting application:", error);
+      toast.error("Une erreur est survenue.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="bg-white  shadow-lg hover:shadow-xl transition-all duration-300 mb-6 overflow-hidden border border-gray-100">

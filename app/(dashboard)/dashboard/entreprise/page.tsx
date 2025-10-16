@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
     }
 
     async function getStats() {
-      await fetch(`http://localhost:8000/api/entrepirse-stats/${userId}`, {
+      await fetch(process.env.NEXT_PUBLIC_BACKEND_URL +`/api/entrepirse-stats/${userId}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",

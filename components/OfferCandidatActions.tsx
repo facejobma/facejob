@@ -63,7 +63,7 @@ export const OfferCandidatActions: React.FC<{
   const [candidateToConsume, setCandidateToConsume] = useState<Candidat | null>(
     null,
   );
-  const [postulerToConsume, setPostulerToConsume] = useState<Postuler | null>(
+  const [postulerToConsume, setPostulerToConsume] = useState<any | null>(
     null,
   );
 
@@ -97,15 +97,17 @@ export const OfferCandidatActions: React.FC<{
     fetchLastPayment();
   }, [authToken, companyId]);
 
-  const handleConsumeClick = (postuler: Postuler) => {
+  const handleConsumeClick = (candidat: Candidat) => {
     if (lastPayment && lastPayment.cv_video_remaining > 0) {
-      // setCandidateToConsume(candidat);
-      setPostulerToConsume(postuler);
+       //setCandidateToConsume(candidat);
+      setPostulerToConsume(candidat);
       setIsModalOpen(true);
     } else {
       setIsUpgradeModalOpen(true);
     }
   };
+  
+
 
   const handleConfirmConsume = async () => {
     if (postulerToConsume) {
@@ -195,10 +197,10 @@ export const OfferCandidatActions: React.FC<{
       
             <DropdownMenuItem onClick={() => downloadResumePDF(candidat.id)}>
   <View className="mr-2 h-4 w-4" />
-  Consulter CV
+  Voir CV
 </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
+          <DropdownMenuItem onClick={() => handleConsumeClick(candidat)}>
             <CheckSquare className="mr-2 h-4 w-4" /> Consommer
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -53,6 +53,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
     { id: string; link: string; job_name: string; secteur_name: string }[]
   >([]);
   const [selectedVideo, setSelectedVideo] = useState<string>("");
+  const [selectedVideoId, setSelectedVideoId] = useState<number|null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -163,8 +164,10 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   const handleVideoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedVideo(event.target.value);
-    console.log("🚀 ~ handleVideoChange ~ event.target.value:", event.target.value)
+    const data = JSON.parse(event.target.value);
+  console.log("ID:", data.id, "Link:", data.link);
+    setSelectedVideo(data.link);
+    setSelectedVideoId(data.id);
     setIsButtonDisabled(event.target.value === "");
   };
 
@@ -196,7 +199,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
             video_url: selectedVideo,
             candidat_id: userId,
             offre_id: offreId,
-            postuler_id: selectedVideo,
+            postuler_id: selectedVideoId,
           }),
         }
       );
@@ -204,6 +207,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       if (response.ok) {
         setIsConfirmationVisible(true);
         setSelectedVideo("");
+        setSelectedVideoId(null)
       } else {
         toast.error("Échec de la candidature. Réessayez plus tard.");
       }

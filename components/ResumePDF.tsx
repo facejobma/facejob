@@ -130,6 +130,10 @@ const ResumePDFDocument: React.FC<{
     userRole === "entreprise" && !cvConsumed
       ? `${userProfile.last_name?.charAt(0)}.`
       : userProfile.last_name;
+       const abbreviatedName =
+    userRole === "entreprise" && !cvConsumed
+      ? `${userProfile.first_name?.charAt(0)}.`
+      : userProfile.first_name;
 
   return (
     <Document>
@@ -148,7 +152,7 @@ const ResumePDFDocument: React.FC<{
           )}
           <View>
             <Text style={styles.name}>
-              {userProfile.first_name} {abbreviatedLastName}
+              {abbreviatedName} {abbreviatedLastName}
             </Text>
             <Text style={styles.headline}>
               {userProfile.job ? userProfile.job.name : " "}

@@ -97,10 +97,10 @@ export const OfferCandidatActions: React.FC<{
     fetchLastPayment();
   }, [authToken, companyId]);
 
-  const handleConsumeClick = (candidat: Candidat) => {
+  const handleConsumeClick = (postuler: Postuler) => {
     if (lastPayment && lastPayment.cv_video_remaining > 0) {
-       //setCandidateToConsume(candidat);
-      setPostulerToConsume(candidat);
+      // setCandidateToConsume(candidat);
+      setPostulerToConsume(postuler);
       setIsModalOpen(true);
     } else {
       setIsUpgradeModalOpen(true);
@@ -200,7 +200,7 @@ export const OfferCandidatActions: React.FC<{
   Voir CV
 </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => handleConsumeClick(candidat)}>
+          <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
             <CheckSquare className="mr-2 h-4 w-4" /> Consommer
           </DropdownMenuItem>
         </DropdownMenuContent>

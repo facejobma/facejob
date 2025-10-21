@@ -46,6 +46,23 @@ export const columns: ColumnDef<Job>[] = [
     header: "CONTRAT",
   },
   {
+  accessorKey: "created_at",
+  header: "Date de création",
+  cell: ({ row }) => {
+    const dateString = row.original.created_at;
+    const date = new Date(dateString);
+    // Format français : JJ/MM/AAAA HH:mm
+    const formattedDate = date.toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return <span>{formattedDate}</span>;
+  },
+},
+  {
     accessorKey: "is_verified",
     header: "STATUS",
     cell: ({ row }) => (

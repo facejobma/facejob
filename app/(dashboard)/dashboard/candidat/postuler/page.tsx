@@ -7,6 +7,7 @@ import { OurFileRouter } from "@/app/api/uploadthing/core";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { FaTrash } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 
 interface Job {
@@ -28,6 +29,7 @@ const PublishVideo: React.FC = () => {
   const [selectedSector, setSelectedSector] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle");
+const router = useRouter(); // dans ton composant
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const userData =
@@ -58,56 +60,59 @@ const PublishVideo: React.FC = () => {
     sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
     [];
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!videoUrl) {
-      toast.error("Please upload a video!");
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (!videoUrl) {
+    toast.error("Please upload a video!");
+    return;
+  }
 
-    setUploadStatus("uploading");
+  setUploadStatus("uploading");
 
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/candidate/postuler",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            video_url: videoUrl,
-            nb_experiences: experiences,
-            job_id: selectedJob,
-            sector_id: selectedSector,
-            candidat_id: user.id,
-          }),
-        }
-      );
-      if (response.ok) {
-        toast.success(
-          "Votre CV a bien été téléchargé. Dès que les administrateurs l’auront vérifié, il sera disponible sur votre Dashboard."
-        );
-      
-        setUploadStatus("completed");
-      
-        // 🔥 Vider le formulaire après succès
-        setVideoUrl(null);
-        setExperiences("");
-        setSelectedSector("");
-        setSelectedJob("");
-      } else {
-        toast.error("Failed to publish video!");
-        setUploadStatus("failed");
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_BACKEND_URL + "/api/candidate/postuler",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          video_url: videoUrl,
+          nb_experiences: experiences,
+          job_id: selectedJob,
+          sector_id: selectedSector,
+          candidat_id: user.id,
+        }),
       }
-    } catch (error) {
-      console.error("Error publishing video:", error);
-      toast.error("An error occurred while publishing the video!");
+    );
+
+    if (response.ok) {
+      toast.success(
+        "Votre CV a bien été téléchargé. Dès que les administrateurs l’auront vérifié, il sera disponible sur votre Dashboard."
+      );
+
+      setUploadStatus("completed");
+
+      // 🔥 Vider le formulaire après succès
+      setVideoUrl(null);
+      setExperiences("");
+      setSelectedSector("");
+      setSelectedJob("");
+
+      // 🔥 Redirection vers le dashboard candidat
+      router.push("/dashboard/candidat");
+    } else {
+      toast.error("Failed to publish video!");
       setUploadStatus("failed");
     }
-  };
-
+  } catch (error) {
+    console.error("Error publishing video:", error);
+    toast.error("An error occurred while publishing the video!");
+    setUploadStatus("failed");
+  }
+};
   return (
     <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">

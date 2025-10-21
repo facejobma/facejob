@@ -89,9 +89,11 @@ const Modal: React.FC<ModalProps> = ({
             >
               <option value="">-- Sélectionner une vidéo --</option>
               {videos.map((video) => (
-                <option key={video.id} value={video.link}>
-                  {video.job_name} - {video.secteur_name}
-                </option>
+             <option key={video.id} value={JSON.stringify({ id: video.id, link: video.link })}>
+  {video.job_name} - {video.secteur_name}
+</option>
+
+
               ))}
             </select>
             {videos.length === 0 && (

@@ -39,6 +39,7 @@ export type Job = {
   contractType: string;
   is_verified: string;
   postuler_offres_count: number;
+  created_at:string;
 
 };
 
@@ -112,7 +113,7 @@ export interface ProfileSectionProps {
 
 export const navItemsCandidat: NavItem[] = [
   {
-    title: "Tableau de Bord",
+    title: "Ma liste des vidéos",
     href: "/dashboard/candidat",
     icon: "dashboard",
     label: "Dashboard",

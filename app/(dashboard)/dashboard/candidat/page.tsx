@@ -70,7 +70,7 @@ export default function UsersPage() {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -79,7 +79,7 @@ export default function UsersPage() {
       } else {
         const errorData = await response.json();
         toast.error(
-          errorData.message || "Erreur lors de la suppression de l'élément"
+          errorData.message || "Erreur lors de la suppression de l'élément",
         );
       }
     } catch (error) {
@@ -125,10 +125,10 @@ export default function UsersPage() {
         header: () => <div className="font-semibold">Vidéo</div>,
         cell: ({ row }) => (
           <div className="relative group">
-            <video 
-              width="120" 
-              height="80" 
-              controls 
+            <video
+              width="120"
+              height="80"
+              controls
               className="rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
             >
               <source src={row.original.link} type="video/mp4" />
@@ -177,8 +177,24 @@ export default function UsersPage() {
         accessorKey: "is_verified",
         header: () => <div className="font-semibold">Statut</div>,
         cell: ({ row }) => {
-          const status = row.original.is_verified;
-          const statusConfig = {
+          const statusRaw = row.original.is_verified;
+
+          // convertir le status en string correspondant à ton config
+          const status: "Accepted" | "Declined" | "Pending" =
+            statusRaw === "Accepted" || statusRaw === "Declined"
+              ? statusRaw
+              : "Pending";
+
+          const statusConfig: Record<
+            "Accepted" | "Declined" | "Pending",
+            {
+              bg: string;
+              text: string;
+              border: string;
+              dot: string;
+              label: string;
+            }
+          > = {
             Accepted: {
               bg: "bg-emerald-50",
               text: "text-emerald-700",
@@ -201,17 +217,22 @@ export default function UsersPage() {
               label: "En cours",
             },
           };
-          
-          const config = statusConfig[status] || statusConfig.Pending;
-          
+
+          const config = statusConfig[status];
+
           return (
-            <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${config.bg} ${config.text} border ${config.border}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${config.dot} animate-pulse`}></span>
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${config.bg} ${config.text} border ${config.border}`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${config.dot} animate-pulse`}
+              ></span>
               {config.label}
             </span>
           );
         },
       },
+
       {
         id: "actions",
         header: () => <div className="font-semibold text-center">Actions</div>,
@@ -228,19 +249,19 @@ export default function UsersPage() {
         ),
       },
     ],
-    [handleDelete]
+    [handleDelete],
   );
 
   const buildFetchUrl = useCallback(() => {
     const params = new URLSearchParams();
-    
+
     if (selectedStatus) params.append("status", selectedStatus);
     if (selectedSector) params.append("sector", selectedSector);
     if (selectedJob) params.append("job", selectedJob);
-    
+
     const queryString = params.toString();
     const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-video/${userId}`;
-    
+
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   }, [userId, selectedStatus, selectedSector, selectedJob]);
 
@@ -258,7 +279,7 @@ export default function UsersPage() {
     try {
       setLoading(true);
       const url = buildFetchUrl();
-      
+
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -274,10 +295,14 @@ export default function UsersPage() {
 
       if (Array.isArray(data)) {
         setUsers(data);
-        
+
         if (allSectors.length === 0 && allJobs.length === 0) {
-          const sectors = Array.from(new Set(data.map((user) => user.secteur_name).filter(Boolean)));
-          const jobs = Array.from(new Set(data.map((user) => user.job_name).filter(Boolean)));
+          const sectors = Array.from(
+            new Set(data.map((user) => user.secteur_name).filter(Boolean)),
+          );
+          const jobs = Array.from(
+            new Set(data.map((user) => user.job_name).filter(Boolean)),
+          );
           setAllSectors(sectors);
           setAllJobs(jobs);
         }
@@ -299,7 +324,14 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [authToken, toastUI, userId, buildFetchUrl, allSectors.length, allJobs.length]);
+  }, [
+    authToken,
+    toastUI,
+    userId,
+    buildFetchUrl,
+    allSectors.length,
+    allJobs.length,
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -371,7 +403,7 @@ export default function UsersPage() {
             <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-full">
               <FaVideo className="text-indigo-600 text-sm" />
               <span className="text-sm font-semibold text-indigo-700">
-                {users.length} {users.length > 1 ? 'vidéos' : 'vidéo'}
+                {users.length} {users.length > 1 ? "vidéos" : "vidéo"}
               </span>
             </div>
             {hasActiveFilters && (
@@ -391,7 +423,7 @@ export default function UsersPage() {
             className="flex items-center gap-2"
           >
             <FaFilter className="text-sm" />
-            {showFilters ? 'Masquer' : 'Afficher'} filtres
+            {showFilters ? "Masquer" : "Afficher"} filtres
           </Button>
           <Button
             onClick={fetchData}
@@ -437,7 +469,7 @@ export default function UsersPage() {
                 <option value="Declined">Décliné</option>
               </select>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
                 Secteur
@@ -455,7 +487,7 @@ export default function UsersPage() {
                 ))}
               </select>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
                 Poste
@@ -485,12 +517,15 @@ export default function UsersPage() {
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-gray-50">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="font-semibold text-gray-700">
+                    <TableHead
+                      key={header.id}
+                      className="font-semibold text-gray-700"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}
@@ -509,7 +544,7 @@ export default function UsersPage() {
                       <TableCell key={cell.id} className="py-4">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -548,7 +583,10 @@ export default function UsersPage() {
             </span>
           )}{" "}
           {table.getFilteredSelectedRowModel().rows.length > 0 && "sur "}
-          <span className="font-semibold">{table.getRowModel().rows.length}</span> ligne(s) sélectionnée(s)
+          <span className="font-semibold">
+            {table.getRowModel().rows.length}
+          </span>{" "}
+          ligne(s) sélectionnée(s)
         </div>
         <div className="flex items-center gap-2">
           <Button

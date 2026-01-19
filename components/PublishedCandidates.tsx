@@ -20,7 +20,13 @@ const PublishedCandidates: React.FC<{ candidates: Candidate[] }> = ({
           className="bg-white rounded-lg overflow-hidden shadow-md"
         >
           <div className="p-6">
-            <video src={candidate.link} className="w-full h-auto" />
+            {candidate.link ? (
+              <video src={candidate.link} className="w-full h-auto" controls />
+            ) : (
+              <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">Aucune vidéo disponible</p>
+              </div>
+            )}
             <h3 className="text-xl font-semibold mt-4">{candidate.jobTitle}</h3>
             <p className="text-gray-600">{candidate.name}</p>
             <p className="text-gray-600">

@@ -69,22 +69,21 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
   }
+
+  body {
+    font-family: "Volkhov", serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    box-sizing: border-box;
+  }
+  
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
 }
 
-body {
-  font-family: "Volkhov", serif;
-}
 .mySwiper {
   overflow: hidden !important;
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground box-border;
-  }
 }
 
 @layer utilities {
@@ -97,7 +96,7 @@ body {
     height: 100dvh;
   }
 }
-.w-36
- {
-    width: 9rem;
+
+.w-36 {
+  width: 9rem;
 }

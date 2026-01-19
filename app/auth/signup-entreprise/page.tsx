@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import SignupFormEntreprise from "../../../components/auth/signup/SignupEntreprise";
 import NextStepSignupEntreprise from "../../../components/auth/signup/NextStepSignupEntreprise";
 import NavBar from "../../../components/NavBar";
@@ -8,8 +9,23 @@ import Image from "next/image";
 
 const SignupEntreprisePage = () => {
   const [step, setStep] = useState(1);
+  const router = useRouter();
 
   useEffect(() => {
+    // Check if user is already logged in
+    const authToken = Cookies.get("authToken");
+    const userRole = typeof window !== "undefined" ? sessionStorage.getItem("userRole") : null;
+    
+    if (authToken && userRole) {
+      // Redirect to appropriate dashboard based on user role
+      if (userRole === "candidat") {
+        router.push("/dashboard/candidat");
+      } else if (userRole === "entreprise") {
+        router.push("/dashboard/entreprise");
+      }
+      return;
+    }
+
     const userId =
       typeof window !== "undefined"
         ? window.sessionStorage?.getItem("userId") || ""
@@ -19,7 +35,7 @@ const SignupEntreprisePage = () => {
     if (userId) {
       setStep(2);
     }
-  }, []);
+  }, [router]);
 
   const handleNextStep = () => {
     setStep((prevStep) => prevStep + 1);

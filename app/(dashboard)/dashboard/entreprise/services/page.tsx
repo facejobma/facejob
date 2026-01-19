@@ -105,6 +105,7 @@ function ServicePlanPage() {
       ? window.sessionStorage?.getItem("user") || "{}"
       : "{}";
   const companyId = company ? JSON.parse(company).id : null;
+  
   const fetchLastPayment = async () => {
     try {
       const response = await fetch(
@@ -128,6 +129,7 @@ function ServicePlanPage() {
       console.error("Error fetching last payment:", error);
     }
   };
+  
   useEffect(() => {
     fetchLastPayment();
   }, []);
@@ -159,7 +161,7 @@ function ServicePlanPage() {
   const handleConfirmClick = async () => {
     if (!selectedPlan || !selectedPeriod) return;
 
-    let price, endDate, paymentPeriod, cvVideoConsumed, jobPosted;
+    let price, endDate, paymentPeriod;
 
     const startDate = new Date();
 
@@ -168,40 +170,16 @@ function ServicePlanPage() {
         price = selectedPlan.monthly_price;
         endDate = new Date(new Date().setMonth(startDate.getMonth() + 1));
         paymentPeriod = "Mensuel";
-        // cvVideoConsumed =
-        //   selectedPlan.cv_video_consultations === "Illimité"
-        //     ? "Illimité"
-        //     : selectedPlan.cv_video_consultations;
-        // jobPosted =
-        //   selectedPlan.job_postings === "Illimité"
-        //     ? "Illimité"
-        //     : selectedPlan.job_postings;
         break;
       case "Trimestriel":
         price = selectedPlan.quarterly_price;
         endDate = new Date(new Date().setMonth(startDate.getMonth() + 3));
         paymentPeriod = "Trimestriel";
-        // cvVideoConsumed =
-        //   selectedPlan.cv_video_consultations === "Illimité"
-        //     ? "Illimité"
-        //     : selectedPlan.cv_video_consultations * 3;
-        // jobPosted =
-        //   selectedPlan.job_postings === "Illimité"
-        //     ? "Illimité"
-        //     : selectedPlan.job_postings * 3;
         break;
       case "Annuel":
         price = selectedPlan.annual_price;
         endDate = new Date(new Date().setFullYear(startDate.getFullYear() + 1));
         paymentPeriod = "Annuel";
-        // cvVideoConsumed =
-        //   selectedPlan.cv_video_consultations === "Illimité"
-        //     ? "Illimité"
-        //     : selectedPlan.cv_video_consultations * 12;
-        // jobPosted =
-        //   selectedPlan.job_postings === "Illimité"
-        //     ? "Illimité"
-        //     : selectedPlan.job_postings * 12;
         break;
       default:
         return;
@@ -255,11 +233,7 @@ function ServicePlanPage() {
     }
 
     const currentDate = new Date().toISOString().split("T")[0];
-
     const endDate = lastPayment?.end_date;
-
-    // console.log("Current date:", currentDate);
-    // console.log("End date:", endDate);
 
     return currentDate <= endDate;
   };
@@ -267,316 +241,399 @@ function ServicePlanPage() {
   return (
     <>
       <ScrollArea className="h-full">
-        <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
-          <BreadCrumb items={breadcrumbItems} />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto">
-            <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
-              <CheckCircleIcon className="h-8 w-8 text-green-500 mb-2" />
-              <CardHeader className="flex flex-col items-center space-y-0 pb-2">
-                <CardTitle className="font-medium text-center">
-                Votre panel actuel
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-center">
-                  {lastPayment ? lastPayment.plan_name : "-"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
-              <ClockIcon className="h-8 w-8 text-gray-500 mb-2" />
-              <CardHeader className="flex flex-col items-center space-y-0 pb-2">
-                <CardTitle className="font-medium text-center">
-                Votre période de panel actuel
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-center">
-                  {lastPayment ? lastPayment?.payment_period : "-"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
-              <VideoCameraIcon className="h-8 w-8 text-blue-500 mb-2" />
-              <CardHeader className="flex flex-col items-center space-y-0 pb-2">
-                <CardTitle className="font-medium text-center">
-                  Nombre de CV vidéos consommés
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-center">
-                  {lastPayment ? lastPayment.cv_video_consumed : "-"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
-              <VideoCameraIcon className="h-8 w-8 text-orange-500 mb-2" />
-              <CardHeader className="flex flex-col items-center space-y-0 pb-2">
-                <CardTitle className="font-medium text-center">
-                  Nombre de CV vidéos restants
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-center">
-                  {lastPayment ? lastPayment.cv_video_remaining : "-"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
-              <BriefcaseIcon className="h-8 w-8 text-yellow-500 mb-2" />
-              <CardHeader className="flex flex-col items-center space-y-4 pb-2">
-                <CardTitle className="font-medium text-center">
-                Nombre des offres d’emploi diffusées
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-center">
-                  {lastPayment ? lastPayment.job_posted : "-"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
-              <BriefcaseIcon className="h-8 w-8 text-red-500 mb-2" />
-              <CardHeader className="flex flex-col items-center space-y-0 pb-2">
-                <CardTitle className="font-medium text-center">
-                Nombre des offres d’emploi restantes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 text-center">
-                  {lastPayment ? lastPayment.job_remaining : "-"}
-                </p>
-              </CardContent>
-            </Card>
+        <div className="space-y-8">
+          {/* Header with enhanced design */}
+          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <svg className="text-2xl text-white w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-bold">Services & Abonnements</h1>
+                    <p className="text-indigo-100 mt-1">Choisissez le plan qui correspond à vos besoins d'entreprise</p>
+                  </div>
+                </div>
+                
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
+                        <CheckCircleIcon className="text-white text-lg w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-white">{lastPayment ? lastPayment.plan_name : "-"}</p>
+                        <p className="text-xs text-indigo-100">Plan actuel</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
+                        <VideoCameraIcon className="text-white w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-white">{lastPayment ? lastPayment.cv_video_remaining : "-"}</p>
+                        <p className="text-xs text-indigo-100">CVs restants</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-blue-500/30 flex items-center justify-center">
+                        <BriefcaseIcon className="text-white w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-white">{lastPayment ? lastPayment.job_remaining : "-"}</p>
+                        <p className="text-xs text-indigo-100">Offres restantes</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-amber-500/30 flex items-center justify-center">
+                        <ClockIcon className="text-white w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-white">{lastPayment ? lastPayment?.payment_period : "-"}</p>
+                        <p className="text-xs text-indigo-100">Période</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight mb-6">
-            Choisissez un panel qui vous convient
-          </h2>
-            <div className="flex justify-center">
-              <Tabs defaultValue="Mensuel" className="space-y-4">
-                <TabsList className="flex justify-center mb-4">
-                  <TabsTrigger
+
+          {/* Current Plan Overview */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Aperçu de votre abonnement</h3>
+            </div>
+            <div className="p-6">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto">
+                <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
+                  <CheckCircleIcon className="h-8 w-8 text-green-500 mb-2" />
+                  <CardHeader className="flex flex-col items-center space-y-0 pb-2">
+                    <CardTitle className="font-medium text-center">
+                    Votre panel actuel
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 text-center">
+                      {lastPayment ? lastPayment.plan_name : "-"}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
+                  <ClockIcon className="h-8 w-8 text-gray-500 mb-2" />
+                  <CardHeader className="flex flex-col items-center space-y-0 pb-2">
+                    <CardTitle className="font-medium text-center">
+                    Votre période de panel actuel
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 text-center">
+                      {lastPayment ? lastPayment?.payment_period : "-"}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
+                  <VideoCameraIcon className="h-8 w-8 text-blue-500 mb-2" />
+                  <CardHeader className="flex flex-col items-center space-y-0 pb-2">
+                    <CardTitle className="font-medium text-center">
+                      Nombre de CV vidéos consommés
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 text-center">
+                      {lastPayment ? lastPayment.cv_video_consumed : "-"}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
+                  <VideoCameraIcon className="h-8 w-8 text-orange-500 mb-2" />
+                  <CardHeader className="flex flex-col items-center space-y-0 pb-2">
+                    <CardTitle className="font-medium text-center">
+                      Nombre de CV vidéos restants
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 text-center">
+                      {lastPayment ? lastPayment.cv_video_remaining : "-"}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
+                  <BriefcaseIcon className="h-8 w-8 text-yellow-500 mb-2" />
+                  <CardHeader className="flex flex-col items-center space-y-4 pb-2">
+                    <CardTitle className="font-medium text-center">
+                    Nombre des offres d'emploi diffusées
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 text-center">
+                      {lastPayment ? lastPayment.job_posted : "-"}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
+                  <BriefcaseIcon className="h-8 w-8 text-red-500 mb-2" />
+                  <CardHeader className="flex flex-col items-center space-y-0 pb-2">
+                    <CardTitle className="font-medium text-center">
+                    Nombre des offres d'emploi restantes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 text-center">
+                      {lastPayment ? lastPayment.job_remaining : "-"}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+
+          {/* Plans Section */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Choisissez un panel qui vous convient
+              </h2>
+            </div>
+            <div className="p-6">
+              <div className="flex justify-center">
+                <Tabs defaultValue="Mensuel" className="space-y-4">
+                  <TabsList className="flex justify-center mb-4">
+                    <TabsTrigger
+                      value="Mensuel"
+                      onClick={() => handlePeriodChange("Mensuel")}
+                    >
+                      Mensuel
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="Trimestriel"
+                      onClick={() => handlePeriodChange("Trimestriel")}
+                    >
+                      Trimestre
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="Annuel"
+                      onClick={() => handlePeriodChange("Annuel")}
+                    >
+                      Annuel
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent
                     value="Mensuel"
-                    onClick={() => handlePeriodChange("Mensuel")}
+                    className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
                   >
-                    Mensuel
-                  </TabsTrigger>
-                  <TabsTrigger
+                    {plans.map((plan, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-center lg:justify-start"
+                      >
+                        <Card className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                          <CardHeader className="flex justify-between items-center mb-4">
+                            <CardTitle className="text-lg font-bold">
+                              {plan.name}
+                            </CardTitle>
+                            <div className="text-xl font-semibold text-primary">
+                              {plan.monthly_price} DHs / mois
+                            </div>
+                          </CardHeader>
+                          <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
+                            <div>
+                              <strong>Création de compte incluse :</strong>{" "}
+                              {plan.account_creation_included ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Accès aux CVs vidéos :</strong>{" "}
+                              {plan.cv_video_access ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Consultation de CVs vidéos :</strong>{" "}
+                              {plan.cv_video_consultations}
+                            </div>
+                            <div>
+                              <strong>Publication des offres d'emploi :</strong>{" "}
+                              {plan.job_postings}
+                            </div>
+                            <div>
+                              <strong>Support dédié :</strong>{" "}
+                              {plan.dedicated_support ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Exclusif :</strong>{" "}
+                              {plan.exclusif ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Populaire :</strong>{" "}
+                              {plan.popular ? "Oui" : "Non"}
+                            </div>
+                            <div className="text-center">
+                              <button
+                                className={`${
+                                  isCurrentPlanDisabled(plan)
+                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                    : "bg-primary hover:bg-primary-dark text-white"
+                                } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
+                                onClick={() => handleUpgradeClick(plan)}
+                                disabled={isCurrentPlanDisabled(plan)}
+                              >
+                                {isCurrentPlanDisabled(plan)
+                                  ? `Plan actuel - ${plan.name}`
+                                  : "Mettre à niveau le panel"}
+                              </button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                  </TabsContent>
+                  <TabsContent
                     value="Trimestriel"
-                    onClick={() => handlePeriodChange("Trimestriel")}
+                    className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
                   >
-                    Trimestre
-                  </TabsTrigger>
-                  <TabsTrigger
+                    {plans.map((plan, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-center lg:justify-start"
+                      >
+                        <Card className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                          <CardHeader className="flex justify-between items-center mb-4">
+                            <CardTitle className="text-lg font-bold">
+                              {plan.name}
+                            </CardTitle>
+                            <div className="text-xl font-semibold text-primary">
+                              {plan.quarterly_price} DHs / trimestre
+                            </div>
+                          </CardHeader>
+                          <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
+                            <div>
+                              <strong>Création de compte incluse :</strong>{" "}
+                              {plan.account_creation_included ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Accès aux CVs vidéos:</strong>{" "}
+                              {plan.cv_video_access ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Consultation de CVs vidéos :</strong>{" "}
+                              {plan.cv_video_consultations}
+                            </div>
+                            <div>
+                              <strong>Publications des offres d'emploi :</strong>{" "}
+                              {plan.job_postings}
+                            </div>
+                            <div>
+                              <strong>Support dédié :</strong>{" "}
+                              {plan.dedicated_support ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Exclusif :</strong>{" "}
+                              {plan.exclusif ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Populaire :</strong>{" "}
+                              {plan.popular ? "Oui" : "Non"}
+                            </div>
+                            <div className="text-center">
+                              <button
+                                className={`${
+                                  isCurrentPlanDisabled(plan)
+                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                    : "bg-primary hover:bg-primary-dark text-white"
+                                } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
+                                onClick={() => handleUpgradeClick(plan)}
+                                disabled={isCurrentPlanDisabled(plan)}
+                              >
+                                {isCurrentPlanDisabled(plan)
+                                  ? `Plan actuel - ${plan.name}`
+                                  : "Mettre à niveau le plan"}
+                              </button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                  </TabsContent>
+                  <TabsContent
                     value="Annuel"
-                    onClick={() => handlePeriodChange("Annuel")}
+                    className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
                   >
-                    Annuel
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent
-                  value="Mensuel"
-                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
-                >
-                  {plans.map((plan, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-center lg:justify-start"
-                    >
-                      <Card className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
-                        <CardHeader className="flex justify-between items-center mb-4">
-                          <CardTitle className="text-lg font-bold">
-                            {plan.name}
-                          </CardTitle>
-                          <div className="text-xl font-semibold text-primary">
-                            {plan.monthly_price} DHs / mois
-                          </div>
-                        </CardHeader>
-                        <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
-                          <div>
-                            <strong>Création de compte incluse :</strong>{" "}
-                            {plan.account_creation_included ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Accès aux CVs vidéos :</strong>{" "}
-                            {plan.cv_video_access ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Consultation de CVs vidéos :</strong>{" "}
-                            {plan.cv_video_consultations}
-                          </div>
-                          <div>
-                            <strong>Publication des offres d'emploi :</strong>{" "}
-                            {plan.job_postings}
-                          </div>
-                          <div>
-                            <strong>Support dédié :</strong>{" "}
-                            {plan.dedicated_support ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Exclusif :</strong>{" "}
-                            {plan.exclusif ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Populaire :</strong>{" "}
-                            {plan.popular ? "Oui" : "Non"}
-                          </div>
-                          <div className="text-center">
-                            <button
-                              className={`${
-                                isCurrentPlanDisabled(plan)
-                                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                  : "bg-primary hover:bg-primary-dark text-white"
-                              } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
-                              onClick={() => handleUpgradeClick(plan)}
-                              disabled={isCurrentPlanDisabled(plan)}
-                            >
-                              {isCurrentPlanDisabled(plan)
-                                ? `Plan actuel - ${plan.name}`
-                                : "Mettre à niveau le panel"}
-                            </button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  ))}
-                </TabsContent>
-                <TabsContent
-                  value="Trimestriel"
-                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
-                >
-                  {plans.map((plan, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-center lg:justify-start"
-                    >
-                      <Card className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
-                        <CardHeader className="flex justify-between items-center mb-4">
-                          <CardTitle className="text-lg font-bold">
-                            {plan.name}
-                          </CardTitle>
-                          <div className="text-xl font-semibold text-primary">
-                            {plan.quarterly_price} DHs / trimestre
-                          </div>
-                        </CardHeader>
-                        <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
-                          <div>
-                            <strong>Création de compte incluse :</strong>{" "}
-                            {plan.account_creation_included ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Accès aux CVs vidéos:</strong>{" "}
-                            {plan.cv_video_access ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Consultation de CVs vidéos :</strong>{" "}
-                            {plan.cv_video_consultations}
-                          </div>
-                          <div>
-                            <strong>Publications des offres d'emploi :</strong>{" "}
-                            {plan.job_postings}
-                          </div>
-                          <div>
-                            <strong>Support dédié :</strong>{" "}
-                            {plan.dedicated_support ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Exclusif :</strong>{" "}
-                            {plan.exclusif ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Populaire :</strong>{" "}
-                            {plan.popular ? "Oui" : "Non"}
-                          </div>
-                          <div className="text-center">
-                            <button
-                              className={`${
-                                isCurrentPlanDisabled(plan)
-                                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                  : "bg-primary hover:bg-primary-dark text-white"
-                              } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
-                              onClick={() => handleUpgradeClick(plan)}
-                              disabled={isCurrentPlanDisabled(plan)}
-                            >
-                              {isCurrentPlanDisabled(plan)
-                                ? `Plan actuel - ${plan.name}`
-                                : "Mettre à niveau le plan"}
-                            </button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  ))}
-                </TabsContent>
-                <TabsContent
-                  value="Annuel"
-                  className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto"
-                >
-                  {plans.map((plan, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-center lg:justify-start"
-                    >
-                      <Card className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
-                        <CardHeader className="flex justify-between items-center mb-4">
-                          <CardTitle className="text-lg font-bold">
-                            {plan.name}
-                          </CardTitle>
-                          <div className="text-xl font-semibold text-primary">
-                            {plan.annual_price} DHs / année
-                          </div>
-                        </CardHeader>
-                        <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
-                          <div>
-                            <strong>Création de compte incluse :</strong>{" "}
-                            {plan.account_creation_included ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Accès aux CVs vidéos :</strong>{" "}
-                            {plan.cv_video_access ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Consultation de CVs vidéos :</strong>{" "}
-                            {plan.cv_video_consultations}
-                          </div>
-                          <div>
-                            <strong>Publications des offres d'emploi :</strong>{" "}
-                            {plan.job_postings}
-                          </div>
-                          <div>
-                            <strong>Support dédié :</strong>{" "}
-                            {plan.dedicated_support ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Exclusif :</strong>{" "}
-                            {plan.exclusif ? "Oui" : "Non"}
-                          </div>
-                          <div>
-                            <strong>Populaire :</strong>{" "}
-                            {plan.popular ? "Oui" : "Non"}
-                          </div>
-                          <div className="text-center">
-                            <button
-                              className={`${
-                                isCurrentPlanDisabled(plan)
-                                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                  : "bg-primary hover:bg-primary-dark text-white"
-                              } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
-                              onClick={() => handleUpgradeClick(plan)}
-                              disabled={isCurrentPlanDisabled(plan)}
-                            >
-                              {isCurrentPlanDisabled(plan)
-                                ? `Plan actuel - ${plan.name}`
-                                : "Mettre à niveau le plan"}
-                            </button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  ))}
-                </TabsContent>
-              </Tabs>
+                    {plans.map((plan, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-center lg:justify-start"
+                      >
+                        <Card className="border rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+                          <CardHeader className="flex justify-between items-center mb-4">
+                            <CardTitle className="text-lg font-bold">
+                              {plan.name}
+                            </CardTitle>
+                            <div className="text-xl font-semibold text-primary">
+                              {plan.annual_price} DHs / année
+                            </div>
+                          </CardHeader>
+                          <CardContent className="mt-4 space-y-2 text-base font-normal text-start">
+                            <div>
+                              <strong>Création de compte incluse :</strong>{" "}
+                              {plan.account_creation_included ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Accès aux CVs vidéos :</strong>{" "}
+                              {plan.cv_video_access ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Consultation de CVs vidéos :</strong>{" "}
+                              {plan.cv_video_consultations}
+                            </div>
+                            <div>
+                              <strong>Publications des offres d'emploi :</strong>{" "}
+                              {plan.job_postings}
+                            </div>
+                            <div>
+                              <strong>Support dédié :</strong>{" "}
+                              {plan.dedicated_support ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Exclusif :</strong>{" "}
+                              {plan.exclusif ? "Oui" : "Non"}
+                            </div>
+                            <div>
+                              <strong>Populaire :</strong>{" "}
+                              {plan.popular ? "Oui" : "Non"}
+                            </div>
+                            <div className="text-center">
+                              <button
+                                className={`${
+                                  isCurrentPlanDisabled(plan)
+                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                    : "bg-primary hover:bg-primary-dark text-white"
+                                } mt-4 text-sm font-semibold py-1 px-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary`}
+                                onClick={() => handleUpgradeClick(plan)}
+                                disabled={isCurrentPlanDisabled(plan)}
+                              >
+                                {isCurrentPlanDisabled(plan)
+                                  ? `Plan actuel - ${plan.name}`
+                                  : "Mettre à niveau le plan"}
+                              </button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                  </TabsContent>
+                </Tabs>
+              </div>
             </div>
 
             {isModalOpen && (

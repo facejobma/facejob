@@ -132,24 +132,36 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
         </button>
       </div>
       <div className="p-6 relative">
-        <ul className="flex flex-wrap">
-          {editedSkills.map((skill: Skill) => (
-            <li
-              key={skill.id}
-              className="bg-gray-200 rounded-full px-3 py-1 mr-2 mb-2 flex items-center"
+        {editedSkills && editedSkills.length > 0 ? (
+          <ul className="flex flex-wrap">
+            {editedSkills.map((skill: Skill) => (
+              <li
+                key={skill.id}
+                className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full px-4 py-2 mr-2 mb-2 flex items-center font-medium shadow-sm"
+              >
+                <span className="mr-2">{skill.title}</span>
+                {isEditing && (
+                  <button
+                    onClick={() => handleRemoveSkill(skill)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash size={16} />
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center py-4">
+            <button
+              onClick={handleEditClick}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
             >
-              <span className="mr-2">{skill.title}</span>
-              {isEditing && (
-                <button
-                  onClick={() => handleRemoveSkill(skill)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <Trash size={16} />
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
+              <PlusSquare className="text-sm" />
+              Ajouter des compétences
+            </button>
+          </div>
+        )}
       </div>
       {/* Modal for editing skills */}
       <Modal
@@ -192,7 +204,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
           </div>
           <button
             onClick={handleSkillsUpdate}
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
           >
             Sauvegarder
           </button>

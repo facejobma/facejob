@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
+import { performLogout } from "@/lib/auth";
 
 const userDataString =
   typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
@@ -39,36 +40,7 @@ export function UserNav() {
   const authToken = Cookies.get("authToken");
 
   function signOut() {
-    // Clear local storage and cookies first
-    Cookies.remove("authToken");
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("userRole");
-
-    // Determine correct redirect path
-    const redirectPath = userRole === "candidate" ? "/auth/login-candidate" : "/auth/login-entreprise";
-
-    // Call backend logout endpoint (optional, since we've already cleared local data)
-    if (authToken) {
-      fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-      })
-        .then(async (res) => {
-          // Redirect regardless of backend response
-          router.push(redirectPath);
-        })
-        .catch((error) => {
-          // Even if backend call fails, redirect since we've cleared local data
-          console.error("Logout error:", error);
-          router.push(redirectPath);
-        });
-    } else {
-      // No token, just redirect
-      router.push(redirectPath);
-    }
+    performLogout(userRole);
   }
 
   if (user) {
@@ -78,7 +50,7 @@ export function UserNav() {
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={user?.image ?? user?.logo}
+                src={user?.image || user?.logo || undefined}
                 alt={user?.first_name ?? user?.company_name}
               />
               <AvatarFallback>

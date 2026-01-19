@@ -16,7 +16,9 @@ function LinkedinCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const error = urlParams.get("error");
-        const userRole = sessionStorage.getItem("userRole") || "candidate";
+        const frontendRole = sessionStorage.getItem("userRole") || "candidat";
+        // Map frontend role to backend role for API
+        const backendRole = frontendRole === "candidat" ? "candidate" : "entreprise";
 
         // Check if LinkedIn returned an error
         if (error) {
@@ -27,14 +29,14 @@ function LinkedinCallback() {
           throw new Error("Code d'autorisation manquant");
         }
 
-        console.log("LinkedIn callback - Code:", code, "UserRole:", userRole);
+        console.log("LinkedIn callback - Code:", code, "UserRole:", backendRole);
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/linkedin/callback?code=${code}`,
           {
             headers: {
               "accept": "application/json",
-              "X-User-Role": userRole
+              "X-User-Role": backendRole
             },
           },
         );
@@ -56,7 +58,9 @@ function LinkedinCallback() {
 
         // Store user data
         sessionStorage.setItem("user", JSON.stringify(responseData.user));
-        sessionStorage.setItem("userRole", responseData.user_type || userRole);
+        // Map backend role to frontend role for routing
+        const mappedRole = responseData.user_type === "candidate" ? "candidat" : "entreprise";
+        sessionStorage.setItem("userRole", mappedRole);
 
         // Store auth token
         Cookies.set("authToken", responseData.access_token, { expires: 7 });
@@ -65,7 +69,8 @@ function LinkedinCallback() {
         toast.success("Connexion LinkedIn réussie !");
 
         // Redirect to appropriate dashboard
-        const redirectPath = userRole === "candidate" ? "/dashboard/candidat" : "/dashboard/entreprise";
+        const storedRole = sessionStorage.getItem("userRole");
+        const redirectPath = storedRole === "candidat" ? "/dashboard/candidat" : "/dashboard/entreprise";
         
         setTimeout(() => {
           router.push(redirectPath);
@@ -78,8 +83,8 @@ function LinkedinCallback() {
         
         // Redirect to login page after error
         setTimeout(() => {
-          const userRole = sessionStorage.getItem("userRole") || "candidate";
-          const loginPath = userRole === "candidate" ? "/auth/login-candidate" : "/auth/login-entreprise";
+          const userRole = sessionStorage.getItem("userRole") || "candidat";
+          const loginPath = userRole === "candidat" ? "/auth/login-candidate" : "/auth/login-entreprise";
           router.push(loginPath);
         }, 3000);
       } finally {

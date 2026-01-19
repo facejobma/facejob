@@ -1,7 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { MobileSidebar } from "./mobile-sidebar";
-import { UserNav } from "./user-nav";
 import { Logo } from "@/components/ui/logo";
 import Notification from "@/components/layout/Notification";
 import { useRouter } from "next/navigation";
@@ -21,7 +20,7 @@ export default function HeaderEntreprise() {
       className={`fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 ${inter.className}`}>
       <nav className="h-14 flex items-center justify-between px-4">
         <div className="flex items-center gap-5">
-          <div className="hidden lg:block my-2 mr-40">
+          <div className="hidden md:block my-2 mr-40">
             <Logo />
           </div>
           <button
@@ -31,28 +30,9 @@ export default function HeaderEntreprise() {
             <Send className="w-4 h-4" />
             Publier
           </button>
-          <div className="hidden lg:flex items-center ml-48 gap-10">
-            <Link
-              href="/dashboard/entreprise/services"
-              className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
-            >
-              SERVICES
-            </Link>
-            <Link
-              href="/blogs"
-              className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
-            >
-              BLOGS
-            </Link>
-            <Link
-              href="/dashboard/entreprise/support"
-              className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
-            >
-              SUPPORT
-            </Link>
-          </div>
+
         </div>
-        <div className={cn("block lg:!hidden")}>
+        <div className={cn("block md:!hidden")}>
           <MobileSidebar />
         </div>
         <div className="flex items-center gap-10">
@@ -64,7 +44,6 @@ export default function HeaderEntreprise() {
             Mise à niveau
           </button>
           <Notification />
-          <UserNav />
         </div>
       </nav>
     </div>

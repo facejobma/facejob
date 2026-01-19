@@ -16,10 +16,12 @@ function GoogleCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const error = urlParams.get("error");
-        const userRole = sessionStorage.getItem("userRole") || "candidate";
+        const frontendRole = sessionStorage.getItem("userRole") || "candidat";
+        // Map frontend role to backend role for API
+        const backendRole = frontendRole === "candidat" ? "candidate" : "entreprise";
 
         console.log("Google callback - URL PARAMS:", urlParams.toString());
-        console.log("Google callback - Code:", code, "UserRole:", userRole);
+        console.log("Google callback - Code:", code, "UserRole:", backendRole);
 
         // Check if Google returned an error
         if (error) {
@@ -35,7 +37,7 @@ function GoogleCallback() {
           {
             headers: {
               "accept": "application/json",
-              "X-User-Role": userRole
+              "X-User-Role": backendRole
             },
           },
         );
@@ -57,7 +59,9 @@ function GoogleCallback() {
 
         // Store user data
         sessionStorage.setItem("user", JSON.stringify(responseData.user));
-        sessionStorage.setItem("userRole", responseData.user_type || userRole);
+        // Map backend role to frontend role for routing
+        const mappedRole = responseData.user_type === "candidate" ? "candidat" : "entreprise";
+        sessionStorage.setItem("userRole", mappedRole);
 
         // Store auth token
         Cookies.set("authToken", responseData.access_token, { expires: 7 });
@@ -68,7 +72,8 @@ function GoogleCallback() {
         toast.success("Connexion Google réussie !");
 
         // Redirect to appropriate dashboard
-        const redirectPath = userRole === "candidate" ? "/dashboard/candidat" : "/dashboard/entreprise";
+        const storedRole = sessionStorage.getItem("userRole");
+        const redirectPath = storedRole === "candidate" ? "/dashboard/candidat" : "/dashboard/entreprise";
         
         setTimeout(() => {
           router.push(redirectPath);
@@ -81,8 +86,8 @@ function GoogleCallback() {
         
         // Redirect to login page after error
         setTimeout(() => {
-          const userRole = sessionStorage.getItem("userRole") || "candidate";
-          const loginPath = userRole === "candidate" ? "/auth/login-candidate" : "/auth/login-entreprise";
+          const userRole = sessionStorage.getItem("userRole") || "candidat";
+          const loginPath = userRole === "candidat" ? "/auth/login-candidate" : "/auth/login-entreprise";
           router.push(loginPath);
         }, 3000);
       } finally {

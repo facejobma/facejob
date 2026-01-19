@@ -406,7 +406,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             </button>
             <button
             type="submit"
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
           >
             Sauvegarder
           </button>

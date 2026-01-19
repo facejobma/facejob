@@ -97,8 +97,18 @@ const Hiring: React.FC = () => {
           },
         },
       );
-      const data = await response.json();
-      setLastPayment(data);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setLastPayment(data);
+      } else if (response.status === 404) {
+        // Handle "No payment found for this entreprise" case
+        console.log("No payment found for this enterprise");
+        setLastPayment(null);
+      } else {
+        console.error("Error fetching last payment:", response.status);
+        toast.error("Error fetching last payment!");
+      }
     } catch (error) {
       console.error("Error fetching last payment:", error);
       toast.error("Error fetching last payment!");
@@ -363,50 +373,6 @@ const handleGenerateCV = async (candidateId: number) => {
           </div>
         </div>
       </div>
-    
-    <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-      <div className="relative w-full md:w-72 group">
-        <select
-          className="w-full bg-white border-2 border-gray-200 hover:border-blue-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
-          value={selectedSector}
-          onChange={(e) => setSelectedSector(e.target.value)}
-        >
-          <option value="">Sélectionner le secteur</option>
-          {sectors.map((sector) => (
-            <option key={sector.id} value={sector.id}>
-              {sector.name}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-blue-500 group-hover:text-blue-600 transition-colors">
-          <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-            <path d="M7 10l5 5 5-5H7z" />
-          </svg>
-        </div>
-      </div>
-      
-      <div className="relative w-full md:w-72 group">
-        <select
-          className="w-full bg-white border-2 border-gray-200 hover:border-purple-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
-          value={selectedJob}
-          onChange={(e) => setSelectedJob(e.target.value)}
-        >
-          <option value="">Sélectionner le poste</option>
-          {filteredJobs.map((job) => (
-            <option key={job.id} value={job.id}>
-              {job.name}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-purple-500 group-hover:text-purple-600 transition-colors">
-          <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-            <path d="M7 10l5 5 5-5H7z" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center h-[calc(80vh-220px)] gap-6">

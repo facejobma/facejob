@@ -111,7 +111,7 @@ const Dashboard: React.FC = () => {
   const offresData = {
     labels: allMonths.map(m => new Date(0, m - 1).toLocaleString('fr', { month: 'short' })),
     datasets: [{
-      label: 'Offres d'emploi diffusées',
+      label: "Offres d'emploi diffusées",
       data: allMonths.map(month => {
         const found = stats.offres.find(o => o.month === month);
         return found ? found.sum : 0;
@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
   const candidaturesData = {
     labels: allMonths.map(m => new Date(0, m - 1).toLocaleString('fr', { month: 'short' })),
     datasets: [{
-      label: 'Candidatures reçues',
+      label: "Candidatures reçues",
       data: allMonths.map(month => {
         const found = stats.candidatures.find(c => c.month === month);
         return found ? found.sum : 0;
@@ -141,7 +141,7 @@ const Dashboard: React.FC = () => {
   const candidaturesByOffreData = {
     labels: stats.candidaturesByOffre.map(c => c.titre),
     datasets: [{
-      label: 'Candidatures reçues par offre',
+      label: "Candidatures reçues par offre",
       data: stats.candidaturesByOffre.map(c => c.sum),
       backgroundColor: 'rgba(147, 51, 234, 0.8)',
       borderColor: 'rgb(147, 51, 234)',

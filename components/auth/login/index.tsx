@@ -82,7 +82,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       console.log("Logged in successfully", userData.data);
 
       sessionStorage.setItem("user", JSON.stringify(userData.data));
-      sessionStorage.setItem("userRole", props.loginFor);
+      sessionStorage.setItem("userRole", props.loginFor === "candidate" ? "candidat" : "entreprise");
 
       const { token } = userData;
 
@@ -116,7 +116,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
 
       const data = await response.json();
 
-      sessionStorage.setItem("userRole", props.loginFor);
+      sessionStorage.setItem("userRole", props.loginFor === "candidate" ? "candidat" : "entreprise");
       window.location.href = data.url;
     } catch (error: any) {
       console.error(error);

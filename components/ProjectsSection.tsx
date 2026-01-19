@@ -167,33 +167,58 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
         </button>
       </div>
       <div className="p-6 relative">
-        {editedProjects.map((project: Project) => (
-          <div
-            key={project.id}
-            className="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-between"
-          >
-            <div>
-              <h3 className="font-bold">{project.title}</h3>
-              <p className="text-gray-600">{project.description}</p>
+        {editedProjects && editedProjects.length > 0 ? (
+          editedProjects.map((project: Project) => (
+            <div
+              key={project.id}
+              className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg text-gray-900 mb-2">{project.title}</h3>
+                  <p className="text-gray-700 leading-relaxed">{project.description}</p>
+                </div>
+                <div className="flex items-center gap-2 ml-4">
+                  <button
+                    type="button"
+                    onClick={() => handleEditClick(project)}
+                    className="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Modifier"
+                  >
+                    <Edit width={18} height={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveProject(project)}
+                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Supprimer"
+                  >
+                    <Trash width={18} height={18} />
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => handleEditClick(project)} // Edit specific project
-                className="text-blue-500 hover:text-blue-700 mr-3"
-              >
-                <Edit width={20} height={20} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleRemoveProject(project)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash width={20} height={20} />
-              </button>
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <div className="mb-4">
+              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <PlusSquare className="text-gray-400 text-2xl" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucun projet ajouté</h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                Présentez vos réalisations et projets pour démontrer vos compétences pratiques.
+              </p>
             </div>
+            <button
+              onClick={() => handleEditClick(null)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+            >
+              <PlusSquare className="text-sm" />
+              Ajouter un projet
+            </button>
           </div>
-        ))}
+        )}
       </div>
 
       <Modal
@@ -222,7 +247,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
           />
           <button
             type="submit"
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
           >
             {selectedProject ? "Enregistrer les changements " : "Ajouter un projet"}
           </button>

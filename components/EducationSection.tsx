@@ -202,37 +202,64 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       </div>
 
       <div className="p-6 relative">
-        {editedEducation.map((edu: Education) => (
-          <div
-            key={edu.id}
-            className="bg-gray-100 rounded-lg p-4 mb-4 flex items-start justify-between"
-          >
-            <div>
-              <div className="font-bold">{edu.school_name}</div>
-              <div>
-                {/* {edu.degree},  */}
-                {edu.title}
+        {editedEducation && editedEducation.length > 0 ? (
+          editedEducation.map((edu: Education) => (
+            <div
+              key={edu.id}
+              className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg text-gray-900 mb-1">{edu.school_name}</h3>
+                  <p className="text-green-600 font-semibold mb-2">{edu.title}</p>
+                  {edu.degree && (
+                    <p className="text-sm text-gray-600 mb-2">{edu.degree}</p>
+                  )}
+                  <p className="text-sm text-gray-600 flex items-center gap-1">
+                    <span>📅</span> {edu.graduation_date}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 ml-4">
+                  <button
+                    type="button"
+                    onClick={() => handleEditClick(edu)}
+                    className="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Modifier"
+                  >
+                    <Edit width={18} height={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteEducation(edu)}
+                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Supprimer"
+                  >
+                    <Trash width={18} height={18} />
+                  </button>
+                </div>
               </div>
-              <div>{edu.graduation_date}</div>
             </div>
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => handleEditClick(edu)} // Edit specific education entry
-                className="text-blue-500 hover:text-blue-700 mr-3"
-              >
-                <Edit width={20} height={20} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteEducation(edu)} 
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash width={20} height={20} />
-              </button>
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <div className="mb-4">
+              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <PlusSquare className="text-gray-400 text-2xl" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucune formation ajoutée</h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                Ajoutez vos diplômes, certifications et formations pour compléter votre profil académique.
+              </p>
             </div>
+            <button
+              onClick={() => handleEditClick(null)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+            >
+              <PlusSquare className="text-sm" />
+              Ajouter une formation
+            </button>
           </div>
-        ))}
+        )}
       </div>
 
       {/* Modal for editing education entry */}
@@ -289,7 +316,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
           />
           <button
             type="submit"
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
           >
             {selectedEducation ? "Modifier les changements" : "Ajouter la Formation"}
           </button>

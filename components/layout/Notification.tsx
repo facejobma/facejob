@@ -321,7 +321,7 @@ const Notification: React.FC = () => {
                     <div className="flex items-start justify-between gap-3 px-4 py-3">
                       {/* Indicateur non lu */}
                       {!notification.read_at && (
-                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-600 rounded-full"></div>
+                        <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-600 rounded-full"></div>
                       )}
 
                       {/* Contenu de la notification */}

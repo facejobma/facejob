@@ -120,13 +120,15 @@ export default function HowWorks({}: Props) {
           className="z-20 p-6 mt-6 bg-white shadow-xl md:-mt-16 rounded-2xl"
         >
           <div className="flex flex-col mt-0 font-poppins">
-          <Image
+          {randomImage && (
+            <Image
               src={randomImage}
               className="z-10 object-cover"
               alt="Random job-related image"
               width={1000}
               height={50}
             />
+          )}
             <p className="mt-4 text-lg">
             {offre.titre || 'Un emploi de développeur Web'}
             </p>

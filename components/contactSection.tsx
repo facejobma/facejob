@@ -149,7 +149,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
           </label>
           <button
             type="submit"
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
           >
             Sauvegarder
           </button>

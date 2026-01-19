@@ -97,8 +97,18 @@ const Hiring: React.FC = () => {
           },
         },
       );
-      const data = await response.json();
-      setLastPayment(data);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setLastPayment(data);
+      } else if (response.status === 404) {
+        // Handle "No payment found for this entreprise" case
+        console.log("No payment found for this enterprise");
+        setLastPayment(null);
+      } else {
+        console.error("Error fetching last payment:", response.status);
+        toast.error("Error fetching last payment!");
+      }
     } catch (error) {
       console.error("Error fetching last payment:", error);
       toast.error("Error fetching last payment!");
@@ -236,70 +246,154 @@ const handleGenerateCV = async (candidateId: number) => {
   });
 
   return (
-    <div className="flex-1 space-y-8 p-4 md:p-8 bg-gradient-to-br from-white to-gray-300 rounded-lg shadow-xl">
-      <BreadCrumb items={breadcrumbItems} />
-      <div className="text-center mb-12">
-  <div className="max-w-3xl mx-auto">
-    <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary-2 bg-clip-text text-transparent mb-4">
-      Vidéos des candidats
-    </h1>
-    <p className="text-gray-600 text-lg mb-8">
-      Parcourez les vidéos pour trouver votre candidat idéal
-    </p>
-    
-    <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-      <div className="relative w-full md:w-72 group">
-        <select
-          className="w-full bg-white border-2 border-gray-200 hover:border-blue-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
-          value={selectedSector}
-          onChange={(e) => setSelectedSector(e.target.value)}
-        >
-          <option value="">Sélectionner le secteur</option>
-          {sectors.map((sector) => (
-            <option key={sector.id} value={sector.id}>
-              {sector.name}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-blue-500 group-hover:text-blue-600 transition-colors">
-          <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-            <path d="M7 10l5 5 5-5H7z" />
-          </svg>
+    <div className="space-y-8">
+      {/* Header with enhanced design */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <svg className="text-2xl text-white w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">Vidéos des candidats</h1>
+                <p className="text-indigo-100 mt-1">Parcourez les vidéos pour trouver votre candidat idéal</p>
+              </div>
+            </div>
+            
+            {/* Statistics Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
+                    <svg className="text-white text-lg w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{filteredCandidates.length}</p>
+                    <p className="text-xs text-indigo-100">Candidats</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
+                    <span className="text-white font-bold">✓</span>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{candidates.filter(c => c.is_verified === "Accepted").length}</p>
+                    <p className="text-xs text-indigo-100">Vérifiés</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-blue-500/30 flex items-center justify-center">
+                    <svg className="text-white w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{lastPayment?.cv_video_remaining || 0}</p>
+                    <p className="text-xs text-indigo-100">CV restants</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-amber-500/30 flex items-center justify-center">
+                    <svg className="text-white w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{sectors.length}</p>
+                    <p className="text-xs text-indigo-100">Secteurs</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div className="relative w-full md:w-72 group">
-        <select
-          className="w-full bg-white border-2 border-gray-200 hover:border-purple-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
-          value={selectedJob}
-          onChange={(e) => setSelectedJob(e.target.value)}
-        >
-          <option value="">Sélectionner le poste</option>
-          {filteredJobs.map((job) => (
-            <option key={job.id} value={job.id}>
-              {job.name}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-purple-500 group-hover:text-purple-600 transition-colors">
-          <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-            <path d="M7 10l5 5 5-5H7z" />
-          </svg>
+
+      {/* Filters Section */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">Filtres de recherche</h3>
+        </div>
+        <div className="p-6">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
+            <div className="relative w-full md:w-72 group">
+              <select
+                className="w-full bg-white border-2 border-gray-200 hover:border-blue-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
+                value={selectedSector}
+                onChange={(e) => setSelectedSector(e.target.value)}
+              >
+                <option value="">Sélectionner le secteur</option>
+                {sectors.map((sector) => (
+                  <option key={sector.id} value={sector.id}>
+                    {sector.name}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-blue-500 group-hover:text-blue-600 transition-colors">
+                <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
+                  <path d="M7 10l5 5 5-5H7z" />
+                </svg>
+              </div>
+            </div>
+            
+            <div className="relative w-full md:w-72 group">
+              <select
+                className="w-full bg-white border-2 border-gray-200 hover:border-purple-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
+                value={selectedJob}
+                onChange={(e) => setSelectedJob(e.target.value)}
+              >
+                <option value="">Sélectionner le poste</option>
+                {filteredJobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.name}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-purple-500 group-hover:text-purple-600 transition-colors">
+                <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
+                  <path d="M7 10l5 5 5-5H7z" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-[calc(80vh-220px)]">
-          <Circles
-            height={80}
-            width={80}
-            color="#4fa94d"
-            ariaLabel="circles-loading"
-            visible={true}
-          />
+        <div className="flex flex-col items-center justify-center h-[calc(80vh-220px)] gap-6">
+          <div className="relative">
+            <Circles
+              height={80}
+              width={80}
+              color="#4f46e5"
+              ariaLabel="circles-loading"
+              visible={true}
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg className="text-2xl text-indigo-600 animate-pulse w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-semibold text-gray-900 mb-2">Chargement des candidats</p>
+            <p className="text-sm text-gray-500">Veuillez patienter quelques instants...</p>
+          </div>
         </div>
       ) : (
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">

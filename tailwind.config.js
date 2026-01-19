@@ -1,20 +1,16 @@
 /** @type {import('tailwindcss').Config} */
-// const uploadThingConfig = require("./uploadThingConfig");
-
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
     "./constants/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
         default: ["Plus Jakarta Sans", "sans-serif"],
-        // "volkhof": ['volkhof', 'sans-serif']
       },
       backgroundImage: {
         hero: "url('/images/decore.png')",
@@ -62,7 +58,6 @@ module.exports = {
         "secondary-button": "0 20px 70px rgb(241, 165, 1, 15)",
         card: "0 21.85px 26.3px rgb(0,0,0, 10)",
       },
-      textAlign: ["rtl"],
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -70,12 +65,12 @@ module.exports = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: 0 },
+          from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
+          to: { height: "0" },
         },
       },
       animation: {
@@ -85,5 +80,4 @@ module.exports = {
     },
   },
   plugins: [require("@tailwindcss/aspect-ratio")],
-  // ...uploadThingConfig.plugins,
 };

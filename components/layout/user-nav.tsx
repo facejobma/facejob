@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
+import { performLogout } from "@/lib/auth";
 
 const userDataString =
   typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
@@ -39,27 +40,7 @@ export function UserNav() {
   const authToken = Cookies.get("authToken");
 
   function signOut() {
-    // Your sign out logic here
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/logout", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-        "Content-Type": "application/json",
-      },
-    })
-      .then(async (res) => {
-        if (res.ok) {
-          // redirect to login
-          router.push(`/auth/login-${userRole}`);
-        }
-      })
-      .catch((error) => {
-        toast({
-          title: "Whoops!",
-          variant: "destructive",
-          description: error.message,
-        });
-      });
+    performLogout(userRole);
   }
 
   if (user) {
@@ -69,7 +50,7 @@ export function UserNav() {
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={user?.image ?? user?.logo}
+                src={user?.image || user?.logo || undefined}
                 alt={user?.first_name ?? user?.company_name}
               />
               <AvatarFallback>

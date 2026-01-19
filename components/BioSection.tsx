@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Edit } from "lucide-react";
+import { FaPlus } from "react-icons/fa";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 
@@ -77,9 +78,21 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
         </button>
       </div>
       <div className="p-6 relative">
-        <div className="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-between">
-          <p>{currentBio}</p>
-        </div>
+        {currentBio && currentBio.trim().length > 0 ? (
+          <div className="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-between">
+            <p className="text-gray-800 leading-relaxed">{currentBio}</p>
+          </div>
+        ) : (
+          <div className="text-center py-4">
+            <button
+              onClick={handleEditClick}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+            >
+              <FaPlus className="text-sm" />
+              Ajouter une description
+            </button>
+          </div>
+        )}
       </div>
 
       <Modal
@@ -103,7 +116,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
 
           <button
             type="submit"
-            className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
           >
             Enregistrer 
           </button>

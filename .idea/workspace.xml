@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c92b7253-a11e-4f4b-8b9f-e1740c014bac" name="Changes" comment="fix: update PDFDownloadLink to use BlobProviderParams for loading state" />
+    <list default="true" id="c92b7253-a11e-4f4b-8b9f-e1740c014bac" name="Changes" comment="fix: update PDFDownloadLink to use BlobProviderParams for loading state">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,18 +26,20 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
     "js.debugger.nextJs.config.created.client": "true",
     "js.debugger.nextJs.config.created.server": "true",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/home/sohaib/Desktop/facejob",
+    "last_opened_file_path": "/home/sohaib/Desktop/buddyDesktopApp",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.lookFeel",
+    "to.speed.mode.migration.done": "true",
     "ts.external.directory.path": "/home/sohaib/Desktop/facejob/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
@@ -63,7 +67,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-WS-251.27812.50" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-WS-252.25557.126" />
       </set>
     </attachedChunks>
   </component>
@@ -84,7 +88,8 @@
       <workItem from="1722979444353" duration="2963000" />
       <workItem from="1723398978985" duration="23000" />
       <workItem from="1723650898380" duration="315000" />
-      <workItem from="1753725891265" duration="1738000" />
+      <workItem from="1753725891265" duration="3085000" />
+      <workItem from="1757840551798" duration="820000" />
     </task>
     <task id="LOCAL-00001" summary="Fix path to completed path">
       <option name="closed" value="true" />

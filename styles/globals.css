@@ -14,3 +14,7 @@ body {
 .mySwiper {
   overflow: hidden !important;
 }
+.w-36
+ {
+    width: 9rem;
+}

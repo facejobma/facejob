@@ -13,7 +13,14 @@ const ForgetPasswordForm = () => {
   const [emailError, setEmailError] = useState("");
   const router = useRouter();
   const params = useParams();
-  const { actor } = params;
+  let { actor } = params;
+
+  // si actor === "candidate", on le remplace par "candidat"
+  if (actor === "candidate") {
+    actor = "candidat";
+  }
+  
+  console.log("🚀 ~ ForgetPasswordForm ~ actor:", actor);
   // const actor = router.query.actor?.toString() || "candidat";
 
   const handleSubmit = async (e: FormEvent) => {
@@ -84,7 +91,7 @@ const ForgetPasswordForm = () => {
           // style={{ width: "110px", height: "110px" }}
         />
         <h2 className="text-3xl font-medium text-second my-2 py-4 mb-4">
-          Mettez à jour votre mot de passe
+          Mettez à jour votre Mot de passe
         </h2>
         <form className="flex flex-col space-y-6 my-4" onSubmit={handleSubmit}>
           <input

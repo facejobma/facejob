@@ -7,17 +7,12 @@ import { useRouter } from "next/navigation";
 import { Send, Star } from "lucide-react";
 import Link from "next/link";
 
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
-
-
 export default function HeaderEntreprise() {
   const router = useRouter();
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 ${inter.className}`}>
+      className="fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 font-sans">
       <nav className="h-14 flex items-center justify-between px-4">
         <div className="flex items-center gap-5">
           <div className="hidden md:block my-2 mr-40">

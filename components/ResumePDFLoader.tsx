@@ -4,6 +4,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import ResumePDF from "@/components/ResumePDF";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
+import { ButtonLoading } from "@/components/ui/loading";
 
 const ResumePDFLoader: React.FC<{ candidateId: number }> = ({ candidateId }) => {
   const [userProfile, setUserProfile] = useState<any | null>(null);
@@ -36,10 +37,17 @@ const ResumePDFLoader: React.FC<{ candidateId: number }> = ({ candidateId }) => 
     <PDFDownloadLink
       document={userProfile ? <ResumePDF candidateId={userProfile.id} /> : <></>}
       fileName="resume.pdf"
-      className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
       onClick={fetchProfileData}
     >
-      {({ loading: pdfLoading }) => (loading || pdfLoading ? "Generating..." : "Consulter CV")}
+      {({ loading: pdfLoading }) => (
+        <ButtonLoading
+          loading={loading || pdfLoading}
+          loadingText="Génération..."
+          className="bg-primary hover:bg-primary-2 text-white font-bold py-1 px-3 rounded-lg border border-primary mb-4"
+        >
+          Consulter CV
+        </ButtonLoading>
+      )}
     </PDFDownloadLink>
   );
 };

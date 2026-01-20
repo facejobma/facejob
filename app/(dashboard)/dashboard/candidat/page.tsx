@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Cookies from "js-cookie";
-import { Circles } from "react-loader-spinner";
+import { FullPageLoading } from "@/components/ui/loading";
 import {
   ColumnDef,
   flexRender,
@@ -402,24 +402,11 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] gap-6">
-        <div className="relative">
-          <Circles
-            height={80}
-            width={80}
-            color="#10b981"
-            ariaLabel="circles-loading"
-            visible={true}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <HiOutlineVideoCamera className="text-2xl text-green-600 animate-pulse" />
-          </div>
-        </div>
-        <div className="text-center">
-          <p className="text-lg font-semibold text-gray-900 mb-2">Chargement de vos CV vidéos</p>
-          <p className="text-sm text-gray-500">Veuillez patienter quelques instants...</p>
-        </div>
-      </div>
+      <FullPageLoading 
+        message="Chargement de vos CV vidéos"
+        submessage="Préparation de votre tableau de bord..."
+        showLogo={true}
+      />
     );
   }
 

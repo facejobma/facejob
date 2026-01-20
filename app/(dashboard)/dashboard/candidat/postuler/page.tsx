@@ -9,7 +9,7 @@ import { toast } from "react-hot-toast";
 import { FaTrash, FaVideo, FaUpload, FaCheckCircle } from "react-icons/fa";
 import { HiOutlineVideoCamera, HiOutlineCloudUpload } from "react-icons/hi";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { ButtonLoading, ProgressLoading } from "@/components/ui/loading";
 
 interface Job {
   id: number;

@@ -2,6 +2,8 @@ import {
   AlertTriangle,
   ArrowRight,
   Check,
+  CheckCircle,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircuitBoardIcon,
@@ -39,7 +41,8 @@ import {
   Users,
   BriefcaseBusiness, 
   SquareKanban,
-  FileVideo2
+  FileVideo2,
+  History
 } from "lucide-react";
 import { MdSupport } from "react-icons/md";
 
@@ -55,6 +58,7 @@ export const Icons = {
   kanban: CircuitBoardIcon,
   chevronLeft: ChevronLeft,
   chevronRight: ChevronRight,
+  chevronDown: ChevronDown,
   trash: Trash,
   employee: Building2,
   request: CheckSquare,
@@ -78,6 +82,7 @@ export const Icons = {
   laptop: Laptop,
   twitter: X,
   check: Check,
+  checkCircle: CheckCircle,
   logout: LogOut,
   payments: CircleDollarSign,
   offres: Layers,
@@ -87,5 +92,6 @@ export const Icons = {
   candidats: Users,
   mesOffres: BriefcaseBusiness,
   services: SquareKanban,
-  consumedCvs: FileVideo2
+  consumedCvs: FileVideo2,
+  history: History
 };

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Circles } from "react-loader-spinner";
+import { FullPageLoading } from "@/components/ui/loading";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 
@@ -97,16 +97,11 @@ function LinkedinCallback() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] space-y-4">
-        <Circles
-          height={80}
-          width={80}
-          color="#0077B5"
-          ariaLabel="circles-loading"
-          visible={true}
-        />
-        <p className="text-gray-600">Connexion avec LinkedIn en cours...</p>
-      </div>
+      <FullPageLoading 
+        message="Connexion avec LinkedIn en cours"
+        submessage="Authentification en cours..."
+        showLogo={true}
+      />
     );
   }
 

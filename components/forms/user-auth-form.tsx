@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { ButtonLoading } from "@/components/ui/loading";
 import {
   Form,
   FormControl,
@@ -111,13 +111,14 @@ export default function UserAuthForm() {
             )}
           />
 
-          <Button
-            disabled={form.formState.isLoading}
+          <ButtonLoading
+            loading={form.formState.isLoading}
+            loadingText="Connexion en cours..."
             className="ml-auto w-full"
             type="submit"
           >
-            {form.formState.isLoading ? "Chargement..." : "Connexion"}
-          </Button>
+            Connexion
+          </ButtonLoading>
         </form>
       </Form>
     </>

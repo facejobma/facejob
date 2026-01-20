@@ -120,6 +120,13 @@ export const navItemsCandidat: NavItem[] = [
   },
 
   {
+    title: "Historique des candidatures",
+    href: "/dashboard/candidat/historique",
+    icon: "history",
+    label: "historique",
+  },
+
+  {
     title: "Offres d’emploi",
     href: "/dashboard/candidat/offres",
     icon: "offres",

@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
-import { Circles } from "react-loader-spinner";
+import { FullPageLoading } from "@/components/ui/loading";
 import OffreCard from "@/components/offreCard";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
-import { Search, Briefcase, Building, Grid3x3, X, Filter, MapPin, Calendar, TrendingUp } from "lucide-react";
+import { Search, Briefcase, Building, Grid3x3, X, Filter, MapPin, Calendar, TrendingUp, ChevronDown } from "lucide-react";
 
 const OffresPage: React.FC = () => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
@@ -34,33 +34,34 @@ const OffresPage: React.FC = () => {
   const customSelectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      borderRadius: '0.75rem',
-      borderColor: state.isFocused ? '#10b981' : '#e5e7eb',
-      borderWidth: '2px',
-      boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : 'none',
-      padding: '0.25rem',
-      minHeight: '48px',
+      borderRadius: '8px',
+      borderColor: state.isFocused ? '#0a66c2' : '#d0d5dd',
+      borderWidth: '1px',
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(10, 102, 194, 0.1)' : 'none',
+      padding: '4px',
+      minHeight: '44px',
+      backgroundColor: 'white',
       '&:hover': {
-        borderColor: '#10b981',
+        borderColor: '#0a66c2',
       },
     }),
     option: (base: any, state: any) => ({
       ...base,
       backgroundColor: state.isSelected 
-        ? '#10b981' 
+        ? '#0a66c2' 
         : state.isFocused 
-        ? '#ecfdf5' 
+        ? '#f3f6f8' 
         : 'white',
-      color: state.isSelected ? 'white' : '#1f2937',
+      color: state.isSelected ? 'white' : '#1d2129',
       padding: '12px 16px',
       '&:active': {
-        backgroundColor: '#10b981',
+        backgroundColor: '#0a66c2',
       },
     }),
     placeholder: (base: any) => ({
       ...base,
-      color: '#9ca3af',
-      fontWeight: '500',
+      color: '#666666',
+      fontWeight: '400',
     }),
   };
 
@@ -193,183 +194,127 @@ const OffresPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-220px)] bg-gradient-to-br from-green-50 via-white to-emerald-50">
-        <div className="text-center">
-          <div className="relative">
-            <Circles
-              height="80"
-              width="80"
-              color="#10b981"
-              ariaLabel="circles-loading"
-              visible={true}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full opacity-20 animate-pulse"></div>
-          </div>
-          <p className="mt-6 text-gray-600 font-medium text-lg">Chargement des offres...</p>
-          <p className="mt-2 text-gray-500 text-sm">Découvrez les meilleures opportunités</p>
-        </div>
-      </div>
+      <FullPageLoading 
+        message="Chargement des offres"
+        submessage="Découvrez les meilleures opportunités"
+      />
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Enhanced Header Section */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-4 shadow-lg">
-                <Briefcase className="text-white" size={32} />
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* LinkedIn-style Header */}
+        <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
                   Offres d'emploi
                 </h1>
-                <p className="text-gray-600 mt-2 text-lg">
-                  Découvrez <span className="font-semibold text-green-600">{offres.length}</span> opportunité{offres.length > 1 ? 's' : ''} disponible{offres.length > 1 ? 's' : ''}
+                <p className="text-gray-600">
+                  {offres.length} offre{offres.length > 1 ? 's' : ''} disponible{offres.length > 1 ? 's' : ''}
                 </p>
               </div>
-            </div>
-            
-            {/* Quick Stats */}
-            <div className="hidden lg:flex items-center gap-6">
-              <div className="text-center">
-                <div className="flex items-center gap-2 text-green-600 mb-1">
-                  <TrendingUp size={16} />
-                  <span className="text-sm font-medium">Nouvelles offres</span>
+              <div className="hidden md:flex items-center gap-6 text-sm text-gray-600">
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-gray-900">
+                    {offres.filter(o => new Date(o.created_at) > new Date(Date.now() - 7*24*60*60*1000)).length}
+                  </div>
+                  <div>Cette semaine</div>
                 </div>
-                <p className="text-2xl font-bold text-gray-800">{offres.filter(o => new Date(o.created_at) > new Date(Date.now() - 7*24*60*60*1000)).length}</p>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center gap-2 text-emerald-600 mb-1">
-                  <Building size={16} />
-                  <span className="text-sm font-medium">Entreprises</span>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-gray-900">
+                    {new Set(offres.map(o => o.entreprise_id)).size}
+                  </div>
+                  <div>Entreprises</div>
                 </div>
-                <p className="text-2xl font-bold text-gray-800">{new Set(offres.map(o => o.entreprise_id)).size}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Filters Section */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-10 border border-white/20">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-2">
-                <Filter className="text-green-600" size={20} />
-              </div>
-              <h2 className="text-xl font-bold text-gray-800">Filtres de recherche</h2>
-            </div>
+        {/* LinkedIn-style Filters */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Filtres</h2>
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 font-medium transition-all duration-200 rounded-xl"
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
               >
-                <X size={16} />
                 Effacer tous les filtres
               </button>
             )}
           </div>
 
           {/* Search Bar */}
-          <div className="mb-6">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <div className="bg-blue-100 rounded-lg p-1">
-                <Search size={14} className="text-blue-600" />
-              </div>
-              Recherche globale
-            </label>
+          <div className="mb-4">
             <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="Rechercher par titre, entreprise, description, ville..."
+                placeholder="Rechercher par titre, entreprise, description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 px-4 py-3 pl-12 rounded-xl shadow-sm leading-tight focus:outline-none transition-all duration-200 font-medium"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                <Search className="text-gray-400" size={18} />
-              </div>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Secteur Filter */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <div className="bg-green-100 rounded-lg p-1">
-                  <Grid3x3 size={14} className="text-green-600" />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Secteur d'activité
               </label>
-              <div className="relative">
-                <select
-                  className="w-full bg-white border-2 border-gray-200 hover:border-green-400 focus:border-green-500 focus:ring-4 focus:ring-green-100 px-4 py-3 pr-10 rounded-xl shadow-sm leading-tight focus:outline-none transition-all duration-200 appearance-none font-medium"
-                  value={selectedSector}
-                  onChange={(e) => setSelectedSector(e.target.value)}
-                >
-                  <option value="">Tous les secteurs</option>
-                  {sectors.map((sector) => (
-                    <option key={sector.id} value={sector.id}>
-                      {sector.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-                    <path d="M7 10l5 5 5-5H7z" />
-                  </svg>
-                </div>
-              </div>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                value={selectedSector}
+                onChange={(e) => setSelectedSector(e.target.value)}
+              >
+                <option value="">Tous les secteurs</option>
+                {sectors.map((sector) => (
+                  <option key={sector.id} value={sector.id}>
+                    {sector.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Poste Filter */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <div className="bg-emerald-100 rounded-lg p-1">
-                  <Briefcase size={14} className="text-emerald-600" />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Type de poste
               </label>
-              <div className="relative">
-                <select
-                  className="w-full bg-white border-2 border-gray-200 hover:border-emerald-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 px-4 py-3 pr-10 rounded-xl shadow-sm leading-tight focus:outline-none transition-all duration-200 appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed font-medium"
-                  value={selectedJob}
-                  onChange={(e) => setSelectedJob(e.target.value)}
-                  disabled={!selectedSector}
-                >
-                  <option value="">
-                    {selectedSector ? "Tous les postes" : "Sélectionnez d'abord un secteur"}
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                value={selectedJob}
+                onChange={(e) => setSelectedJob(e.target.value)}
+                disabled={!selectedSector}
+              >
+                <option value="">
+                  {selectedSector ? "Tous les postes" : "Sélectionnez d'abord un secteur"}
+                </option>
+                {filteredJobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.name}
                   </option>
-                  {filteredJobs.map((job) => (
-                    <option key={job.id} value={job.id}>
-                      {job.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-                    <path d="M7 10l5 5 5-5H7z" />
-                  </svg>
-                </div>
-              </div>
+                ))}
+              </select>
             </div>
 
             {/* Entreprise Filter */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <div className="bg-teal-100 rounded-lg p-1">
-                  <Building size={14} className="text-teal-600" />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Entreprise
               </label>
               <Select
@@ -385,95 +330,80 @@ const OffresPage: React.FC = () => {
             </div>
 
             {/* City Filter */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                <div className="bg-purple-100 rounded-lg p-1">
-                  <MapPin size={14} className="text-purple-600" />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Ville
               </label>
-              <div className="relative">
-                <select
-                  className="w-full bg-white border-2 border-gray-200 hover:border-purple-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 px-4 py-3 pr-10 rounded-xl shadow-sm leading-tight focus:outline-none transition-all duration-200 appearance-none font-medium"
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                >
-                  <option value="">Toutes les villes</option>
-                  {availableCities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-                    <path d="M7 10l5 5 5-5H7z" />
-                  </svg>
-                </div>
-              </div>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+              >
+                <option value="">Toutes les villes</option>
+                {availableCities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
           {/* Active Filters Display */}
           {hasActiveFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="flex flex-wrap gap-3 items-center">
-                <span className="text-sm text-gray-600 font-semibold">Filtres actifs:</span>
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-sm text-gray-600 font-medium">Filtres actifs:</span>
                 {searchQuery && (
-                  <span className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 px-4 py-2 rounded-full text-sm font-medium shadow-sm">
-                    <Search size={12} />
+                  <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                     "{searchQuery}"
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="hover:bg-blue-300 rounded-full p-1 transition-colors"
+                      className="hover:bg-blue-200 rounded-full p-0.5"
                     >
                       <X size={12} />
                     </button>
                   </span>
                 )}
                 {selectedCity && (
-                  <span className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-4 py-2 rounded-full text-sm font-medium shadow-sm">
-                    <MapPin size={12} />
+                  <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
                     {selectedCity}
                     <button
                       onClick={() => setSelectedCity("")}
-                      className="hover:bg-purple-300 rounded-full p-1 transition-colors"
+                      className="hover:bg-purple-200 rounded-full p-0.5"
                     >
                       <X size={12} />
                     </button>
                   </span>
                 )}
                 {selectedSector && (
-                  <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-green-200 text-green-700 px-4 py-2 rounded-full text-sm font-medium shadow-sm">
-                    <Grid3x3 size={12} />
+                  <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
                     {sectors.find((s) => s.id === Number(selectedSector))?.name}
                     <button
                       onClick={() => setSelectedSector("")}
-                      className="hover:bg-green-300 rounded-full p-1 transition-colors"
+                      className="hover:bg-green-200 rounded-full p-0.5"
                     >
                       <X size={12} />
                     </button>
                   </span>
                 )}
                 {selectedJob && (
-                  <span className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium shadow-sm">
-                    <Briefcase size={12} />
+                  <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm">
                     {filteredJobs.find((j) => j.id === Number(selectedJob))?.name}
                     <button
                       onClick={() => setSelectedJob("")}
-                      className="hover:bg-emerald-300 rounded-full p-1 transition-colors"
+                      className="hover:bg-emerald-200 rounded-full p-0.5"
                     >
                       <X size={12} />
                     </button>
                   </span>
                 )}
                 {selectedEntreprise && (
-                  <span className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-100 to-teal-200 text-teal-700 px-4 py-2 rounded-full text-sm font-medium shadow-sm">
-                    <Building size={12} />
+                  <span className="inline-flex items-center gap-1 bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
                     {entrepriseOptions.find((e) => e.value === selectedEntreprise)?.label}
                     <button
                       onClick={() => setSelectedEntreprise("")}
-                      className="hover:bg-teal-300 rounded-full p-1 transition-colors"
+                      className="hover:bg-teal-200 rounded-full p-0.5"
                     >
                       <X size={12} />
                     </button>
@@ -485,59 +415,46 @@ const OffresPage: React.FC = () => {
         </div>
 
         {/* Results Section */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600 text-lg">
-              <span className="font-bold text-gray-800 text-xl">{filteredOffers.length}</span> offre{filteredOffers.length > 1 ? 's' : ''} trouvée{filteredOffers.length > 1 ? 's' : ''}
-            </p>
-            {filteredOffers.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Calendar size={16} />
-                <span>Mis à jour récemment</span>
-              </div>
-            )}
-          </div>
+        <div className="mb-4">
+          <p className="text-gray-600">
+            <span className="font-semibold text-gray-900">{filteredOffers.length}</span> offre{filteredOffers.length > 1 ? 's' : ''} trouvée{filteredOffers.length > 1 ? 's' : ''}
+          </p>
         </div>
 
-        {/* Enhanced Offers List */}
+        {/* Job Offers List */}
         {filteredOffers.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {filteredOffers.map((offre, index) => (
-              <div 
+          <div className="space-y-4">
+            {filteredOffers.map((offre) => (
+              <OffreCard
                 key={offre.id}
-                className="transform transition-all duration-300 hover:scale-105"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <OffreCard
-                  offreId={offre.id}
-                  titre={offre.titre}
-                  entreprise_name={offre.company_name}
-                  sector_name={offre.sector_name}
-                  job_name={offre.job_name}
-                  location={offre.location}
-                  contract_type={offre.contractType}
-                  date_debut={offre.date_debut}
-                  date_fin={offre.date_fin}
-                  description={offre.description}
-                />
-              </div>
+                offreId={offre.id}
+                titre={offre.titre}
+                entreprise_name={offre.company_name}
+                sector_name={offre.sector_name}
+                job_name={offre.job_name}
+                location={offre.location}
+                contract_type={offre.contractType}
+                date_debut={offre.date_debut}
+                date_fin={offre.date_fin}
+                description={offre.description}
+              />
             ))}
           </div>
         ) : (
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-16 text-center border border-white/20">
-            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-inner">
-              <Search className="text-gray-400" size={48} />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="text-gray-400" size={32} />
             </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-3">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Aucune offre trouvée
             </h3>
-            <p className="text-gray-600 mb-8 text-lg max-w-md mx-auto">
-              Essayez de modifier vos critères de recherche pour découvrir plus d'opportunités passionnantes.
+            <p className="text-gray-600 mb-6">
+              Essayez de modifier vos critères de recherche pour découvrir plus d'opportunités.
             </p>
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 hover:shadow-xl transform hover:scale-105"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
               >
                 Réinitialiser les filtres
               </button>

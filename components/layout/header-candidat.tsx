@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { MobileSidebar } from "./mobile-sidebar";
 import { Logo } from "@/components/ui/logo";
 import Notification from "@/components/layout/Notification";
+import AvailabilityNotification from "@/components/AvailabilityNotification";
 import { useRouter } from "next/navigation";
 import { Send, Sparkles, Bell } from "lucide-react";
 import Link from "next/link";
@@ -40,6 +41,11 @@ export default function HeaderCandidat() {
 
         {/* Right Section */}
         <div className="flex items-center gap-3">
+          {/* Availability Status */}
+          <div className="relative">
+            <AvailabilityNotification />
+          </div>
+          
           {/* Notifications */}
           <div className="relative">
             <Notification />

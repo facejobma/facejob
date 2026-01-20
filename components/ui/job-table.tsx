@@ -94,9 +94,6 @@ export function JobDataTable<TData, TValue>({
           message="Chargement des données..."
           className="h-[calc(80vh-220px)]"
         />
-            visible={true}
-          />
-        </div>
       ) : (
         <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">
           <Table className="relative">

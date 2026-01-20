@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/sidebar";
-import { Inter } from "next/font/google";
 import dynamic from "next/dynamic";
 import HeaderCandidat from "@/components/layout/header-candidat";
 import ExperiencePromptModal from "@/components/ExperiencePromptModal";
@@ -9,15 +8,15 @@ import { useExperiencePrompt } from "@/hooks/useExperiencePrompt";
 import { ExperiencePromptProvider, useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import { useEffect, useState } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
+interface LayoutProps {
+  children: React.ReactNode;
+  params: any;
+}
 
 function DashboardLayoutContent({ 
   children, 
   params 
-}: { 
-  children: React.ReactNode;
-  params?: any;
-}) {
+}: LayoutProps) {
   const router = useRouter();
   const [candidatId, setCandidatId] = useState<number | null>(null);
   const { showPrompt: showManualPrompt, hidePrompt: hideManualPrompt, isPromptVisible: isManualPromptVisible } = useExperiencePromptContext();
@@ -57,7 +56,7 @@ function DashboardLayoutContent({
 
   return (
     <>
-      <div className={`${inter.className} bg-gray-50 min-h-screen`}>
+      <div className="font-sans bg-gray-50 min-h-screen">
         <HeaderCandidat />
 
         <div className={`flex h-screen`}>
@@ -86,10 +85,7 @@ function DashboardLayoutContent({
 function DashboardLayout({ 
   children, 
   params 
-}: { 
-  children: React.ReactNode;
-  params?: any;
-}) {
+}: LayoutProps) {
   return (
     <ExperiencePromptProvider>
       <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>

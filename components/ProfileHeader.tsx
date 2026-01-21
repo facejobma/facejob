@@ -375,7 +375,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </button>
                 </div>
               ) : (
-                <UploadDropzone<OurFileRouter>
+                <UploadDropzone<OurFileRouter, "videoUpload">
                   endpoint="videoUpload"
                   onClientUploadComplete={handleImageUploadComplete}
                   onUploadError={handleImageUploadError}

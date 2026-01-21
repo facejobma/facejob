@@ -5,11 +5,12 @@ import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
 import { EnterpriseRequests } from "@/components/tables/request-tables/requests";
 import { Circles } from "react-loader-spinner";
+import { Entreprise } from "@/constants/data";
 
 const breadcrumbItems = [{ title: "Requests", link: "/dashboard/requests" }];
 
 export default function UsersPage() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<Entreprise[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const authToken = Cookies.get("authToken");
@@ -108,7 +109,7 @@ export default function UsersPage() {
                     <span className="text-white font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">{users.filter(user => user.is_verified === 'Accepted').length}</p>
+                    <p className="text-2xl font-bold text-white">{users.filter(user => user.isVerified === 'Accepted').length}</p>
                     <p className="text-xs text-indigo-100">Acceptées</p>
                   </div>
                 </div>
@@ -120,7 +121,7 @@ export default function UsersPage() {
                     <span className="text-white font-bold">⏳</span>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">{users.filter(user => user.is_verified === 'Pending').length}</p>
+                    <p className="text-2xl font-bold text-white">{users.filter(user => user.isVerified === 'Pending').length}</p>
                     <p className="text-xs text-indigo-100">En attente</p>
                   </div>
                 </div>
@@ -132,7 +133,7 @@ export default function UsersPage() {
                     <span className="text-white font-bold">✕</span>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">{users.filter(user => user.is_verified === 'Declined').length}</p>
+                    <p className="text-2xl font-bold text-white">{users.filter(user => user.isVerified === 'Declined').length}</p>
                     <p className="text-xs text-indigo-100">Refusées</p>
                   </div>
                 </div>

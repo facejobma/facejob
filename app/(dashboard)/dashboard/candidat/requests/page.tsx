@@ -7,11 +7,12 @@ import { EnterpriseRequests } from "@/components/tables/request-tables/requests"
 import { Circles } from "react-loader-spinner";
 import { HiOutlineClipboardList, HiOutlineCollection } from "react-icons/hi";
 import { FaBuilding, FaClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { Entreprise } from "@/constants/data";
 
 const breadcrumbItems = [{ title: "Requests", link: "/dashboard/requests" }];
 
 export default function UsersPage() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<Entreprise[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const authToken = Cookies.get("authToken");
@@ -71,9 +72,9 @@ export default function UsersPage() {
   // Calculate request statistics
   const stats = {
     total: users.length,
-    pending: users.filter(u => u.status === 'pending').length,
-    approved: users.filter(u => u.status === 'approved').length,
-    rejected: users.filter(u => u.status === 'rejected').length,
+    pending: users.filter(u => u.isVerified === 'pending').length,
+    approved: users.filter(u => u.isVerified === 'Accepted').length,
+    rejected: users.filter(u => u.isVerified === 'Declined').length,
   };
 
   return (

@@ -11,11 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { Job } from "@/constants/data";
 
 const breadcrumbItems = [{ title: "Offres", link: "/dashboard/jobs" }];
 
 export default function UsersPage() {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -78,7 +79,7 @@ export default function UsersPage() {
     totalApplications: jobs.reduce((sum, job) => sum + (job.postuler_offres_count || 0), 0),
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "Accepted":
         return <CheckCircle className="w-5 h-5 text-emerald-500" />;
@@ -91,7 +92,7 @@ export default function UsersPage() {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "Accepted":
         return "bg-emerald-50 text-emerald-700 border-emerald-200";

@@ -214,7 +214,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                             {isUploading ? "Upload en cours..." : "Glissez et déposez le logo de votre entreprise"}
                         </p>
                         {!isUploading ? (
-                            <UploadDropzone<OurFileRouter>
+                            <UploadDropzone<OurFileRouter, "imageUpload">
                                 endpoint="imageUpload"
                                 onClientUploadComplete={handleUploadComplete}
                                 onUploadError={handleUploadError}

@@ -49,7 +49,7 @@ const formSchema = z.object({
     description: z
         .string()
         .min(3, {message: "Product description must be at least 3 characters"}),
-    price: z.coerce.number(),
+    price: z.number().min(0, {message: "Price must be a positive number"}),
     category: z.string().min(1, {message: "Please select a category"}),
 });
 
@@ -65,7 +65,7 @@ export const EmployeeForm: React.FC<ProductFormProps> = ({
                                                              categories,
                                                          }) => {
     const params = useParams();
-    const storeId = params?.storeId.toString();
+    const storeId = params?.storeId?.toString();
     const router = useRouter();
     const {toast} = useToast();
     const [open, setOpen] = useState(false);

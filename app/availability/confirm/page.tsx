@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ interface ConfirmationResult {
   confirmed_at?: string;
 }
 
-const AvailabilityConfirmPage: React.FC = () => {
+const AvailabilityConfirmContent: React.FC = () => {
   const searchParams = useSearchParams();
   const [result, setResult] = useState<ConfirmationResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -154,6 +154,25 @@ const AvailabilityConfirmPage: React.FC = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const AvailabilityConfirmPage: React.FC = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-blue-200 bg-blue-50 border-2">
+          <CardContent className="p-8 text-center">
+            <Clock className="w-16 h-16 text-blue-500 animate-spin mx-auto mb-6" />
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">
+              Chargement...
+            </h1>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <AvailabilityConfirmContent />
+    </Suspense>
   );
 };
 

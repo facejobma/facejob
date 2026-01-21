@@ -374,7 +374,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
                             {isUploading ? "Upload en cours..." : "Glissez et déposez le logo de votre entreprise"}
                         </p>
                         {!isUploading ? (
-                <UploadDropzone<OurFileRouter>
+                <UploadDropzone<OurFileRouter, "imageUpload">
                                                 endpoint="imageUpload"
                                                 onClientUploadComplete={handleImageUploadComplete}
                                                 onUploadError={handleImageUploadError}

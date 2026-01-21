@@ -1,69 +1,55 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { MobileSidebar } from "./mobile-sidebar";
-import { UserNav } from "./user-nav";
 import { Logo } from "@/components/ui/logo";
 import Notification from "@/components/layout/Notification";
+import AvailabilityNotification from "@/components/AvailabilityNotification";
 import { useRouter } from "next/navigation";
-import { Send } from "lucide-react";
+import { Send, Sparkles, Bell } from "lucide-react";
 import Link from "next/link";
 
 export default function HeaderCandidat() {
   const router = useRouter();
 
   return (
-    <div
-      className={`fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur py-1 z-20 font-default`}
-    >
-      <nav className="h-14 flex items-center justify-between px-4">
-        <div className="flex items-center gap-5">
-          <div className="hidden lg:block my-2 mr-40">
+    <div className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm z-20 font-default">
+      <nav className="h-16 flex items-center justify-between px-4 lg:px-6">
+        {/* Left Section */}
+        <div className="flex items-center gap-4">
+          {/* Mobile Menu */}
+          <div className="md:hidden">
+            <MobileSidebar />
+          </div>
+          
+          {/* Logo */}
+          <div className="hidden md:block">
             <Logo />
           </div>
+          
+          {/* CTA Button */}
           <button
-            className="flex items-center gap-2 px-4 py-2 text-white bg-primary hover:bg-primary-1 font-semibold font-default rounded-md shadow-lg transition duration-300"
+            className="flex items-center gap-2 px-4 py-2.5 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
             onClick={() => router.push("/dashboard/candidat/postuler")}
           >
-            <Send className="w-4 h-4" />
-            Postuler
+            <Sparkles className="w-4 h-4" />
+            <span className="hidden sm:inline">Créer mon CV vidéo</span>
+            <span className="sm:hidden">CV vidéo</span>
           </button>
-          {/* <div className="relative flex items-center">
-            <input
-              type="text"
-              className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Search..."
-            />
-            <Search className="absolute right-2 w-5 h-5 text-gray-400" />
-          </div> */}
-          <div className="hidden lg:flex items-center ml-48 gap-10">
-              {/*** 
-            <Link
-              href="/dashboard/entreprise/services"
-              className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
-            >
-              SERVICES
-            </Link>*/}
-            <Link
-              href="/blogs"
-              className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
-            >
-              BLOGS
-            </Link>
+        </div>
 
-            <Link
-              href="/dashboard/candidat/support"
-              className="text-base font-semibold text-gray-700 hover:text-primary transition duration-300"
-            >
-              SUPPORT
-            </Link>
+
+
+        {/* Right Section */}
+        <div className="flex items-center gap-3">
+          {/* Availability Status */}
+          <div className="relative">
+            <AvailabilityNotification />
           </div>
-        </div>
-        <div className={cn("block lg:!hidden")}>
-          <MobileSidebar />
-        </div>
-        <div className="flex items-center gap-10">
-          <Notification />
-          <UserNav />
+          
+          {/* Notifications */}
+          <div className="relative">
+            <Notification />
+          </div>
         </div>
       </nav>
     </div>

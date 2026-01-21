@@ -25,12 +25,17 @@ function DashboardLayout({ children, params }: LayoutProps) {
 
   return (
     <>
-    <div className="font-sans">
-      <HeaderEntreprise />
-      <div className={`flex h-screen`}>
-        <Sidebar />
-        <main className="w-full pt-16">{children}</main>
-      </div>
+      <div className="font-sans bg-gray-50 min-h-screen">
+        <HeaderEntreprise />
+
+        <div className={`flex h-screen`}>
+          <Sidebar />
+          <main className="flex-1 pt-20 overflow-auto">
+            <div className="p-6">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </>
   );

@@ -1,8 +1,29 @@
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import LoginForm from "../../../components/auth/login";
 import NavBar from "../../../components/NavBar";
 import Image from "next/image";
 
-const LoginCandidatPage = () => {
+const LoginEntreprisePage = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const authToken = Cookies.get("authToken");
+    const userRole = typeof window !== "undefined" ? sessionStorage.getItem("userRole") : null;
+    
+    if (authToken && userRole) {
+      // Redirect to appropriate dashboard based on user role
+      if (userRole === "candidat") {
+        router.push("/dashboard/candidat");
+      } else if (userRole === "entreprise") {
+        router.push("/dashboard/entreprise");
+      }
+    }
+  }, [router]);
+
   return (
     <>
       <NavBar />
@@ -24,4 +45,4 @@ const LoginCandidatPage = () => {
   );
 };
 
-export default LoginCandidatPage;
+export default LoginEntreprisePage;

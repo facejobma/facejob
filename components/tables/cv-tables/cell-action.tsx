@@ -112,7 +112,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           "Take a closer look at the candidate's CV video to gain insights into their qualifications and skills."
         }
       >
-        <video src={data.link} className="w-full h-full" />
+        {data.link ? (
+          <video src={data.link} className="w-full h-full" controls />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+            <p className="text-gray-500">Aucune vidéo disponible</p>
+          </div>
+        )}
       </Modal>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>

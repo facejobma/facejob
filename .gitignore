@@ -73,3 +73,9 @@ temp/
 
 # Test files
 test.rs
+
+# Old/backup files
+*.old
+*.bak
+*.backup
+*.txt.bak

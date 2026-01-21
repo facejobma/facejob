@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Edit, Trash, PlusSquare } from "lucide-react";
+import { Edit, Trash, PlusSquare, Briefcase } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
+import { useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import Cookies from "js-cookie";
 
 interface Experience {
@@ -25,6 +26,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showPrompt } = useExperiencePromptContext();
 
   const [isEditing, setIsEditing] = useState(false);
   const [selectedExperience, setSelectedExperience] =
@@ -221,51 +223,88 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
       <div className="p-6 flex justify-between items-center">
         <h2 className="text-xl font-bold">Expériences</h2>
-        <button
-          onClick={() => handleEditClick(null)} // Add new experience
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <PlusSquare />
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={showPrompt}
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+            title="Ajouter des expériences avec l'assistant"
+          >
+            <Briefcase className="w-4 h-4" />
+            Assistant
+          </button>
+          <button
+            onClick={() => handleEditClick(null)} // Add new experience
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <PlusSquare />
+          </button>
+        </div>
       </div>
       <div className="p-6 relative">
-        {editedExperiences.map((exp: Experience) => (
-          <div
-            key={exp.id}
-            className="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-between"
-          >
-            <div>
-              <h3 className="font-bold">{exp.poste}</h3>
-              <p className="text-gray-600">{exp.organisme}</p>
-              {exp.location && (
-                <p className="text-sm text-gray-600">
-                  Location: {exp.location}
-                </p>
-              )}
-              {/* Display the date range */}
-              <p className="text-sm text-gray-600">
-                {formatDate(exp.date_debut)} -{" "}
-                {exp.date_fin ? formatDate(exp.date_fin) : "Poste actuel"}
+        {editedExperiences && editedExperiences.length > 0 ? (
+          editedExperiences.map((exp: Experience) => (
+            <div
+              key={exp.id}
+              className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg text-gray-900 mb-1">{exp.poste}</h3>
+                  <p className="text-green-600 font-semibold mb-2">{exp.organisme}</p>
+                  {exp.location && (
+                    <p className="text-sm text-gray-600 mb-2 flex items-center gap-1">
+                      <span>📍</span> {exp.location}
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-600 mb-3 flex items-center gap-1">
+                    <span>📅</span>
+                    {formatDate(exp.date_debut)} - {exp.date_fin ? formatDate(exp.date_fin) : "Poste actuel"}
+                  </p>
+                  {exp.description && (
+                    <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 ml-4">
+                  <button
+                    type="button"
+                    onClick={() => handleEditClick(exp)}
+                    className="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Modifier"
+                  >
+                    <Edit width={18} height={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteExperience(exp)}
+                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Supprimer"
+                  >
+                    <Trash width={18} height={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <div className="mb-4">
+              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="text-gray-400 text-2xl" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucune expérience ajoutée</h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                Commencez par ajouter votre première expérience professionnelle pour enrichir votre profil.
               </p>
             </div>
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={() => handleEditClick(exp)} // Edit specific experience
-                className="text-blue-500 hover:text-blue-700 mr-3"
-              >
-                <Edit width={20} height={20} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteExperience(exp)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash width={20} height={20} />
-              </button>
-            </div>
+            <button
+              onClick={() => handleEditClick(null)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+            >
+              <PlusSquare className="text-sm" />
+              Ajouter une expérience
+            </button>
           </div>
-        ))}
+        )}
       </div>
 
       <Modal
@@ -348,8 +387,11 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-2 px-4 rounded-md text-white ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-1"
-              }`}
+            className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
+              isSubmitting 
+                ? "bg-gray-400 cursor-not-allowed text-white" 
+                : "bg-green-600 hover:bg-green-700 text-white shadow-sm"
+            }`}
           >
             {isSubmitting
               ? "Envoi en cours..."

@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect, FC, ChangeEvent } from "react";
-import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
+import { UploadDropzone } from "@uploadthing/react";
+import { OurFileRouter } from "@/app/api/uploadthing/core"; // ton routeur UploadThing
 
 interface NextStepSignupCandidatProps {
   onSkip: () => void;
@@ -22,22 +24,15 @@ interface Sector {
 const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => {
   const [bio, setBio] = useState("");
   const [yearsOfExperience, setYearsOfExperience] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>(""); // URL S3/UploadThing
   const [sectors, setSectors] = useState<Sector[]>([]);
-
   const [selectedSector, setSelectedSector] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
-
+  const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const maxLength = 250;
 
   const router = useRouter();
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles: File[]) => {
-      setImage(acceptedFiles[0]);
-    },
-  });
 
   const handleBioChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const inputValue = e.target.value;
@@ -52,13 +47,13 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
         );
         const data = await response.json();
         setSectors(data);
       } catch (error) {
         console.error("Error fetching sectors:", error);
-        toast.error("Error fetching sectors!");
+        toast.error("Erreur lors de la récupération des secteurs!");
       }
     };
 
@@ -68,26 +63,25 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
   const filteredJobs =
     sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [];
 
-const validateForm = () => {
-  const newErrors: { [key: string]: string } = {};
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    const minBioLength = 15;
 
-  const minBioLength = 15; // nombre minimal de caractères
+    if (!bio.trim()) {
+      newErrors.bio = "La description est obligatoire.";
+    } else if (bio.trim().length < minBioLength) {
+      newErrors.bio = `La description doit contenir au moins ${minBioLength} caractères.`;
+    }
 
-  if (!bio.trim()) {
-    newErrors.bio = "La description est obligatoire.";
-  } else if (bio.trim().length < minBioLength) {
-    newErrors.bio = `La description doit contenir au moins ${minBioLength} caractères.`;
-  }
+    if (!selectedSector) newErrors.sector = "Veuillez sélectionner un secteur.";
+    if (!selectedJob) newErrors.job = "Veuillez sélectionner un métier.";
+    if (!yearsOfExperience.trim())
+      newErrors.yearsOfExperience = "Veuillez indiquer vos années d’expérience.";
+    if (!imageUrl) newErrors.image = "Veuillez uploader une photo de profil.";
 
-  if (!selectedSector) newErrors.sector = "Veuillez sélectionner un secteur.";
-  if (!selectedJob) newErrors.job = "Veuillez sélectionner un métier.";
-  if (!yearsOfExperience.trim())
-    newErrors.yearsOfExperience = "Veuillez indiquer vos années d’expérience.";
-
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
-
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -103,7 +97,7 @@ const validateForm = () => {
             : "{}",
         bio,
         job: selectedJob,
-        image,
+        image: imageUrl, // 👉 URL de l’image uploadée
         yearsOfExperience,
       };
 
@@ -113,7 +107,7 @@ const validateForm = () => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
-        },
+        }
       );
 
       if (response.ok) {
@@ -130,6 +124,30 @@ const validateForm = () => {
     }
   };
 
+  // gestion UploadThing
+  const handleUploadBegin = () => {
+    setIsUploading(true);
+    toast.loading("Upload de l’image en cours...", { id: "upload-toast" });
+  };
+
+  const handleUploadComplete = (res: any) => {
+    setIsUploading(false);
+    toast.dismiss("upload-toast");
+
+    if (res && res[0] && res[0].url) {
+      setImageUrl(res[0].url);
+      toast.success("Image uploadée avec succès!");
+    } else {
+      toast.error("Erreur: URL non trouvée");
+    }
+  };
+
+  const handleUploadError = (error: Error) => {
+    setIsUploading(false);
+    toast.dismiss("upload-toast");
+    toast.error(`Erreur d'upload: ${error.message}`);
+  };
+
   return (
     <div className="flex flex-col items-center font-default rounded-lg border border-newColor px-4 pb-4">
       <h2 className="text-3xl font-semibold text-second my-4 pb-4 mb-4">
@@ -139,7 +157,7 @@ const validateForm = () => {
       {/* Bio */}
       <div className="w-96 mb-2">
         <textarea
-          placeholder="écrire une description de vous-même (votre carrière professionnelle..)"
+          placeholder="Décrivez-vous (carrière, expériences..)"
           value={bio}
           onChange={handleBioChange}
           maxLength={maxLength}
@@ -159,7 +177,7 @@ const validateForm = () => {
             setSelectedSector(e.target.value);
             setSelectedJob("");
           }}
-          className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          className="px-4 py-2 text-secondary rounded border border-gray w-full"
         >
           <option value="" disabled>
             Sélectionnez le secteur.
@@ -179,7 +197,7 @@ const validateForm = () => {
           value={selectedJob}
           onChange={(e) => setSelectedJob(e.target.value)}
           disabled={!selectedSector}
-          className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          className="px-4 py-2 text-secondary rounded border border-gray w-full"
         >
           <option value="">Sélectionnez le métier.</option>
           {filteredJobs.map((job) => (
@@ -191,60 +209,70 @@ const validateForm = () => {
         {errors.job && <p className="text-red-500 text-sm">{errors.job}</p>}
       </div>
 
-      {/* Image */}
-      <div
-        {...getRootProps()}
-        className="w-96 mb-4 border border-gray p-4 rounded"
-      >
-        <input {...getInputProps()} />
-        <p className="text-secondary">
-          Faites glisser un photo de profil ici ou cliquez pour sélectionner un
-          photo
-        </p>
-        {image && (
-          <div className="mt-5 flex justify-center items-center flex-col ">
-            <p className="text-primary mb-1">Selected Image:</p>
-            <img
-              src={URL.createObjectURL(image)}
-              alt="image sélectionnée"
-              className="rounded-lg max-w-full h-auto"
+      {/* Image Upload */}
+      <div className="w-96 mb-4">
+        {imageUrl ? (
+          <div className="flex flex-col items-center">
+            <Image
+              src={imageUrl}
+              alt="Photo de profil"
+              width={120}
+              height={120}
+              className="rounded-lg"
             />
+            <button
+              onClick={() => setImageUrl("")}
+              className="mt-2 text-red-500 text-sm underline hover:text-red-700"
+              disabled={isUploading}
+            >
+              Changer la photo
+            </button>
           </div>
+        ) : (
+          <UploadDropzone<OurFileRouter>
+            endpoint="imageUpload"
+            onClientUploadComplete={handleUploadComplete}
+            onUploadError={handleUploadError}
+            onUploadBegin={handleUploadBegin}
+            className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer"
+          />
         )}
+        {errors.image && <p className="text-red-500 text-sm">{errors.image}</p>}
       </div>
 
-      {/* Années d'expérience */}
-      
+      {/* Expérience */}
       <input
         type="number"
         placeholder="Années d’expérience"
         value={yearsOfExperience}
         onChange={(e) => setYearsOfExperience(e.target.value)}
-        className="px-4 py-2 rounded border border-gray w-96  text-secondary"
+        className="px-4 py-2 rounded border border-gray w-96 text-secondary"
       />
       {errors.yearsOfExperience && (
         <p className="text-red-500 text-sm w-96">{errors.yearsOfExperience}</p>
       )}
-<div className="mb-4"></div>
+
       {/* Boutons */}
-      <div className="w-96 mb-1 flexrounded px-4 py-2">
+      <div className="w-96 mt-4 flex flex-col gap-2">
         <button
           onClick={() => {
             onSkip();
             sessionStorage.clear();
             router.push("/auth/login-candidate");
           }}
+          disabled={isUploading}
           className="py-2 px-10 rounded-full font-medium text-base text-white bg-gray-400 w-full"
         >
           Ignorer
         </button>
-      </div>
-      <div className="w-96  flexrounded px-4 py-2">
         <button
           onClick={handleSubmit}
-          className=" py-2 px-10 rounded-full font-medium text-base text-white bg-primary w-full"
+          disabled={isUploading}
+          className={`py-2 px-10 rounded-full font-medium text-base text-white w-full ${
+            isUploading ? "bg-gray-300 cursor-not-allowed" : "bg-primary hover:bg-primary-dark"
+          }`}
         >
-          Soumettre
+          {isUploading ? "Upload en cours..." : "Soumettre"}
         </button>
       </div>
     </div>

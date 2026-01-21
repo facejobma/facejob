@@ -19,7 +19,7 @@ import {
 import { Input } from "./input";
 import { Button } from "./button";
 import { ScrollArea, ScrollBar } from "./scroll-area";
-import { Circles } from "react-loader-spinner";
+import { InlineLoading } from "@/components/ui/loading";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -90,17 +90,10 @@ export function JobDataTable<TData, TValue>({
         </select>
       </div>
       {loading ? (
-        <div className="flex items-center justify-center h-[calc(80vh-220px)]">
-          <Circles
-            height="80"
-            width="80"
-            color="#4fa94d"
-            ariaLabel="circles-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={true}
-          />
-        </div>
+        <InlineLoading 
+          message="Chargement des données..."
+          className="h-[calc(80vh-220px)]"
+        />
       ) : (
         <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">
           <Table className="relative">

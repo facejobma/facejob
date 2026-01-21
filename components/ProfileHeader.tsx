@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
-import { FaPhone, FaEnvelope, FaMapPin, FaTrash } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { UploadDropzone } from "@uploadthing/react";
 import "@uploadthing/react/styles.css";
@@ -201,13 +201,19 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <Key />
           </button>
         </div>
-        {formData.newImage && (
+        {formData.newImage && formData.newImage !== "https://via.placeholder.com/150" ? (
           <div className="absolute left-10 top-6 md:top-12">
             <img
               src={formData.newImage}
               alt="Profile Avatar"
-              className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-contain"
+              className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
             />
+          </div>
+        ) : (
+          <div className="absolute left-10 top-6 md:top-12">
+            <div className="w-24 h-24 rounded-full border-4 border-gray-200 shadow-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+              <FaUser className="text-green-600 text-2xl" />
+            </div>
           </div>
         )}
 
@@ -215,21 +221,23 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <h1 className="text-2xl font-bold mb-1">
             {formData.newFirstName} {formData.newLastName}
           </h1>
-          <p className="text-secondary mb-3">{formData.newHeadline}</p>
+          <p className="text-secondary mb-3">
+            {formData.newHeadline || "Poste non renseigné"}
+          </p>
         </div>
 
         <div className="ml-6 md:ml-36 mt-32 md:mt-0">
           <div className="flex items-center mb-2">
             <FaPhone className="text-green-600 mr-2" />
-            <p className="text-gray-600">{formData.newTel}</p>
+            <p className="text-gray-600">{formData.newTel || "Téléphone non renseigné"}</p>
           </div>
           <div className="flex items-center mb-2">
             <FaEnvelope className="text-green-600 mr-2" />
-            <p className="text-gray-600">{formData.newEmail}</p>
+            <p className="text-gray-600">{formData.newEmail || "Email non renseigné"}</p>
           </div>
           <div className="flex items-center mb-2">
             <FaMapPin className="text-green-600 mr-2" />
-            <p className="text-gray-600">{formData.newAddress}</p>
+            <p className="text-gray-600">{formData.newAddress || "Adresse non renseignée"}</p>
           </div>
         </div>
       </div>
@@ -380,7 +388,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <div className="mt-6 text-center">
             <button
               type="submit"
-              className="bg-primary hover:bg-primary-2 text-white font-bold py-2 px-4 rounded-md"
+              className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
             >
               Sauvegarder
             </button>

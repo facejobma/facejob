@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import ResumePDF from "@/components/ResumePDF";
+import ResumePDF, { downloadResumePDF } from "@/components/ResumePDF";
 import { toast } from "react-hot-toast";
 
 interface Candidat {
@@ -63,7 +63,7 @@ export const OfferCandidatActions: React.FC<{
   const [candidateToConsume, setCandidateToConsume] = useState<Candidat | null>(
     null,
   );
-  const [postulerToConsume, setPostulerToConsume] = useState<Postuler | null>(
+  const [postulerToConsume, setPostulerToConsume] = useState<any | null>(
     null,
   );
 
@@ -116,6 +116,8 @@ export const OfferCandidatActions: React.FC<{
       setIsUpgradeModalOpen(true);
     }
   };
+  
+
 
   const handleConfirmConsume = async () => {
     if (postulerToConsume) {
@@ -202,16 +204,11 @@ export const OfferCandidatActions: React.FC<{
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem>
-            <View className="mr-2 h-4 w-4" />
-            <PDFDownloadLink
-              document={<ResumePDF candidateId={candidat.id} />}
-              fileName="resume.pdf"
-              // className=" h-4 w-4"
-            >
-              {({ loading }) => (loading ? "Generating..." : "Consulter CV")}
-            </PDFDownloadLink>
-          </DropdownMenuItem>
+      
+            <DropdownMenuItem onClick={() => downloadResumePDF(candidat.id)}>
+  <View className="mr-2 h-4 w-4" />
+  Voir CV
+</DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
             <CheckSquare className="mr-2 h-4 w-4" /> Consommer

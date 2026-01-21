@@ -20,6 +20,7 @@ interface Payment {
   id: number;
   entreprise_id: number;
   job_remaining: number;
+  job_posted: number;
   status: string;
 }
 
@@ -28,7 +29,7 @@ const PublishOffer: React.FC = () => {
   const [location, setLocation] = useState("");
   const [contractType, setContractType] = useState("");
   const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState(""); // New state for end date
+  const [endDate, setEndDate] = useState("");
   const [description, setDescription] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
@@ -36,9 +37,8 @@ const PublishOffer: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [lastPayment, setLastPayment] = useState<Payment | null>(null);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const company = sessionStorage.getItem("user");
+  const company = typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
   const companyId = company ? JSON.parse(company).id : null;
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
@@ -109,7 +109,7 @@ const PublishOffer: React.FC = () => {
               location,
               contractType,
               date_debut: startDate,
-              date_fin: contractType === "CDD" ? endDate : ".", // Conditionally add end date
+              date_fin: contractType === "CDD" ? endDate : ".",
               description,
               sector_id: selectedSector,
               job_id: selectedJob,
@@ -118,7 +118,6 @@ const PublishOffer: React.FC = () => {
           },
         );
 
-        // Log response for debugging
         const responseData = await response.json();
         if (response.ok) {
           toast.success("Offer published successfully!");
@@ -157,235 +156,50 @@ const PublishOffer: React.FC = () => {
         // Handle "No payment found for this entreprise" case
         console.log("No payment found for this enterprise");
         setLastPayment(null);
-      } else {
-        console.error("Error fetching last payment:", response.status);
-        toast.error("Error fetching last payment!");
-      }
-    } catch (error) {
-      console.error("Error fetching last payment:", error);
-      toast.error("Error fetching last payment!");
-    }
-  };
-
-  const handleConsumeClick = () => {
-    if (lastPayment && lastPayment.job_remaining > 0) {
-      // Allow consumption
-    } else {
-      setIsUpgradeModalOpen(true);
-    }
-  };
-
-  const handleUpgradePlan = () => {
-    window.location.href = "/dashboard/entreprise/services";
-  };
-
-  return (
-    <div className="flex-1 space-y-4 p-4 md:p-24 bg-gray-100">
-      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-medium mb-8 text-center">
-          Publier votre offre d’emploi
-        </h2>
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="title"
-            >
-              Titre du poste
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Entrez le titre du poste"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="location"
-            >
-              Lieu
-            </label>
-            <input
-              type="text"
-              id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Entrez le lieu"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="contractType"
-            >
-              Type de contrat
-            </label>
-            <select
-              id="contractType"
-              value={contractType}
-              onChange={(e) => setContractType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">Sélectionnez le type de contrat</option>
-              <option value="CDI">CDI</option>
-              <option value="CDD">CDD</option>
-              {/* <option value="Temps plein">Temps plein</option>
-              <option value="Temps partiel">Temps partiel</option> */}
-              <option value="Intérim ">Intérim</option>
-              <option value="Contrat de chantier">Contrat de chantier</option>
-              <option value="Freelance">Freelance</option>
-            </select>
-          </div>
-
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="startDate"
-            >
-              Date de début
-            </label>
-            <input
-              type="date"
-              id="startDate"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </div>
-
-          {contractType === "CDD" && ( // Conditionally render Date de fin
-            <div className="mb-6">
-              <label
-                className="block text-sm font-bold mb-2 text-gray-700"
-                htmlFor="endDate"
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                disabled={uploadStatus === "uploading"}
+                className={`group relative overflow-hidden w-full py-4 px-8 font-bold text-lg rounded-2xl shadow-xl transition-all duration-300 transform ${
+                  uploadStatus === "uploading"
+                    ? "bg-gray-400 cursor-not-allowed scale-95"
+                    : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:scale-105 hover:shadow-2xl active:scale-95"
+                } text-white focus:outline-none focus:ring-4 focus:ring-green-300/50`}
               >
-                Date de fin
-              </label>
-              <input
-                type="date"
-                id="endDate"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
+                {/* Background Animation */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                
+                {/* Content */}
+                <div className="relative flex items-center justify-center gap-3">
+                  {uploadStatus === "uploading" ? (
+                    <>
+                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span className="tracking-wide">Publication en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="relative">
+                        <Send className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        <div className="absolute inset-0 bg-white/30 rounded-full scale-0 group-hover:scale-150 transition-transform duration-500"></div>
+                      </div>
+                      <span className="tracking-wide font-extrabold">Publier l'offre</span>
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-white/60 rounded-full group-hover:bg-white transition-colors duration-300"></div>
+                        <div className="w-2 h-2 bg-white/40 rounded-full group-hover:bg-white/80 transition-colors duration-300 delay-75"></div>
+                        <div className="w-2 h-2 bg-white/20 rounded-full group-hover:bg-white/60 transition-colors duration-300 delay-150"></div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Glow Effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/0 via-emerald-400/0 to-green-400/0 group-hover:from-green-400/20 group-hover:via-emerald-400/20 group-hover:to-green-400/20 transition-all duration-500"></div>
+              </button>
             </div>
-          )}
-
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="secteur"
-            >
-              Secteur
-            </label>
-            <select
-              id="secteur"
-              value={selectedSector}
-              onChange={(e) => {
-                setSelectedSector(e.target.value);
-                setSelectedJob("");
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">Sélectionnez un secteur</option>
-              {sectors.map((sector) => (
-                <option key={sector.id} value={sector.id}>
-                  {sector.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="job"
-            >
-              Métier
-            </label>
-            <select
-              id="job"
-              value={selectedJob}
-              onChange={(e) => setSelectedJob(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">Sélectionnez un métier</option>
-
-              {filteredJobs.map((job) => (
-                <option key={job.id} value={job.id}>
-                  {job.name}
-                </option>
-              ))}
-              <option value={1}>Autre</option>
-            </select>
-          </div>
-
-          <div className="mb-6">
-            <label
-              className="block text-sm font-bold mb-2 text-gray-700"
-              htmlFor="description"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Entrez la description de l'offre"
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              disabled={uploadStatus === "uploading"}
-              className={`group relative overflow-hidden w-full py-4 px-8 font-bold text-lg rounded-2xl shadow-xl transition-all duration-300 transform ${
-                uploadStatus === "uploading"
-                  ? "bg-gray-400 cursor-not-allowed scale-95"
-                  : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:scale-105 hover:shadow-2xl active:scale-95"
-              } text-white focus:outline-none focus:ring-4 focus:ring-green-300/50`}
-            >
-              {/* Background Animation */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              
-              {/* Content */}
-              <div className="relative flex items-center justify-center gap-3">
-                {uploadStatus === "uploading" ? (
-                  <>
-                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span className="tracking-wide">Publication en cours...</span>
-                  </>
-                ) : (
-                  <>
-                    <div className="relative">
-                      <Send className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-                      <div className="absolute inset-0 bg-white/30 rounded-full scale-0 group-hover:scale-150 transition-transform duration-500"></div>
-                    </div>
-                    <span className="tracking-wide font-extrabold">Publier l'offre</span>
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-white/60 rounded-full group-hover:bg-white transition-colors duration-300"></div>
-                      <div className="w-2 h-2 bg-white/40 rounded-full group-hover:bg-white/80 transition-colors duration-300 delay-75"></div>
-                      <div className="w-2 h-2 bg-white/20 rounded-full group-hover:bg-white/60 transition-colors duration-300 delay-150"></div>
-                    </div>
-                  </>
-                )}
-              </div>
-              
-              {/* Glow Effect */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/0 via-emerald-400/0 to-green-400/0 group-hover:from-green-400/20 group-hover:via-emerald-400/20 group-hover:to-green-400/20 transition-all duration-500"></div>
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
+      
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>

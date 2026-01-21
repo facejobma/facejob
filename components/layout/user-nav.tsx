@@ -50,7 +50,7 @@ export function UserNav() {
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={user?.image ?? user?.logo}
+                src={user?.image || user?.logo || undefined}
                 alt={user?.first_name ?? user?.company_name}
               />
               <AvatarFallback>

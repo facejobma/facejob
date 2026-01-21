@@ -42,19 +42,6 @@ export function DashboardNav({ items, setOpen, closeOnClick = true }: DashboardN
     <nav className="grid items-start gap-1">
       {items.map((item, index) => {
         const Icon = Icons[item.icon || "arrowRight"];
-        const isActive = path === item.href;
-        const isLogout = item.label === "logout";
-        
-        return (
-          item.href && (
-            isLogout ? (
-              <button
-                key={index}
-                onClick={() => handleItemClick(item)}
-                className="w-full text-left"
-              >
-                <span
-                  className={cn(
                     "group flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ease-in-out relative overflow-hidden",
                     "hover:bg-red-50 hover:text-red-600 text-gray-600",
                     item.disabled && "cursor-not-allowed opacity-50",

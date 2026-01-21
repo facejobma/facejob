@@ -144,11 +144,6 @@ function ServicePlanPage() {
       } else {
         console.error("Failed to fetch last payment");
         toast.error("Erreur lors de la récupération des informations de paiement");
-        setHasNoPayment(true);
-      }
-    } catch (error) {
-      console.error("Error fetching last payment:", error);
-      toast.error("Erreur de connexion lors de la récupération des informations de paiement");
       setHasNoPayment(true);
     } finally {
       setIsLoadingPayment(false);

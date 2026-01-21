@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
+import { Send } from "lucide-react";
 
 interface Job {
   id: number;
@@ -148,8 +149,18 @@ const PublishOffer: React.FC = () => {
           },
         },
       );
-      const data = await response.json();
-      setLastPayment(data);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setLastPayment(data);
+      } else if (response.status === 404) {
+        // Handle "No payment found for this entreprise" case
+        console.log("No payment found for this enterprise");
+        setLastPayment(null);
+      } else {
+        console.error("Error fetching last payment:", response.status);
+        toast.error("Error fetching last payment!");
+      }
     } catch (error) {
       console.error("Error fetching last payment:", error);
       toast.error("Error fetching last payment!");
@@ -337,15 +348,40 @@ const PublishOffer: React.FC = () => {
             <button
               type="submit"
               disabled={uploadStatus === "uploading"}
-              className={`${
+              className={`group relative overflow-hidden w-full py-4 px-8 font-bold text-lg rounded-2xl shadow-xl transition-all duration-300 transform ${
                 uploadStatus === "uploading"
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-primary"
-              } text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
+                  ? "bg-gray-400 cursor-not-allowed scale-95"
+                  : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:scale-105 hover:shadow-2xl active:scale-95"
+              } text-white focus:outline-none focus:ring-4 focus:ring-green-300/50`}
             >
-              {uploadStatus === "uploading"
-                ? "En cours de publication..."
-                : "Publier l'offre"}
+              {/* Background Animation */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center gap-3">
+                {uploadStatus === "uploading" ? (
+                  <>
+                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span className="tracking-wide">Publication en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="relative">
+                      <Send className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      <div className="absolute inset-0 bg-white/30 rounded-full scale-0 group-hover:scale-150 transition-transform duration-500"></div>
+                    </div>
+                    <span className="tracking-wide font-extrabold">Publier l'offre</span>
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-white/60 rounded-full group-hover:bg-white transition-colors duration-300"></div>
+                      <div className="w-2 h-2 bg-white/40 rounded-full group-hover:bg-white/80 transition-colors duration-300 delay-75"></div>
+                      <div className="w-2 h-2 bg-white/20 rounded-full group-hover:bg-white/60 transition-colors duration-300 delay-150"></div>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              {/* Glow Effect */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/0 via-emerald-400/0 to-green-400/0 group-hover:from-green-400/20 group-hover:via-emerald-400/20 group-hover:to-green-400/20 transition-all duration-500"></div>
             </button>
           </div>
         </form>

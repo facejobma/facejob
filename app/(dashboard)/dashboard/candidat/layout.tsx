@@ -1,13 +1,15 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/sidebar";
-import { Inter } from "next/font/google";
 import dynamic from "next/dynamic";
 import HeaderCandidat from "@/components/layout/header-candidat";
 
-const inter = Inter({ subsets: ["latin"] });
+interface LayoutProps {
+  children: React.ReactNode;
+  params: any;
+}
 
-function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayout({ children, params }: LayoutProps) {
   // !!!!
   const router = useRouter();
 
@@ -23,7 +25,7 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <div className={`${inter.className}`}>
+      <div className="font-sans">
         <HeaderCandidat />
 
         {/* <body className={`${inter.className}`}> */}
@@ -37,4 +39,3 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default dynamic(() => Promise.resolve(DashboardLayout), { ssr: false });
-// export default DashboardLayout

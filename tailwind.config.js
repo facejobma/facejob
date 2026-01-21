@@ -12,6 +12,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         poppins: ["Poppins", "sans-serif"],
         default: ["Plus Jakarta Sans", "sans-serif"],
         // "volkhof": ['volkhof', 'sans-serif']

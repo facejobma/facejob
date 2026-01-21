@@ -85,8 +85,18 @@ export const OfferCandidatActions: React.FC<{
           },
         },
       );
-      const data = await response.json();
-      setLastPayment(data);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setLastPayment(data);
+      } else if (response.status === 404) {
+        // Handle "No payment found for this entreprise" case
+        console.log("No payment found for this enterprise");
+        setLastPayment(null);
+      } else {
+        console.error("Error fetching last payment:", response.status);
+        toast.error("Error fetching last payment!");
+      }
     } catch (error) {
       console.error("Error fetching last payment:", error);
       toast.error("Error fetching last payment!");

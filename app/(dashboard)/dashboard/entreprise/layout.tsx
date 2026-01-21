@@ -2,13 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Inter } from "next/font/google";
 import HeaderEntreprise from "@/components/layout/header-entreprise";
 import Sidebar from "@/components/layout/sidebar";
 
-const inter = Inter({ subsets: ["latin"] });
+interface LayoutProps {
+  children: React.ReactNode;
+  params: any;
+}
 
-function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayout({ children, params }: LayoutProps) {
   const router = useRouter();
 
   const userDataString =
@@ -23,7 +25,7 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-    <div className={`${inter.className}`}>
+    <div className="font-sans">
       <HeaderEntreprise />
       <div className={`flex h-screen`}>
         <Sidebar />

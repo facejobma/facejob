@@ -117,15 +117,24 @@ function ServicePlanPage() {
           },
         },
       );
+      
       if (response.ok) {
         const data = await response.json();
         setLastPayment(data);
         setCurrentPlanId(data.plan_id);
+      } else if (response.status === 404) {
+        // Handle "No payment found for this entreprise" case
+        console.log("No payment found for this enterprise");
+        setLastPayment(null);
+        setCurrentPlanId(null);
+        // User will see the plan selection interface without a toast message
       } else {
         console.error("Failed to fetch last payment");
+        toast.error("Erreur lors de la récupération des informations de paiement");
       }
     } catch (error) {
       console.error("Error fetching last payment:", error);
+      toast.error("Erreur de connexion lors de la récupération des informations de paiement");
     }
   };
   useEffect(() => {

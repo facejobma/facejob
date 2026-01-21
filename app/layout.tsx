@@ -6,6 +6,23 @@ import "./globals.css";
 // import React from "react";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "react-hot-toast";
+import localFont from "next/font/local";
+
+const inter = localFont({
+  src: [
+    {
+      path: "../public/fonts/Inter-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Inter-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-inter",
+});
 
 export default async function RootLayout({
   children,
@@ -14,7 +31,7 @@ export default async function RootLayout({
 }) {
   const session = "tmpSession";
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans">
         <Toaster position="top-center" />
         <Providers session={session}>

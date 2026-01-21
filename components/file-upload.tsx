@@ -3,10 +3,18 @@ import {OurFileRouter} from "@/app/api/uploadthing/core";
 import {UploadDropzone} from "@uploadthing/react";
 import {Trash} from "lucide-react";
 import Image from "next/image";
-import {UploadFileResponse} from "uploadthing/client";
 import {IMG_MAX_LIMIT} from "./forms/product-form";
 import {Button} from "./ui/button";
 import {useToast} from "./ui/use-toast";
+
+// Define the upload response type locally
+type UploadFileResponse = {
+    url: string;
+    key: string;
+    name: string;
+    size: number;
+    fileUrl?: string;
+};
 
 interface ImageUploadProps {
     onChange: (newFiles: UploadFileResponse[]) => void;
@@ -60,7 +68,7 @@ export default function FileUpload({
             </div>
             <div>
                 {value.length < IMG_MAX_LIMIT && (
-                    <UploadDropzone<OurFileRouter>
+                    <UploadDropzone<OurFileRouter, "videoUpload">
                         className="dark:bg-zinc-800 py-2 ut-label:text-sm ut-allowed-content:ut-uploading:text-red-300"
                         endpoint="videoUpload"
                         config={{mode: "auto"}}

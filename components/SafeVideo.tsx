@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface SafeVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
+interface SafeVideoProps extends Omit<React.VideoHTMLAttributes<HTMLVideoElement>, 'src'> {
   src?: string | null | undefined;
   fallbackContent?: React.ReactNode;
 }

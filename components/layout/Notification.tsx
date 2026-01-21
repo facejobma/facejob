@@ -22,7 +22,7 @@ interface Notification {
 
 declare global {
   interface Window {
-    Echo: Echo;
+    Echo: any;
     Pusher: typeof Pusher;
   }
 }

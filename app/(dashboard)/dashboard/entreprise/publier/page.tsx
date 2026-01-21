@@ -1,143 +1,57 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Cookies from "js-cookie";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import Cookies from "js-cookie";
 import { Send } from "lucide-react";
-
-interface Job {
-  id: number;
-  name: string;
-}
 
 interface Sector {
   id: number;
   name: string;
-  jobs: Job[];
 }
 
-interface Payment {
-  id: number;
-  entreprise_id: number;
-  job_remaining: number;
-  job_posted: number;
-  status: string;
-}
-
-const PublishOffer: React.FC = () => {
-  const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
-  const [contractType, setContractType] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedSector, setSelectedSector] = useState("");
-  const [selectedJob, setSelectedJob] = useState("");
+export default function PublierPage() {
   const [sectors, setSectors] = useState<Sector[]>([]);
-  const [uploadStatus, setUploadStatus] = useState("idle");
-  const [lastPayment, setLastPayment] = useState<Payment | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading">("idle");
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    titre: "",
+    description: "",
+    location: "",
+    contractType: "",
+    sector_id: "",
+    date_debut: "",
+    date_fin: "",
+  });
 
   const company = typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
   const companyId = company ? JSON.parse(company).id : null;
-
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const userData =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user") || "{}"
-      : "{}";
 
   useEffect(() => {
-    const fetchSectors = async () => {
-      try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
-        );
-        const data = await response.json();
-        setSectors(data);
-      } catch (error) {
-        console.error("Error fetching sectors:", error);
-        toast.error("Error fetching sectors!");
-      }
-    };
-
     fetchSectors();
-    fetchLastPayment();
-  }, [authToken, companyId]);
+    checkPaymentStatus();
+  }, []);
 
-  // Filter jobs based on selected sector
-  const filteredJobs =
-    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
-    [];
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Validate required fields
-    if (
-      !title ||
-      !location ||
-      !contractType ||
-      !startDate ||
-      !selectedSector ||
-      !selectedJob
-    ) {
-      toast.error("Please fill in all required fields!");
-      return;
-    }
-
-    if (
-      lastPayment &&
-      lastPayment.status == "Accepted" &&
-      lastPayment.job_remaining > 0
-    ) {
-      setUploadStatus("uploading");
-
-      try {
-        const user = JSON.parse(userData);
-
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offre/create`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              titre: title,
-              location,
-              contractType,
-              date_debut: startDate,
-              date_fin: contractType === "CDD" ? endDate : ".",
-              description,
-              sector_id: selectedSector,
-              job_id: selectedJob,
-              entreprise_id: user.id,
-            }),
-          },
-        );
-
-        const responseData = await response.json();
-        if (response.ok) {
-          toast.success("Offer published successfully!");
-          setUploadStatus("completed");
-        } else {
-          console.error("Response error:", responseData);
-          toast.error("Failed to publish offer!");
-          setUploadStatus("failed");
-        }
-      } catch (error) {
-        console.error("Error publishing offer:", error);
-        toast.error("An error occurred while publishing the offer!");
-        setUploadStatus("failed");
-      }
-    } else {
-      setIsUpgradeModalOpen(true);
+  const fetchSectors = async () => {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
+      );
+      const data = await response.json();
+      setSectors(data);
+    } catch (error) {
+      console.error("Error fetching sectors:", error);
+      toast.error("Erreur lors du chargement des secteurs");
     }
   };
 
-  const fetchLastPayment = async () => {
+  const checkPaymentStatus = async () => {
+    if (!companyId || !authToken) return;
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
@@ -146,54 +60,216 @@ const PublishOffer: React.FC = () => {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
-      
+
+      if (!response.ok) {
+        setIsUpgradeModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Error checking payment status:", error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.titre || !formData.description || !formData.sector_id) {
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
+    setIsLoading(true);
+    setUploadStatus("uploading");
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offre/create`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            entreprise_id: companyId,
+          }),
+        }
+      );
+
       if (response.ok) {
-        const data = await response.json();
-        setLastPayment(data);
-      } else if (response.status === 404) {
-        // Handle "No payment found for this entreprise" case
-        console.log("No payment found for this enterprise");
-        setLastPayment(null);
+        toast.success("Offre publiée avec succès!");
+        setFormData({
+          titre: "",
+          description: "",
+          location: "",
+          contractType: "",
+          sector_id: "",
+          date_debut: "",
+          date_fin: "",
+        });
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Erreur lors de la publication");
+      }
+    } catch (error) {
+      console.error("Error creating offer:", error);
+      toast.error("Erreur lors de la publication de l'offre");
+    } finally {
+      setIsLoading(false);
+      setUploadStatus("idle");
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">Publier une nouvelle offre</h1>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Titre de l'offre *
+                </label>
+                <input
+                  type="text"
+                  name="titre"
+                  value={formData.titre}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Ex: Développeur Full Stack"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Secteur *
+                </label>
+                <select
+                  name="sector_id"
+                  value={formData.sector_id}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Sélectionner un secteur</option>
+                  {sectors.map((sector) => (
+                    <option key={sector.id} value={sector.id}>
+                      {sector.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Localisation
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Ex: Casablanca, Maroc"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Type de contrat
+                </label>
+                <select
+                  name="contractType"
+                  value={formData.contractType}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">Sélectionner un type</option>
+                  <option value="CDI">CDI</option>
+                  <option value="CDD">CDD</option>
+                  <option value="Stage">Stage</option>
+                  <option value="Freelance">Freelance</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date de début
+                </label>
+                <input
+                  type="date"
+                  name="date_debut"
+                  value={formData.date_debut}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date de fin
+                </label>
+                <input
+                  type="date"
+                  name="date_fin"
+                  value={formData.date_fin}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description de l'offre *
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={6}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Décrivez le poste, les responsabilités, les compétences requises..."
+                required
+              />
+            </div>
+
             <div className="flex justify-center">
               <button
                 type="submit"
-                disabled={uploadStatus === "uploading"}
-                className={`group relative overflow-hidden w-full py-4 px-8 font-bold text-lg rounded-2xl shadow-xl transition-all duration-300 transform ${
-                  uploadStatus === "uploading"
-                    ? "bg-gray-400 cursor-not-allowed scale-95"
-                    : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:scale-105 hover:shadow-2xl active:scale-95"
-                } text-white focus:outline-none focus:ring-4 focus:ring-green-300/50`}
+                disabled={isLoading}
+                className={`group relative px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${
+                  isLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:scale-105 hover:shadow-xl"
+                } text-white focus:outline-none focus:ring-4 focus:ring-green-300`}
               >
-                {/* Background Animation */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                
-                {/* Content */}
-                <div className="relative flex items-center justify-center gap-3">
+                <div className="flex items-center space-x-3">
                   {uploadStatus === "uploading" ? (
                     <>
-                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span className="tracking-wide">Publication en cours...</span>
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Publication en cours...</span>
                     </>
                   ) : (
                     <>
-                      <div className="relative">
-                        <Send className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-                        <div className="absolute inset-0 bg-white/30 rounded-full scale-0 group-hover:scale-150 transition-transform duration-500"></div>
-                      </div>
-                      <span className="tracking-wide font-extrabold">Publier l'offre</span>
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-white/60 rounded-full group-hover:bg-white transition-colors duration-300"></div>
-                        <div className="w-2 h-2 bg-white/40 rounded-full group-hover:bg-white/80 transition-colors duration-300 delay-75"></div>
-                        <div className="w-2 h-2 bg-white/20 rounded-full group-hover:bg-white/60 transition-colors duration-300 delay-150"></div>
-                      </div>
+                      <Send className="w-6 h-6" />
+                      <span>Publier l'offre</span>
                     </>
                   )}
                 </div>
-                
-                {/* Glow Effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/0 via-emerald-400/0 to-green-400/0 group-hover:from-green-400/20 group-hover:via-emerald-400/20 group-hover:to-green-400/20 transition-all duration-500"></div>
               </button>
             </div>
           </form>
@@ -205,13 +281,12 @@ const PublishOffer: React.FC = () => {
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="bg-white p-8 rounded-lg shadow-lg z-10">
             <h2 className="text-xl font-semibold mb-8">
-              Vous avez atteint la limite de votre plan, veuillez souscrire à
-              nouveau.
+              Vous avez atteint la limite de votre plan, veuillez souscrire à nouveau.
             </h2>
             <div className="flex justify-center space-x-4">
               <button
-                onClick={handleUpgradePlan}
-                className="px-4 py-2 bg-primary text-white rounded-md"
+                onClick={() => setIsUpgradeModalOpen(false)}
+                className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
               >
                 Mettre à niveau
               </button>
@@ -221,6 +296,4 @@ const PublishOffer: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default PublishOffer;
+}

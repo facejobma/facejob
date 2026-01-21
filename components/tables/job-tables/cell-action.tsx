@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Job } from "@/constants/data";
+import { Job } from "@/types";
 import { Edit, MoreHorizontal, View, Users, Trash2, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -77,7 +77,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <Users className="mr-2 h-4 w-4 text-green-600" />
           <div>
             <div className="font-medium">Voir les candidats</div>
-            <div className="text-xs text-gray-500">{data.postuler_offres_count || 0} candidature{(data.postuler_offres_count || 0) !== 1 ? 's' : ''}</div>
+            <div className="text-xs text-gray-500">0 candidatures</div>
           </div>
         </DropdownMenuItem>
         

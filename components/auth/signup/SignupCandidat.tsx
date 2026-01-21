@@ -249,13 +249,13 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
               type="radio"
               className="hidden"
               name="sex"
-              value="Femme"
-              checked={sex === "Femme"}
-              onChange={() => setSex("Femme")}
+              value="female"
+              checked={sex === "female"}
+              onChange={() => setSex("female")}
             />
             <div
               className={`w-5 h-5 border-2 rounded ${
-                sex === "Femme"
+                sex === "female"
                   ? "bg-primary border-primary"
                   : "border-gray-300"
               }`}
@@ -268,13 +268,13 @@ const SignupFormCandidate: FC<SignupFormCandidatProps> = ({ onNextStep }) => {
               type="radio"
               className="hidden"
               name="sex"
-              value="Homme"
-              checked={sex === "Homme"}
-              onChange={() => setSex("Homme")}
+              value="male"
+              checked={sex === "male"}
+              onChange={() => setSex("male")}
             />
             <div
               className={`w-5 h-5 border-2 rounded ${
-                sex === "Homme"
+                sex === "male"
                   ? "bg-primary border-primary"
                   : "border-gray-300"
               }`}

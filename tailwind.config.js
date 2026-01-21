@@ -11,6 +11,7 @@ module.exports = {
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
         default: ["Plus Jakarta Sans", "sans-serif"],
+        inter: ["var(--font-inter)", "sans-serif"],
       },
       backgroundImage: {
         hero: "url('/images/decore.png')",

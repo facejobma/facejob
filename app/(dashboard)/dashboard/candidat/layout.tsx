@@ -7,6 +7,7 @@ import ExperiencePromptModal from "@/components/ExperiencePromptModal";
 import { useExperiencePrompt } from "@/hooks/useExperiencePrompt";
 import { ExperiencePromptProvider, useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import { useEffect, useState } from "react";
+import RouteGuard from "@/components/auth/RouteGuard";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -39,10 +40,6 @@ function DashboardLayoutContent({
     hidePrompt: hideAutoPrompt,
     skipPrompt,
   } = useExperiencePrompt(candidatId);
-
-  if (!userData) {
-    router.push(`/`);
-  }
 
   const handleClosePrompt = () => {
     hideAutoPrompt();
@@ -87,9 +84,11 @@ function DashboardLayout({
   params 
 }: LayoutProps) {
   return (
-    <ExperiencePromptProvider>
-      <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>
-    </ExperiencePromptProvider>
+    <RouteGuard requiredRole="candidat">
+      <ExperiencePromptProvider>
+        <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>
+      </ExperiencePromptProvider>
+    </RouteGuard>
   );
 }
 

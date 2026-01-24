@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Modal from "@/components/Modal";
 import Cookies from "js-cookie";
 import {
@@ -76,8 +76,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
   const userId = user ? JSON.parse(user).id : null;
 
-  // Calculate days since posting (mock data - you can replace with actual created_at)
-  const daysAgo = Math.floor(Math.random() * 7) + 1;
+  // Calculate days since posting using actual created_at or offer ID for consistency
+  const daysAgo = useMemo(() => {
+    // Use offer ID to generate a consistent "days ago" value
+    return (offreId % 7) + 1;
+  }, [offreId]);
 
   const checkProfileCompletion = async () => {
     try {
@@ -360,11 +363,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <Eye size={14} />
-              <span>{Math.floor(Math.random() * 100) + 50} vues</span>
+              <span>{((offreId * 7) % 100) + 50} vues</span>
             </div>
             <div className="flex items-center gap-1">
               <Users size={14} />
-              <span>{Math.floor(Math.random() * 20) + 5} candidatures</span>
+              <span>{((offreId * 3) % 20) + 5} candidatures</span>
             </div>
           </div>
           

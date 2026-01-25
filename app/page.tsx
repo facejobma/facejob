@@ -8,13 +8,18 @@ import Hero from "../components/Hero";
 import HowWorks from "../components/HowWorks";
 import Subscription from "../components/Subscription";
 import Testimonials from "../components/Testimonials";
+import FeaturedOffers from "../components/FeaturedOffers";
+import { OrganizationStructuredData, WebSiteStructuredData } from "../components/StructuredData";
 
 export default function Home() {
     return (
         <div className="relative">
+            <OrganizationStructuredData />
+            <WebSiteStructuredData />
             <Hero/>
             <main>
                 <Category/>
+                <FeaturedOffers/>
                 <HowWorks/>
                 <Testimonials/>
                 <Subscription/>

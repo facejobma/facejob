@@ -28,6 +28,9 @@ export default function HowWorks({}: Props) {
           setOffre(data);
         } else {
           console.error("Error fetching random offer:", response.status);
+        } else {
+          console.error("Error fetching random offer:", result.error);
+>>>>>>> 9e96b560962b5af2aa9b847f308bae536bd3030d
           // Set fallback data if API fails
           setOffre({
             titre: "Un emploi de développeur Web",

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FullPageLoading } from "@/components/ui/loading";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
+import { getUserFromToken, redirectToDashboard } from "@/lib/auth";
 
 function LinkedinCallback() {
   const [loading, setLoading] = useState(true);
@@ -16,9 +17,6 @@ function LinkedinCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const error = urlParams.get("error");
-        const frontendRole = sessionStorage.getItem("userRole") || "candidat";
-        // Map frontend role to backend role for API
-        const backendRole = frontendRole === "candidat" ? "candidate" : "entreprise";
 
         // Check if LinkedIn returned an error
         if (error) {
@@ -29,14 +27,13 @@ function LinkedinCallback() {
           throw new Error("Code d'autorisation manquant");
         }
 
-        console.log("LinkedIn callback - Code:", code, "UserRole:", backendRole);
+        console.log("LinkedIn callback - Code:", code);
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/linkedin/callback?code=${code}`,
           {
             headers: {
               "accept": "application/json",
-              "X-User-Role": backendRole
             },
           },
         );
@@ -56,24 +53,25 @@ function LinkedinCallback() {
           throw new Error("Données d'authentification invalides");
         }
 
-        // Store user data
-        sessionStorage.setItem("user", JSON.stringify(responseData.user));
-        // Map backend role to frontend role for routing
-        const mappedRole = responseData.user_type === "candidate" ? "candidat" : "entreprise";
-        sessionStorage.setItem("userRole", mappedRole);
-
         // Store auth token
         Cookies.set("authToken", responseData.access_token, { expires: 7 });
+
+        // Store user data (but don't store role - get it from backend)
+        sessionStorage.setItem("user", JSON.stringify(responseData.user));
+
+        // Get user role from backend using secure method
+        const authenticatedUser = await getUserFromToken();
+        
+        if (!authenticatedUser) {
+          throw new Error("Failed to get user data after OAuth login");
+        }
 
         // Show success message
         toast.success("Connexion LinkedIn réussie !");
 
-        // Redirect to appropriate dashboard
-        const storedRole = sessionStorage.getItem("userRole");
-        const redirectPath = storedRole === "candidat" ? "/dashboard/candidat" : "/dashboard/entreprise";
-        
+        // Redirect to appropriate dashboard based on actual role from backend
         setTimeout(() => {
-          router.push(redirectPath);
+          redirectToDashboard(authenticatedUser.role);
         }, 1000); // Small delay to show success message
 
       } catch (error: any) {
@@ -83,9 +81,7 @@ function LinkedinCallback() {
         
         // Redirect to login page after error
         setTimeout(() => {
-          const userRole = sessionStorage.getItem("userRole") || "candidat";
-          const loginPath = userRole === "candidat" ? "/auth/login-candidate" : "/auth/login-entreprise";
-          router.push(loginPath);
+          router.push("/auth/login-candidate"); // Default to candidate login
         }, 3000);
       } finally {
         setLoading(false);

@@ -74,6 +74,9 @@ export default function NavBar() {
                   <Link href="/">Accueil</Link>
                 </li>
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
+                  <Link href="/offres">Offres d'emploi</Link>
+                </li>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary">
                   <Link href="/contact">Contact</Link>
                 </li>
                 <li className="transition-all duration-300 ease-in-out hover:text-primary">
@@ -152,6 +155,9 @@ export default function NavBar() {
             </li>
             <li>
               <Link href="/">Home</Link>
+            </li>
+            <li>
+              <Link href="/offres">Offres d'emploi</Link>
             </li>
             <li>
               <Link href="/contact">Contact</Link>

@@ -6,14 +6,12 @@ import Link from "next/link";
 import Image from "next/image";
 import google from "@/public/svg/google.svg";
 import linkedin from "@/public/svg/linkedin.svg";
-import { useRouter } from "next/navigation";
 import { secureLogin } from "@/lib/auth";
 
-const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
+const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateEmail = (value: string) => {
     if (!value) {
@@ -24,7 +22,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(value)) {
-      toast.error("L’adresse mail est invalide.");
+      toast.error("L'adresse mail est invalide.");
       return false;
     }
     return true;
@@ -60,65 +58,32 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       return;
     }
 
+    setIsLoading(true);
     try {
-      const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL +
-          `/api/${apiVersion}/auth/${props.loginFor}/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        },
-      );
-
-      if (!response.ok) {
-        toast.error("Email ou mot de passe ne sont pas valides");
-        return;
-      }
-
-      const userData = await response.json();
-      console.log("Logged in successfully", userData.data);
-
-      sessionStorage.setItem("user", JSON.stringify(userData.data));
-      sessionStorage.setItem("userRole", props.loginFor === "candidate" ? "candidat" : "entreprise");
-
-      const { token } = userData;
-
-      Cookies.set("authToken", token, { expires: 7 });
-
-      toast.success("connecté avec succès");
-
-      if (props.loginFor === "candidate") {
-        router.push("/dashboard/candidat");
-      } else if (props.loginFor == "entreprise") {
-        router.push("/dashboard/entreprise");
-      }
+      // Use secure login that gets role from backend
+      await secureLogin(email, password, props.loginFor);
+      toast.success("Connecté avec succès");
     } catch (error: any) {
       console.error(error);
-      toast.error(
-        error.message || "Une erreur s’est produite lors de la connexion",
-      );
+      if (error.message.includes("email")) {
+        toast.error("Votre adresse e-mail doit être vérifiée avant de vous connecter.");
+      } else {
+        toast.error(error.message || "Email ou mot de passe ne sont pas valides");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      // Use secure role-specific endpoint
-      const endpoint = props.loginFor === 'candidate' 
-        ? '/api/v1/auth/candidate/google'
-        : '/api/v1/auth/entreprise/google';
+      // Use the specific OAuth endpoint for the user type
+      const endpoint = props.loginFor === "candidate" 
+        ? "/api/v1/auth/candidate/google" 
+        : "/api/v1/auth/entreprise/google";
         
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // Include cookies
-        }
       );
 
       if (!response.ok) {
@@ -127,66 +92,34 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       }
 
       const data = await response.json();
-
-      sessionStorage.setItem("userRole", props.loginFor === "candidate" ? "candidat" : "entreprise");
       window.location.href = data.url;
     } catch (error: any) {
       console.error(error);
-      toast.error("Une erreur s’est produite lors de la connexion");
+      toast.error("Une erreur s'est produite lors de la connexion");
     }
   };
 
   const handleLinkedinLogin = async () => {
     try {
-      // Use secure role-specific endpoint
-      const endpoint = props.loginFor === 'candidate' 
-        ? '/api/v1/auth/candidate/linkedin'
-        : '/api/v1/auth/entreprise/linkedin';
-        
-      console.log('🔐 LinkedIn OAuth - Starting secure flow:', {
-        loginFor: props.loginFor,
-        endpoint: endpoint,
-        fullUrl: process.env.NEXT_PUBLIC_BACKEND_URL + endpoint
-      });
+      // Use the specific OAuth endpoint for the user type
+      const endpoint = props.loginFor === "candidate" 
+        ? "/api/v1/auth/candidate/linkedin" 
+        : "/api/v1/auth/entreprise/linkedin";
         
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // Include cookies
-        }
       );
 
-      console.log('🔐 LinkedIn OAuth - Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
-      });
-
       if (!response.ok) {
-        console.error('❌ LinkedIn OAuth - Request failed:', {
-          status: response.status,
-          statusText: response.statusText
-        });
         toast.error("Erreur lors de la connexion avec Linkedin");
         return;
       }
 
       const data = await response.json();
-      
-      console.log('🔐 LinkedIn OAuth - Redirect data:', {
-        provider: data.provider,
-        hasUrl: !!data.url,
-        urlLength: data.url?.length
-      });
-
-      console.log('🔐 LinkedIn OAuth - Redirecting to LinkedIn...');
       window.location.href = data.url;
     } catch (error: any) {
       console.error(error);
-      toast.error("Une erreur s’est produite lors de la connexion");
+      toast.error("Une erreur s'est produite lors de la connexion");
     }
   };
 
@@ -199,10 +132,11 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       </h2>
       <div className="mt-4 grid space-y-4">
         <button
-          type="submit"
+          type="button"
           className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
-        hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
+        hover:border-green-200 focus:bg-blue-50 active:bg-blue-100 disabled:opacity-50"
           onClick={handleGoogleLogin}
+          disabled={isLoading}
         >
           <div className="relative flex items-center space-x-10 justify-center">
             <Image
@@ -218,9 +152,11 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
           </div>
         </button>
         <button
+          type="button"
           className="group h-12 px-20 border-2 border-gray-300 rounded-full transition duration-300
-    hover:border-green-200 focus:bg-blue-50 active:bg-blue-100"
+    hover:border-green-200 focus:bg-blue-50 active:bg-blue-100 disabled:opacity-50"
           onClick={handleLinkedinLogin}
+          disabled={isLoading}
         >
           <div className="relative flex items-center space-x-10 justify-center">
             <Image
@@ -249,11 +185,8 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
           onChange={(e) => {
             setEmail(e.target.value);
           }}
-          onFocus={() => setIsEmailFocused(true)} // Champ sélectionné
-          onBlur={() => {
-            setIsEmailFocused(false); // Champ non sélectionné
-          }}
-          className={`w-full px-4 py-2 rounded border border-gray `}
+          className={`w-full px-4 py-2 rounded border border-gray`}
+          disabled={isLoading}
         />
 
         <input
@@ -263,7 +196,8 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
           onChange={(e) => {
             setPassword(e.target.value);
           }}
-          className={`w-full px-4 py-2 rounded border border-gray `}
+          className={`w-full px-4 py-2 rounded border border-gray`}
+          disabled={isLoading}
         />
 
         <p className="text-base text-second text-center">
@@ -277,12 +211,13 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
         </p>
         <button
           type="submit"
-          className="w-full py-2 rounded-full font-medium text-base text-white bg-primary"
+          className="w-full py-2 rounded-full font-medium text-base text-white bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading}
         >
-          se connecter
+          {isLoading ? "Connexion..." : "se connecter"}
         </button>
         <p className="my-2 text-second text-center">
-          Je n’ai pas de compte ?{" "}
+          Je n'ai pas de compte ?{" "}
           <Link
             href={`/auth/signup-${props.loginFor}`}
             className="text-primary"
@@ -295,4 +230,4 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   );
 };
 
-export default LoginForm;
+export default SecureLoginForm;

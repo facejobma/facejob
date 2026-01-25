@@ -26,6 +26,9 @@ function DashboardLayout({ children, params }: LayoutProps) {
     }
   }, [userData, router]);
 
+=======
+function DashboardLayoutContent({ children, params }: LayoutProps) {
+>>>>>>> 9e96b560962b5af2aa9b847f308bae536bd3030d
   return (
     <>
       <div className="font-sans bg-gray-50 min-h-screen">
@@ -41,6 +44,14 @@ function DashboardLayout({ children, params }: LayoutProps) {
         </div>
       </div>
     </>
+  );
+}
+
+function DashboardLayout({ children, params }: LayoutProps) {
+  return (
+    <RouteGuard requiredRole="entreprise">
+      <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>
+    </RouteGuard>
   );
 }
 

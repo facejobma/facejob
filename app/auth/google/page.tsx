@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FullPageLoading } from "@/components/ui/loading";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
+import { getUserFromToken, redirectToDashboard } from "@/lib/auth";
 
 function GoogleCallback() {
   const [loading, setLoading] = useState(true);
@@ -16,12 +17,9 @@ function GoogleCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const error = urlParams.get("error");
-        const frontendRole = sessionStorage.getItem("userRole") || "candidat";
-        // Map frontend role to backend role for API
-        const backendRole = frontendRole === "candidat" ? "candidate" : "entreprise";
 
         console.log("Google callback - URL PARAMS:", urlParams.toString());
-        console.log("Google callback - Code:", code, "UserRole:", backendRole);
+        console.log("Google callback - Code:", code);
 
         // Check if Google returned an error
         if (error) {
@@ -37,7 +35,6 @@ function GoogleCallback() {
           {
             headers: {
               "accept": "application/json",
-              "X-User-Role": backendRole
             },
           },
         );
@@ -57,26 +54,27 @@ function GoogleCallback() {
           throw new Error("Données d'authentification invalides");
         }
 
-        // Store user data
-        sessionStorage.setItem("user", JSON.stringify(responseData.user));
-        // Map backend role to frontend role for routing
-        const mappedRole = responseData.user_type === "candidate" ? "candidat" : "entreprise";
-        sessionStorage.setItem("userRole", mappedRole);
-
         // Store auth token
         Cookies.set("authToken", responseData.access_token, { expires: 7 });
 
+        // Store user data (but don't store role - get it from backend)
+        sessionStorage.setItem("user", JSON.stringify(responseData.user));
+
         console.log("Access Token OAuth:", responseData.access_token);
+
+        // Get user role from backend using secure method
+        const authenticatedUser = await getUserFromToken();
+        
+        if (!authenticatedUser) {
+          throw new Error("Failed to get user data after OAuth login");
+        }
 
         // Show success message
         toast.success("Connexion Google réussie !");
 
-        // Redirect to appropriate dashboard
-        const storedRole = sessionStorage.getItem("userRole");
-        const redirectPath = storedRole === "candidate" ? "/dashboard/candidat" : "/dashboard/entreprise";
-        
+        // Redirect to appropriate dashboard based on actual role from backend
         setTimeout(() => {
-          router.push(redirectPath);
+          redirectToDashboard(authenticatedUser.role);
         }, 1000); // Small delay to show success message
 
       } catch (error: any) {
@@ -86,9 +84,7 @@ function GoogleCallback() {
         
         // Redirect to login page after error
         setTimeout(() => {
-          const userRole = sessionStorage.getItem("userRole") || "candidat";
-          const loginPath = userRole === "candidat" ? "/auth/login-candidate" : "/auth/login-entreprise";
-          router.push(loginPath);
+          router.push("/auth/login-candidate"); // Default to candidate login
         }, 3000);
       } finally {
         setLoading(false);

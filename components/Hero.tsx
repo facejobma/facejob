@@ -58,6 +58,22 @@ export default function Hero({}: Props) {
               trouvez votre job même depuis chez vous
             </p>
 
+            {/* Call to Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-8 px-1 md:px-0">
+              <Link
+                href="/offres"
+                className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-1 transition-colors duration-300"
+              >
+                Découvrir les offres
+              </Link>
+              <Link
+                href="/auth/signup-candidate"
+                className="inline-flex items-center justify-center px-6 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
+              >
+                Créer mon profil
+              </Link>
+            </div>
+
             <div className="flex justify-center md:justify-start ml-16 md:ml-0 items-center mt-16">
               <Image
                 src="/Arrow.png"

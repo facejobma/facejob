@@ -1,5 +1,112 @@
 import Cookies from "js-cookie";
 
+// User types
+export type UserRole = 'candidat' | 'entreprise' | 'admin';
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  role: UserRole;
+  [key: string]: any;
+}
+
+// Get user data from token by calling the backend
+export async function getUserFromToken(): Promise<AuthUser | null> {
+  const token = Cookies.get("authToken");
+  
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      // Token is invalid, clear it
+      logout();
+      return null;
+    }
+
+    const userData = await response.json();
+    
+    // Determine user role from the token abilities or user type
+    let role: UserRole;
+    if (userData.tokenCan && userData.tokenCan('role:candidat')) {
+      role = 'candidat';
+    } else if (userData.tokenCan && userData.tokenCan('role:entreprise')) {
+      role = 'entreprise';
+    } else if (userData.tokenCan && userData.tokenCan('role:admin')) {
+      role = 'admin';
+    } else {
+      // Fallback: try to determine from user data structure
+      if (userData.company_name || userData.sector_id) {
+        role = 'entreprise';
+      } else if (userData.first_name || userData.last_name) {
+        role = 'candidat';
+      } else {
+        role = 'candidat'; // Default fallback
+      }
+    }
+
+    return {
+      ...userData,
+      role
+    };
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    logout();
+    return null;
+  }
+}
+
+// Check if user is authenticated and get their role
+export async function getAuthenticatedUser(): Promise<AuthUser | null> {
+  // First check if we have a token
+  const token = Cookies.get("authToken");
+  if (!token) {
+    return null;
+  }
+
+  // Get user data from backend
+  return await getUserFromToken();
+}
+
+// Redirect user to appropriate dashboard based on their role
+export function redirectToDashboard(role: UserRole) {
+  switch (role) {
+    case 'candidat':
+      window.location.href = '/dashboard/candidat';
+      break;
+    case 'entreprise':
+      window.location.href = '/dashboard/entreprise';
+      break;
+    case 'admin':
+      window.location.href = '/dashboard/admin';
+      break;
+    default:
+      window.location.href = '/';
+  }
+}
+
+// Redirect to appropriate login page based on role
+export function redirectToLogin(role?: UserRole) {
+  switch (role) {
+    case 'candidat':
+      window.location.href = '/auth/login-candidate';
+      break;
+    case 'entreprise':
+      window.location.href = '/auth/login-entreprise';
+      break;
+    default:
+      window.location.href = '/auth/login-candidate'; // Default to candidate login
+  }
+}
+
 export function logout() {
   // Clear all localStorage items
   if (typeof window !== "undefined") {
@@ -59,8 +166,6 @@ export function performLogout(userRole?: string | null) {
         Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
-    }).catch((error) => {
-      console.error("Backend logout error:", error);
     });
   }
   

@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, AlertTriangle, CheckCircle, XCircle, ChevronDown } from "lucide-react";
+import { authenticatedApiCall } from "@/lib/api";
 
 interface AvailabilityData {
   availability_status: 'available' | 'unavailable' | 'pending';
@@ -20,8 +21,6 @@ const AvailabilityNotification: React.FC = () => {
   const [updating, setUpdating] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   useEffect(() => {
     fetchAvailabilityStatus();
@@ -46,15 +45,7 @@ const AvailabilityNotification: React.FC = () => {
 
   const fetchAvailabilityStatus = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/availability/status`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await authenticatedApiCall('/api/availability/status');
 
       if (response.ok) {
         const data = await response.json();
@@ -70,17 +61,10 @@ const AvailabilityNotification: React.FC = () => {
   const updateAvailabilityStatus = async (status: 'available' | 'unavailable') => {
     setUpdating(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/availability/update`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status }),
-        }
-      );
+      const response = await authenticatedApiCall('/api/availability/update', {
+        method: "POST",
+        body: JSON.stringify({ status }),
+      });
 
       if (response.ok) {
         const message = status === 'available' ? "Disponibilité confirmée !" : "Statut mis à jour !";

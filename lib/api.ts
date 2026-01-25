@@ -1,305 +1,329 @@
-/**
- * FaceJob API Client - V1 Enhanced Security
- * 
- * Centralized API client for all backend communications
- * Handles authentication, error handling, and security headers
- */
+// API utility functions with proper authentication handling
+import Cookies from 'js-cookie';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-
-interface ApiResponse<T = any> {
-  data?: T;
-  message?: string;
-  error?: string;
-  status: number;
-}
-
-interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  headers?: Record<string, string>;
-  body?: any;
+interface ApiOptions extends RequestInit {
   requireAuth?: boolean;
 }
 
-class FaceJobAPI {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = `${API_BASE_URL}/api/${API_VERSION}`;
-  }
-
-  /**
-   * Get authentication token from storage (public method)
-   */
-  public getAuthToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-  }
-
-  /**
-   * Set authentication token in storage
-   */
-  public setAuthToken(token: string, remember: boolean = false): void {
-    if (typeof window === 'undefined') return;
-    
-    if (remember) {
-      localStorage.setItem('authToken', token);
+/**
+ * Make authenticated API calls with proper cookie and token handling
+ */
+export async function apiCall(endpoint: string, options: ApiOptions = {}) {
+  const { requireAuth = false, ...fetchOptions } = options; // Default to false for public endpoints
+  
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+  
+  // Ensure endpoint starts with /api/v1/ if it's a relative path
+  let fullEndpoint = endpoint;
+  if (!endpoint.startsWith('http') && !endpoint.startsWith('/api/v1/')) {
+    if (endpoint.startsWith('/api/')) {
+      fullEndpoint = endpoint.replace('/api/', `/api/${apiVersion}/`);
+    } else if (endpoint.startsWith('/')) {
+      fullEndpoint = `/api/${apiVersion}${endpoint}`;
     } else {
-      sessionStorage.setItem('authToken', token);
+      fullEndpoint = `/api/${apiVersion}/${endpoint}`;
     }
   }
-
-  /**
-   * Remove authentication token from storage
-   */
-  public removeAuthToken(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('authToken');
-    sessionStorage.removeItem('authToken');
-  }
-
-  /**
-   * Make authenticated API request
-   */
-  private async makeRequest<T = any>(
-    endpoint: string, 
-    options: RequestOptions = {}
-  ): Promise<ApiResponse<T>> {
-    const {
-      method = 'GET',
-      headers = {},
-      body,
-      requireAuth = true
-    } = options;
-
-    // Prepare headers
-    const requestHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      ...headers
-    };
-
-    // Add authentication if required
-    if (requireAuth) {
-      const token = this.getAuthToken();
-      if (!token) {
-        return {
-          status: 401,
-          error: 'Authentication required'
-        };
-      }
-      requestHeaders['Authorization'] = `Bearer ${token}`;
+  
+  const url = fullEndpoint.startsWith('http') ? fullEndpoint : `${baseUrl}${fullEndpoint}`;
+  
+  // Default headers
+  const headers: HeadersInit = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    ...fetchOptions.headers,
+  };
+  
+  // Add Bearer token if available and required
+  if (requireAuth) {
+    // Check both localStorage and cookies for token (for compatibility)
+    let token: string | null = localStorage.getItem('access_token');
+    if (!token) {
+      // Fallback to cookies if localStorage doesn't have the token
+      token = Cookies.get('authToken') || null;
     }
-
-    // Prepare request body
-    let requestBody: string | FormData | undefined;
-    if (body) {
-      if (body instanceof FormData) {
-        requestBody = body;
-        delete requestHeaders['Content-Type']; // Let browser set it for FormData
-      } else {
-        requestBody = JSON.stringify(body);
-      }
-    }
-
-    try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method,
-        headers: requestHeaders,
-        body: requestBody,
-      });
-
-      const responseData = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        // Handle authentication errors
-        if (response.status === 401) {
-          this.removeAuthToken();
-          // Redirect to login if in browser
-          if (typeof window !== 'undefined') {
-            window.location.href = '/auth/login';
-          }
-        }
-
-        return {
-          status: response.status,
-          error: responseData.message || responseData.error || 'Request failed',
-          data: responseData
-        };
-      }
-
-      return {
-        status: response.status,
-        data: responseData,
-        message: responseData.message
-      };
-
-    } catch (error) {
-      console.error('API Request Error:', error);
-      return {
-        status: 500,
-        error: 'Network error or server unavailable'
-      };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
   }
-
-  // Authentication endpoints
-  public async login(credentials: { email: string; password: string; userType: 'candidate' | 'entreprise' | 'admin' }) {
-    const endpoint = `/auth/${credentials.userType}/login`;
-    return this.makeRequest(endpoint, {
-      method: 'POST',
-      body: { email: credentials.email, password: credentials.password },
-      requireAuth: false
+  
+  // Always include credentials for cookies
+  const requestOptions: RequestInit = {
+    ...fetchOptions,
+    headers,
+    credentials: 'include', // Always include cookies
+  };
+  
+  console.log('🌐 API Call:', {
+    url,
+    method: requestOptions.method || 'GET',
+    hasAuth: !!headers['Authorization'],
+    requireAuth,
+    credentials: requestOptions.credentials,
+    token: requireAuth ? (localStorage.getItem('access_token') ? 'localStorage' : Cookies.get('authToken') ? 'cookies' : 'none') : 'not-required'
+  });
+  
+  try {
+    const response = await fetch(url, requestOptions);
+    
+    console.log('🌐 API Response:', {
+      url,
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
     });
-  }
-
-  public async register(userData: any, userType: 'candidate' | 'entreprise') {
-    const endpoint = `/auth/${userType}/register`;
-    return this.makeRequest(endpoint, {
-      method: 'POST',
-      body: userData,
-      requireAuth: false
-    });
-  }
-
-  public async logout() {
-    const result = await this.makeRequest('/logout', { method: 'POST' });
-    this.removeAuthToken();
-    return result;
-  }
-
-  public async getCurrentUser() {
-    return this.makeRequest('/user');
-  }
-
-  // Public endpoints (no auth required)
-  public async getPublicData(endpoint: string, params?: { page?: number; per_page?: number }) {
-    const query = params ? `?${new URLSearchParams(Object.entries(params).map(([k, v]) => [k, v?.toString() || '']))}` : '';
-    return this.makeRequest(`${endpoint}${query}`, { requireAuth: false });
-  }
-
-  public async getSectors(params?: { page?: number; per_page?: number }) {
-    const query = params ? `?${new URLSearchParams(Object.entries(params).map(([k, v]) => [k, v?.toString() || '']))}` : '';
-    return this.makeRequest(`/sectors${query}`, { requireAuth: false });
-  }
-
-  public async getJobs(params?: { page?: number; per_page?: number }) {
-    const query = params ? `?${new URLSearchParams(Object.entries(params).map(([k, v]) => [k, v?.toString() || '']))}` : '';
-    return this.makeRequest(`/jobs${query}`, { requireAuth: false });
-  }
-
-  public async getJobOffers(page: number = 1, perPage: number = 15) {
-    return this.makeRequest(`/offres?page=${page}&per_page=${perPage}`, { requireAuth: false });
-  }
-
-  public async getJobOffersBysector(sectorId: number, page: number = 1, perPage: number = 15) {
-    return this.makeRequest(`/offres_by_sector/${sectorId}?page=${page}&per_page=${perPage}`, { requireAuth: false });
-  }
-
-  public async getPlans(params?: { page?: number; per_page?: number }) {
-    const query = params ? `?${new URLSearchParams(Object.entries(params).map(([k, v]) => [k, v?.toString() || '']))}` : '';
-    return this.makeRequest(`/plans${query}`, { requireAuth: false });
-  }
-
-  // Protected endpoints (auth required)
-  public async getJobOffer(id: number) {
-    return this.makeRequest(`/offre/${id}`);
-  }
-
-  public async getCandidateProfile(id: number) {
-    return this.makeRequest(`/candidate-profile/${id}`);
-  }
-
-  public async getEnterpriseProfile(id: number) {
-    return this.makeRequest(`/enterprise/${id}`);
-  }
-
-  public async updateProfile(data: any) {
-    return this.makeRequest('/candidate/update', {
-      method: 'POST',
-      body: data
-    });
-  }
-
-  public async completeAccount(data: any, userType: 'candidate' | 'enterprise') {
-    return this.makeRequest(`/complete-${userType}`, {
-      method: 'PUT',
-      body: data
-    });
-  }
-
-  public async sendEmail(data: { email: string }) {
-    return this.makeRequest('/email/send-mail', {
-      method: 'POST',
-      body: data
-    });
-  }
-
-  public async submitContact(data: { name: string; email: string; message: string }) {
-    return this.makeRequest('/contact', {
-      method: 'POST',
-      body: data
-    });
-  }
-
-  // File upload helper
-  public getUploadHeaders() {
-    const token = this.getAuthToken();
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
-  }
-
-  // Generic request method for custom endpoints
-  public async request<T = any>(endpoint: string, options: RequestOptions = {}) {
-    return this.makeRequest<T>(endpoint, options);
+    
+    return response;
+  } catch (error) {
+    console.error('🌐 API Error:', { url, error });
+    throw error;
   }
 }
 
-// Export singleton instance
-export const api = new FaceJobAPI();
+/**
+ * Get CSRF cookie before making authenticated requests
+ */
+export async function getCsrfCookie() {
+  try {
+    console.log('🍪 Getting CSRF cookie...');
+    await apiCall('/sanctum/csrf-cookie', { 
+      requireAuth: false,
+      method: 'GET'
+    });
+    console.log('✅ CSRF cookie obtained');
+  } catch (error) {
+    console.warn('❌ Failed to get CSRF cookie:', error);
+  }
+}
 
-// Export types for use in components
-export type { ApiResponse, RequestOptions };
-
-// Helper hooks for React components
-export const useAuth = () => {
-  const login = async (credentials: { email: string; password: string; userType: 'candidate' | 'entreprise' | 'admin' }, remember: boolean = false) => {
-    const result = await api.login(credentials);
-    if (result.data?.token) {
-      api.setAuthToken(result.data.token, remember);
-    }
-    return result;
-  };
-
-  const logout = async () => {
-    await api.logout();
-    if (typeof window !== 'undefined') {
-      window.location.href = '/';
-    }
-  };
-
-  const isAuthenticated = () => {
-    return !!api.getAuthToken();
-  };
-
-  return { login, logout, isAuthenticated };
-};
-
-// Error handling helper
-export const handleApiError = (error: ApiResponse) => {
-  if (error.status === 401) {
-    // Handle authentication error
-    api.removeAuthToken();
-    if (typeof window !== 'undefined') {
-      window.location.href = '/auth/login';
-    }
-  } else if (error.status === 403) {
-    // Handle authorization error
-    console.error('Access denied:', error.error);
-  } else if (error.status >= 500) {
-    // Handle server error
-    console.error('Server error:', error.error);
+/**
+ * Make authenticated API call with automatic CSRF handling
+ */
+export async function authenticatedApiCall(endpoint: string, options: ApiOptions = {}) {
+  // Get CSRF cookie first if this is a state-changing request
+  const method = options.method?.toUpperCase();
+  if (method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    await getCsrfCookie();
   }
   
-  return error.error || 'An unexpected error occurred';
-};
+  return apiCall(endpoint, { requireAuth: true, ...options });
+}
+
+/**
+ * Make public API call (no authentication required)
+ */
+export async function publicApiCall(endpoint: string, options: ApiOptions = {}) {
+  return apiCall(endpoint, { requireAuth: false, ...options });
+}
+
+// =============================================================================
+// PUBLIC API ENDPOINTS (No authentication required)
+// =============================================================================
+
+export async function fetchSectors() {
+  const response = await publicApiCall('/api/sectors');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch sectors: ${response.status}`);
+}
+
+export async function fetchEducations() {
+  const response = await publicApiCall('/api/educations');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch educations: ${response.status}`);
+}
+
+export async function fetchCountries() {
+  const response = await publicApiCall('/api/pays');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch countries: ${response.status}`);
+}
+
+export async function fetchDiplomas() {
+  const response = await publicApiCall('/api/diplomes');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch diplomas: ${response.status}`);
+}
+
+export async function fetchCities() {
+  const response = await publicApiCall('/api/villes');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch cities: ${response.status}`);
+}
+
+export async function fetchJobs() {
+  const response = await publicApiCall('/api/jobs');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch jobs: ${response.status}`);
+}
+
+export async function fetchLevels() {
+  const response = await publicApiCall('/api/niveaux');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch levels: ${response.status}`);
+}
+
+export async function fetchSpecialties() {
+  const response = await publicApiCall('/api/specialties');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch specialties: ${response.status}`);
+}
+
+export async function fetchOffers() {
+  const response = await publicApiCall('/api/offres');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch offers: ${response.status}`);
+}
+
+export async function fetchOffersBySector(sectorId: string) {
+  const response = await publicApiCall(`/api/offres_by_sector/${sectorId}`);
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch offers by sector: ${response.status}`);
+}
+
+export async function fetchOffer(id: string) {
+  const response = await publicApiCall(`/api/offre/${id}`);
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch offer: ${response.status}`);
+}
+
+export async function fetchCandidateProfile(id: string) {
+  const response = await publicApiCall(`/api/candidate-profile/${id}`);
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch candidate profile: ${response.status}`);
+}
+
+export async function fetchEnterpriseProfile(id: string) {
+  const response = await publicApiCall(`/api/enterprise/${id}`);
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch enterprise profile: ${response.status}`);
+}
+
+export async function fetchPlans() {
+  const response = await publicApiCall('/api/plans');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch plans: ${response.status}`);
+}
+
+export async function fetchEnterprises() {
+  const response = await authenticatedApiCall('/api/entreprises');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch enterprises: ${response.status}`);
+}
+
+export async function fetchAvailabilityStatus() {
+  const response = await authenticatedApiCall('/api/availability/status');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch availability status: ${response.status}`);
+}
+
+export async function updateAvailabilityStatus(status: 'available' | 'unavailable') {
+  const response = await authenticatedApiCall('/api/availability/update', {
+    method: 'POST',
+    body: JSON.stringify({ status })
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update availability status: ${response.status}`);
+}
+
+export async function fetchPostuleAll() {
+  const response = await authenticatedApiCall('/api/postule/all');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch postule all: ${response.status}`);
+}
+
+export async function fetchEntrepriseStats(id: string) {
+  const response = await authenticatedApiCall(`/api/entrepirse-stats/${id}`);
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch entreprise stats: ${response.status}`);
+}
+
+export async function fetchNotifications() {
+  const response = await authenticatedApiCall('/api/notifications');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch notifications: ${response.status}`);
+}
+
+export async function markNotificationsAsRead() {
+  const response = await authenticatedApiCall('/api/notifications/mark-as-read', {
+    method: 'POST'
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to mark notifications as read: ${response.status}`);
+}
+
+export async function fetchLastPayment(entrepriseId: string) {
+  const response = await authenticatedApiCall(`/api/payments/${entrepriseId}/last`);
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch last payment: ${response.status}`);
+}
+
+// =============================================================================
+// AUTHENTICATED API ENDPOINTS (Require authentication)
+// =============================================================================
+
+export async function fetchUserData() {
+  const response = await authenticatedApiCall('/api/user');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch user data: ${response.status}`);
+}
+
+export async function updateCandidate(data: any) {
+  const response = await authenticatedApiCall('/api/candidate/update', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update candidate: ${response.status}`);
+}
+
+export async function createOffer(data: any) {
+  const response = await authenticatedApiCall('/api/offre/create', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create offer: ${response.status}`);
+}
+
+export async function logout() {
+  const response = await authenticatedApiCall('/api/logout', {
+    method: 'POST'
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to logout: ${response.status}`);
+}
+
+export async function performCompleteLogout() {
+  try {
+    // Call backend logout first
+    await logout();
+  } catch (error) {
+    console.warn('Backend logout failed:', error);
+  }
+  
+  // Clear all client-side data regardless of backend response
+  if (typeof window !== "undefined") {
+    // Clear localStorage
+    localStorage.clear();
+    
+    // Clear sessionStorage
+    sessionStorage.clear();
+    
+    // Clear all cookies
+    const allCookies = document.cookie.split(";");
+    allCookies.forEach(cookie => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+      
+      // Clear with different path and domain options
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+    });
+    
+    // Redirect to home page
+    window.location.href = "/";
+  }
+}

@@ -104,8 +104,9 @@ const OffresPage: React.FC = () => {
 
   const fetchEntreprises = async () => {
     try {
+      const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/entreprises",
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/${apiVersion}/entreprises`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

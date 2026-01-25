@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FaUserPlus, FaVideo } from "react-icons/fa";
 import { MdOutlineWork } from "react-icons/md";
 import { useEffect, useState } from 'react';
-import { api } from '@/lib/api';
+import { authenticatedApiCall } from '@/lib/api';
 
 
 type Props = {};
@@ -21,12 +21,16 @@ export default function HowWorks({}: Props) {
   useEffect(() => {
     const fetchRandomOffre = async () => {
       try {
-        const result = await api.request('/random', { requireAuth: false });
-        if (result.status === 200 && result.data) {
-          console.log("data", result.data);
-          setOffre(result.data);
+        const response = await authenticatedApiCall('/api/v1/random');
+        if (response.ok) {
+          const data = await response.json();
+          console.log("data", data);
+          setOffre(data);
+        } else {
+          console.error("Error fetching random offer:", response.status);
         } else {
           console.error("Error fetching random offer:", result.error);
+>>>>>>> 9e96b560962b5af2aa9b847f308bae536bd3030d
           // Set fallback data if API fails
           setOffre({
             titre: "Un emploi de développeur Web",

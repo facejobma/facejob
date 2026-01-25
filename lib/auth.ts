@@ -112,102 +112,65 @@ export function logout() {
   if (typeof window !== "undefined") {
     localStorage.clear();
     
-    // Clear specific sessionStorage items
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("userRole");
-    sessionStorage.removeItem("authToken");
-    
     // Clear all sessionStorage
     sessionStorage.clear();
   }
   
-  // Clear all cookies
-  Cookies.remove("authToken");
-  Cookies.remove("refreshToken");
-  Cookies.remove("userRole");
-  Cookies.remove("user");
+  // Get all cookie names and clear them
+  const allCookies = document.cookie.split(";");
   
-  // Clear all cookies with different path options
-  Cookies.remove("authToken", { path: "/" });
-  Cookies.remove("refreshToken", { path: "/" });
-  Cookies.remove("userRole", { path: "/" });
-  Cookies.remove("user", { path: "/" });
+  // Clear all cookies with different path and domain options
+  allCookies.forEach(cookie => {
+    const eqPos = cookie.indexOf("=");
+    const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+    
+    // Clear with default options
+    Cookies.remove(name);
+    
+    // Clear with path options
+    Cookies.remove(name, { path: "/" });
+    Cookies.remove(name, { path: "/", domain: window.location.hostname });
+    Cookies.remove(name, { path: "/", domain: `.${window.location.hostname}` });
+  });
   
-  // Clear cookies with domain options (if your app uses subdomains)
-  if (typeof window !== "undefined") {
-    const domain = window.location.hostname;
-    Cookies.remove("authToken", { domain });
-    Cookies.remove("refreshToken", { domain });
-    Cookies.remove("userRole", { domain });
-    Cookies.remove("user", { domain });
-  }
+  // Clear specific known cookies
+  const knownCookies = [
+    "authToken", "refreshToken", "userRole", "user", "access_token", 
+    "user_type", "auth_provider", "next-auth.session-token", 
+    "next-auth.callback-url", "next-auth.csrf-token"
+  ];
+  
+  knownCookies.forEach(cookieName => {
+    Cookies.remove(cookieName);
+    Cookies.remove(cookieName, { path: "/" });
+    Cookies.remove(cookieName, { path: "/", domain: window.location.hostname });
+    Cookies.remove(cookieName, { path: "/", domain: `.${window.location.hostname}` });
+  });
 }
 
-export async function performLogout(userRole?: UserRole) {
-  // Call backend logout endpoint
-  const authToken = Cookies.get("authToken");
-  if (authToken && process.env.NEXT_PUBLIC_BACKEND_URL) {
-    try {
-      await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.error("Backend logout error:", error);
-    }
-  }
+export function performLogout(userRole?: string | null) {
+  console.log("🚪 Performing logout...");
   
-  // Clear all storage and cookies
+  // Get auth token before clearing
+  const authToken = Cookies.get("authToken") || localStorage.getItem("access_token");
+  
+  // Clear all storage and cookies first
   logout();
   
-  // Redirect to appropriate login page
-  redirectToLogin(userRole);
-}
-
-// Secure login function that gets role from backend
-export async function secureLogin(email: string, password: string, loginType: 'candidate' | 'entreprise') {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/${loginType}/login`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+  // Call backend logout endpoint if we have a token
+  if (authToken && process.env.NEXT_PUBLIC_BACKEND_URL) {
+    const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/${apiVersion}/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
       },
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Invalid credentials");
-    }
-
-    const userData = await response.json();
-    const { token, data } = userData;
-
-    // Store token
-    Cookies.set("authToken", token, { expires: 7 });
-
-    // Get user role from backend instead of URL
-    const authenticatedUser = await getUserFromToken();
-    
-    if (!authenticatedUser) {
-      throw new Error("Failed to get user data after login");
-    }
-
-    // Store user data (but don't store role in sessionStorage - get it from backend)
-    sessionStorage.setItem("user", JSON.stringify(data));
-
-    // Redirect to appropriate dashboard based on actual role from backend
-    redirectToDashboard(authenticatedUser.role);
-
-    return authenticatedUser;
-  } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+    });
   }
+  
+  console.log("✅ Logout completed, redirecting to home page...");
+  
+  // Redirect to home page
+  window.location.href = "/";
 }

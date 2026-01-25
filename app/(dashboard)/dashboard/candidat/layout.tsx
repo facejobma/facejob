@@ -34,6 +34,12 @@ function DashboardLayoutContent({
     }
   }, [userData]);
 
+  useEffect(() => {
+    if (!userData) {
+      router.push(`/`);
+    }
+  }, [userData, router]);
+
   const {
     shouldShowPrompt: shouldShowAutoPrompt,
     isLoading,

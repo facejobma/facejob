@@ -31,14 +31,14 @@ export default function DebugAuth() {
 
   const testEndpoint = async (name: string, testFn: () => Promise<any>) => {
     try {
-      setTestResults(prev => ({ ...prev, [name]: { loading: true } }));
+      setTestResults((prev: any) => ({ ...prev, [name]: { loading: true } }));
       const result = await testFn();
-      setTestResults(prev => ({ 
+      setTestResults((prev: any) => ({ 
         ...prev, 
         [name]: { success: true, data: result } 
       }));
     } catch (error: any) {
-      setTestResults(prev => ({ 
+      setTestResults((prev: any) => ({ 
         ...prev, 
         [name]: { success: false, error: error.message } 
       }));

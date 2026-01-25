@@ -148,6 +148,56 @@ export function logout() {
   });
 }
 
+// Secure login function that handles authentication and role-based redirection
+export async function secureLogin(email: string, password: string, expectedRole: "candidate" | "entreprise"): Promise<void> {
+  const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+  const endpoint = expectedRole === "candidate" 
+    ? `/api/${apiVersion}/auth/candidate/login`
+    : `/api/${apiVersion}/auth/entreprise/login`;
+
+  const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Erreur de connexion");
+  }
+
+  const data = await response.json();
+  
+  // Store the auth token
+  if (data.access_token) {
+    Cookies.set("authToken", data.access_token, { expires: 7 }); // 7 days
+  }
+  
+  // Store user data in session storage
+  if (data.user) {
+    sessionStorage.setItem("user", JSON.stringify(data.user));
+  }
+  
+  // Determine user role and redirect
+  let userRole: UserRole;
+  if (expectedRole === "candidate") {
+    userRole = "candidat";
+  } else {
+    userRole = "entreprise";
+  }
+  
+  // Store role for quick access
+  Cookies.set("userRole", userRole, { expires: 7 });
+  
+  // Redirect to appropriate dashboard
+  redirectToDashboard(userRole);
+}
+
 export function performLogout(userRole?: string | null) {
   console.log("🚪 Performing logout...");
   

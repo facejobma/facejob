@@ -4,14 +4,18 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Brillez devant l'objectif : 5 secrets pour oublier la caméra et décrocher votre job au Maroc | FaceJob",
-  description: "Découvrez nos 5 astuces pour transformer votre stress en charisme et captiver les recruteurs avec votre CV vidéo. Conseils pratiques pour réussir votre présentation vidéo.",
-  keywords: "cv vidéo conseils, présentation vidéo, stress caméra, recrutement maroc, candidature vidéo, conseils emploi maroc",
+  title: "CV Vidéo : 5 Conseils pour Réussir sa Candidature et Décrocher un Job au Maroc | FaceJob",
+  description: "Maîtrisez l'art du CV vidéo avec nos 5 conseils d'experts. Transformez votre stress en charisme et captivez les recruteurs marocains. Guide complet pour candidats.",
+  keywords: "cv vidéo conseils, réussir candidature maroc, présentation vidéo emploi, stress caméra, recrutement maroc, candidature vidéo, conseils emploi maroc, job maroc",
   openGraph: {
-    title: "Brillez devant l'objectif : 5 secrets pour oublier la caméra et décrocher votre job au Maroc",
+    title: "CV Vidéo : 5 Conseils pour Réussir sa Candidature et Décrocher un Job au Maroc",
     description: "Découvrez nos 5 astuces pour transformer votre stress en charisme et captiver les recruteurs",
     type: "article",
     locale: "fr_FR",
+    url: "https://facejob.ma/blogs/cv-video-conseils-reussir-candidature",
+  },
+  alternates: {
+    canonical: "https://facejob.ma/blogs/cv-video-conseils-reussir-candidature",
   },
 };
 
@@ -21,7 +25,7 @@ const Blog3Page: React.FC = () => {
       <NavBar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-16">
+      <div className="bg-gradient-to-r from-primary-2 to-primary-3 text-white py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-4">
@@ -55,7 +59,7 @@ const Blog3Page: React.FC = () => {
 
           {/* Article Body */}
           <div className="prose prose-lg max-w-none">
-            <div className="bg-purple-50 border-l-4 border-purple-500 p-6 mb-8 rounded-r-lg">
+            <div className="bg-primary-light border-l-4 border-primary p-6 mb-8 rounded-r-lg">
               <p className="text-lg text-gray-700 leading-relaxed font-medium">
                 Imaginez la scène : un recruteur à Casablanca ou Tanger reçoit 200 CVs pour une seule offre d'emploi. 199 sont des documents PDF en noir et blanc, souvent identiques. Le vôtre est une vidéo. En moins d'une minute, vous avez souri, vous avez montré votre énergie et prouvé votre motivation.
               </p>
@@ -65,7 +69,7 @@ const Blog3Page: React.FC = () => {
               Avant même de vous rencontrer, le recruteur a déjà envie de travailler avec vous. <strong>C'est ça, la puissance de FaceJob.ma.</strong>
             </p>
 
-            <div className="bg-orange-50 rounded-xl p-6 mb-8 border-l-4 border-orange-400">
+            <div className="bg-orange-50 rounded-xl p-6 mb-8 border-l-4 border-primary">
               <p className="text-gray-700 leading-relaxed">
                 On ne va pas se mentir : se retrouver face à l'œil noir de son smartphone ou de son ordinateur pour parler de soi, ça peut être intimidant. On bafouille, on se trouve bizarre, on a soudainement l'impression d'avoir oublié son propre nom.
               </p>
@@ -76,14 +80,14 @@ const Blog3Page: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-blue-100 text-blue-600 rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">1</span>
+                <span className="bg-primary-light text-primary rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">1</span>
                 Parlez à un ami, pas à un robot 🤖
               </h2>
               <p className="text-gray-700 leading-relaxed mb-4">
                 L'astuce ultime ? Ne regardez pas votre téléphone comme un appareil électronique. Imaginez que vous expliquez votre parcours à un ami assis juste derrière l'écran, dans votre café préféré de la ville.
               </p>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-blue-800 font-semibold">
+              <div className="bg-primary-light p-4 rounded-lg">
+                <p className="text-primary font-semibold">
                   💡 Le petit plus : Souriez dès le début. Le sourire s'entend même dans votre ton de voix et rend votre présentation instantanément plus humaine.
                 </p>
               </div>
@@ -91,7 +95,7 @@ const Blog3Page: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-green-100 text-green-600 rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">2</span>
+                <span className="bg-primary-1 text-white rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">2</span>
                 La technique du "Post-it" magique 📝
               </h2>
               <p className="text-gray-700 leading-relaxed mb-4">
@@ -118,7 +122,7 @@ const Blog3Page: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-purple-100 text-purple-600 rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">3</span>
+                <span className="bg-primary-2 text-white rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">3</span>
                 Le regard : visez le point vert ! 👀
               </h2>
               <div className="bg-red-50 p-4 rounded-lg mb-4">
@@ -126,14 +130,14 @@ const Blog3Page: React.FC = () => {
                 <p className="text-red-700">Regarder son propre visage sur l'écran pendant qu'on filme. Résultat ? Sur la vidéo, on a l'impression que vous regardez ailleurs.</p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-green-800 font-semibold mb-2">✅ Le secret :</p>
-                <p className="text-green-700">Fixez l'objectif de la caméra (le petit point noir ou vert). C'est là que se trouvent les yeux du recruteur. En faisant cela, vous créez un véritable "contact visuel".</p>
+                <p className="text-primary font-semibold mb-2">✅ Le secret :</p>
+                <p className="text-primary-1">Fixez l'objectif de la caméra (le petit point noir ou vert). C'est là que se trouvent les yeux du recruteur. En faisant cela, vous créez un véritable "contact visuel".</p>
               </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-orange-100 text-orange-600 rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">4</span>
+                <span className="bg-primary-3 text-white rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">4</span>
                 La règle du "Troisième essai" 🎬
               </h2>
               <p className="text-gray-700 leading-relaxed mb-4">
@@ -154,15 +158,15 @@ const Blog3Page: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <span className="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4">3</span>
+                  <span className="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4">3</span>
                   <div>
                     <p className="font-semibold text-gray-800">Prise 3 : C'est souvent la bonne !</p>
                     <p className="text-gray-600">C'est là que vous êtes naturel et que votre énergie ressort vraiment.</p>
                   </div>
                 </div>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                <p className="text-blue-800 font-semibold">
+              <div className="bg-primary-light p-4 rounded-lg mt-4">
+                <p className="text-primary font-semibold">
                   💡 Ne cherchez pas la perfection, cherchez l'authenticité.
                 </p>
               </div>
@@ -170,7 +174,7 @@ const Blog3Page: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-pink-100 text-pink-600 rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">5</span>
+                <span className="bg-primary text-white rounded-full w-10 h-10 flex items-center justify-center text-lg mr-4">5</span>
                 Soignez le décor (mais restez vous-même) 🏙️
               </h2>
               <p className="text-gray-700 leading-relaxed mb-4">
@@ -214,7 +218,7 @@ const Blog3Page: React.FC = () => {
             </div>
 
             {/* Le mot de la fin */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-8 mb-8">
+            <div className="bg-gradient-to-r from-primary to-primary-1 text-white rounded-xl p-8 mb-8">
               <h2 className="text-2xl font-bold mb-4">Le mot de la fin</h2>
               <p className="text-lg leading-relaxed mb-4">
                 Le CV Vidéo n'est pas un concours d'acteur. C'est une porte ouverte sur votre avenir. Les recruteurs au Maroc ne cherchent pas des stars de cinéma, ils cherchent des collaborateurs motivés, clairs et authentiques.
@@ -225,7 +229,7 @@ const Blog3Page: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
                   href="/auth/signup-candidate" 
-                  className="inline-flex items-center justify-center bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center justify-center bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
                 >
                   Créer mon CV vidéo maintenant
                   <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +249,7 @@ const Blog3Page: React.FC = () => {
               </p>
               <Link 
                 href="/contact" 
-                className="inline-flex items-center text-yellow-700 hover:text-yellow-800 font-semibold transition-colors"
+                className="inline-flex items-center text-primary hover:text-primary-1 font-semibold transition-colors"
               >
                 Nous contacter pour plus d'infos
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +262,7 @@ const Blog3Page: React.FC = () => {
             <div className="mt-12 text-center">
               <Link 
                 href="/blogs" 
-                className="inline-flex items-center text-purple-600 hover:text-purple-800 font-semibold transition-colors"
+                className="inline-flex items-center text-primary hover:text-primary-1 font-semibold transition-colors"
               >
                 <svg className="w-4 h-4 mr-2 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

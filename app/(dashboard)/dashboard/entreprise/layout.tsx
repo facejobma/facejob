@@ -5,13 +5,14 @@ import dynamic from "next/dynamic";
 import HeaderEntreprise from "@/components/layout/header-entreprise";
 import Sidebar from "@/components/layout/sidebar";
 import { useEffect } from "react";
+import RouteGuard from "@/components/auth/RouteGuard";
 
 interface LayoutProps {
   children: React.ReactNode;
   params: any;
 }
 
-function DashboardLayout({ children, params }: LayoutProps) {
+function DashboardLayoutContent({ children, params }: LayoutProps) {
   const router = useRouter();
 
   const userDataString =
@@ -26,9 +27,6 @@ function DashboardLayout({ children, params }: LayoutProps) {
     }
   }, [userData, router]);
 
-=======
-function DashboardLayoutContent({ children, params }: LayoutProps) {
->>>>>>> 9e96b560962b5af2aa9b847f308bae536bd3030d
   return (
     <>
       <div className="font-sans bg-gray-50 min-h-screen">

@@ -4,14 +4,18 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Recrutement : Comment diviser votre temps de pré-sélection par deux ? | FaceJob",
-  description: "Dans le dynamisme économique actuel du Maroc, découvrez comment le CV vidéo révolutionne le processus de recrutement et divise par deux votre temps de pré-sélection.",
-  keywords: "recrutement maroc, pré-sélection, cv vidéo, recruteurs maroc, optimisation recrutement, rh maroc",
+  title: "Optimiser le Temps de Pré-sélection en Recrutement : Diviser par Deux avec le CV Vidéo | FaceJob",
+  description: "Découvrez comment diviser par deux votre temps de pré-sélection en recrutement au Maroc. Le CV vidéo révolutionne le processus RH et optimise l'efficacité des recruteurs.",
+  keywords: "optimiser recrutement maroc, temps pré-sélection, cv vidéo recrutement, efficacité rh maroc, processus recrutement, recruteurs maroc, pme maroc recrutement",
   openGraph: {
-    title: "Recrutement : Comment diviser votre temps de pré-sélection par deux ?",
+    title: "Optimiser le Temps de Pré-sélection en Recrutement : Diviser par Deux avec le CV Vidéo",
     description: "Dans le dynamisme économique actuel du Maroc, le temps est la ressource la plus précieuse des recruteurs",
     type: "article",
     locale: "fr_FR",
+    url: "https://facejob.ma/blogs/optimiser-temps-preselection-recrutement",
+  },
+  alternates: {
+    canonical: "https://facejob.ma/blogs/optimiser-temps-preselection-recrutement",
   },
 };
 
@@ -21,7 +25,7 @@ const Blog2Page: React.FC = () => {
       <NavBar />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-16">
+      <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-4">
@@ -55,7 +59,7 @@ const Blog2Page: React.FC = () => {
 
           {/* Article Body */}
           <div className="prose prose-lg max-w-none">
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-r-lg">
+            <div className="bg-primary-light border-l-4 border-primary p-6 mb-8 rounded-r-lg">
               <p className="text-lg text-gray-700 leading-relaxed font-medium">
                 Dans le dynamisme économique actuel du Maroc, le temps est la ressource la plus précieuse des recruteurs. Pourtant, beaucoup passent encore des heures à trier des piles de CV papier qui se ressemblent tous.
               </p>
@@ -93,7 +97,7 @@ const Blog2Page: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-green-50 rounded-xl shadow-lg p-8 mb-8 border-l-4 border-green-500">
+            <div className="bg-green-50 rounded-xl shadow-lg p-8 mb-8 border-l-4 border-primary">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                 ✅ La solution : La pré-qualification par le CV Vidéo
               </h2>
@@ -104,17 +108,17 @@ const Blog2Page: React.FC = () => {
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-lg shadow-md">
                   <div className="text-3xl mb-3">⚡</div>
-                  <h3 className="font-bold text-green-800 mb-2">Le filtre immédiat</h3>
+                  <h3 className="font-bold text-primary mb-2">Le filtre immédiat</h3>
                   <p className="text-sm text-gray-600">Visionner une vidéo de 60 secondes est 5 fois plus rapide que de lire un CV et d'essayer d'imaginer la personne derrière.</p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-md">
                   <div className="text-3xl mb-3">🎯</div>
-                  <h3 className="font-bold text-green-800 mb-2">La fin des "erreurs de casting"</h3>
+                  <h3 className="font-bold text-primary-1 mb-2">La fin des "erreurs de casting"</h3>
                   <p className="text-sm text-gray-600">Vous ne recevez en entretien que les candidats dont vous avez déjà validé le savoir-être (soft skills).</p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-md">
                   <div className="text-3xl mb-3">🚀</div>
-                  <h3 className="font-bold text-green-800 mb-2">Une marque employeur moderne</h3>
+                  <h3 className="font-bold text-primary-2 mb-2">Une marque employeur moderne</h3>
                   <p className="text-sm text-gray-600">Au Maroc, la guerre des talents est réelle. Proposer un processus innovant attire les profils les plus dynamiques.</p>
                 </div>
               </div>
@@ -122,7 +126,7 @@ const Blog2Page: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-lg mr-3">🔧</span>
+                <span className="bg-primary-light text-primary rounded-full w-8 h-8 flex items-center justify-center text-lg mr-3">🔧</span>
                 Comment intégrer FaceJob dans votre routine ?
               </h2>
               <p className="text-gray-700 leading-relaxed mb-6">
@@ -131,21 +135,21 @@ const Blog2Page: React.FC = () => {
               
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <span className="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">📁</span>
+                  <span className="bg-primary-light text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">📁</span>
                   <div>
                     <h3 className="font-semibold text-gray-800 mb-2">Accès centralisé</h3>
                     <p className="text-gray-600">Toutes les vidéos de vos candidats sont au même endroit.</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <span className="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">👥</span>
+                  <span className="bg-primary-1 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">👥</span>
                   <div>
                     <h3 className="font-semibold text-gray-800 mb-2">Partage collaboratif</h3>
                     <p className="text-gray-600">Envoyez les vidéos qui vous plaisent à vos managers en un clic pour obtenir leur avis immédiat.</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <span className="bg-purple-100 text-purple-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">📍</span>
+                  <span className="bg-primary-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">📍</span>
                   <div>
                     <h3 className="font-semibold text-gray-800 mb-2">Filtres locaux</h3>
                     <p className="text-gray-600">Ciblez spécifiquement les talents résidant dans votre ville ou prêts à s'y installer.</p>
@@ -164,7 +168,7 @@ const Blog2Page: React.FC = () => {
                   "Depuis que nous utilisons la vidéo pour nos recrutements au Maroc, nous avons réduit nos entretiens physiques de 40%. On ne voit plus que la 'crème de la crème'."
                 </p>
                 <div className="flex items-center justify-center">
-                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold mr-4">
                     RH
                   </div>
                   <div>
@@ -176,14 +180,14 @@ const Blog2Page: React.FC = () => {
             </div>
 
             {/* Conclusion */}
-            <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-xl p-8 mb-8">
+            <div className="bg-gradient-to-r from-primary to-primary-1 text-white rounded-xl p-8 mb-8">
               <h2 className="text-2xl font-bold mb-4">Conclusion</h2>
               <p className="text-lg leading-relaxed mb-6">
                 Le recrutement de demain au Maroc ne se lit pas, il se regarde. Êtes-vous prêt à optimiser votre temps et à sécuriser vos embauches ?
               </p>
               <Link 
                 href="/auth/signup-entreprise" 
-                className="inline-flex items-center bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
               >
                 👉 Découvrez nos offres entreprises sur FaceJob.ma et publiez vos premières annonces gratuitement
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +200,7 @@ const Blog2Page: React.FC = () => {
             <div className="mt-12 text-center">
               <Link 
                 href="/blogs" 
-                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+                className="inline-flex items-center text-primary hover:text-primary-1 font-semibold transition-colors"
               >
                 <svg className="w-4 h-4 mr-2 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

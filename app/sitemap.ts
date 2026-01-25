@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 
-export default async function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://facejob.ma'
 
   // Fetch offers to generate dynamic routes
@@ -47,19 +47,19 @@ export default async function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/blogs/blog1`,
+      url: `${baseUrl}/blogs/maroc-2026-recrutement-transformation`,
       lastModified: new Date('2026-01-25'),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/blogs/blog2`,
+      url: `${baseUrl}/blogs/optimiser-temps-preselection-recrutement`,
       lastModified: new Date('2026-01-20'),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/blogs/blog3`,
+      url: `${baseUrl}/blogs/cv-video-conseils-reussir-candidature`,
       lastModified: new Date('2026-01-15'),
       changeFrequency: 'monthly',
       priority: 0.8,

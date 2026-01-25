@@ -376,6 +376,10 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
                         {!isUploading ? (
                 <UploadDropzone<OurFileRouter, "imageUpload">
                                                 endpoint="imageUpload"
+                                                input={{
+                                                    profileUpdate: false,
+                                                    companyLogo: true
+                                                }}
                                                 onClientUploadComplete={handleImageUploadComplete}
                                                 onUploadError={handleImageUploadError}
                                                 className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer transition-colors border-gray-300 hover:border-primary"

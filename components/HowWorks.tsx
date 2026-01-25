@@ -28,9 +28,6 @@ export default function HowWorks({}: Props) {
           setOffre(data);
         } else {
           console.error("Error fetching random offer:", response.status);
-        } else {
-          console.error("Error fetching random offer:", result.error);
->>>>>>> 9e96b560962b5af2aa9b847f308bae536bd3030d
           // Set fallback data if API fails
           setOffre({
             titre: "Un emploi de développeur Web",
@@ -65,9 +62,6 @@ export default function HowWorks({}: Props) {
     setRandomImage(images[randomIndex]);
   }, []);
 
-  
-
-// export default function HowWorks({}: Props) {
   return (
     <section className="w-3/4 pb-10 mx-auto mt-32 mb-16 font-default">
       <div className="max-w-lg text-center text-gray-800 md:text-start ">

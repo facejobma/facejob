@@ -5,11 +5,11 @@ import Image from "next/image";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Blog FaceJob - Actualités Emploi et Recrutement au Maroc",
+    title: "Recrutement au Maroc - Actualités Emploi et Conseils Carrière",
     description: "Découvrez les dernières tendances du marché de l'emploi au Maroc, conseils de recrutement et actualités professionnelles sur FaceJob.ma",
     keywords: "emploi maroc, recrutement maroc, blog emploi, conseils carrière, marché travail maroc",
     openGraph: {
-        title: "Blog FaceJob - Actualités Emploi et Recrutement au Maroc",
+        title: "Recrutement au Maroc - Actualités Emploi et Conseils Carrière",
         description: "Découvrez les dernières tendances du marché de l'emploi au Maroc",
         type: "website",
         locale: "fr_FR",
@@ -20,7 +20,7 @@ const blogs = [
     {
         title: "Le Maroc de 2026 : Pourquoi le recrutement ne sera plus jamais comme avant",
         content: "Du nord au sud, d'Agadir à Oujda, le Maroc vit une transformation sans précédent. En 2026, avec des projets colossaux comme l'organisation de la Coupe du Monde, le développement de l'Hydrogène vert et l'essor de la \"Digital Factory\" nationale, le marché de l'emploi explose.",
-        link: "/blogs/blog1",
+        link: "/blogs/maroc-2026-recrutement-transformation",
         image: "/img1.jpg",
         date: "25 Janvier 2026",
         readTime: "5 min",
@@ -29,7 +29,7 @@ const blogs = [
     {
         title: "Recrutement : Comment diviser votre temps de pré-sélection par deux ?",
         content: "Dans le dynamisme économique actuel du Maroc, le temps est la ressource la plus précieuse des recruteurs. Découvrez comment le CV vidéo révolutionne votre processus de recrutement et optimise votre temps.",
-        link: "/blogs/blog2",
+        link: "/blogs/optimiser-temps-preselection-recrutement",
         image: "/img2.jpg",
         date: "20 Janvier 2026",
         readTime: "4 min",
@@ -38,7 +38,7 @@ const blogs = [
     {
         title: "Brillez devant l'objectif : 5 secrets pour oublier la caméra et décrocher votre job au Maroc",
         content: "Découvrez nos 5 astuces pour transformer votre stress en charisme et captiver les recruteurs avec votre CV vidéo. Conseils pratiques pour réussir votre présentation vidéo.",
-        link: "/blogs/blog3",
+        link: "/blogs/cv-video-conseils-reussir-candidature",
         image: "/img3.jpg",
         date: "15 Janvier 2026",
         readTime: "6 min",
@@ -52,10 +52,10 @@ const BlogPage: React.FC = () => {
             <NavBar/>
             
             {/* Hero Section */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
+            <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
                 <div className="container mx-auto px-6 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                        Blog FaceJob
+                        Recrutement au Maroc
                     </h1>
                     <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto">
                         Découvrez les dernières tendances du marché de l'emploi au Maroc et nos conseils pour réussir votre carrière
@@ -80,7 +80,7 @@ const BlogPage: React.FC = () => {
                                     height={200}
                                 />
                                 <div className="absolute top-4 left-4">
-                                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
                                         {blog.category}
                                     </span>
                                 </div>
@@ -93,7 +93,7 @@ const BlogPage: React.FC = () => {
                                     <span>{blog.readTime} de lecture</span>
                                 </div>
                                 
-                                <h2 className="text-xl font-bold mb-3 text-gray-800 line-clamp-2 hover:text-blue-600 transition-colors">
+                                <h2 className="text-xl font-bold mb-3 text-gray-800 line-clamp-2 hover:text-primary transition-colors">
                                     {blog.title}
                                 </h2>
                                 
@@ -103,7 +103,7 @@ const BlogPage: React.FC = () => {
                                 
                                 <Link 
                                     href={blog.link} 
-                                    className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors group"
+                                    className="inline-flex items-center text-primary hover:text-primary-1 font-semibold transition-colors group"
                                 >
                                     Lire l'article
                                     <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,9 +129,9 @@ const BlogPage: React.FC = () => {
                         <input
                             type="email"
                             placeholder="Votre adresse email"
-                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
                         />
-                        <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                        <button className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-1 transition-colors font-semibold">
                             S'abonner
                         </button>
                     </div>

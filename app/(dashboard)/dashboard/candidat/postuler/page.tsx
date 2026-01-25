@@ -230,9 +230,13 @@ const PublishVideo: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-xl hover:border-green-400 transition-colors">
-                  <UploadDropzone<OurFileRouter, "videoUploadOnly">
-                    endpoint="videoUploadOnly"
+                <div className="border-2 border-dashed border-gray-300 rounded-xl hover:border-primary transition-colors">
+                  <UploadDropzone<OurFileRouter, "videoUpload">
+                    endpoint="videoUpload"
+                    input={{
+                      candidateId: undefined,
+                      jobId: undefined
+                    }}
                     onClientUploadComplete={(res) => {
                       console.log("Files: ", res);
                       setVideoUrl(res[0].url);

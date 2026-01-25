@@ -231,6 +231,10 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
         ) : (
           <UploadDropzone<OurFileRouter, "imageUpload">
             endpoint="imageUpload"
+            input={{
+              profileUpdate: true,
+              companyLogo: false
+            }}
             onClientUploadComplete={handleUploadComplete}
             onUploadError={handleUploadError}
             onUploadBegin={handleUploadBegin}

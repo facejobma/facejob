@@ -1,7 +1,73 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { api, type ApiResponse } from '@/lib/api';
+import { apiCall, authenticatedApiCall, publicApiCall } from '@/lib/api';
+
+// Define ApiResponse type locally since it's not exported from api.ts
+interface ApiResponse<T = any> {
+  data?: T;
+  error?: string;
+  status: number;
+}
+
+// Create a compatibility layer for the old api object
+const api = {
+  async request<T>(endpoint: string, options: any = {}): Promise<ApiResponse<T>> {
+    try {
+      const response = options.requireAuth 
+        ? await authenticatedApiCall(endpoint, options)
+        : await publicApiCall(endpoint, options);
+      
+      if (response.ok) {
+        const data = await response.json();
+        return { data, status: response.status };
+      } else {
+        return { error: response.statusText, status: response.status };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Unknown error', status: 500 };
+    }
+  },
+
+  async getCurrentUser(): Promise<ApiResponse<any>> {
+    return this.request('/user', { requireAuth: true });
+  },
+
+  async login(credentials: any): Promise<ApiResponse<any>> {
+    return this.request('/auth/login', { 
+      method: 'POST', 
+      body: JSON.stringify(credentials),
+      requireAuth: false 
+    });
+  },
+
+  async logout(): Promise<void> {
+    try {
+      await authenticatedApiCall('/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    this.removeAuthToken();
+  },
+
+  setAuthToken(token: string, remember: boolean = false): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('access_token', token);
+    }
+  },
+
+  removeAuthToken(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('access_token');
+      sessionStorage.clear();
+    }
+  },
+
+  getUploadHeaders(): Record<string, string> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+};
 
 /**
  * Custom hook for API calls with loading states and error handling
@@ -169,7 +235,9 @@ export function useApiForm<T = any>(
 
       if (result.status >= 200 && result.status < 300) {
         setSuccess(true);
-        options?.onSuccess?.(result.data);
+        if (result.data) {
+          options?.onSuccess?.(result.data);
+        }
         return { success: true, data: result.data };
       } else {
         const errorMessage = result.error || 'Submission failed';

@@ -29,10 +29,10 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
   const url = fullEndpoint.startsWith('http') ? fullEndpoint : `${baseUrl}${fullEndpoint}`;
   
   // Default headers
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    ...fetchOptions.headers,
+    ...(fetchOptions.headers as Record<string, string>),
   };
   
   // Add Bearer token if available and required

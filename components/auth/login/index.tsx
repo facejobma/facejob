@@ -8,6 +8,7 @@ import google from "@/public/svg/google.svg";
 import linkedin from "@/public/svg/linkedin.svg";
 import { useRouter } from "next/navigation";
 import { secureLogin } from "@/lib/auth";
+import Cookies from "js-cookie";
 
 const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const [email, setEmail] = useState("");

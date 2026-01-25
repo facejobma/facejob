@@ -377,6 +377,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               ) : (
                 <UploadDropzone<OurFileRouter, "videoUpload">
                   endpoint="videoUpload"
+                  input={{
+                    candidateId: undefined,
+                    jobId: undefined
+                  }}
                   onClientUploadComplete={handleImageUploadComplete}
                   onUploadError={handleImageUploadError}
                   className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer transition-colors border-gray-300"

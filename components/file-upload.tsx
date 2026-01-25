@@ -71,6 +71,10 @@ export default function FileUpload({
                     <UploadDropzone<OurFileRouter, "videoUpload">
                         className="dark:bg-zinc-800 py-2 ut-label:text-sm ut-allowed-content:ut-uploading:text-red-300"
                         endpoint="videoUpload"
+                        input={{
+                            candidateId: undefined,
+                            jobId: undefined
+                        }}
                         config={{mode: "auto"}}
                         content={{
                             allowedContent({isUploading}) {

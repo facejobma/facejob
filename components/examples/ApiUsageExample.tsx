@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApi, useAuthState, useApiForm } from '@/hooks/useApi';
-import { api } from '@/lib/api';
+import { apiCall, authenticatedApiCall, publicApiCall } from '@/lib/api';
 
 /**
  * Example component showing how to use the new V1 API
@@ -75,12 +75,13 @@ export default function ApiUsageExample() {
   // Example: Manual API call
   const handleManualApiCall = async () => {
     try {
-      const result = await api.getSectors();
-      if (result.status === 200) {
-        console.log('Sectors:', result.data);
-        alert(`Found ${result.data?.length || 0} sectors`);
+      const response = await publicApiCall('/api/sectors');
+      const result = await response.json();
+      if (response.status === 200) {
+        console.log('Sectors:', result);
+        alert(`Found ${result?.length || 0} sectors`);
       } else {
-        alert(`Error: ${result.error}`);
+        alert(`Error: ${response.statusText}`);
       }
     } catch (error) {
       alert('Network error');
@@ -97,7 +98,7 @@ export default function ApiUsageExample() {
         {isAuthenticated ? (
           <div>
             <p className="text-green-600">✅ Authenticated</p>
-            <p>User: {user?.email || 'Unknown'}</p>
+            <p>User: {(user as any)?.email || 'Unknown'}</p>
             <button 
               onClick={logout}
               className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
@@ -196,7 +197,7 @@ export default function ApiUsageExample() {
         <div className="bg-white p-6 border rounded-lg">
           <h2 className="text-xl font-semibold mb-4">Protected API Example - User Profile</h2>
           <button
-            onClick={fetchProfile}
+            onClick={() => fetchProfile()}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-4"
           >
             Fetch Profile
@@ -284,8 +285,8 @@ export default function ApiUsageExample() {
             <h3 className="font-semibold text-blue-600 mb-2">Protected Endpoints (Auth Required)</h3>
             <ul className="space-y-1">
               <li>GET /v1/user</li>
-              <li>GET /v1/offre/{id}</li>
-              <li>GET /v1/candidate-profile/{id}</li>
+              <li>GET /v1/offre/&#123;id&#125;</li>
+              <li>GET /v1/candidate-profile/&#123;id&#125;</li>
               <li>POST /v1/contact</li>
               <li>POST /v1/email/send-mail</li>
               <li>PUT /v1/complete-*</li>

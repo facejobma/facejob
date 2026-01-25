@@ -110,6 +110,97 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
+
+  /* Mobile-first responsive design */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.125rem;
+      line-height: 1.5;
+    }
+    
+    .cta-button {
+      min-height: 48px; /* Touch-friendly */
+      font-size: 1rem;
+      padding: 0.75rem 1.5rem;
+    }
+    
+    .mobile-nav {
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    .section-padding {
+      padding: 2rem 1rem;
+    }
+
+    .card-hover {
+      transform: none; /* Disable hover transforms on mobile */
+    }
+  }
+
+  /* Accessibility improvements */
+  .focus-visible:focus {
+    outline: 2px solid #60894B;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Enhanced button styles */
+  .btn-primary {
+    @apply bg-primary text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:bg-primary-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 min-h-[48px];
+  }
+
+  .btn-secondary {
+    @apply border-2 border-primary text-primary font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 min-h-[48px];
+  }
+
+  /* Improved contrast ratios */
+  .text-contrast-high {
+    color: #1a1a1a; /* Ensures 4.5:1 contrast ratio */
+  }
+
+  .text-contrast-medium {
+    color: #4a4a4a; /* Ensures 3:1 contrast ratio */
+  }
+
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Reduced motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 .w-36 {

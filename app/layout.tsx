@@ -27,23 +27,28 @@ const inter = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "FaceJob - Plateforme d'emploi avec CV vidéo au Maroc",
-    template: "%s | FaceJob"
+    default: "CV Vidéo Maroc | Trouvez votre emploi avec FaceJob",
+    template: "%s | FaceJob - Emploi au Maroc"
   },
-  description: "Trouvez votre emploi idéal au Maroc avec FaceJob. Postulez avec votre CV vidéo et connectez-vous directement avec les recruteurs. Des milliers d'offres d'emploi vous attendent.",
+  description: "Créez votre CV vidéo gratuit et trouvez votre emploi idéal au Maroc. Plus de 1000 offres d'emploi et recruteurs qui vous attendent. Démarquez-vous avec FaceJob.ma",
   keywords: [
+    "cv vidéo maroc",
     "emploi maroc",
-    "cv video",
-    "recrutement maroc",
-    "offres emploi",
-    "travail maroc",
-    "facejob",
+    "recrutement vidéo",
     "job maroc",
+    "offres emploi casablanca",
+    "travail rabat",
+    "plateforme emploi maroc",
+    "candidature vidéo",
+    "facejob",
     "carrière maroc",
     "recherche emploi",
-    "plateforme emploi"
+    "recrutement casablanca",
+    "emploi rabat",
+    "job casablanca",
+    "travail maroc"
   ],
-  authors: [{ name: "FaceJob" }],
+  authors: [{ name: "FaceJob", url: "https://facejob.ma" }],
   creator: "FaceJob",
   publisher: "FaceJob",
   formatDetection: {
@@ -54,10 +59,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://facejob.ma'),
   alternates: {
     canonical: '/',
+    languages: {
+      'fr-MA': '/',
+      'ar-MA': '/ar',
+    },
   },
   openGraph: {
-    title: "FaceJob - Plateforme d'emploi avec CV vidéo au Maroc",
-    description: "Trouvez votre emploi idéal au Maroc avec FaceJob. Postulez avec votre CV vidéo et connectez-vous directement avec les recruteurs.",
+    title: "CV Vidéo Maroc | Trouvez votre emploi avec FaceJob",
+    description: "Créez votre CV vidéo gratuit et trouvez votre emploi idéal au Maroc. Plus de 1000 offres d'emploi et recruteurs qui vous attendent.",
     url: '/',
     siteName: 'FaceJob',
     images: [
@@ -65,7 +74,7 @@ export const metadata: Metadata = {
         url: '/images/facejobLogo.png',
         width: 1200,
         height: 630,
-        alt: 'FaceJob - Plateforme d\'emploi au Maroc',
+        alt: 'FaceJob - Plateforme d\'emploi avec CV vidéo au Maroc',
       },
     ],
     locale: 'fr_MA',
@@ -73,9 +82,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "FaceJob - Plateforme d'emploi avec CV vidéo au Maroc",
-    description: "Trouvez votre emploi idéal au Maroc avec FaceJob. Postulez avec votre CV vidéo.",
+    title: "CV Vidéo Maroc | Trouvez votre emploi avec FaceJob",
+    description: "Créez votre CV vidéo gratuit et trouvez votre emploi idéal au Maroc. Démarquez-vous avec votre CV vidéo.",
     images: ['/images/facejobLogo.png'],
+    creator: '@facejob_ma',
   },
   robots: {
     index: true,
@@ -90,6 +100,14 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
+  category: 'Employment',
+  classification: 'Job Search Platform',
+  other: {
+    'geo.region': 'MA',
+    'geo.country': 'Morocco',
+    'geo.placename': 'Morocco',
+    'ICBM': '31.7917, -7.0926',
   },
 };
 

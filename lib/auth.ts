@@ -5,46 +5,55 @@ export function logout() {
   if (typeof window !== "undefined") {
     localStorage.clear();
     
-    // Clear specific sessionStorage items
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("userRole");
-    sessionStorage.removeItem("authToken");
-    
     // Clear all sessionStorage
     sessionStorage.clear();
   }
   
-  // Clear all cookies
-  Cookies.remove("authToken");
-  Cookies.remove("refreshToken");
-  Cookies.remove("userRole");
-  Cookies.remove("user");
+  // Get all cookie names and clear them
+  const allCookies = document.cookie.split(";");
   
-  // Clear all cookies with different path options
-  Cookies.remove("authToken", { path: "/" });
-  Cookies.remove("refreshToken", { path: "/" });
-  Cookies.remove("userRole", { path: "/" });
-  Cookies.remove("user", { path: "/" });
+  // Clear all cookies with different path and domain options
+  allCookies.forEach(cookie => {
+    const eqPos = cookie.indexOf("=");
+    const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+    
+    // Clear with default options
+    Cookies.remove(name);
+    
+    // Clear with path options
+    Cookies.remove(name, { path: "/" });
+    Cookies.remove(name, { path: "/", domain: window.location.hostname });
+    Cookies.remove(name, { path: "/", domain: `.${window.location.hostname}` });
+  });
   
-  // Clear cookies with domain options (if your app uses subdomains)
-  const domain = window.location.hostname;
-  Cookies.remove("authToken", { domain });
-  Cookies.remove("refreshToken", { domain });
-  Cookies.remove("userRole", { domain });
-  Cookies.remove("user", { domain });
+  // Clear specific known cookies
+  const knownCookies = [
+    "authToken", "refreshToken", "userRole", "user", "access_token", 
+    "user_type", "auth_provider", "next-auth.session-token", 
+    "next-auth.callback-url", "next-auth.csrf-token"
+  ];
+  
+  knownCookies.forEach(cookieName => {
+    Cookies.remove(cookieName);
+    Cookies.remove(cookieName, { path: "/" });
+    Cookies.remove(cookieName, { path: "/", domain: window.location.hostname });
+    Cookies.remove(cookieName, { path: "/", domain: `.${window.location.hostname}` });
+  });
 }
 
 export function performLogout(userRole?: string | null) {
-  // Clear all storage and cookies
+  console.log("🚪 Performing logout...");
+  
+  // Get auth token before clearing
+  const authToken = Cookies.get("authToken") || localStorage.getItem("access_token");
+  
+  // Clear all storage and cookies first
   logout();
   
-  // Determine redirect path
-  const redirectPath = userRole === "candidat" ? "/auth/login-candidate" : "/auth/login-entreprise";
-  
-  // Call backend logout endpoint if needed
-  const authToken = Cookies.get("authToken");
+  // Call backend logout endpoint if we have a token
   if (authToken && process.env.NEXT_PUBLIC_BACKEND_URL) {
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/logout", {
+    const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/${apiVersion}/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -55,6 +64,8 @@ export function performLogout(userRole?: string | null) {
     });
   }
   
-  // Redirect to login page
-  window.location.href = redirectPath;
+  console.log("✅ Logout completed, redirecting to home page...");
+  
+  // Redirect to home page
+  window.location.href = "/";
 }

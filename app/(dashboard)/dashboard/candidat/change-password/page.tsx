@@ -21,7 +21,7 @@ const ChangePassword: React.FC = () => {
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + '/api/candidat/change-password',
+        process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/candidat/change-password',
         {
           method: 'POST',
           headers: {

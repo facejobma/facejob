@@ -39,7 +39,7 @@ const ResetPasswordForm = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/reset-password`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/reset-password`,
         {
           // mode: "no-cors",
           method: "POST",

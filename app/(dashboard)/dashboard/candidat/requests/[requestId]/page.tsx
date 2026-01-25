@@ -29,7 +29,7 @@ export default function Page() {
           const authToken = Cookies.get("authToken");
 
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/enterprise/${requestId}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/enterprise/${requestId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,

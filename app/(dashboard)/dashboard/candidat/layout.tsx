@@ -33,16 +33,18 @@ function DashboardLayoutContent({
     }
   }, [userData]);
 
+  useEffect(() => {
+    if (!userData) {
+      router.push(`/`);
+    }
+  }, [userData, router]);
+
   const {
     shouldShowPrompt: shouldShowAutoPrompt,
     isLoading,
     hidePrompt: hideAutoPrompt,
     skipPrompt,
   } = useExperiencePrompt(candidatId);
-
-  if (!userData) {
-    router.push(`/`);
-  }
 
   const handleClosePrompt = () => {
     hideAutoPrompt();

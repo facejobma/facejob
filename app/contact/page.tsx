@@ -23,7 +23,7 @@ const ContactPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/contact",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/contact",
         {
           method: "POST",
           headers: {

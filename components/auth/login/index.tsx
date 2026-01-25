@@ -61,9 +61,10 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
     }
 
     try {
+      const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL +
-          `/api/auth/${props.loginFor}/login`,
+          `/api/${apiVersion}/auth/${props.loginFor}/login`,
         {
           method: "POST",
           headers: {
@@ -105,8 +106,19 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
 
   const handleGoogleLogin = async () => {
     try {
+      // Use secure role-specific endpoint
+      const endpoint = props.loginFor === 'candidate' 
+        ? '/api/v1/auth/candidate/google'
+        : '/api/v1/auth/entreprise/google';
+        
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google",
+        process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies
+        }
       );
 
       if (!response.ok) {
@@ -126,17 +138,51 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
 
   const handleLinkedinLogin = async () => {
     try {
+      // Use secure role-specific endpoint
+      const endpoint = props.loginFor === 'candidate' 
+        ? '/api/v1/auth/candidate/linkedin'
+        : '/api/v1/auth/entreprise/linkedin';
+        
+      console.log('🔐 LinkedIn OAuth - Starting secure flow:', {
+        loginFor: props.loginFor,
+        endpoint: endpoint,
+        fullUrl: process.env.NEXT_PUBLIC_BACKEND_URL + endpoint
+      });
+        
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin",
+        process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies
+        }
       );
 
+      console.log('🔐 LinkedIn OAuth - Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       if (!response.ok) {
+        console.error('❌ LinkedIn OAuth - Request failed:', {
+          status: response.status,
+          statusText: response.statusText
+        });
         toast.error("Erreur lors de la connexion avec Linkedin");
         return;
       }
 
       const data = await response.json();
+      
+      console.log('🔐 LinkedIn OAuth - Redirect data:', {
+        provider: data.provider,
+        hasUrl: !!data.url,
+        urlLength: data.url?.length
+      });
 
+      console.log('🔐 LinkedIn OAuth - Redirecting to LinkedIn...');
       window.location.href = data.url;
     } catch (error: any) {
       console.error(error);

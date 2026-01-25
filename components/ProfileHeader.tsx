@@ -97,7 +97,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/candidate/updateId/${id}`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/updateId/${id}`,
         {
           method: "PUT",
           headers: {
@@ -152,7 +152,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
         );
         const data = await response.json();
         setSectors(data);

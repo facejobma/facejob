@@ -17,7 +17,7 @@ export default function Subscription({}: Props) {
       }
 
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/store-email",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/store-email",
         {
           method: "POST",
           headers: {

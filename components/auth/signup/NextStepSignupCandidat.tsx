@@ -47,7 +47,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
         );
         const data = await response.json();
         setSectors(data);
@@ -102,7 +102,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
       };
 
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/complete-candidate",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-candidate",
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

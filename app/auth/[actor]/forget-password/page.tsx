@@ -37,7 +37,7 @@ const ForgetPasswordForm = () => {
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/auth/forgot-password`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/auth/forgot-password`,
         {
           method: "POST",
           headers: {  

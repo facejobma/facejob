@@ -100,7 +100,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       // Update existing education entry
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/formation/${selectedEducation.id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/formation/${selectedEducation.id}`,
           {
             method: "PUT",
             headers: {
@@ -127,7 +127,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       // Add new education entry
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/education`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/education`,
           {
             method: "POST",
             headers: {
@@ -166,7 +166,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   const handleDeleteEducation = async (education: Education) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/formation/delete/${education.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/formation/delete/${education.id}`,
         {
           method: "DELETE",
           headers: {

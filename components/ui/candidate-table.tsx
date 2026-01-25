@@ -50,7 +50,7 @@ export function CandidateDataTable<TData, TValue>({
   });
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sectors`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`)
       .then((response) => response.json())
       .then((data) => {
         setSecteurOptions(data);

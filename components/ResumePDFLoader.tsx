@@ -16,7 +16,7 @@ const ResumePDFLoader: React.FC<{ candidateId: number }> = ({ candidateId }) => 
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${candidateId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${candidateId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

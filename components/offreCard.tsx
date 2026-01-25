@@ -82,7 +82,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const checkProfileCompletion = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -129,7 +129,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-video/${userId}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/${userId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -198,7 +198,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       setIsButtonDisabled(true);
   
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/postuler-offre`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postuler-offre`,
         {
           method: "POST",
           headers: {

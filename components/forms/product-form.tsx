@@ -93,7 +93,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
       // Send a request to the API endpoint
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate/updateId/${candidateId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/updateId/${candidateId}`,
         {
           method: "PUT",
           headers: {
@@ -151,7 +151,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
       // Send a request to delete the candidate
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate/delete/${candidateId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/delete/${candidateId}`,
         {
           method: "DELETE",
           headers: {

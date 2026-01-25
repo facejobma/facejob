@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import HeaderEntreprise from "@/components/layout/header-entreprise";
 import Sidebar from "@/components/layout/sidebar";
+import { useEffect } from "react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,9 +20,11 @@ function DashboardLayout({ children, params }: LayoutProps) {
       : null;
   const userData = userDataString ? JSON.parse(userDataString) : null;
 
-  if (!userData) {
-    router.push(`/`);
-  }
+  useEffect(() => {
+    if (!userData) {
+      router.push(`/`);
+    }
+  }, [userData, router]);
 
   return (
     <>

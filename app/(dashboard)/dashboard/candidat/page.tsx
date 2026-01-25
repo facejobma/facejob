@@ -74,7 +74,7 @@ export default function UsersPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-video/delete/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/delete/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -285,7 +285,7 @@ export default function UsersPage() {
     if (selectedJob) params.append("job", selectedJob);
 
     const queryString = params.toString();
-    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-video/${userId}`;
+    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/${userId}`;
 
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   }, [userId, selectedStatus, selectedSector, selectedJob]);

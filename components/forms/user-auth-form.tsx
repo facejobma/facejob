@@ -34,7 +34,7 @@ export default function UserAuthForm() {
   });
 
   const onSubmit = async (data: UserFormValue) => {
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/admin/login", {
+    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/admin/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

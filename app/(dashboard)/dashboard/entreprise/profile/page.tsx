@@ -22,7 +22,7 @@ const CompanyProfile: React.FC = () => {
     const companyId = company ? JSON.parse(company).id : null;
 
     if (companyId) {
-      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/enterprise/${companyId}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/enterprise/${companyId}`;
 
       fetch(apiUrl, {
         headers: {

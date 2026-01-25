@@ -39,7 +39,7 @@ export default function PublierPage() {
   const fetchSectors = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
       );
       const data = await response.json();
       setSectors(data);
@@ -54,7 +54,7 @@ export default function PublierPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${companyId}/last`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -84,7 +84,7 @@ export default function PublierPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offre/create`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offre/create`,
         {
           method: "POST",
           headers: {

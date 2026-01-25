@@ -22,7 +22,7 @@ export default function UsersPage() {
       try {
         setLoading(true);
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/admin/entreprises",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/admin/entreprises",
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

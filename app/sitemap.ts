@@ -47,6 +47,24 @@ export default async function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/blogs/blog1`,
+      lastModified: new Date('2026-01-25'),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blogs/blog2`,
+      lastModified: new Date('2026-01-20'),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blogs/blog3`,
+      lastModified: new Date('2026-01-15'),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/apropsdenous`,
       lastModified: new Date(),
       changeFrequency: 'monthly',

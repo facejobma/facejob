@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FaUserPlus, FaVideo } from "react-icons/fa";
 import { MdOutlineWork } from "react-icons/md";
 import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 
 
 type Props = {};
@@ -20,17 +21,27 @@ export default function HowWorks({}: Props) {
   useEffect(() => {
     const fetchRandomOffre = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/random/`
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        const result = await api.request('/random', { requireAuth: false });
+        if (result.status === 200 && result.data) {
+          console.log("data", result.data);
+          setOffre(result.data);
+        } else {
+          console.error("Error fetching random offer:", result.error);
+          // Set fallback data if API fails
+          setOffre({
+            titre: "Un emploi de développeur Web",
+            contractType: "CDI", 
+            location: "Tanger"
+          });
         }
-        const data = await response.json();
-        console.log("data", data);
-        setOffre(data);
       } catch (error) {
         console.error("Error fetching the random offer:", error);
+        // Set fallback data if API fails
+        setOffre({
+          titre: "Un emploi de développeur Web",
+          contractType: "CDI",
+          location: "Tanger"
+        });
       }
     };
 

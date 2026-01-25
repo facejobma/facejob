@@ -32,7 +32,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       console.log("Data.id, ", data.id);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/entreprise/delete/${data.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/admin/entreprise/delete/${data.id}`,
         {
           method: "DELETE",
           headers: {

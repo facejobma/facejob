@@ -106,7 +106,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const handleGoogleLogin = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/google",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/candidate/google",
       );
 
       if (!response.ok) {
@@ -127,7 +127,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
   const handleLinkedinLogin = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/auth/linkedin",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/candidate/linkedin",
       );
 
       if (!response.ok) {

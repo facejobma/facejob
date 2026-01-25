@@ -77,7 +77,7 @@ const ConsumedCVs: React.FC = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/consumed-cvs/${entrepriseId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumed-cvs/${entrepriseId}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

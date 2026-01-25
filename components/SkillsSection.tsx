@@ -37,7 +37,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
     
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/skills`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/skills`,
         {
           method: "PUT",
           headers: {
@@ -69,7 +69,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
   const handleRemoveSkill = async (skill: Skill) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/skill/delete/${skill.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/skill/delete/${skill.id}`,
         {
           method: "DELETE",
           headers: {
@@ -97,7 +97,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/skills`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/skills`,
         {
           method: "POST",
           headers: {

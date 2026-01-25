@@ -6,7 +6,7 @@ export default async function sitemap(): MetadataRoute.Sitemap {
   // Fetch offers to generate dynamic routes
   let offerRoutes: MetadataRoute.Sitemap = [];
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/offres`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/v1/offres`);
     if (response.ok) {
       const offers = await response.json();
       offerRoutes = offers.slice(0, 100).map((offer: any) => ({

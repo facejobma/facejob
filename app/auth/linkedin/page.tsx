@@ -30,7 +30,7 @@ function LinkedinCallback() {
         console.log("LinkedIn callback - Code:", code);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/linkedin/callback?code=${code}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/linkedin/callback?code=${code}`,
           {
             headers: {
               "accept": "application/json",

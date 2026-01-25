@@ -47,7 +47,7 @@ const AvailabilityNotification: React.FC = () => {
   const fetchAvailabilityStatus = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/availability/status`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/availability/status`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -71,7 +71,7 @@ const AvailabilityNotification: React.FC = () => {
     setUpdating(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/availability/update`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/availability/update`,
         {
           method: "POST",
           headers: {

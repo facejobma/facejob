@@ -25,7 +25,7 @@ const Profile: React.FC = () => {
 
     if (userData) {
       const user = JSON.parse(userData);
-      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${user.id}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${user.id}`;
 
       fetch(apiUrl, {
         headers: {

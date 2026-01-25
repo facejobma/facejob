@@ -37,7 +37,7 @@ const AvailabilityConfirmContent: React.FC = () => {
   const confirmAvailability = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/availability/confirm?token=${token}&email=${encodeURIComponent(email!)}&status=available`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/availability/confirm?token=${token}&email=${encodeURIComponent(email!)}&status=available`,
         {
           method: "GET",
           headers: {

@@ -3,11 +3,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { Search, Briefcase, Building, MapPin, Calendar, Filter, TrendingUp, Users, Clock, ChevronDown, ArrowRight } from "lucide-react";
+import { Search, Briefcase, Building, MapPin, Calendar, Filter, TrendingUp, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -61,7 +61,13 @@ const PublicOffersPage: React.FC = () => {
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isClient, setIsClient] = useState(false);
   const offersPerPage = 12;
+
+  // Fix hydration mismatch by ensuring client-side rendering for Select components
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Debounce search query
   useEffect(() => {
@@ -79,10 +85,12 @@ const PublicOffersPage: React.FC = () => {
         setLoading(true);
         
         // Fetch offers without authentication for public access
-        const offersRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres`);
+        const offersRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?page=1&per_page=1000`);
         
         if (offersRes.ok) {
-          const offersData = await offersRes.json();
+          const response = await offersRes.json();
+          // Handle both old format (direct array) and new format (with pagination)
+          const offersData = response.data || response;
           setOffers(offersData);
           
           // Extract unique companies from offers data
@@ -120,7 +128,7 @@ const PublicOffersPage: React.FC = () => {
 
           // Try to fetch sectors
           try {
-            const sectorsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sectors`);
+            const sectorsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`);
             if (sectorsRes.ok) {
               const sectorsData = await sectorsRes.json();
               setSectors(sectorsData);
@@ -212,15 +220,6 @@ const PublicOffersPage: React.FC = () => {
     setSelectedCompany("");
     setSelectedCity("");
     setCurrentPage(1);
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
   };
 
   // State for client-side only calculations to prevent hydration issues
@@ -381,60 +380,88 @@ const PublicOffersPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Secteur
                   </label>
-                  <Select
-                    value={selectedSector ? { value: selectedSector, label: sectors.find(s => s.id === Number(selectedSector))?.name } : null}
-                    onChange={(option) => {
-                      setSelectedSector(option ? option.value : "");
-                      setSelectedJob(""); // Reset job when sector changes
-                    }}
-                    options={sectors.map(sector => ({ value: sector.id.toString(), label: sector.name }))}
-                    placeholder="Tous les secteurs"
-                    isClearable
-                    styles={customSelectStyles}
-                  />
+                  {isClient ? (
+                    <Select
+                      instanceId="sector-select"
+                      value={selectedSector ? { value: selectedSector, label: sectors.find(s => s.id === Number(selectedSector))?.name } : null}
+                      onChange={(option) => {
+                        setSelectedSector(option ? option.value : "");
+                        setSelectedJob(""); // Reset job when sector changes
+                      }}
+                      options={sectors.map(sector => ({ value: sector.id.toString(), label: sector.name }))}
+                      placeholder="Tous les secteurs"
+                      isClearable
+                      styles={customSelectStyles}
+                    />
+                  ) : (
+                    <div className="h-[44px] border border-gray-300 rounded-lg bg-white flex items-center px-3 text-gray-500">
+                      Tous les secteurs
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Métier
                   </label>
-                  <Select
-                    value={selectedJob ? { value: selectedJob, label: availableJobs.find(j => j.id === Number(selectedJob))?.name } : null}
-                    onChange={(option) => setSelectedJob(option ? option.value : "")}
-                    options={availableJobs.map(job => ({ value: job.id.toString(), label: job.name }))}
-                    placeholder="Tous les métiers"
-                    isClearable
-                    isDisabled={!selectedSector}
-                    styles={customSelectStyles}
-                  />
+                  {isClient ? (
+                    <Select
+                      instanceId="job-select"
+                      value={selectedJob ? { value: selectedJob, label: availableJobs.find(j => j.id === Number(selectedJob))?.name } : null}
+                      onChange={(option) => setSelectedJob(option ? option.value : "")}
+                      options={availableJobs.map(job => ({ value: job.id.toString(), label: job.name }))}
+                      placeholder="Tous les métiers"
+                      isClearable
+                      isDisabled={!selectedSector}
+                      styles={customSelectStyles}
+                    />
+                  ) : (
+                    <div className="h-[44px] border border-gray-300 rounded-lg bg-gray-100 flex items-center px-3 text-gray-400">
+                      Tous les métiers
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Entreprise
                   </label>
-                  <Select
-                    value={selectedCompany ? { value: selectedCompany, label: companies.find(c => c.id === Number(selectedCompany))?.company_name } : null}
-                    onChange={(option) => setSelectedCompany(option ? option.value : "")}
-                    options={companies.map(company => ({ value: company.id.toString(), label: company.company_name }))}
-                    placeholder="Toutes les entreprises"
-                    isClearable
-                    styles={customSelectStyles}
-                  />
+                  {isClient ? (
+                    <Select
+                      instanceId="company-select"
+                      value={selectedCompany ? { value: selectedCompany, label: companies.find(c => c.id === Number(selectedCompany))?.company_name } : null}
+                      onChange={(option) => setSelectedCompany(option ? option.value : "")}
+                      options={companies.map(company => ({ value: company.id.toString(), label: company.company_name }))}
+                      placeholder="Toutes les entreprises"
+                      isClearable
+                      styles={customSelectStyles}
+                    />
+                  ) : (
+                    <div className="h-[44px] border border-gray-300 rounded-lg bg-white flex items-center px-3 text-gray-500">
+                      Toutes les entreprises
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Ville
                   </label>
-                  <Select
-                    value={selectedCity ? { value: selectedCity, label: selectedCity } : null}
-                    onChange={(option) => setSelectedCity(option ? option.value : "")}
-                    options={availableCities.map(city => ({ value: city, label: city }))}
-                    placeholder="Toutes les villes"
-                    isClearable
-                    styles={customSelectStyles}
-                  />
+                  {isClient ? (
+                    <Select
+                      instanceId="city-select"
+                      value={selectedCity ? { value: selectedCity, label: selectedCity } : null}
+                      onChange={(option) => setSelectedCity(option ? option.value : "")}
+                      options={availableCities.map(city => ({ value: city, label: city }))}
+                      placeholder="Toutes les villes"
+                      isClearable
+                      styles={customSelectStyles}
+                    />
+                  ) : (
+                    <div className="h-[44px] border border-gray-300 rounded-lg bg-white flex items-center px-3 text-gray-500">
+                      Toutes les villes
+                    </div>
+                  )}
                 </div>
               </div>
 

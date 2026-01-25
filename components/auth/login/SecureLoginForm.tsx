@@ -79,8 +79,8 @@ const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
     try {
       // Use the specific OAuth endpoint for the user type
       const endpoint = props.loginFor === "candidate" 
-        ? "/api/auth/candidate/google" 
-        : "/api/auth/entreprise/google";
+        ? "/api/v1/auth/candidate/google" 
+        : "/api/v1/auth/entreprise/google";
         
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
@@ -103,8 +103,8 @@ const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
     try {
       // Use the specific OAuth endpoint for the user type
       const endpoint = props.loginFor === "candidate" 
-        ? "/api/auth/candidate/linkedin" 
-        : "/api/auth/entreprise/linkedin";
+        ? "/api/v1/auth/candidate/linkedin" 
+        : "/api/v1/auth/entreprise/linkedin";
         
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,

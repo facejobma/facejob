@@ -43,7 +43,7 @@ const FeaturedOffers: React.FC = () => {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`);
         if (response.ok) {
           const data = await response.json();
           

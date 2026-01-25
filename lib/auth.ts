@@ -19,7 +19,7 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
   }
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',

@@ -363,7 +363,7 @@ export const downloadResumePDF = async (candidateId: number) => {
   try {
     // Fetch profile data
     const profileResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${candidateId}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${candidateId}`,
       {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -375,7 +375,7 @@ export const downloadResumePDF = async (candidateId: number) => {
 
     // Check consumption status
     const consumeResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
       {
         method: "POST",
         headers: {
@@ -431,7 +431,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
 
       try {
         const profileResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate-profile/${candidateId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${candidateId}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -443,7 +443,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
         setUserProfile(profileData || {});
 
         const consumeResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
           {
             method: "POST",
             headers: {

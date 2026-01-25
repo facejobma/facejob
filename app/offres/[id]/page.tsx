@@ -66,7 +66,7 @@ const OfferDetailPage: React.FC = () => {
         setLoading(true);
         
         // Fetch all offers first (since we don't have individual offer endpoint)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`);
         
         if (response.ok) {
           const allOffers = await response.json();

@@ -38,7 +38,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/enterprise/updateId/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/enterprise/updateId/${id}`,
         {
           method: "PUT",
           headers: {

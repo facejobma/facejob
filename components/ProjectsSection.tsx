@@ -65,7 +65,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/projects/${selectedProject.id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/projects/${selectedProject.id}`,
           {
             method: "PUT",
             headers: {
@@ -97,7 +97,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/${id}/projects`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/projects`,
           {
             method: "POST",
             headers: {
@@ -132,7 +132,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
   const handleRemoveProject = async (project: Project) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidat/project/delete/${project.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/project/delete/${project.id}`,
         {
           method: "DELETE",
           headers: {

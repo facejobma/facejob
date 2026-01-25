@@ -77,7 +77,7 @@ export const OfferCandidatActions: React.FC<{
   const fetchLastPayment = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${companyId}/last`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -123,7 +123,7 @@ export const OfferCandidatActions: React.FC<{
     if (postulerToConsume) {
       try {
         const checkResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
           {
             method: "POST",
             headers: {
@@ -148,7 +148,7 @@ export const OfferCandidatActions: React.FC<{
 
         // Proceed to consume the CV video if not already consumed
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/consume_cv_video",
           {
             method: "POST",
             headers: {

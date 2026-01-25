@@ -31,7 +31,7 @@ function GoogleCallback() {
         }
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google/callback?code=${code}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/google/callback?code=${code}`,
           {
             headers: {
               "accept": "application/json",

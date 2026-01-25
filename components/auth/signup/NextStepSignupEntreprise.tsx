@@ -44,7 +44,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     useEffect(() => {
         const fetchSectors = async () => {
             try {
-                const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors");
+                const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors");
                 const data = await response.json();
                 setSecteurOptions(data);
             } catch (error) {
@@ -93,7 +93,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             };
 
             const response = await fetch(
-                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/complete-enterprise",
+                process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-enterprise",
                 {
                     method: "PUT",
                     headers: {

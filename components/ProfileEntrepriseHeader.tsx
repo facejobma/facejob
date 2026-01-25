@@ -95,7 +95,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       const formattedCreationDate = creationDate.toISOString().split("T")[0];
 
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/enterprise/updateId/${id}`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/enterprise/updateId/${id}`,
         {
           method: "PUT",
           headers: {
@@ -137,7 +137,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
         );
         const data = await response.json();
         setSecteurOptions(data);

@@ -78,7 +78,7 @@ const ApplicationHistory: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate/application-history`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/application-history`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

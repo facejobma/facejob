@@ -117,7 +117,7 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sectors`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch sectors");

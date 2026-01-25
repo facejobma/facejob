@@ -201,7 +201,7 @@ const Notification: React.FC = () => {
       if (!authToken) return;
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notifications/mark-as-read`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications/mark-as-read`,
         {
           method: "POST",
           headers: {
@@ -234,7 +234,7 @@ const Notification: React.FC = () => {
       if (!authToken) return;
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notifications/${notificationId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications/${notificationId}`,
         {
           method: "DELETE",
           headers: {

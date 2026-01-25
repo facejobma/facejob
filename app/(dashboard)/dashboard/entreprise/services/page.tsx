@@ -118,7 +118,7 @@ function ServicePlanPage() {
     setIsLoadingPayment(true);
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/payments/${companyId}/last`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/payments/${companyId}/last`,
         {
           method: "GET",
           headers: {
@@ -256,7 +256,7 @@ function ServicePlanPage() {
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/payments",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/payments",
         {
           method: "POST",
           headers: {

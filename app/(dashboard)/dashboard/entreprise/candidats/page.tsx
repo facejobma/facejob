@@ -70,7 +70,7 @@ const Hiring: React.FC = () => {
   const fetchSectors = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -89,7 +89,7 @@ const Hiring: React.FC = () => {
   const fetchLastPayment = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/${companyId}/last`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${companyId}/last`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -122,7 +122,7 @@ const Hiring: React.FC = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/postule/all",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/postule/all",
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -172,7 +172,7 @@ const handleGenerateCV = async (candidateId: number) => {
     if (candidateToConsume) {
       try {
         const checkResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/check-consumption-status`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
           {
             method: "POST",
             headers: {
@@ -199,7 +199,7 @@ const handleGenerateCV = async (candidateId: number) => {
         }
 
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/consume_cv_video",
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/consume_cv_video",
           {
             method: "POST",
             headers: {

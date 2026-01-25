@@ -32,7 +32,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/candidate/updateId/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/updateId/${id}`,
         {
           method: "PUT",
           headers: {

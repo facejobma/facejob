@@ -86,7 +86,7 @@ const OffresPage: React.FC = () => {
   const fetchSectors = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -125,7 +125,7 @@ const OffresPage: React.FC = () => {
     const fetchOffres = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offres`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

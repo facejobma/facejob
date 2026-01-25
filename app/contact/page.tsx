@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import NavBar from "../../components/NavBar";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
+import { useApiForm } from "@/hooks/useApi";
 
 const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ const ContactPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/contact",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/contact",
         {
           method: "POST",
           headers: {

@@ -13,83 +13,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { fetchPlans } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
 const breadcrumbItems = [
   { title: "Recharger compte d'entreprise", link: "/dashboard/payments" },
-];
-
-const plans = [
-  {
-    id: 1,
-    name: "Panel gratuit",
-    monthly_price: 0,
-    quarterly_price: 0,
-    annual_price: 0,
-    account_creation_included: true,
-    cv_video_access: true,
-    cv_video_consultations: 5,
-    job_postings: 0,
-    dedicated_support: false,
-    exclusif: false,
-    popular: false,
-  },
-  {
-    id: 2,
-    name: "Panel de base",
-    monthly_price: 1000,
-    quarterly_price: 2700,
-    annual_price: 9600,
-    account_creation_included: true,
-    cv_video_access: true,
-    cv_video_consultations: 10,
-    job_postings: 5,
-    dedicated_support: false,
-    exclusif: false,
-    popular: true,
-  },
-  {
-    id: 3,
-    name: "Panel intermédiaire",
-    monthly_price: 1900,
-    quarterly_price: 5100,
-    annual_price: 18000,
-    account_creation_included: true,
-    cv_video_access: true,
-    cv_video_consultations: 25,
-    job_postings: 12,
-    dedicated_support: false,
-    exclusif: true,
-    popular: true,
-  },
-  {
-    id: 4,
-    name: "Panel Essentiel",
-    monthly_price: 3000,
-    quarterly_price: 8100,
-    annual_price: 28000,
-    account_creation_included: true,
-    cv_video_access: true,
-    cv_video_consultations: 50,
-    job_postings: 20,
-    dedicated_support: false,
-    exclusif: false,
-    popular: false,
-  },
-  {
-    id: 5,
-    name: "Panel Premium",
-    monthly_price: 5000,
-    quarterly_price: 13500,
-    annual_price: 48000,
-    account_creation_included: true,
-    cv_video_access: true,
-    cv_video_consultations: "Illimité",
-    job_postings: "Illimité",
-    dedicated_support: true,
-    exclusif: false,
-    popular: false,
-  },
 ];
 
 function ServicePlanPage() {
@@ -103,6 +31,8 @@ function ServicePlanPage() {
   const [currentPlanId, setCurrentPlanId] = useState(null);
   const [hasNoPayment, setHasNoPayment] = useState(false);
   const [isLoadingPayment, setIsLoadingPayment] = useState(true);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   
   // Carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -150,9 +80,30 @@ function ServicePlanPage() {
       setIsLoadingPayment(false);
     }
   };
+
+  const fetchPlansData = async () => {
+    setIsLoadingPlans(true);
+    try {
+      const plansData = await fetchPlans();
+      // Transform the data to match frontend expectations
+      const transformedPlans = plansData.map((plan: any) => ({
+        ...plan,
+        contact_access: plan.cv_video_consultations, // Map contact access
+        exclusif: plan.exclusive, // Map exclusive field
+        cv_video_consultations: "Illimité", // All plans have unlimited viewing
+      }));
+      setPlans(transformedPlans);
+    } catch (error) {
+      console.error("Failed to fetch plans:", error);
+      toast.error("Erreur lors de la récupération des plans");
+    } finally {
+      setIsLoadingPlans(false);
+    }
+  };
   
   useEffect(() => {
     fetchLastPayment();
+    fetchPlansData();
     
     // Set cards per view based on screen size
     const updateCardsPerView = () => {
@@ -341,9 +292,9 @@ function ServicePlanPage() {
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-white">
-                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment.cv_video_remaining : hasNoPayment ? "0" : "-")}
+                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment.contact_access_remaining : hasNoPayment ? "0" : "-")}
                         </p>
-                        <p className="text-xs text-indigo-100">CVs restants</p>
+                        <p className="text-xs text-indigo-100">Contacts restants</p>
                       </div>
                     </div>
                   </div>
@@ -557,19 +508,30 @@ function ServicePlanPage() {
                     {/* Monthly Plans Carousel */}
                     <TabsContent value="Mensuel">
                       <div className="relative max-w-7xl mx-auto px-4">
-                        {/* Carousel Container */}
-                        <div className="overflow-hidden">
-                          <div 
-                            className="flex transition-transform duration-300 ease-in-out gap-6"
-                            style={{ 
-                              transform: `translateX(-${currentSlide * (100 / cardsPerView)}%)`,
-                              width: `${(plans.length / cardsPerView) * 100}%`
-                            }}
-                          >
+                        {isLoadingPlans ? (
+                          <div className="flex justify-center items-center py-16">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                            <span className="ml-3 text-gray-600">Chargement des plans...</span>
+                          </div>
+                        ) : plans.length === 0 ? (
+                          <div className="text-center py-16">
+                            <p className="text-gray-500">Aucun plan disponible</p>
+                          </div>
+                        ) : (
+                          <>
+                            {/* Carousel Container */}
+                            <div className="overflow-hidden">
+                              <div 
+                                className="flex transition-transform duration-300 ease-in-out gap-6"
+                                style={{ 
+                                  transform: `translateX(-${currentSlide * (100 / cardsPerView)}%)`,
+                                  width: `${(plans.length / cardsPerView) * 100}%`
+                                }}
+                              >
                             {plans.map((plan, index) => {
                               const isPopular = plan.popular;
                               const isExclusive = plan.exclusif;
-                              const isFree = plan.id === 1;
+                              const isFree = plan.monthly_price === 0;
                               
                               return (
                                 <div
@@ -630,11 +592,7 @@ function ServicePlanPage() {
                                       
                                       {/* Plan Description */}
                                       <p className="text-sm text-gray-600 mb-4 min-h-[2.5rem] flex items-center justify-center">
-                                        {isFree && "Parfait pour découvrir nos services"}
-                                        {plan.id === 2 && "Idéal pour les petites entreprises"}
-                                        {plan.id === 3 && "Parfait pour les entreprises en croissance"}
-                                        {plan.id === 4 && "Pour les besoins de recrutement intensifs"}
-                                        {plan.id === 5 && "Solution complète sans limites"}
+                                        {plan.description || (isFree ? "Parfait pour découvrir nos services" : "Plan professionnel")}
                                       </p>
                                     </div>
 
@@ -643,14 +601,29 @@ function ServicePlanPage() {
                                       <div className="flex items-start gap-3">
                                         <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                                         <span className="text-sm text-gray-700 leading-relaxed">
-                                          Création de compte incluse
+                                          Création de compte client et gestion des candidatures *
                                         </span>
                                       </div>
                                       
                                       <div className="flex items-start gap-3">
                                         <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
                                         <span className="text-sm text-gray-700 leading-relaxed">
-                                          <strong>{plan.cv_video_consultations}</strong> consultations CV vidéo
+                                          Accès visualisation de CV vidéos **
+                                        </span>
+                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                          Illimité
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-start gap-3">
+                                        <svg className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        <span className="text-sm text-gray-700 leading-relaxed">
+                                          Accès coordonnées candidats ***
+                                        </span>
+                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                          {plan.contact_access === 0 ? "Non inclus" : `${plan.contact_access}/mois`}
                                         </span>
                                       </div>
                                       
@@ -712,10 +685,7 @@ function ServicePlanPage() {
                                       {!isFree && (
                                         <div className="mt-3 text-center">
                                           <p className="text-xs text-gray-500">
-                                            {plan.id === 2 && "Économisez du temps sur vos recrutements"}
-                                            {plan.id === 3 && "Accélérez votre croissance"}
-                                            {plan.id === 4 && "Recrutement à grande échelle"}
-                                            {plan.id === 5 && "Solution entreprise complète"}
+                                            {!isFree && (plan.dedicated_support ? "Solution entreprise complète" : "Optimisez vos recrutements")}
                                           </p>
                                         </div>
                                       )}
@@ -761,24 +731,37 @@ function ServicePlanPage() {
                             ))}
                           </div>
                         )}
+                          </>
+                        )}
                       </div>
                     </TabsContent>
 
                     {/* Quarterly Plans Carousel */}
                     <TabsContent value="Trimestriel">
                       <div className="relative max-w-7xl mx-auto px-4">
-                        <div className="overflow-hidden">
-                          <div 
-                            className="flex transition-transform duration-300 ease-in-out gap-6"
-                            style={{ 
-                              transform: `translateX(-${currentSlide * (100 / cardsPerView)}%)`,
-                              width: `${(plans.length / cardsPerView) * 100}%`
-                            }}
-                          >
+                        {isLoadingPlans ? (
+                          <div className="flex justify-center items-center py-16">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                            <span className="ml-3 text-gray-600">Chargement des plans...</span>
+                          </div>
+                        ) : plans.length === 0 ? (
+                          <div className="text-center py-16">
+                            <p className="text-gray-500">Aucun plan disponible</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="overflow-hidden">
+                              <div 
+                                className="flex transition-transform duration-300 ease-in-out gap-6"
+                                style={{ 
+                                  transform: `translateX(-${currentSlide * (100 / cardsPerView)}%)`,
+                                  width: `${(plans.length / cardsPerView) * 100}%`
+                                }}
+                              >
                             {plans.map((plan, index) => {
                               const isPopular = plan.popular;
                               const isExclusive = plan.exclusif;
-                              const isFree = plan.id === 1;
+                              const isFree = plan.monthly_price === 0;
                               const monthlySavings = plan.monthly_price * 3 - plan.quarterly_price;
                               
                               return (
@@ -926,24 +909,37 @@ function ServicePlanPage() {
                             ))}
                           </div>
                         )}
+                          </>
+                        )}
                       </div>
                     </TabsContent>
 
                     {/* Annual Plans Carousel */}
                     <TabsContent value="Annuel">
                       <div className="relative max-w-7xl mx-auto px-4">
-                        <div className="overflow-hidden">
-                          <div 
-                            className="flex transition-transform duration-300 ease-in-out gap-6"
-                            style={{ 
-                              transform: `translateX(-${currentSlide * (100 / cardsPerView)}%)`,
-                              width: `${(plans.length / cardsPerView) * 100}%`
-                            }}
-                          >
+                        {isLoadingPlans ? (
+                          <div className="flex justify-center items-center py-16">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                            <span className="ml-3 text-gray-600">Chargement des plans...</span>
+                          </div>
+                        ) : plans.length === 0 ? (
+                          <div className="text-center py-16">
+                            <p className="text-gray-500">Aucun plan disponible</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="overflow-hidden">
+                              <div 
+                                className="flex transition-transform duration-300 ease-in-out gap-6"
+                                style={{ 
+                                  transform: `translateX(-${currentSlide * (100 / cardsPerView)}%)`,
+                                  width: `${(plans.length / cardsPerView) * 100}%`
+                                }}
+                              >
                             {plans.map((plan, index) => {
                               const isPopular = plan.popular;
                               const isExclusive = plan.exclusif;
-                              const isFree = plan.id === 1;
+                              const isFree = plan.monthly_price === 0;
                               const monthlySavings = plan.monthly_price * 12 - plan.annual_price;
                               
                               return (
@@ -1090,6 +1086,8 @@ function ServicePlanPage() {
                               />
                             ))}
                           </div>
+                        )}
+                          </>
                         )}
                       </div>
                     </TabsContent>

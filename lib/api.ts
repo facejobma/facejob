@@ -201,7 +201,7 @@ export async function fetchEnterpriseProfile(id: string) {
 }
 
 export async function fetchPlans() {
-  const response = await publicApiCall('/api/plans');
+  const response = await publicApiCall('/api/v1/plans');
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch plans: ${response.status}`);
 }
@@ -257,6 +257,30 @@ export async function fetchLastPayment(entrepriseId: string) {
   const response = await authenticatedApiCall(`/api/payments/${entrepriseId}/last`);
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch last payment: ${response.status}`);
+}
+
+export async function checkContactAccess(candidateId: string) {
+  const response = await authenticatedApiCall('/api/contact-access/check', {
+    method: 'POST',
+    body: JSON.stringify({ candidate_id: candidateId })
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to check contact access: ${response.status}`);
+}
+
+export async function consumeContactAccess(candidateId: string) {
+  const response = await authenticatedApiCall('/api/contact-access/consume', {
+    method: 'POST',
+    body: JSON.stringify({ candidate_id: candidateId })
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to consume contact access: ${response.status}`);
+}
+
+export async function getContactAccessStats() {
+  const response = await authenticatedApiCall('/api/contact-access/stats');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch contact access stats: ${response.status}`);
 }
 
 // =============================================================================

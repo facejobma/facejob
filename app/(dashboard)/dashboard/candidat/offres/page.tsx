@@ -139,8 +139,9 @@ const OffresPage: React.FC = () => {
           throw new Error("Failed to fetch offers");
         }
 
-        const data = await response.json();
-        setOffres(data);
+        const result = await response.json();
+        const data = result.data || result; // Handle both old and new API response formats
+        setOffres(Array.isArray(data) ? data : []);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching offers:", error);

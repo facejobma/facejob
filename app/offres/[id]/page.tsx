@@ -69,7 +69,11 @@ const OfferDetailPage: React.FC = () => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`);
         
         if (response.ok) {
-          const allOffers = await response.json();
+          const result = await response.json();
+          
+          // Extract the data array from the API response
+          const allOffers = Array.isArray(result.data) ? result.data : [];
+          
           const currentOffer = allOffers.find((o: OfferDetail) => o.id === parseInt(offerId));
           
           if (currentOffer) {

@@ -130,7 +130,8 @@ const PublicOffersPage: React.FC = () => {
           try {
             const sectorsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`);
             if (sectorsRes.ok) {
-              const sectorsData = await sectorsRes.json();
+              const sectorsResponse = await sectorsRes.json();
+              const sectorsData = sectorsResponse.data || sectorsResponse;
               setSectors(sectorsData);
             } else {
               console.error("Failed to fetch sectors:", sectorsRes.status);
@@ -388,7 +389,7 @@ const PublicOffersPage: React.FC = () => {
                         setSelectedSector(option ? option.value : "");
                         setSelectedJob(""); // Reset job when sector changes
                       }}
-                      options={sectors.map(sector => ({ value: sector.id.toString(), label: sector.name }))}
+                      options={Array.isArray(sectors) ? sectors.map(sector => ({ value: sector.id.toString(), label: sector.name })) : []}
                       placeholder="Tous les secteurs"
                       isClearable
                       styles={customSelectStyles}
@@ -409,7 +410,7 @@ const PublicOffersPage: React.FC = () => {
                       instanceId="job-select"
                       value={selectedJob ? { value: selectedJob, label: availableJobs.find(j => j.id === Number(selectedJob))?.name } : null}
                       onChange={(option) => setSelectedJob(option ? option.value : "")}
-                      options={availableJobs.map(job => ({ value: job.id.toString(), label: job.name }))}
+                      options={Array.isArray(availableJobs) ? availableJobs.map(job => ({ value: job.id.toString(), label: job.name })) : []}
                       placeholder="Tous les métiers"
                       isClearable
                       isDisabled={!selectedSector}
@@ -431,7 +432,7 @@ const PublicOffersPage: React.FC = () => {
                       instanceId="company-select"
                       value={selectedCompany ? { value: selectedCompany, label: companies.find(c => c.id === Number(selectedCompany))?.company_name } : null}
                       onChange={(option) => setSelectedCompany(option ? option.value : "")}
-                      options={companies.map(company => ({ value: company.id.toString(), label: company.company_name }))}
+                      options={Array.isArray(companies) ? companies.map(company => ({ value: company.id.toString(), label: company.company_name })) : []}
                       placeholder="Toutes les entreprises"
                       isClearable
                       styles={customSelectStyles}

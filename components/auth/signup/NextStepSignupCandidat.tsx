@@ -49,10 +49,18 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
         );
-        const data = await response.json();
-        setSectors(data);
+        const result = await response.json();
+        
+        // Check if the response has the expected structure
+        if (result.success && Array.isArray(result.data)) {
+          setSectors(result.data);
+        } else {
+          // Fallback: if data is directly an array
+          setSectors(Array.isArray(result) ? result : []);
+        }
       } catch (error) {
         console.error("Error fetching sectors:", error);
+        setSectors([]); // Set empty array on error
         toast.error("Erreur lors de la récupération des secteurs!");
       }
     };
@@ -60,8 +68,9 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
     fetchSectors();
   }, []);
 
-  const filteredJobs =
-    sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [];
+  const filteredJobs = Array.isArray(sectors) 
+    ? (sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs || [])
+    : [];
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -182,7 +191,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
           <option value="" disabled>
             Sélectionnez le secteur.
           </option>
-          {sectors.map((sector) => (
+          {Array.isArray(sectors) && sectors.map((sector) => (
             <option key={sector.id} value={sector.id}>
               {sector.name}
             </option>
@@ -200,7 +209,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
           className="px-4 py-2 text-secondary rounded border border-gray w-full"
         >
           <option value="">Sélectionnez le métier.</option>
-          {filteredJobs.map((job) => (
+          {Array.isArray(filteredJobs) && filteredJobs.map((job) => (
             <option key={job.id} value={job.id}>
               {job.name}
             </option>

@@ -2,9 +2,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getAuthenticatedUser } from "@/lib/auth";
-import SecureLoginForm from "../../../components/auth/login/SecureLoginForm";
-import NavBar from "../../../components/NavBar";
-import Image from "next/image";
+import ModernLoginForm from "../../../components/auth/login/ModernLoginForm";
+import ModernAuthLayout from "../../../components/auth/ModernAuthLayout";
 
 const LoginEntreprisePage = () => {
   const router = useRouter();
@@ -29,23 +28,13 @@ const LoginEntreprisePage = () => {
   }, [router]);
 
   return (
-    <>
-      <NavBar />
-      <div className="flex flex-col md:flex-row items-center mt-16">
-        <div className="md:w-1/2 px-4 md:px-20">
-          <SecureLoginForm loginFor={"entreprise"} />
-        </div>
-        <div className="w-0 px-4 md:w-1/2 mt-4 md:mt-0">
-          <Image
-            src="/images/photo-login.jpg"
-            className="rounded-3xl w-full md:w-4/5 mx-auto"
-            alt="image-signup"
-            width={1000}
-            height={1000}
-          />
-        </div>
-      </div>
-    </>
+    <ModernAuthLayout
+      title="Bienvenue sur FaceJob"
+      subtitle="Connectez-vous pour accéder à votre espace entreprise et gérer vos recrutements"
+      backgroundImage="/images/photo-login.jpg"
+    >
+      <ModernLoginForm loginFor="entreprise" />
+    </ModernAuthLayout>
   );
 };
 

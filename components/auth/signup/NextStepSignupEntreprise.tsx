@@ -45,10 +45,18 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
         const fetchSectors = async () => {
             try {
                 const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors");
-                const data = await response.json();
-                setSecteurOptions(data);
+                const result = await response.json();
+                
+                // Check if the response has the expected structure
+                if (result.success && Array.isArray(result.data)) {
+                    setSecteurOptions(result.data);
+                } else {
+                    // Fallback: if data is directly an array
+                    setSecteurOptions(Array.isArray(result) ? result : []);
+                }
             } catch (error) {
                 console.error("Error fetching sectors:", error);
+                setSecteurOptions([]); // Set empty array on error
                 toast.error("Erreur de récupération des secteurs!");
             }
         };
@@ -181,7 +189,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                     <option value="" disabled>
                         Sélectionnez Secteur.
                     </option>
-                    {secteurOptions.map((option, index) => (
+                    {Array.isArray(secteurOptions) && secteurOptions.map((option, index) => (
                         <option key={index} value={option.id}>
                             {option.name}
                         </option>

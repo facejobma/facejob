@@ -60,16 +60,35 @@ const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
 
     setIsLoading(true);
     try {
-      // Use secure login that gets role from backend
-      await secureLogin(email, password, props.loginFor);
-      toast.success("Connecté avec succès");
-    } catch (error: any) {
-      console.error(error);
-      if (error.message.includes("email")) {
-        toast.error("Votre adresse e-mail doit être vérifiée avant de vous connecter.");
+      const result = await secureLogin(email, password, props.loginFor);
+      
+      if (result.success) {
+        toast.success("Connecté avec succès");
       } else {
-        toast.error(error.message || "Email ou mot de passe ne sont pas valides");
+        // Handle different error types with appropriate messages
+        switch (result.errorType) {
+          case 'credentials':
+            toast.error("Email ou mot de passe incorrect");
+            break;
+          case 'verification':
+            toast.error("Votre adresse e-mail doit être vérifiée avant de vous connecter");
+            break;
+          case 'validation':
+            toast.error(result.error || "Données de connexion invalides");
+            break;
+          case 'network':
+            toast.error("Erreur de connexion, vérifiez votre connexion internet");
+            break;
+          case 'server':
+            toast.error("Erreur du serveur, veuillez réessayer plus tard");
+            break;
+          default:
+            toast.error(result.error || "Une erreur s'est produite lors de la connexion");
+        }
       }
+    } catch (error: any) {
+      console.error('Unexpected login error:', error);
+      toast.error("Une erreur inattendue s'est produite");
     } finally {
       setIsLoading(false);
     }
@@ -86,16 +105,16 @@ const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
         process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
       );
 
-      if (!response.ok) {
-        toast.error("Erreur lors de la connexion avec Google");
-        return;
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || "Erreur lors de la connexion avec Google");
       }
-
-      const data = await response.json();
-      window.location.href = data.url;
     } catch (error: any) {
-      console.error(error);
-      toast.error("Une erreur s'est produite lors de la connexion");
+      console.error("Google login error:", error);
+      toast.error("Erreur de connexion, vérifiez votre connexion internet");
     }
   };
 
@@ -110,16 +129,16 @@ const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
         process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
       );
 
-      if (!response.ok) {
-        toast.error("Erreur lors de la connexion avec Linkedin");
-        return;
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || "Erreur lors de la connexion avec LinkedIn");
       }
-
-      const data = await response.json();
-      window.location.href = data.url;
     } catch (error: any) {
-      console.error(error);
-      toast.error("Une erreur s'est produite lors de la connexion");
+      console.error("LinkedIn login error:", error);
+      toast.error("Erreur de connexion, vérifiez votre connexion internet");
     }
   };
 

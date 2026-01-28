@@ -45,7 +45,8 @@ const FeaturedOffers: React.FC = () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`);
         if (response.ok) {
-          const data = await response.json();
+          const result = await response.json();
+          const data = result.data; // Extract the data array from the response
           
           // Get latest 6 offers for featured section
           const sortedOffers = data

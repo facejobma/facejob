@@ -2,43 +2,57 @@
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
+import { apiRequest, handleApiError } from "@/lib/apiUtils";
 
 type Props = {};
 
 export default function Subscription({}: Props) {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubscribe = async () => {
-    try {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        toast.error("Email invalide");
-        return;
-      }
+    if (!email.trim()) {
+      toast.error("Veuillez entrer votre adresse email");
+      return;
+    }
 
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/store-email",
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Veuillez entrer une adresse email valide");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await apiRequest(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/newsletter/subscribe`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ 
+            email: email,
+            source: 'homepage_subscription'
+          }),
         }
       );
 
-      if (response.ok) {
-        console.log("Email subscribed successfully!");
-        toast.success("Email subscribed successfully!");
+      if (result.success) {
         setEmail("");
+        
+        if (result.data.already_subscribed) {
+          toast.success("Vous êtes déjà abonné à notre newsletter !");
+        } else if (result.data.reactivated) {
+          toast.success("Votre abonnement a été réactivé avec succès !");
+        } else {
+          toast.success("Merci pour votre abonnement ! Vous recevrez bientôt nos actualités.");
+        }
       } else {
-        const responseData = await response.json();
-        console.error("Subscription failed:", responseData);
-        toast.error("Error during subscription");
+        handleApiError(result, toast);
       }
     } catch (error) {
-      toast.error("Error during subscription");
-      console.error("Error during subscription:", error);
+      console.error("Newsletter subscription error:", error);
+      toast.error("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -90,7 +104,8 @@ export default function Subscription({}: Props) {
                   name="q"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="p-5 pl-12 text-sm bg-white font-default rounded-lg w-full md:h-[55px] focus:outline-none"
+                  disabled={isLoading}
+                  className="p-5 pl-12 text-sm bg-white font-default rounded-lg w-full md:h-[55px] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="email@example.com"
                   autoComplete="off"
                   id="email"
@@ -100,9 +115,10 @@ export default function Subscription({}: Props) {
 
               <button
                 onClick={handleSubscribe}
-                className="bg-gradient-to-r inline-block from-primary to-primary font-default px-7 py-2 rounded-lg text-white text-lg"
+                disabled={isLoading}
+                className="bg-gradient-to-r inline-block from-primary to-primary font-default px-7 py-2 rounded-lg text-white text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                S&apos;inscrire
+                {isLoading ? "Abonnement..." : "S'inscrire"}
               </button>
             </div>
           </div>

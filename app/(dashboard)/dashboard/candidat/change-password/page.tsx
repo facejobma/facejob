@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Cookies from 'js-cookie';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { changeCandidatePassword } from '@/lib/api';
 
 const ChangePassword: React.FC = () => {
   const [oldPassword, setOldPassword] = useState('');
@@ -20,32 +21,16 @@ const ChangePassword: React.FC = () => {
     }
 
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/candidat/change-password',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            old_password: oldPassword,
-            new_password: newPassword,
-          }),
-        },
-      );
-
-      if (response.ok) {
-        toast.success('Password changed successfully');
-        setOldPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        router.push('/dashboard/candidat/profile');
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || 'Failed to change password');
-      }
+      await changeCandidatePassword(oldPassword, newPassword);
+      toast.success('Password changed successfully');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      router.push('/dashboard/candidat/profile');
     } catch (error) {
+      console.error('Change password error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to change password');
+    }
       toast.error('Error changing password');
       console.error('Error changing password:', error);
     }

@@ -6,6 +6,7 @@ import NavBar from '@/components/NavBar';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { verifyEmail } from '@/lib/api';
 
 const VerifyEmailContent: React.FC = () => {
   const searchParams = useSearchParams();
@@ -25,36 +26,20 @@ const VerifyEmailContent: React.FC = () => {
     }
 
     // Call the backend verification endpoint
-    const verifyEmail = async () => {
+    const verifyEmailAsync = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
-          setStatus('success');
-          setMessage(data.message || 'Email vérifié avec succès !');
-          setUserType(data.user_type || '');
-        } else {
-          setStatus('error');
-          setMessage(data.message || 'Erreur lors de la vérification de l\'email.');
-        }
+        const data = await verifyEmail(token, email);
+        setStatus('success');
+        setMessage(data.message || 'Email vérifié avec succès !');
+        setUserType(data.user_type || '');
       } catch (error) {
         console.error('Verification error:', error);
         setStatus('error');
-        setMessage('Erreur de connexion. Veuillez réessayer plus tard.');
+        setMessage(error instanceof Error ? error.message : 'Erreur lors de la vérification de l\'email.');
       }
     };
 
-    verifyEmail();
+    verifyEmailAsync();
   }, [searchParams]);
 
   const handleContinue = () => {

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
+import { resendVerification } from '@/lib/api';
 
 const ResendVerificationPage: React.FC = () => {
   const router = useRouter();
@@ -32,31 +33,12 @@ const ResendVerificationPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/resend-verification`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            user_type: userType,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setEmailSent(true);
-        toast.success('Email de vérification envoyé !');
-      } else {
-        toast.error(data.message || 'Erreur lors de l\'envoi de l\'email');
-      }
+      await resendVerification(email.trim(), userType);
+      setEmailSent(true);
+      toast.success('Email de vérification envoyé !');
     } catch (error) {
       console.error('Resend verification error:', error);
-      toast.error('Erreur de connexion. Veuillez réessayer plus tard.');
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de l\'envoi de l\'email');
     } finally {
       setIsLoading(false);
     }

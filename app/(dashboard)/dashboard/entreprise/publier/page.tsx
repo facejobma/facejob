@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import Cookies from "js-cookie";
 import { Send } from "lucide-react";
+import { fetchSectors, createOffer, fetchLastPayment } from "@/lib/api";
 
 interface Sector {
   id: number;
@@ -32,16 +33,13 @@ export default function PublierPage() {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   useEffect(() => {
-    fetchSectors();
+    fetchSectorsData();
     checkPaymentStatus();
   }, []);
 
-  const fetchSectors = async () => {
+  const fetchSectorsData = async () => {
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
-      );
-      const data = await response.json();
+      const data = await fetchSectors();
       setSectors(data);
     } catch (error) {
       console.error("Error fetching sectors:", error);
@@ -53,21 +51,10 @@ export default function PublierPage() {
     if (!companyId || !authToken) return;
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${companyId}/last`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        setIsUpgradeModalOpen(true);
-      }
+      await fetchLastPayment(companyId);
     } catch (error) {
       console.error("Error checking payment status:", error);
+      setIsUpgradeModalOpen(true);
     }
   };
 
@@ -83,39 +70,24 @@ export default function PublierPage() {
     setUploadStatus("uploading");
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offre/create`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...formData,
-            entreprise_id: companyId,
-          }),
-        }
-      );
+      await createOffer({
+        ...formData,
+        entreprise_id: companyId,
+      });
 
-      if (response.ok) {
-        toast.success("Offre publiée avec succès!");
-        setFormData({
-          titre: "",
-          description: "",
-          location: "",
-          contractType: "",
-          sector_id: "",
-          date_debut: "",
-          date_fin: "",
-        });
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Erreur lors de la publication");
-      }
+      toast.success("Offre publiée avec succès!");
+      setFormData({
+        titre: "",
+        description: "",
+        location: "",
+        contractType: "",
+        sector_id: "",
+        date_debut: "",
+        date_fin: "",
+      });
     } catch (error) {
       console.error("Error creating offer:", error);
-      toast.error("Erreur lors de la publication de l'offre");
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la publication de l'offre");
     } finally {
       setIsLoading(false);
       setUploadStatus("idle");

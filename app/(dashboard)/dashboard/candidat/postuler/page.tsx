@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { FaTrash, FaVideo, FaUpload, FaCheckCircle } from "react-icons/fa";
 import { HiOutlineVideoCamera, HiOutlineCloudUpload } from "react-icons/hi";
+import { fetchSectors, submitCandidateApplication } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { ButtonLoading, ProgressLoading } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
@@ -41,12 +42,9 @@ const PublishVideo: React.FC = () => {
   const user = userData ? JSON.parse(userData) : null;
 
   useEffect(() => {
-    const fetchSectors = async () => {
+    const fetchSectorsData = async () => {
       try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
-        );
-        const data = await response.json();
+        const data = await fetchSectors();
         setSectors(data);
       } catch (error) {
         console.error("Error fetching sectors:", error);
@@ -54,7 +52,7 @@ const PublishVideo: React.FC = () => {
       }
     };
 
-    fetchSectors();
+    fetchSectorsData();
   }, []);
 
   const filteredJobs =
@@ -71,34 +69,23 @@ const PublishVideo: React.FC = () => {
     setUploadStatus("uploading");
 
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/candidate/postuler",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            video_url: videoUrl,
-            nb_experiences: experiences,
-            job_id: selectedJob,
-            sector_id: selectedSector,
-            candidat_id: user.id,
-          }),
-        }
+      const data = await submitCandidateApplication({
+        video_url: videoUrl,
+        nb_experiences: experiences,
+        job_id: selectedJob,
+        sector_id: selectedSector,
+        candidat_id: user.id,
+      });
+
+      toast.success(
+        "Votre CV a bien été téléchargé. Dès que les administrateurs l'auront vérifié, il sera disponible sur votre Dashboard."
       );
 
-      if (response.ok) {
-        toast.success(
-          "Votre CV a bien été téléchargé. Dès que les administrateurs l'auront vérifié, il sera disponible sur votre Dashboard."
-        );
+      setUploadStatus("completed");
 
-        setUploadStatus("completed");
-
-        // Clear form after success
-        setVideoUrl(null);
-        setExperiences("");
+      // Clear form after success
+      setVideoUrl(null);
+      setExperiences("");
         setSelectedSector("");
         setSelectedJob("");
 

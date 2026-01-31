@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { confirmAvailability } from "@/lib/api";
 
 interface ConfirmationResult {
   success: boolean;
@@ -24,7 +25,7 @@ const AvailabilityConfirmContent: React.FC = () => {
 
   useEffect(() => {
     if (token && email) {
-      confirmAvailability();
+      confirmAvailabilityAsync();
     } else {
       setResult({
         success: false,
@@ -34,37 +35,20 @@ const AvailabilityConfirmContent: React.FC = () => {
     }
   }, [token, email]);
 
-  const confirmAvailability = async () => {
+  const confirmAvailabilityAsync = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/availability/confirm?token=${token}&email=${encodeURIComponent(email!)}&status=available`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setResult({
-          success: true,
-          message: data.message,
-          status: data.status,
-          confirmed_at: data.confirmed_at
-        });
-      } else {
-        setResult({
-          success: false,
-          message: data.message || "Erreur lors de la confirmation"
-        });
-      }
+      const data = await confirmAvailability(token!, email!, 'available');
+      setResult({
+        success: true,
+        message: data.message,
+        status: data.status,
+        confirmed_at: data.confirmed_at
+      });
     } catch (error) {
+      console.error('Confirmation error:', error);
       setResult({
         success: false,
-        message: "Erreur de connexion. Veuillez réessayer plus tard."
+        message: error instanceof Error ? error.message : "Erreur lors de la confirmation"
       });
     } finally {
       setLoading(false);

@@ -7,6 +7,7 @@ import OffreCard from "@/components/offreCard";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
 import { Search, Briefcase, Building, Grid3x3, X, Filter, MapPin, Calendar, TrendingUp, ChevronDown } from "lucide-react";
+import { fetchSectors, fetchEnterprises, fetchOffers } from "@/lib/api";
 
 const OffresPage: React.FC = () => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
@@ -83,18 +84,9 @@ const OffresPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const fetchSectors = async () => {
+  const fetchSectorsData = async () => {
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const data = await response.json();
+      const data = await fetchSectors();
       setSectors(data);
     } catch (error) {
       console.error("Error fetching sectors:", error);
@@ -102,19 +94,9 @@ const OffresPage: React.FC = () => {
     }
   };
 
-  const fetchEntreprises = async () => {
+  const fetchEntreprisesData = async () => {
     try {
-      const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/${apiVersion}/entreprises`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const data = await response.json();
+      const data = await fetchEnterprises();
       setEntreprises(data);
     } catch (error) {
       console.error("Error fetching entreprises:", error);
@@ -123,23 +105,9 @@ const OffresPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchOffres = async () => {
+    const fetchOffresData = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch offers");
-        }
-
-        const result = await response.json();
+        const result = await fetchOffers();
         const data = result.data || result; // Handle both old and new API response formats
         setOffres(Array.isArray(data) ? data : []);
         setLoading(false);
@@ -149,9 +117,9 @@ const OffresPage: React.FC = () => {
       }
     };
 
-    fetchOffres();
-    fetchSectors();
-    fetchEntreprises();
+    fetchOffresData();
+    fetchSectorsData();
+    fetchEntreprisesData();
   }, [authToken]);
 
   const filteredOffers = useMemo(() => {

@@ -120,6 +120,99 @@ export async function publicApiCall(endpoint: string, options: ApiOptions = {}) 
 }
 
 // =============================================================================
+// AUTHENTICATION API ENDPOINTS
+// =============================================================================
+
+export async function verifyEmail(token: string, email: string) {
+  const response = await publicApiCall(`/auth/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`, {
+    method: 'POST'
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to verify email: ${response.status}`);
+}
+
+export async function resendVerification(email: string, userType: 'candidat' | 'entreprise') {
+  const response = await publicApiCall('/auth/resend-verification', {
+    method: 'POST',
+    body: JSON.stringify({
+      email: email.trim(),
+      user_type: userType,
+    })
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to resend verification: ${response.status}`);
+}
+
+export async function resetPassword(token: string, password: string, passwordConfirmation: string, actor: string) {
+  const response = await publicApiCall('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      token,
+      password,
+      password_confirmation: passwordConfirmation,
+      actor,
+    })
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to reset password: ${response.status}`);
+}
+
+export async function confirmAvailability(token: string, email: string, status: string = 'available') {
+  const response = await publicApiCall(`/availability/confirm?token=${token}&email=${encodeURIComponent(email)}&status=${status}`, {
+    method: 'GET'
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to confirm availability: ${response.status}`);
+}
+
+export async function changeCandidatePassword(oldPassword: string, newPassword: string) {
+  const response = await authenticatedApiCall('/candidat/change-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      old_password: oldPassword,
+      new_password: newPassword,
+    })
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to change candidate password: ${response.status}`);
+}
+
+export async function changeEntreprisePassword(oldPassword: string, newPassword: string) {
+  const response = await authenticatedApiCall('/entreprise/change-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      old_password: oldPassword,
+      new_password: newPassword,
+    })
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to change entreprise password: ${response.status}`);
+}
+
+export async function submitCandidateApplication(data: any) {
+  const response = await authenticatedApiCall('/candidate/postuler', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to submit candidate application: ${response.status}`);
+}
+
+export async function fetchCandidateApplicationHistory() {
+  const response = await authenticatedApiCall('/candidate/application-history');
+  if (response.ok) return response.json();
+  throw new Error(`Failed to fetch candidate application history: ${response.status}`);
+}
+
+export async function deleteCandidateVideo(id: string) {
+  const response = await authenticatedApiCall(`/candidate-video/delete/${id}`, {
+    method: 'DELETE'
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to delete candidate video: ${response.status}`);
+}
+
+// =============================================================================
 // PUBLIC API ENDPOINTS (No authentication required)
 // =============================================================================
 

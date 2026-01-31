@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useParams, useRouter } from "next/navigation";
-
 import NavBar from "@/components/NavBar";
+import { resetPassword } from "@/lib/api";
 
 const ResetPasswordForm = () => {
   const [password, setPassword] = useState("");
@@ -38,33 +38,12 @@ const ResetPasswordForm = () => {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/reset-password`,
-        {
-          // mode: "no-cors",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token,
-            password,
-            password_confirmation: passwordConfirm,
-            actor,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        return toast.error(data.message || "Password reset failed");
-      }
-
+      await resetPassword(token, password, passwordConfirm, actor);
       toast.success("Password reset successfully!");
       router.push("/");
     } catch (error) {
-      toast.error("Failed to reset password. Please try again later.");
       console.error(error);
+      toast.error(error instanceof Error ? error.message : "Failed to reset password. Please try again later.");
     }
   };
 

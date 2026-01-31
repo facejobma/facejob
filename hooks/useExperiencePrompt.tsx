@@ -46,6 +46,7 @@ export function useExperiencePrompt(candidatId: number | null): UseExperiencePro
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
           },
         }
       );

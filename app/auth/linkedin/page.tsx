@@ -55,7 +55,10 @@ function LinkedinCallback() {
 
         // Redirect to appropriate dashboard based on user type
         setTimeout(() => {
-          redirectToDashboard(userType);
+          // Convert userType string to UserRole
+          const role = userType === 'candidate' ? 'candidat' : 
+                      userType === 'entreprise' ? 'entreprise' : 'candidat';
+          redirectToDashboard(role);
         }, 1000); // Small delay to show success message
 
       } catch (error: any) {

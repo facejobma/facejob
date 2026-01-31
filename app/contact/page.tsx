@@ -108,7 +108,7 @@ const ContactPage: React.FC = () => {
         if (result.error === 'validation' && result.details) {
           const backendErrors: ValidationErrors = {};
           Object.keys(result.details).forEach(field => {
-            if (result.details[field] && result.details[field].length > 0) {
+            if (result.details?.[field] && result.details[field].length > 0) {
               backendErrors[field as keyof FormData] = result.details[field][0];
             }
           });

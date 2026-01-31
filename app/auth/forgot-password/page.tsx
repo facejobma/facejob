@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const ForgotPasswordRedirect = () => {
+const ForgotPasswordRedirectContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -22,6 +22,21 @@ const ForgotPasswordRedirect = () => {
         <p className="text-gray-600">Redirection en cours...</p>
       </div>
     </div>
+  );
+};
+
+const ForgotPasswordRedirect = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    }>
+      <ForgotPasswordRedirectContent />
+    </Suspense>
   );
 };
 

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-const VerifyEmailPage: React.FC = () => {
+const VerifyEmailContent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -152,6 +152,25 @@ const VerifyEmailPage: React.FC = () => {
           </Card>
         </div>
       </div>
+    </div>
+  );
+};
+
+const VerifyEmailPage: React.FC = () => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <NavBar />
+      
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Vérification en cours...</p>
+          </div>
+        </div>
+      }>
+        <VerifyEmailContent />
+      </Suspense>
     </div>
   );
 };

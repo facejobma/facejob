@@ -58,7 +58,7 @@ export default function ContactAccessButton({
       toast.success('Accès aux coordonnées accordé');
       
       // Update access status
-      setAccessStatus(prev => ({
+      setAccessStatus((prev: any) => ({
         ...prev,
         remaining_access: result.remaining_access
       }));

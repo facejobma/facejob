@@ -35,7 +35,7 @@ const ValidationErrorDemo = () => {
     // Process errors the same way as in the signup forms
     const mappedErrors: Record<string, string> = {};
     Object.keys(mockBackendResponse.errors).forEach(field => {
-      const errorMessages = mockBackendResponse.errors[field];
+      const errorMessages = (mockBackendResponse.errors as any)[field];
       mappedErrors[field] = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages;
     });
     
@@ -43,7 +43,7 @@ const ValidationErrorDemo = () => {
     
     // Show first error as toast
     const firstErrorField = Object.keys(mockBackendResponse.errors)[0];
-    const firstErrorMessage = mockBackendResponse.errors[firstErrorField][0];
+    const firstErrorMessage = (mockBackendResponse.errors as any)[firstErrorField][0];
     toast.error(firstErrorMessage);
   };
 

@@ -5,7 +5,6 @@ import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
 import { UploadDropzone } from "@/lib/uploadthing";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { FaTrash } from "react-icons/fa";
 import toast from "react-hot-toast";
 
@@ -374,7 +373,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
                             {isUploading ? "Upload en cours..." : "Glissez et déposez le logo de votre entreprise"}
                         </p>
                         {!isUploading ? (
-                <UploadDropzone<OurFileRouter, "imageUpload">
+                <UploadDropzone
                                                 endpoint="imageUpload"
                                                 input={{
                                                     profileUpdate: false,

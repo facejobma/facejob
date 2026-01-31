@@ -1,7 +1,6 @@
 "use client";
 
 import { UploadDropzone } from "@/lib/uploadthing";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 export default function TestUploadPage() {
   return (
@@ -10,7 +9,7 @@ export default function TestUploadPage() {
       
       <div className="max-w-md mx-auto">
         <h2 className="text-lg font-semibold mb-4">Image Upload Test</h2>
-        <UploadDropzone<OurFileRouter, "imageUpload">
+        <UploadDropzone
           endpoint="imageUpload"
           input={{
             profileUpdate: true,

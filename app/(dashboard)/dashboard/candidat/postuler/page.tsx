@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import "@uploadthing/react/styles.css";
-import { UploadDropzone } from "@uploadthing/react";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import { UploadDropzone } from "@/lib/uploadthing";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { FaTrash, FaVideo, FaUpload, FaCheckCircle } from "react-icons/fa";
@@ -214,7 +213,7 @@ const PublishVideo: React.FC = () => {
                 </div>
               ) : (
                 <div className="border-2 border-dashed border-gray-300 rounded-xl hover:border-primary transition-colors">
-                  <UploadDropzone<OurFileRouter, "videoUpload">
+                  <UploadDropzone
                     endpoint="videoUpload"
                     input={{
                       candidateId: undefined,

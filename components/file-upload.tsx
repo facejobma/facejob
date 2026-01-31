@@ -1,6 +1,5 @@
 "use client";
 import { UploadDropzone } from "@/lib/uploadthing";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import {Trash} from "lucide-react";
 import Image from "next/image";
 import {IMG_MAX_LIMIT} from "./forms/product-form";
@@ -68,7 +67,7 @@ export default function FileUpload({
             </div>
             <div>
                 {value.length < IMG_MAX_LIMIT && (
-                    <UploadDropzone<OurFileRouter, "videoUpload">
+                    <UploadDropzone
                         className="dark:bg-zinc-800 py-2 ut-label:text-sm ut-allowed-content:ut-uploading:text-red-300"
                         endpoint="videoUpload"
                         input={{

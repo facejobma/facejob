@@ -7,7 +7,6 @@ import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { UploadDropzone } from "@/lib/uploadthing";
 import "@uploadthing/react/styles.css";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 interface ProfileHeaderProps {
   id: number;
@@ -375,7 +374,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </button>
                 </div>
               ) : (
-                <UploadDropzone<OurFileRouter, "videoUpload">
+                <UploadDropzone
                   endpoint="videoUpload"
                   input={{
                     candidateId: undefined,

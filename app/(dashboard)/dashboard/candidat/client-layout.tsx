@@ -95,6 +95,3 @@ export default function CandidatClientLayout({
     </ExperiencePromptProvider>
   );
 }
-
-// Export as dynamic to avoid SSR issues with sessionStorage
-export const DynamicCandidatClientLayout = dynamic(() => Promise.resolve(CandidatClientLayout), { ssr: false });

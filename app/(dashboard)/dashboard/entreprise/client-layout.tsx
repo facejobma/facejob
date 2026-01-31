@@ -48,6 +48,3 @@ function DashboardLayoutContent({ children, params }: LayoutProps) {
 export default function EntrepriseClientLayout({ children, params }: LayoutProps) {
   return <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>;
 }
-
-// Export as dynamic to avoid SSR issues with sessionStorage
-export const DynamicEntrepriseClientLayout = dynamic(() => Promise.resolve(EntrepriseClientLayout), { ssr: false });

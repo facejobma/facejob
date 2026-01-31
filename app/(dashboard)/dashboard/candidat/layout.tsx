@@ -1,5 +1,15 @@
 import ServerAuthGuard from "@/components/auth/ServerAuthGuard";
-import CandidatClientLayout from "./client-layout";
+import dynamic from "next/dynamic";
+
+// Dynamic import for client layout to avoid SSR issues
+const CandidatClientLayout = dynamic(() => import("./client-layout"), { 
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  )
+});
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,5 +25,3 @@ export default function CandidatLayout({ children, params }: LayoutProps) {
     </ServerAuthGuard>
   );
 }
-
-export default dynamic(() => Promise.resolve(DashboardLayout), { ssr: false });

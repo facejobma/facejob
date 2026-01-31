@@ -12,13 +12,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     });
     if (response.ok) {
-      const offers = await response.json();
-      offerRoutes = offers.slice(0, 100).map((offer: any) => ({
-        url: `${baseUrl}/offres/${offer.id}`,
-        lastModified: new Date(offer.created_at || new Date()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }));
+      const data = await response.json();
+      // Handle both direct array and wrapped response formats
+      const offers = Array.isArray(data) ? data : (data.data || data.offers || []);
+      if (Array.isArray(offers)) {
+        offerRoutes = offers.slice(0, 100).map((offer: any) => ({
+          url: `${baseUrl}/offres/${offer.id}`,
+          lastModified: new Date(offer.created_at || new Date()),
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        }));
+      }
     }
   } catch (error) {
     console.error('Error fetching offers for sitemap:', error);

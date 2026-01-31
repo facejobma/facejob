@@ -1,9 +1,8 @@
 import ServerAuthGuard from "@/components/auth/ServerAuthGuard";
 import dynamic from "next/dynamic";
 
-// Dynamic import for client layout to avoid SSR issues
-const CandidatClientLayout = dynamic(() => import("./client-layout"), { 
-  ssr: false,
+// Dynamic import for client layout
+const CandidatClientLayout = dynamic(() => import("./client-layout"), {
   loading: () => (
     <div className="min-h-screen flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>

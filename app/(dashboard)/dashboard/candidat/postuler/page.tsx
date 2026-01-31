@@ -86,15 +86,11 @@ const PublishVideo: React.FC = () => {
       // Clear form after success
       setVideoUrl(null);
       setExperiences("");
-        setSelectedSector("");
-        setSelectedJob("");
+      setSelectedSector("");
+      setSelectedJob("");
 
-        // Redirect to dashboard
-        router.push("/dashboard/candidat");
-      } else {
-        toast.error("Failed to publish video!");
-        setUploadStatus("failed");
-      }
+      // Redirect to dashboard
+      router.push("/dashboard/candidat");
     } catch (error) {
       console.error("Error publishing video:", error);
       toast.error("An error occurred while publishing the video!");

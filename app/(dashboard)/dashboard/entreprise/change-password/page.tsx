@@ -31,9 +31,6 @@ const ChangePassword: React.FC = () => {
       console.error('Change password error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to change password');
     }
-      toast.error('Error changing password');
-      console.error('Error changing password:', error);
-    }
   };
 
   return (

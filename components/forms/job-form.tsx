@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { FiUser } from "react-icons/fi";
 import { OfferCandidatActions } from "../OfferCandidatActions";
+import { apiRequest, handleApiError } from "@/lib/apiUtils";
 
 interface Job {
   id: number;
@@ -116,15 +117,16 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
   useEffect(() => {
     const fetchSectors = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`,
+        const result = await apiRequest(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`
         );
-        if (!response.ok) {
-          throw new Error("Failed to fetch sectors");
+        
+        if (result.success) {
+          console.log("sectors data : ", result.data);
+          setSectors(result.data);
+        } else {
+          console.error("Error fetching sectors:", result.error);
         }
-        const data = await response.json();
-        console.log("sectors data : ", data);
-        setSectors(data);
       } catch (error) {
         console.error("Error fetching sectors:", error);
       }

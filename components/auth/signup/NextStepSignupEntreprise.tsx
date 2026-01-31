@@ -6,6 +6,8 @@ import {FaGlobe, FaLinkedin} from "react-icons/fa";
 import Image from "next/image";
 import { UploadDropzone } from "@uploadthing/react";
 import { OurFileRouter } from "@/app/api/uploadthing/core";
+import { apiRequest, handleApiError } from "@/lib/apiUtils";
+import { Building2, MapPin, Users, Globe, Linkedin, Camera, Upload, X } from "lucide-react";
 
 interface SecteurOptions {
     id: number;
@@ -28,6 +30,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     const [logoUrl, setLogoUrl] = useState<string>("");
     const [isUploading, setIsUploading] = useState(false);
     const [secteurOptions, setSecteurOptions] = useState<SecteurOptions[]>([]);
+    const [showUploadZone, setShowUploadZone] = useState(false);
     const maxLength = 250;
 
     const router = useRouter();
@@ -44,23 +47,22 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     useEffect(() => {
         const fetchSectors = async () => {
             try {
-                const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors", {
-                    headers: {
-                        'ngrok-skip-browser-warning': 'true'
-                    }
-                });
-                const result = await response.json();
+                const result = await apiRequest(
+                    process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
+                );
                 
-                // Check if the response has the expected structure
                 if (result.success && Array.isArray(result.data)) {
                     setSecteurOptions(result.data);
                 } else {
-                    // Fallback: if data is directly an array
-                    setSecteurOptions(Array.isArray(result) ? result : []);
+                    console.error("Error fetching sectors:", result.error);
+                    setSecteurOptions([]);
+                    if (result.error) {
+                        toast.error(result.error);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching sectors:", error);
-                setSecteurOptions([]); // Set empty array on error
+                setSecteurOptions([]);
                 toast.error("Erreur de récupération des secteurs!");
             }
         };
@@ -104,23 +106,20 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 linkedin,
             };
 
-            const response = await fetch(
+            const result = await apiRequest(
                 process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-enterprise",
                 {
                     method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                     body: JSON.stringify(formData),
                 }
             );
 
-            if (response.ok) {
+            if (result.success) {
                 toast.success("Votre compte s'est terminé avec succès!");
                 router.push("/auth/login-enterprise");
                 sessionStorage.clear();
             } else {
-                toast.error("Erreur lors de la soumission du formulaire!");
+                handleApiError(result, toast);
             }
         } catch (error) {
             console.error("Error updating user:", error);
@@ -141,9 +140,11 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
         
         if (res && res[0] && res[0].url) {
             setLogoUrl(res[0].url);
+            setShowUploadZone(false);
             toast.success("Logo uploadé avec succès!");
         } else if (res && res[0] && res[0].fileUrl) {
             setLogoUrl(res[0].fileUrl);
+            setShowUploadZone(false);
             toast.success("Logo uploadé avec succès!");
         } else {
             toast.error("Erreur: URL du logo non trouvée");
@@ -158,173 +159,254 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     };
 
     // Fonction pour supprimer le logo et permettre un nouvel upload
-    const handleRemoveLogo = () => {
+    const handleChangeLogo = () => {
         setLogoUrl("");
-        setIsUploading(false);
+        setShowUploadZone(true);
     };
 
     return (
-        <div className="flex flex-col items-center font-default rounded-lg border border-newColor p-4">
-            <h2 className="text-3xl font-semibold text-second my-2 py-4 mb-4">
-                Informations complémentaires (optionnel)
-            </h2>
-
-            <div className="w-96 mb-4">
-                <textarea
-                    placeholder="Décrire votre entreprise (secteur, environnement)..."
-                    value={bio}
-                    onChange={handleBioChange}
-                    maxLength={maxLength}
-                    className="px-4 py-2 rounded border border-gray w-full h-32 text-secondary resize-none"
-                />
-                <p className="text-gray-500 text-sm mt-1 text-end">
-                    {remainingCharacters} caractère{remainingCharacters !== 1 ? "s" : ""}{" "}
-                    restant{remainingCharacters !== 1 ? "s" : ""}
+        <div className="w-full max-w-2xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                    <Building2 className="w-8 h-8 text-primary" />
+                </div>
+                <h1 className="text-2xl font-bold text-secondary mb-2">
+                    Complétez votre profil entreprise
+                </h1>
+                <p className="text-third">
+                    Ajoutez les détails de votre entreprise pour attirer les meilleurs talents
                 </p>
             </div>
 
-            <div className="w-96 mb-4">
-                <select
-                required
-                    value={secteur}
-                    onChange={(e) => setSecteur(e.target.value)}
-                    className="px-4 py-2 text-secondary rounded border border-gray w-full appearance-none bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                >
-                    <option value="" disabled>
-                        Sélectionnez Secteur.
-                    </option>
-                    {Array.isArray(secteurOptions) && secteurOptions.map((option, index) => (
-                        <option key={index} value={option.id}>
-                            {option.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="w-96 mb-4">
-                {logoUrl ? (
-                    <div className="mb-4 flex justify-center items-center flex-col">
-                        <p className="text-primary mb-2">Logo uploadé:</p>
-                        <Image
-                            src={logoUrl}
-                            alt="Company Logo"
-                            className="rounded-lg max-w-full h-auto"
-                            width={100}
-                            height={100}
-                        />
-                        <button
-                            onClick={handleRemoveLogo}
-                            className="mt-2 text-red-500 text-sm underline hover:text-red-700"
-                            disabled={isUploading}
-                        >
-                            Changer le logo
-                        </button>
-                    </div>
-                ) : (
-                    <div className="border border-gray p-4 rounded">
-                        <p className="text-secondary mb-4 text-center">
-                            {isUploading ? "Upload en cours..." : "Glissez et déposez le logo de votre entreprise"}
-                        </p>
-                        {!isUploading ? (
-                            <UploadDropzone<OurFileRouter, "imageUpload">
-                                endpoint="imageUpload"
-                                input={{
-                                    profileUpdate: false,
-                                    companyLogo: true
-                                }}
-                                onClientUploadComplete={handleUploadComplete}
-                                onUploadError={handleUploadError}
-                                onUploadBegin={handleUploadBegin}
-                                className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer transition-colors border-gray-300 hover:border-primary"
-                                appearance={{
-                                    button: "bg-primary hover:bg-primary-dark",
-                                    allowedContent: "text-gray-600",
-                                }}
-                            />
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-                                <p className="text-primary text-sm">Upload en cours...</p>
-                                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div className="bg-primary h-2 rounded-full animate-pulse w-3/4"></div>
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                {/* Company Logo Section */}
+                <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-8 text-center">
+                    <div className="relative inline-block">
+                        {logoUrl ? (
+                            <div className="relative">
+                                <div className="w-32 h-32 rounded-xl overflow-hidden border-4 border-white shadow-lg bg-white p-2">
+                                    <Image
+                                        src={logoUrl}
+                                        alt="Logo de l'entreprise"
+                                        width={120}
+                                        height={120}
+                                        className="w-full h-full object-contain"
+                                    />
                                 </div>
+                                <button
+                                    onClick={handleChangeLogo}
+                                    disabled={isUploading}
+                                    className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                                >
+                                    <Camera className="w-5 h-5 text-gray-600" />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="w-32 h-32 rounded-xl bg-white/20 border-4 border-white/30 flex items-center justify-center">
+                                <Building2 className="w-16 h-16 text-white/60" />
                             </div>
                         )}
                     </div>
+                    <h2 className="text-xl font-semibold text-white mt-4">
+                        Logo de l'entreprise
+                    </h2>
+                    <p className="text-white/80 text-sm">
+                        Ajoutez le logo de votre entreprise
+                    </p>
+                </div>
+
+                {/* Upload Zone */}
+                {(!logoUrl || showUploadZone) && (
+                    <div className="p-6 border-b border-gray-100">
+                        <div className="bg-gray-50 rounded-lg p-6">
+                            {isUploading ? (
+                                <div className="text-center py-8">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                                    <p className="text-green-600 font-medium">Upload du logo en cours...</p>
+                                    <div className="w-full bg-gray-200 rounded-full h-2 mt-4 max-w-xs mx-auto">
+                                        <div className="bg-green-600 h-2 rounded-full animate-pulse w-3/4"></div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <UploadDropzone<OurFileRouter, "imageUpload">
+                                    endpoint="imageUpload"
+                                    input={{
+                                        profileUpdate: false,
+                                        companyLogo: true
+                                    }}
+                                    onClientUploadComplete={handleUploadComplete}
+                                    onUploadError={handleUploadError}
+                                    onUploadBegin={handleUploadBegin}
+                                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-600 transition-colors"
+                                    appearance={{
+                                        button: "bg-green-600 hover:bg-green-700 text-white",
+                                        allowedContent: "text-gray-600",
+                                        label: "text-green-600 font-medium"
+                                    }}
+                                />
+                            )}
+                            {showUploadZone && logoUrl && (
+                                <button
+                                    onClick={() => setShowUploadZone(false)}
+                                    className="mt-4 flex items-center justify-center w-full py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                    <X className="w-4 h-4 mr-2" />
+                                    Annuler
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 )}
-            </div>
 
-            <div className="w-96 mb-4">
-                <input
-                    type="text"
-                    placeholder="Adresse"
-                    value={adresse}
-                    onChange={(e) => setAdresse(e.target.value)}
-                    className="px-4 py-2 rounded border border-gray w-full text-secondary"
-                />
-            </div>
+                {/* Form Fields */}
+                <div className="p-6 space-y-6">
+                    {/* Company Description */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <Building2 className="w-4 h-4 inline mr-2" />
+                            Description de l'entreprise *
+                        </label>
+                        <textarea
+                            placeholder="Décrivez votre entreprise, son secteur d'activité, sa culture et ses valeurs..."
+                            value={bio}
+                            onChange={handleBioChange}
+                            maxLength={maxLength}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors resize-none"
+                            rows={4}
+                        />
+                        <p className="text-gray-500 text-sm mt-2 text-right">
+                            {remainingCharacters} caractère{remainingCharacters !== 1 ? "s" : ""} restant{remainingCharacters !== 1 ? "s" : ""}
+                        </p>
+                    </div>
 
-            <div className="w-96 mb-4">
-                <input
-                    type="number"
-                    placeholder="Nombre d'employés"
-                    value={effectif}
-                    onChange={(e) => setEffectif(e.target.value)}
-                    className="px-4 py-2 rounded border border-gray w-full text-secondary"
-                />
-            </div>
+                    {/* Sector Selection */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <MapPin className="w-4 h-4 inline mr-2" />
+                            Secteur d'activité *
+                        </label>
+                        <select
+                            required
+                            value={secteur}
+                            onChange={(e) => setSecteur(e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors appearance-none bg-white"
+                        >
+                            <option value="" disabled>
+                                Sélectionnez le secteur de votre entreprise
+                            </option>
+                            {Array.isArray(secteurOptions) && secteurOptions.map((option, index) => (
+                                <option key={index} value={option.id}>
+                                    {option.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
 
-            <div className="w-96 mb-4 flex items-center border border-gray rounded px-4 py-2">
-                <FaGlobe className="mr-2 text-gray-500"/>
-                <input
-                    type="text"
-                    placeholder="URL du site Web"
-                    value={siteWeb}
-                    onChange={(e) => setSitWeb(e.target.value)}
-                    className="flex-grow outline-none text-secondary"
-                />
-            </div>
+                    {/* Company Details Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <MapPin className="w-4 h-4 inline mr-2" />
+                                Adresse
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Adresse de votre entreprise"
+                                value={adresse}
+                                onChange={(e) => setAdresse(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                            />
+                        </div>
 
-            <div className="w-96 mb-4 flex items-center border border-gray rounded px-4 py-2">
-                <FaLinkedin className="mr-2 text-gray-500"/>
-                <input
-                    type="text"
-                    placeholder="URL du profil LinkedIn"
-                    value={linkedin}
-                    onChange={(e) => setLinkedin(e.target.value)}
-                    className="flex-grow outline-none text-secondary"
-                />
-            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Users className="w-4 h-4 inline mr-2" />
+                                Nombre d'employés
+                            </label>
+                            <input
+                                type="number"
+                                placeholder="Effectif de l'entreprise"
+                                value={effectif}
+                                onChange={(e) => setEffectif(e.target.value)}
+                                min="1"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                            />
+                        </div>
+                    </div>
 
-            <div className="w-96 mb-1 flex rounded px-4 py-2">
-                <button
-                    onClick={() => {
-                        onSkip();
-                        sessionStorage.clear();
-                        router.push("/auth/login-enterprise");
-                    }}
-                    disabled={isUploading}
-                    className={`py-2 px-10 rounded-full font-medium text-base text-white w-full ${
-                        isUploading 
-                            ? 'bg-gray-300 cursor-not-allowed' 
-                            : 'bg-gray-400 hover:bg-gray-500'
-                    }`}
-                >
-                    Ignorer
-                </button>
-            </div>
-            <div className="w-96 flex rounded px-4 py-2">
-                <button
-                    onClick={handleSubmit}
-                    disabled={isUploading}
-                    className={`py-2 px-10 rounded-full font-medium text-base text-white w-full transition-colors ${
-                        isUploading 
-                            ? 'bg-gray-300 cursor-not-allowed' 
-                            : 'bg-primary hover:bg-primary-dark'
-                    }`}
-                >
-                    {isUploading ? 'Upload en cours...' : 'Soumettre'}
-                </button>
+                    {/* Social Links */}
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Globe className="w-4 h-4 inline mr-2" />
+                                Site web
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <FaGlobe className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    type="url"
+                                    placeholder="https://www.votre-entreprise.com"
+                                    value={siteWeb}
+                                    onChange={(e) => setSitWeb(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <Linkedin className="w-4 h-4 inline mr-2" />
+                                LinkedIn
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <FaLinkedin className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    type="url"
+                                    placeholder="https://linkedin.com/company/votre-entreprise"
+                                    value={linkedin}
+                                    onChange={(e) => setLinkedin(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                            onClick={() => {
+                                onSkip();
+                                sessionStorage.clear();
+                                router.push("/auth/login-enterprise");
+                            }}
+                            disabled={isUploading}
+                            className="flex-1 py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Ignorer pour le moment
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                            disabled={isUploading}
+                            className="flex-1 py-3 px-6 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {isUploading ? (
+                                <div className="flex items-center justify-center">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    Traitement...
+                                </div>
+                            ) : (
+                                "Terminer mon profil"
+                            )}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

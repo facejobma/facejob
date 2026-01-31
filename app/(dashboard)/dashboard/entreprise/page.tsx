@@ -65,6 +65,7 @@ const Dashboard: React.FC = () => {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
           },
         });
         const result: Stats = await response.json();

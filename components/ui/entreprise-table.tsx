@@ -52,7 +52,11 @@ export function EntrepriseDataTable<TData, TValue>({
   useEffect(() => {
     setLoading(true);
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`)
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
         setSecteurOptions(data);

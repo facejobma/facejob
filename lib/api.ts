@@ -32,6 +32,7 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
   const headers: Record<string, string> = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
     ...(fetchOptions.headers as Record<string, string>),
   };
   

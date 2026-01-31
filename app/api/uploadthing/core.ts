@@ -21,6 +21,7 @@ async function authenticateUser(req: Request) {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/user`, {
       headers: {
         'Authorization': `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true',
         'Content-Type': 'application/json'
       }
     });

@@ -44,7 +44,11 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     useEffect(() => {
         const fetchSectors = async () => {
             try {
-                const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors");
+                const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors", {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true'
+                    }
+                });
                 const result = await response.json();
                 
                 // Check if the response has the expected structure

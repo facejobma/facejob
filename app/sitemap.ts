@@ -6,7 +6,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch offers to generate dynamic routes
   let offerRoutes: MetadataRoute.Sitemap = [];
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/v1/offres`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/v1/offres`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
+      }
+    });
     if (response.ok) {
       const offers = await response.json();
       offerRoutes = offers.slice(0, 100).map((offer: any) => ({

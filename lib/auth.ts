@@ -23,6 +23,7 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
       },
     });
 
@@ -167,6 +168,7 @@ export async function secureLogin(email: string, password: string, expectedRole:
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
       },
       body: JSON.stringify({
         email,
@@ -257,6 +259,7 @@ export function performLogout(userRole?: string | null) {
       headers: {
         Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
       },
     });
   }

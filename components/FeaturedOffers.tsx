@@ -43,7 +43,11 @@ const FeaturedOffers: React.FC = () => {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`, {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        });
         if (response.ok) {
           const result = await response.json();
           const data = result.data; // Extract the data array from the response

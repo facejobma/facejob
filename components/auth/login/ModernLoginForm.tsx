@@ -98,7 +98,11 @@ const ModernLoginForm = ({ loginFor }: ModernLoginFormProps) => {
         ? "/api/v1/auth/candidate/google" 
         : "/api/v1/auth/entreprise/google";
         
-      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint);
+      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -119,7 +123,11 @@ const ModernLoginForm = ({ loginFor }: ModernLoginFormProps) => {
         ? "/api/v1/auth/candidate/linkedin" 
         : "/api/v1/auth/entreprise/linkedin";
         
-      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint);
+      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
 
       if (response.ok) {
         const data = await response.json();

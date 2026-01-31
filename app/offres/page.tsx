@@ -85,7 +85,11 @@ const PublicOffersPage: React.FC = () => {
         setLoading(true);
         
         // Fetch offers without authentication for public access
-        const offersRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?page=1&per_page=1000`);
+        const offersRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?page=1&per_page=1000`, {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        });
         
         if (offersRes.ok) {
           const response = await offersRes.json();
@@ -128,7 +132,11 @@ const PublicOffersPage: React.FC = () => {
 
           // Try to fetch sectors
           try {
-            const sectorsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`);
+            const sectorsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`, {
+              headers: {
+                'ngrok-skip-browser-warning': 'true'
+              }
+            });
             if (sectorsRes.ok) {
               const sectorsResponse = await sectorsRes.json();
               const sectorsData = sectorsResponse.data || sectorsResponse;

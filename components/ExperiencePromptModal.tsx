@@ -96,6 +96,7 @@ export default function ExperiencePromptModal({
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
+            "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify({
             candidat_id: candidatId,

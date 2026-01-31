@@ -82,7 +82,7 @@ const ModernForgetPassword: FC<ModernForgetPasswordProps> = ({ actor }) => {
       {/* Back Button */}
       <div className="mb-6">
         <Link
-          href={`/auth/login-${actor}`}
+          href={`/auth/login-${actor === 'candidat' ? 'candidate' : 'enterprise'}`}
           className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -190,7 +190,7 @@ const ModernForgetPassword: FC<ModernForgetPasswordProps> = ({ actor }) => {
         <p className="text-sm text-third">
           Vous vous souvenez de votre mot de passe ?{" "}
           <Link
-            href={`/auth/login-${actor}`}
+            href={`/auth/login-${actor === 'candidat' ? 'candidate' : 'enterprise'}`}
             className={`font-medium ${themeClasses.linkColor} hover:underline`}
           >
             Se connecter

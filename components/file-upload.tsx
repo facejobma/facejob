@@ -1,6 +1,6 @@
 "use client";
-import {OurFileRouter} from "@/app/api/uploadthing/core";
-import {UploadDropzone} from "@uploadthing/react";
+import { UploadDropzone } from "@/lib/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import {Trash} from "lucide-react";
 import Image from "next/image";
 import {IMG_MAX_LIMIT} from "./forms/product-form";

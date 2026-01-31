@@ -4,8 +4,8 @@ import {useRouter} from "next/navigation";
 import {toast} from "react-hot-toast";
 import {FaGlobe, FaLinkedin} from "react-icons/fa";
 import Image from "next/image";
-import { UploadDropzone } from "@uploadthing/react";
-import { OurFileRouter } from "@/app/api/uploadthing/core";
+import { UploadDropzone } from "@/lib/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { apiRequest, handleApiError } from "@/lib/apiUtils";
 import { Building2, MapPin, Users, Globe, Linkedin, Camera, Upload, X } from "lucide-react";
 

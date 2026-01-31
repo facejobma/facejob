@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
-import { UploadDropzone } from "@uploadthing/react";
-import { OurFileRouter } from "@/app/api/uploadthing/core";
+import { UploadDropzone } from "@/lib/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { FaTrash } from "react-icons/fa";
 import toast from "react-hot-toast";
 

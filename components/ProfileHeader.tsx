@@ -5,9 +5,9 @@ import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
 import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser } from "react-icons/fa";
 import toast from "react-hot-toast";
-import { UploadDropzone } from "@uploadthing/react";
+import { UploadDropzone } from "@/lib/uploadthing";
 import "@uploadthing/react/styles.css";
-import { OurFileRouter } from "@/app/api/uploadthing/core";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 interface ProfileHeaderProps {
   id: number;

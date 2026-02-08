@@ -327,8 +327,8 @@ export async function fetchPostuleAll() {
   throw new Error(`Failed to fetch postule all: ${response.status}`);
 }
 
-export async function fetchEntrepriseStats(id: string) {
-  const response = await authenticatedApiCall(`/api/entrepirse-stats/${id}`);
+export async function fetchEntrepriseStats() {
+  const response = await authenticatedApiCall(`/api/v1/entreprise-stats`);
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch entreprise stats: ${response.status}`);
 }

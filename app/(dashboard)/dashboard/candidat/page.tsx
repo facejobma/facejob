@@ -285,7 +285,7 @@ export default function UsersPage() {
     if (selectedJob) params.append("job", selectedJob);
 
     const queryString = params.toString();
-    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/${userId}`;
+    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video`;
 
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   }, [userId, selectedStatus, selectedSector, selectedJob]);

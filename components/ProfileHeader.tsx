@@ -55,13 +55,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const [selectedJob, setSelectedJob] = useState("");
 
   const [formData, setFormData] = useState({
-    newFirstName: first_name,
-    newLastName: last_name,
-    newHeadline: headline,
+    newFirstName: first_name || "",
+    newLastName: last_name || "",
+    newHeadline: headline || "",
     newAddress: address || "",
     newCompanyName: companyName || "",
-    newTel: tel,
-    newEmail: email,
+    newTel: tel || "",
+    newEmail: email || "",
     newImage: image || "", // Initialize with the existing image or empty string
   });
 
@@ -96,7 +96,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/updateId/${id}`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/update-profile`,
         {
           method: "PUT",
           headers: {
@@ -136,14 +136,15 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         setIsEditing(false);
 
         window.sessionStorage.setItem("user", JSON.stringify(updatedData.data));
+        toast.success("Profil mis à jour avec succès!");
         router.refresh(); //refresh page
       } else {
         console.error("Failed to update profile data");
-        toast.error("Failed to update profile data");
+        toast.error("Échec de la mise à jour du profil");
       }
     } catch (error) {
       console.error("Error updating profile data:", error);
-      toast.error("Error updating profile data");
+      toast.error("Erreur lors de la mise à jour du profil");
     }
   };
 

@@ -1,6 +1,6 @@
 "use client";
 import { DashboardNav } from "@/components/dashboard-nav";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { navItemsCandidat } from "@/constants/data";
 import { navItemsEntreprise } from "@/constants/data";
 import { MenuIcon, X } from "lucide-react";
@@ -38,6 +38,9 @@ export function MobileSidebar({ className }: SidebarProps) {
           </button>
         </SheetTrigger>
         <SheetContent side="left" className="!px-0 w-80">
+          <div className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+          </div>
           <div className="flex flex-col h-full">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">

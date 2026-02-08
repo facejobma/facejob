@@ -85,7 +85,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const checkProfileCompletion = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -112,17 +112,20 @@ const OffreCard: React.FC<OffreCardProps> = ({
         (field) => !profileData[field] || profileData[field].length === 0
       );
   
-      if (missingFields.length > 0) {
-        toast.error(`Please complete the following fields: ${missingFields.join(", ")}`);
-        setIsProfileComplete(false);
-      } else {
-        setIsProfileComplete(true);
-      }
+      setIsProfileComplete(missingFields.length === 0);
     } catch (error) {
       setError("Error fetching profile");
       console.error("Error fetching profile:", error);
+      setIsProfileComplete(false);
     }
   };
+
+  // Check profile completion on component mount
+  useEffect(() => {
+    if (userId) {
+      checkProfileCompletion();
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (modalIsOpen && userId) {
@@ -132,7 +135,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/${userId}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video?status=Accepted`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -147,6 +150,21 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
           const data = await response.json();
           setVideos(data);
+          
+          // Auto-select and auto-submit if only one video available
+          if (data.length === 1) {
+            const video = data[0];
+            setSelectedVideo(video.link);
+            setSelectedVideoId(video.id);
+            setIsButtonDisabled(false);
+            
+            // Automatically submit the application with the single video
+            setTimeout(() => {
+              handleValidate(video.link);
+            }, 500); // Small delay to show the modal briefly
+          } else if (data.length === 0) {
+            toast.error("Aucun CV vidéo approuvé disponible. Veuillez créer et faire approuver un CV vidéo.");
+          }
         } catch (error) {
           setError("Error fetching videos");
           console.error("Error fetching videos:", error);
@@ -156,7 +174,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
       };
 
       fetchVideos();
-      checkProfileCompletion();
     }
   }, [modalIsOpen, userId]);
 
@@ -349,8 +366,9 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
         {/* Action Button */}
         <button
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
           onClick={openModal}
+          disabled={!isProfileComplete}
         >
           <span>Postuler</span>
           <ArrowRight size={18} />

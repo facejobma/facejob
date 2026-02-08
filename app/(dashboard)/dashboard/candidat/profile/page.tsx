@@ -9,7 +9,7 @@ import ProjectsSection from "@/components/ProjectsSection";
 import EducationSection from "@/components/EducationSection";
 import Cookies from "js-cookie";
 import { Circles } from "react-loader-spinner";
-import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaCheckCircle, FaExclamationTriangle, FaPlus } from "react-icons/fa";
+import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaCheckCircle, FaExclamationTriangle, FaPlus, FaArrowLeft } from "react-icons/fa";
 import { HiOutlineUser, HiOutlineCollection, HiOutlineLightBulb } from "react-icons/hi";
 
 const Profile: React.FC = () => {
@@ -25,7 +25,7 @@ const Profile: React.FC = () => {
 
     if (userData) {
       const user = JSON.parse(userData);
-      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${user.id}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`;
 
       fetch(apiUrl, {
         headers: {
@@ -133,9 +133,8 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      <div className="space-y-8 p-4">
-        {/* Header with enhanced design */}
+    <>
+      {/* Header with enhanced design */}
       <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-2xl p-8 text-white shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex-1">
@@ -163,7 +162,7 @@ const Profile: React.FC = () => {
               </div>
               {completionPercentage < 100 && (
                 <p className="text-xs text-green-100 mt-2">
-                  Complétez votre profil pour augmenter vos chances d'être remarqué
+                  Complétez votre profil pour plus de visibilité
                 </p>
               )}
             </div>
@@ -230,41 +229,66 @@ const Profile: React.FC = () => {
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-amber-800 mb-3">Complétez votre profil pour plus de visibilité</h3>
+              <p className="text-sm text-amber-700 mb-4">Éléments manquants pour atteindre 100% :</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {isSectionEmpty('bio') && (
+                {(!userProfile?.bio || userProfile.bio.trim().length === 0) && (
                   <div className="flex items-center gap-2 text-sm text-amber-700">
                     <FaExclamationTriangle className="text-amber-500" />
                     <span>Ajoutez une description personnelle</span>
                   </div>
                 )}
-                {isSectionEmpty('experiences') && (
+                {(!userProfile?.experiences || userProfile.experiences.length === 0) && (
                   <div className="flex items-center gap-2 text-sm text-amber-700">
                     <FaExclamationTriangle className="text-amber-500" />
                     <span>Ajoutez vos expériences professionnelles</span>
                   </div>
                 )}
-                {isSectionEmpty('skills') && (
+                {(!userProfile?.skills || userProfile.skills.length === 0) && (
                   <div className="flex items-center gap-2 text-sm text-amber-700">
                     <FaExclamationTriangle className="text-amber-500" />
                     <span>Listez vos compétences</span>
                   </div>
                 )}
-                {isSectionEmpty('projects') && (
+                {(!userProfile?.projects || userProfile.projects.length === 0) && (
                   <div className="flex items-center gap-2 text-sm text-amber-700">
                     <FaExclamationTriangle className="text-amber-500" />
                     <span>Présentez vos projets</span>
                   </div>
                 )}
-                {isSectionEmpty('education') && (
+                {(!userProfile?.education || userProfile.education.length === 0) && (
                   <div className="flex items-center gap-2 text-sm text-amber-700">
                     <FaExclamationTriangle className="text-amber-500" />
                     <span>Ajoutez votre formation</span>
                   </div>
                 )}
-                {isSectionEmpty('image') && (
+                {(!userProfile?.image || userProfile?.image === "https://via.placeholder.com/150") && (
                   <div className="flex items-center gap-2 text-sm text-amber-700">
                     <FaExclamationTriangle className="text-amber-500" />
                     <span>Ajoutez une photo de profil</span>
+                  </div>
+                )}
+                {!userProfile?.first_name && (
+                  <div className="flex items-center gap-2 text-sm text-amber-700">
+                    <FaExclamationTriangle className="text-amber-500" />
+                    <span>Ajoutez votre prénom</span>
+                  </div>
+                )}
+                {!userProfile?.last_name && (
+                  <div className="flex items-center gap-2 text-sm text-amber-700">
+                    <FaExclamationTriangle className="text-amber-500" />
+                    <span>Ajoutez votre nom de famille</span>
+                  </div>
+                )}
+                {!userProfile?.tel && (
+                  <div className="flex items-center gap-2 text-sm text-amber-700">
+                    <FaExclamationTriangle className="text-amber-500" />
+                    <span>Ajoutez votre numéro de téléphone</span>
+                  </div>
+                )}
+                {!userProfile?.email && (
+                  <div className="flex items-center gap-2 text-sm text-amber-700">
+                    <FaExclamationTriangle className="text-amber-500" />
+                    <span>Ajoutez votre adresse email</span>
                   </div>
                 )}
               </div>
@@ -278,7 +302,7 @@ const Profile: React.FC = () => {
         {/* Profile Header Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
           <div className="absolute top-4 right-4">
-            {getSectionStatus('image') === 'complete' ? (
+            {(userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email) ? (
               <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
                 <FaCheckCircle className="text-xs" />
                 <span>Complété</span>
@@ -315,7 +339,7 @@ const Profile: React.FC = () => {
         {/* Bio Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
           <div className="absolute top-4 right-4">
-            {getSectionStatus('bio') === 'complete' ? (
+            {(userProfile?.bio && userProfile.bio.trim().length > 0) ? (
               <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
                 <FaCheckCircle className="text-xs" />
                 <span>Complété</span>
@@ -354,10 +378,10 @@ const Profile: React.FC = () => {
         {/* Experience Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
           <div className="absolute top-4 right-4">
-            {getSectionStatus('experiences') === 'complete' ? (
+            {(userProfile?.experiences && userProfile.experiences.length > 0) ? (
               <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
                 <FaCheckCircle className="text-xs" />
-                <span>{userProfile?.experiences?.length} expérience{userProfile?.experiences?.length > 1 ? 's' : ''}</span>
+                <span>{userProfile.experiences.length} expérience{userProfile.experiences.length > 1 ? 's' : ''}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
@@ -399,10 +423,10 @@ const Profile: React.FC = () => {
         {/* Skills Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
           <div className="absolute top-4 right-4">
-            {getSectionStatus('skills') === 'complete' ? (
+            {(userProfile?.skills && userProfile.skills.length > 0) ? (
               <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
                 <FaCheckCircle className="text-xs" />
-                <span>{userProfile?.skills?.length} compétence{userProfile?.skills?.length > 1 ? 's' : ''}</span>
+                <span>{userProfile.skills.length} compétence{userProfile.skills.length > 1 ? 's' : ''}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
@@ -438,10 +462,10 @@ const Profile: React.FC = () => {
         {/* Projects Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
           <div className="absolute top-4 right-4">
-            {getSectionStatus('projects') === 'complete' ? (
+            {(userProfile?.projects && userProfile.projects.length > 0) ? (
               <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
                 <FaCheckCircle className="text-xs" />
-                <span>{userProfile?.projects?.length} projet{userProfile?.projects?.length > 1 ? 's' : ''}</span>
+                <span>{userProfile.projects.length} projet{userProfile.projects.length > 1 ? 's' : ''}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
@@ -477,10 +501,10 @@ const Profile: React.FC = () => {
         {/* Education Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
           <div className="absolute top-4 right-4">
-            {getSectionStatus('education') === 'complete' ? (
+            {(userProfile?.education && userProfile.education.length > 0) ? (
               <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
                 <FaCheckCircle className="text-xs" />
-                <span>{userProfile?.education?.length} formation{userProfile?.education?.length > 1 ? 's' : ''}</span>
+                <span>{userProfile.education.length} formation{userProfile.education.length > 1 ? 's' : ''}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
@@ -519,8 +543,7 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </>
   );
 };
 

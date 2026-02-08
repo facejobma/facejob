@@ -61,7 +61,7 @@ const Dashboard: React.FC = () => {
     async function getStats() {
       try {
         setLoading(true);
-        const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/entrepirse-stats/${userId}`, {
+        const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/entreprise-stats`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",

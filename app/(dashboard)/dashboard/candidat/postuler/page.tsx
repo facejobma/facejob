@@ -98,9 +98,8 @@ const PublishVideo: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      <div className="space-y-8 p-4">
-        {/* Header with enhanced design */}
+    <>
+      {/* Header with enhanced design */}
       <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-2xl p-8 text-white shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex-1">
@@ -316,8 +315,7 @@ const PublishVideo: React.FC = () => {
           </form>
         </div>
       </div>
-      </div>
-    </div>
+    </>
   );
 };
 

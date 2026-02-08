@@ -33,8 +33,9 @@ const api = {
     return this.request('/user', { requireAuth: true });
   },
 
-  async login(credentials: any): Promise<ApiResponse<any>> {
-    return this.request('/auth/login', { 
+  async login(credentials: any, userType: 'candidate' | 'entreprise' = 'candidate'): Promise<ApiResponse<any>> {
+    const roleEndpoint = userType === 'candidate' ? 'candidate' : 'entreprise';
+    return this.request(`/auth/${roleEndpoint}/login`, { 
       method: 'POST', 
       body: JSON.stringify(credentials),
       requireAuth: false 

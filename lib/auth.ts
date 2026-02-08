@@ -182,8 +182,9 @@ export interface AuthResult {
 export async function secureLogin(email: string, password: string, expectedRole: "candidate" | "entreprise"): Promise<AuthResult> {
   try {
     const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-    // Use unified login endpoint that checks all user types
-    const endpoint = `/api/${apiVersion}/auth/login`;
+    // Use role-specific login endpoint
+    const roleEndpoint = expectedRole === "candidate" ? "candidate" : "entreprise";
+    const endpoint = `/api/${apiVersion}/auth/${roleEndpoint}/login`;
 
     const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
       method: "POST",

@@ -31,7 +31,9 @@ interface Application {
   company: string;
   company_logo?: string;
   description: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'not_viewed' | 'viewed' | 'accepted' | 'rejected';
+  viewed_by_recruiter?: boolean;
+  viewed_at?: string;
   applied_at: string;
   video_link?: string;
   offre_id?: number;
@@ -42,7 +44,8 @@ interface Application {
 
 interface Statistics {
   total: number;
-  pending: number;
+  not_viewed: number;
+  viewed: number;
   accepted: number;
   rejected: number;
   job_offers: number;
@@ -54,7 +57,8 @@ const ApplicationHistory: React.FC = () => {
   const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
     total: 0,
-    pending: 0,
+    not_viewed: 0,
+    viewed: 0,
     accepted: 0,
     rejected: 0,
     job_offers: 0,
@@ -62,7 +66,6 @@ const ApplicationHistory: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
@@ -72,7 +75,7 @@ const ApplicationHistory: React.FC = () => {
 
   useEffect(() => {
     filterApplications();
-  }, [applications, statusFilter, typeFilter]);
+  }, [applications, statusFilter]);
 
   const fetchApplicationHistory = async () => {
     try {
@@ -109,34 +112,23 @@ const ApplicationHistory: React.FC = () => {
       filtered = filtered.filter(app => app.status === statusFilter);
     }
 
-    if (typeFilter !== "all") {
-      filtered = filtered.filter(app => app.type === typeFilter);
-    }
-
     setFilteredApplications(filtered);
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'accepted':
+      case 'viewed':
         return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            <FaCheckCircle className="w-3 h-3 mr-1" />
-            Accepté
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 border-blue-200">
+            <FaEye className="w-3 h-3 mr-1" />
+            Vue
           </Badge>
         );
-      case 'rejected':
+      default: // not_viewed
         return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            <FaTimesCircle className="w-3 h-3 mr-1" />
-            Refusé
-          </Badge>
-        );
-      default:
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+          <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100 border-gray-200">
             <FaClock className="w-3 h-3 mr-1" />
-            En attente
+            Pas vue
           </Badge>
         );
     }
@@ -193,12 +185,12 @@ const ApplicationHistory: React.FC = () => {
       <Separator />
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FaBriefcase className="h-4 w-4 text-blue-600" />
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <FaBriefcase className="h-4 w-4 text-indigo-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{statistics.total}</p>
@@ -211,12 +203,12 @@ const ApplicationHistory: React.FC = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <FaClock className="h-4 w-4 text-yellow-600" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <FaClock className="h-4 w-4 text-gray-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{statistics.pending}</p>
-                <p className="text-xs text-muted-foreground">En attente</p>
+                <p className="text-2xl font-bold">{statistics.not_viewed}</p>
+                <p className="text-xs text-muted-foreground">Non vues</p>
               </div>
             </div>
           </CardContent>
@@ -225,12 +217,12 @@ const ApplicationHistory: React.FC = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <FaCheckCircle className="h-4 w-4 text-green-600" />
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FaEye className="h-4 w-4 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{statistics.accepted}</p>
-                <p className="text-xs text-muted-foreground">Acceptées</p>
+                <p className="text-2xl font-bold">{statistics.viewed}</p>
+                <p className="text-xs text-muted-foreground">Vues</p>
               </div>
             </div>
           </CardContent>
@@ -249,34 +241,6 @@ const ApplicationHistory: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FaBriefcase className="h-4 w-4 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{statistics.job_offers}</p>
-                <p className="text-xs text-muted-foreground">Offres</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <FaFileVideo className="h-4 w-4 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{statistics.video_cvs}</p>
-                <p className="text-xs text-muted-foreground">CV Vidéos</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Filters */}
@@ -289,23 +253,12 @@ const ApplicationHistory: React.FC = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous les statuts</SelectItem>
-              <SelectItem value="pending">En attente</SelectItem>
-              <SelectItem value="accepted">Acceptées</SelectItem>
+              <SelectItem value="not_viewed">Non vues</SelectItem>
+              <SelectItem value="viewed">Vues par recruteur</SelectItem>
               <SelectItem value="rejected">Refusées</SelectItem>
             </SelectContent>
           </Select>
         </div>
-
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filtrer par type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les types</SelectItem>
-            <SelectItem value="job_offer">Offres d'emploi</SelectItem>
-            <SelectItem value="video_cv">CV Vidéos</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Applications List */}
@@ -337,7 +290,6 @@ const ApplicationHistory: React.FC = () => {
                           <h3 className="text-lg font-semibold text-gray-900">
                             {application.title}
                           </h3>
-                          {getTypeBadge(application.type)}
                           {getStatusBadge(application.status)}
                         </div>
 
@@ -352,11 +304,13 @@ const ApplicationHistory: React.FC = () => {
                           </div>
                         </div>
 
-                        <p className="text-gray-700 mb-4 line-clamp-2">
-                          {application.description}
-                        </p>
+                        <div 
+                          className="text-gray-700 mb-4 line-clamp-2"
+                          dangerouslySetInnerHTML={{ __html: application.description || "Aucune description disponible." }}
+                        />
 
-                        {application.type === 'video_cv' && (
+                        {/* Show CV video details if available */}
+                        {(application.job_name || application.sector_name) && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {application.job_name && (
                               <Badge variant="outline" className="text-xs">
@@ -366,11 +320,6 @@ const ApplicationHistory: React.FC = () => {
                             {application.sector_name && (
                               <Badge variant="outline" className="text-xs">
                                 Secteur: {application.sector_name}
-                              </Badge>
-                            )}
-                            {application.experiences !== undefined && (
-                              <Badge variant="outline" className="text-xs">
-                                {application.experiences} ans d'expérience
                               </Badge>
                             )}
                           </div>
@@ -390,7 +339,7 @@ const ApplicationHistory: React.FC = () => {
                           </Button>
                         )}
                         
-                        {application.type === 'job_offer' && application.offre_id && (
+                        {application.offre_id && (
                           <Button
                             variant="outline"
                             size="sm"

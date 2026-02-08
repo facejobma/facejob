@@ -11,9 +11,20 @@ import { fr } from "date-fns/locale";
 interface Notification {
   id: number;
   data: {
-    offre: number;
-    msg: string;
-    userId: number;
+    type?: string;
+    title?: string;
+    message?: string;
+    offre?: number;
+    msg?: string;
+    userId?: number;
+    reason?: string;
+    cv_id?: number;
+    sector?: string;
+    job?: string;
+    action_url?: string;
+    action_text?: string;
+    icon?: string;
+    color?: string;
   };
   created_at: string;
   is_read: boolean;
@@ -323,13 +334,65 @@ const Notification: React.FC = () => {
                       {!notification.read_at && (
                         <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-600 rounded-full"></div>
                       )}
+                      
+                      {/* Icône de notification */}
+                      {notification.data.icon && (
+                        <div className="flex-shrink-0 mt-1">
+                          {notification.data.icon === 'check-circle' && (
+                            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                              <span className="text-green-600 text-lg">✓</span>
+                            </div>
+                          )}
+                          {notification.data.icon === 'alert-circle' && (
+                            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                              <span className="text-amber-600 text-lg">⚠</span>
+                            </div>
+                          )}
+                          {!notification.data.icon.includes('circle') && (
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                              <Bell size={16} className="text-blue-600" />
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Contenu de la notification */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 mb-1">
-                          {notification.data.msg}
+                        {/* Titre de la notification */}
+                        {notification.data.title && (
+                          <p className="text-sm font-semibold text-gray-900 mb-1">
+                            {notification.data.title}
+                          </p>
+                        )}
+                        
+                        {/* Message de la notification */}
+                        <p className="text-sm text-gray-700 mb-1">
+                          {notification.data.message || notification.data.msg}
                         </p>
-                        <div className="flex items-center justify-between gap-2">
+                        
+                        {/* Informations supplémentaires pour CV */}
+                        {(notification.data.sector || notification.data.job) && (
+                          <div className="text-xs text-gray-600 mb-1">
+                            {notification.data.sector && (
+                              <span>📂 {notification.data.sector}</span>
+                            )}
+                            {notification.data.sector && notification.data.job && (
+                              <span className="mx-1">•</span>
+                            )}
+                            {notification.data.job && (
+                              <span>💼 {notification.data.job}</span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Raison du refus si présente */}
+                        {notification.data.reason && (
+                          <div className="text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded mt-1">
+                            <strong>Raison :</strong> {notification.data.reason}
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between gap-2 mt-2">
                           <span className="text-xs text-gray-500">
                             {formatDistanceToNow(
                               new Date(notification.created_at),
@@ -339,6 +402,19 @@ const Notification: React.FC = () => {
                               }
                             )}
                           </span>
+                          
+                          {/* Lien d'action */}
+                          {notification.data.action_url && (
+                            <Link
+                              href={notification.data.action_url}
+                              className="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline"
+                              onClick={() => setIsVisible(false)}
+                            >
+                              {notification.data.action_text || "Consulter"} →
+                            </Link>
+                          )}
+                          
+                          {/* Lien pour entreprise */}
                           {userRole === "entreprise" &&
                             notification.data.offre && (
                               <Link

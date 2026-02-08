@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import SafeHtmlDisplay from "@/components/SafeHtmlDisplay";
 import { 
   ArrowLeft, 
   Briefcase, 
@@ -47,7 +48,9 @@ interface OfferDetail {
   skills_required?: string[];
   benefits?: string[];
   company_description?: string;
-  is_verified?: string;
+  is_verified?: string | boolean;
+  applications_count?: number;
+  views_count?: number;
 }
 
 const OfferDetailPage: React.FC = () => {
@@ -65,32 +68,39 @@ const OfferDetailPage: React.FC = () => {
       try {
         setLoading(true);
         
-        // Fetch all offers first (since we don't have individual offer endpoint)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`, {
+        // Fetch the specific offer by ID (this will also increment views)
+        const offerResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/${offerId}`, {
           headers: {
             'ngrok-skip-browser-warning': 'true'
           }
         });
         
-        if (response.ok) {
-          const result = await response.json();
+        if (offerResponse.ok) {
+          const currentOffer = await offerResponse.json();
           
-          // Extract the data array from the API response
-          const allOffers = Array.isArray(result.data) ? result.data : [];
-          
-          const currentOffer = allOffers.find((o: OfferDetail) => o.id === parseInt(offerId));
-          
-          if (currentOffer) {
+          if (currentOffer && !currentOffer.error) {
             setOffer(currentOffer);
             
-            // Find related offers (same sector, different company)
-            const related = allOffers
-              .filter((o: OfferDetail) => 
-                o.id !== currentOffer.id && 
-                o.sector_id === currentOffer.sector_id
-              )
-              .slice(0, 3);
-            setRelatedOffers(related);
+            // Fetch all offers to find related ones
+            const allOffersResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`, {
+              headers: {
+                'ngrok-skip-browser-warning': 'true'
+              }
+            });
+            
+            if (allOffersResponse.ok) {
+              const result = await allOffersResponse.json();
+              const allOffers = Array.isArray(result.data) ? result.data : [];
+              
+              // Find related offers (same sector, different company)
+              const related = allOffers
+                .filter((o: OfferDetail) => 
+                  o.id !== currentOffer.id && 
+                  o.sector_id === currentOffer.sector_id
+                )
+                .slice(0, 3);
+              setRelatedOffers(related);
+            }
           } else {
             toast.error("Offre non trouvée");
             router.push("/offres");
@@ -304,9 +314,10 @@ const OfferDetailPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                    {stripHtmlTags(offer.description)}
-                  </div>
+                  <SafeHtmlDisplay
+                    html={offer.description}
+                    className="text-gray-700 leading-relaxed prose prose-sm max-w-none"
+                  />
                 </CardContent>
               </Card>
 
@@ -380,16 +391,18 @@ const OfferDetailPage: React.FC = () => {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <Eye className="h-4 w-4 mr-2 text-primary" />
-                      <span>Vu par {Math.floor(Math.random() * 100) + 50} candidats</span>
+                      <span>Vu par {offer.views_count || 0} candidats</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Users className="h-4 w-4 mr-2 text-primary-1" />
-                      <span>{Math.floor(Math.random() * 20) + 5} candidatures</span>
+                      <span>{offer.applications_count || 0} candidatures</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <CheckCircle className="h-4 w-4 mr-2 text-primary-2" />
-                      <span>Offre vérifiée</span>
-                    </div>
+                    {offer.is_verified && (
+                      <div className="flex items-center text-sm text-gray-600">
+                        <CheckCircle className="h-4 w-4 mr-2 text-primary-2" />
+                        <span>Offre vérifiée</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

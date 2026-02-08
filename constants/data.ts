@@ -201,12 +201,7 @@ export const navItemsEntreprise: NavItem[] = [
     icon: "services",
     label: "services",
   },
-  // {
-  //   title: "Paiements",
-  //   href: "/dashboard/entreprise/payments",
-  //   icon: "payments",
-  //   label: "payments",
-  // },
+
   {
     title: "Mon profil",
     href: "/dashboard/entreprise/profile",

@@ -178,6 +178,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
                 value={skill.title}
                 onChange={(e) => handleInputChange(index, e.target.value)}
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-2"
+                placeholder="Ex: JavaScript, Communication, Leadership..."
               />
               <button
                 onClick={() => handleRemoveSkill(skill)}

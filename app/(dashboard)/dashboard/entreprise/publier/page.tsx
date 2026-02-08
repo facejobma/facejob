@@ -5,6 +5,8 @@ import { toast } from "react-hot-toast";
 import Cookies from "js-cookie";
 import { Send } from "lucide-react";
 import { fetchSectors, createOffer, fetchLastPayment } from "@/lib/api";
+import RichTextEditor from "@/components/RichTextEditor";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface Sector {
   id: number;
@@ -68,12 +70,28 @@ export default function PublierPage() {
       return;
     }
 
+    // Validate description length
+    const plainText = formData.description.replace(/<[^>]*>/g, '');
+    if (plainText.length < 50) {
+      toast.error("La description doit contenir au moins 50 caractères");
+      return;
+    }
+
+    if (plainText.length > 10000) {
+      toast.error("La description ne peut pas dépasser 10000 caractères");
+      return;
+    }
+
     setIsLoading(true);
     setUploadStatus("uploading");
 
     try {
+      // Sanitize description before sending
+      const sanitizedDescription = sanitizeHtml(formData.description);
+      
       await createOffer({
         ...formData,
+        description: sanitizedDescription,
         entreprise_id: companyId,
       });
 
@@ -189,6 +207,7 @@ export default function PublierPage() {
                   value={formData.date_debut}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Sélectionnez la date de début"
                 />
               </div>
 
@@ -202,6 +221,7 @@ export default function PublierPage() {
                   value={formData.date_fin}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Sélectionnez la date de fin"
                 />
               </div>
             </div>
@@ -210,15 +230,15 @@ export default function PublierPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description de l'offre *
               </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={6}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              <RichTextEditor
+                content={formData.description}
+                onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
                 placeholder="Décrivez le poste, les responsabilités, les compétences requises..."
-                required
+                minHeight="300px"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Minimum 50 caractères, maximum 10000 caractères
+              </p>
             </div>
 
             <div className="flex justify-center">

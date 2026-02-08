@@ -118,6 +118,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               className="block w-full mt-1 p-2 border rounded"
+              placeholder="exemple@email.com"
             />
           </label>
           <label className="block mb-2">
@@ -127,6 +128,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
               value={newPhone}
               onChange={(e) => setNewPhone(e.target.value)}
               className="block w-full mt-1 p-2 border rounded"
+              placeholder="+212 6 12 34 56 78"
             />
           </label>
           <label className="block mb-2">
@@ -136,6 +138,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
               value={newLinkedin}
               onChange={(e) => setNewLinkedin(e.target.value)}
               className="block w-full mt-1 p-2 border rounded"
+              placeholder="https://linkedin.com/in/votre-profil"
             />
           </label>
           <label className="block mb-2">
@@ -145,6 +148,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
               value={newAdresse}
               onChange={(e) => setNewAdresse(e.target.value)}
               className="block w-full mt-1 p-2 border rounded"
+              placeholder="123 Rue Exemple, Casablanca"
             />
           </label>
           <button

@@ -35,24 +35,46 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
 
     const userData = await response.json();
     
-    // Determine user role from the token abilities or user type
+    // Get role directly from backend response (most reliable)
     let role: UserRole;
-    if (userData.tokenCan && userData.tokenCan('role:candidat')) {
-      role = 'candidat';
-    } else if (userData.tokenCan && userData.tokenCan('role:entreprise')) {
-      role = 'entreprise';
-    } else if (userData.tokenCan && userData.tokenCan('role:admin')) {
-      role = 'admin';
-    } else {
-      // Fallback: try to determine from user data structure
-      if (userData.company_name || userData.sector_id) {
-        role = 'entreprise';
-      } else if (userData.first_name || userData.last_name) {
+    
+    if (userData.role) {
+      // Backend explicitly provided the role - use it!
+      const backendRole = userData.role;
+      if (backendRole === 'candidat' || backendRole === 'candidate') {
         role = 'candidat';
+      } else if (backendRole === 'entreprise' || backendRole === 'enterprise') {
+        role = 'entreprise';
+      } else if (backendRole === 'admin') {
+        role = 'admin';
       } else {
-        role = 'candidat'; // Default fallback
+        console.warn('Unknown role from backend:', backendRole);
+        role = 'candidat'; // Safe fallback
+      }
+    } else {
+      // Fallback: try to determine from user data structure (less reliable)
+      console.warn('Backend did not provide role, attempting to detect from user data');
+      
+      // Check if it's a candidate (has first_name, last_name, job_id)
+      if (userData.first_name || userData.last_name || userData.job_id !== undefined) {
+        role = 'candidat';
+      } 
+      // Check if it's an enterprise (has company_name, sector_id, or siret)
+      else if (userData.company_name || userData.sector_id || userData.siret) {
+        role = 'entreprise';
+      }
+      // Check if it's an admin (has specific admin fields)
+      else if (userData.is_admin || userData.user_type === 'admin') {
+        role = 'admin';
+      }
+      // Final fallback to checking stored role
+      else {
+        const storedRole = Cookies.get("userRole");
+        role = (storedRole as UserRole) || 'candidat';
       }
     }
+
+    console.log('👤 User role detected:', role, 'from backend response');
 
     return {
       ...userData,
@@ -160,9 +182,8 @@ export interface AuthResult {
 export async function secureLogin(email: string, password: string, expectedRole: "candidate" | "entreprise"): Promise<AuthResult> {
   try {
     const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-    const endpoint = expectedRole === "candidate" 
-      ? `/api/${apiVersion}/auth/candidate/login`
-      : `/api/${apiVersion}/auth/entreprise/login`;
+    // Use unified login endpoint that checks all user types
+    const endpoint = `/api/${apiVersion}/auth/login`;
 
     const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
       method: "POST",
@@ -206,28 +227,52 @@ export async function secureLogin(email: string, password: string, expectedRole:
 
     const data = await response.json();
     
-    // Store the auth token
-    if (data.access_token) {
-      Cookies.set("authToken", data.access_token, { expires: 7 }); // 7 days
+    // Store the auth token from the nested data structure
+    const authToken = data.data?.token || data.token || data.access_token;
+    if (authToken) {
+      Cookies.set("authToken", authToken, { expires: 7 }); // 7 days
+    } else {
+      console.error("No token received from login response");
+      return {
+        success: false,
+        error: "Erreur d'authentification - aucun token reçu",
+        errorType: 'server'
+      };
     }
     
     // Store user data in session storage
-    if (data.user) {
+    if (data.data?.user) {
+      sessionStorage.setItem("user", JSON.stringify(data.data.user));
+    } else if (data.data) {
+      sessionStorage.setItem("user", JSON.stringify(data.data));
+    } else if (data.user) {
       sessionStorage.setItem("user", JSON.stringify(data.user));
     }
     
-    // Determine user role and redirect
+    // Get the actual role from the backend response
+    const backendRole = data.data?.role || data.role || data.data?.user_type || data.user_type;
+    
+    // Map backend role to frontend UserRole type
     let userRole: UserRole;
-    if (expectedRole === "candidate") {
-      userRole = "candidat";
+    if (backendRole === 'candidat' || backendRole === 'candidate') {
+      userRole = 'candidat';
+    } else if (backendRole === 'entreprise' || backendRole === 'enterprise') {
+      userRole = 'entreprise';
+    } else if (backendRole === 'admin') {
+      userRole = 'admin';
     } else {
-      userRole = "entreprise";
+      // Fallback to expected role if backend doesn't provide one
+      console.warn('No role provided by backend, using expected role:', expectedRole);
+      userRole = expectedRole === "candidate" ? "candidat" : "entreprise";
     }
     
-    // Store role for quick access
+    // Store role for quick access in both cookies and sessionStorage
     Cookies.set("userRole", userRole, { expires: 7 });
+    sessionStorage.setItem("userRole", userRole); // IMPORTANT: For sidebar navigation
     
-    // Redirect to appropriate dashboard
+    console.log('🔐 Login successful - Redirecting to dashboard:', userRole);
+    
+    // Redirect to appropriate dashboard based on actual role from database
     redirectToDashboard(userRole);
 
     return { success: true };

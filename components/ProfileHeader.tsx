@@ -55,13 +55,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const [selectedJob, setSelectedJob] = useState("");
 
   const [formData, setFormData] = useState({
-    newFirstName: first_name,
-    newLastName: last_name,
-    newHeadline: headline,
+    newFirstName: first_name || "",
+    newLastName: last_name || "",
+    newHeadline: headline || "",
     newAddress: address || "",
     newCompanyName: companyName || "",
-    newTel: tel,
-    newEmail: email,
+    newTel: tel || "",
+    newEmail: email || "",
     newImage: image || "", // Initialize with the existing image or empty string
   });
 
@@ -103,7 +103,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/updateId/${id}`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/update-profile`,
         {
           method: "PUT",
           headers: {
@@ -143,14 +143,15 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         setIsEditing(false);
 
         window.sessionStorage.setItem("user", JSON.stringify(updatedData.data));
+        toast.success("Profil mis à jour avec succès!");
         router.refresh(); //refresh page
       } else {
         console.error("Failed to update profile data");
-        toast.error("Failed to update profile data");
+        toast.error("Échec de la mise à jour du profil");
       }
     } catch (error) {
       console.error("Error updating profile data:", error);
-      toast.error("Error updating profile data");
+      toast.error("Erreur lors de la mise à jour du profil");
     }
   };
 
@@ -270,7 +271,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 name="newFirstName"
                 value={formData.newFirstName}
                 onChange={handleInputChange}
-                placeholder="Enter votre prénom"
+                placeholder="Entrez votre prénom"
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
 
@@ -283,7 +284,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 name="newEmail"
                 value={formData.newEmail}
                 onChange={handleInputChange}
-                placeholder="Enter votre email"
+                placeholder="Entrez votre email"
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
 
@@ -316,7 +317,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 name="newAddress"
                 value={formData.newAddress}
                 onChange={handleInputChange}
-                placeholder="Enter votre adresse"
+                placeholder="Entrez votre adresse"
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
             </div>
@@ -331,7 +332,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 name="newLastName"
                 value={formData.newLastName}
                 onChange={handleInputChange}
-                placeholder="Enter votre nom"
+                placeholder="Entrez votre nom"
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
 
@@ -344,7 +345,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 name="newTel"
                 value={formData.newTel}
                 onChange={handleInputChange}
-                placeholder="Enter votre téléphone"
+                placeholder="Entrez votre téléphone"
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
               />
 

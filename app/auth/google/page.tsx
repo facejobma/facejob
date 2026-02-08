@@ -49,16 +49,18 @@ function GoogleCallback() {
 
         // Store user data
         sessionStorage.setItem("user", JSON.stringify(authenticatedUser));
+        
+        // IMPORTANT: Store userRole for sidebar navigation
+        sessionStorage.setItem("userRole", authenticatedUser.role);
 
         // Show success message
         toast.success("Connexion Google réussie !");
 
-        // Redirect to appropriate dashboard based on user type
+        console.log('🔐 Google OAuth successful - Redirecting to dashboard:', authenticatedUser.role);
+
+        // Redirect to appropriate dashboard based on actual user role from database
         setTimeout(() => {
-          // Convert userType string to UserRole
-          const role = userType === 'candidate' ? 'candidat' : 
-                      userType === 'entreprise' ? 'entreprise' : 'candidat';
-          redirectToDashboard(role);
+          redirectToDashboard(authenticatedUser.role);
         }, 1000); // Small delay to show success message
 
       } catch (error: any) {

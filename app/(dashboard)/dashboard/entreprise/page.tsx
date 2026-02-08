@@ -40,42 +40,50 @@ const Dashboard: React.FC = () => {
   const { toast } = useToast();
   const authToken = Cookies.get("authToken");
 
+  // Fetch stats on mount
   useEffect(() => {
-    const userData = typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user") || '{}'
-      : '{}'
-
-    const user = JSON.parse(userData);
-    const userId = user.id;
-
-    if (!userId) {
-      toast({
-        title: "Error",
-        variant: "destructive",
-        description: "User ID not found in session storage.",
-      });
-      setLoading(false);
-      return;
-    }
-
     async function getStats() {
+      if (!authToken) {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "User not authenticated",
+        });
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/entrepirse-stats/${userId}`, {
+        const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/entreprise-stats`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
           },
         });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch stats: ${response.status}`);
+        }
+        
         const result: Stats = await response.json();
-        setStats(result);
+        
+        // Ensure all required fields exist with defaults
+        setStats({
+          offres: result.offres || [],
+          candidatures: result.candidatures || [],
+          candidaturesByOffre: result.candidaturesByOffre || [],
+          totalCandidatures: result.totalCandidatures || 0,
+          totalOffres: result.totalOffres || 0
+        });
       } catch (error: any) {
         toast({
           title: "Whoops!",
           variant: "destructive",
           description: error.message,
         });
+        // Keep default empty stats on error
       } finally {
         setLoading(false);
       }
@@ -114,7 +122,7 @@ const Dashboard: React.FC = () => {
     datasets: [{
       label: "Offres d'emploi diffusées",
       data: allMonths.map(month => {
-        const found = stats.offres.find(o => o.month === month);
+        const found = stats.offres?.find(o => o.month === month);
         return found ? found.sum : 0;
       }),
       backgroundColor: 'rgba(79, 70, 229, 0.8)',
@@ -129,7 +137,7 @@ const Dashboard: React.FC = () => {
     datasets: [{
       label: "Candidatures reçues",
       data: allMonths.map(month => {
-        const found = stats.candidatures.find(c => c.month === month);
+        const found = stats.candidatures?.find(c => c.month === month);
         return found ? found.sum : 0;
       }),
       backgroundColor: 'rgba(16, 185, 129, 0.8)',
@@ -140,10 +148,10 @@ const Dashboard: React.FC = () => {
   };
 
   const candidaturesByOffreData = {
-    labels: stats.candidaturesByOffre.map(c => c.titre),
+    labels: stats.candidaturesByOffre?.map(c => c.titre) || [],
     datasets: [{
       label: "Candidatures reçues par offre",
-      data: stats.candidaturesByOffre.map(c => c.sum),
+      data: stats.candidaturesByOffre?.map(c => c.sum) || [],
       backgroundColor: 'rgba(147, 51, 234, 0.8)',
       borderColor: 'rgb(147, 51, 234)',
       borderWidth: 1,

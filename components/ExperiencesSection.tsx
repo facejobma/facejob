@@ -33,6 +33,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     useState<Experience | null>(null);
   const [editedExperiences, setEditedExperiences] = useState([...experiences]);
   const [isCurrentJob, setIsCurrentJob] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState<Partial<Experience>>({
     poste: "",
     organisme: "",
@@ -76,6 +77,27 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
     }
   };
 
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const newExperiences = [...editedExperiences];
+    const draggedItem = newExperiences[draggedIndex];
+    newExperiences.splice(draggedIndex, 1);
+    newExperiences.splice(index, 0, draggedItem);
+
+    setEditedExperiences(newExperiences);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
   const handleEditClick = (experience: Experience | null) => {
     setSelectedExperience(experience);
     setIsEditing(true);
@@ -116,11 +138,15 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         );
 
         if (response.ok) {
-          const updatedExperience = await response.json();
-          const updatedExperiences = editedExperiences.map((exp) =>
-            exp.id === selectedExperience.id ? updatedExperience : exp,
-          );
-          setEditedExperiences(updatedExperiences);
+          const result = await response.json();
+          if (result.status === 'success') {
+            const updatedExperiences = editedExperiences.map((exp) =>
+              exp.id === selectedExperience.id ? result.data : exp,
+            );
+            setEditedExperiences(updatedExperiences);
+          } else {
+            console.error("Failed to update experience:", result.message);
+          }
         } else {
           console.error("Failed to update experience");
         }
@@ -154,10 +180,10 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
 
         if (response.ok) {
           const result = await response.json();
-          if (result.success) {
+          if (result.status === 'success') {
             setEditedExperiences((prevExperiences) => [
               ...prevExperiences,
-              result.experience,
+              result.data,
             ]);
           } else {
             console.error("Failed to add experience:", result.message);
@@ -242,15 +268,32 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       </div>
       <div className="p-6 relative">
         {editedExperiences && editedExperiences.length > 0 ? (
-          editedExperiences.map((exp: Experience) => (
+          editedExperiences.map((exp: Experience, index: number) => (
             <div
-              key={exp.id}
-              className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow"
+              key={exp.id || `temp-${index}`}
+              draggable
+              onDragStart={() => handleDragStart(index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragEnd={handleDragEnd}
+              className={`bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow cursor-move ${
+                draggedIndex === index ? 'opacity-50' : ''
+              }`}
             >
               <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-900 mb-1">{exp.poste}</h3>
-                  <p className="text-green-600 font-semibold mb-2">{exp.organisme}</p>
+                <div className="flex items-start gap-3 flex-1">
+                  <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mt-1">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                      <circle cx="7" cy="5" r="1.5"/>
+                      <circle cx="13" cy="5" r="1.5"/>
+                      <circle cx="7" cy="10" r="1.5"/>
+                      <circle cx="13" cy="10" r="1.5"/>
+                      <circle cx="7" cy="15" r="1.5"/>
+                      <circle cx="13" cy="15" r="1.5"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">{exp.poste}</h3>
+                    <p className="text-green-600 font-semibold mb-2">{exp.organisme}</p>
                   {exp.location && (
                     <p className="text-sm text-gray-600 mb-2 flex items-center gap-1">
                       <span>📍</span> {exp.location}
@@ -263,6 +306,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                   {exp.description && (
                     <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
                   )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
                   <button
@@ -329,6 +373,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             value={formData.poste}
             onChange={(e) => handleInputChange("poste", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            placeholder="Ex: Développeur Full Stack"
           />
           <label htmlFor="organisme">Entreprise</label>
           <input
@@ -337,6 +382,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             value={formData.organisme}
             onChange={(e) => handleInputChange("organisme", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            placeholder="Ex: Google, Microsoft, etc."
           />
           <label htmlFor="location">Lieu</label>
           <input
@@ -345,6 +391,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             value={formData.location || ""}
             onChange={(e) => handleInputChange("location", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            placeholder="Ex: Casablanca, Maroc"
           />
           <label htmlFor="description">Description</label>
           <textarea
@@ -352,6 +399,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             value={formData.description}
             onChange={(e) => handleInputChange("description", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            placeholder="Décrivez vos responsabilités et réalisations..."
           />
           <label htmlFor="date_debut">Date de début</label>
           <input
@@ -360,6 +408,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             value={formData.date_debut || ""}
             onChange={(e) => handleInputChange("date_debut", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            placeholder="Sélectionnez la date de début"
           />
           <div className="flex items-center mb-4">
             <input
@@ -380,6 +429,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                 value={formData.date_fin || ""}
                 onChange={(e) => handleInputChange("date_fin", e.target.value)}
                 className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+                placeholder="Sélectionnez la date de fin"
               />
             </>
           )}

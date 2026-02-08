@@ -237,6 +237,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
             value={formData.title}
             onChange={(e) => handleInputChange("title", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            placeholder="Ex: Application mobile e-commerce, Site web portfolio..."
           />
           <label htmlFor="description">Description:</label>
           <textarea
@@ -244,6 +245,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
             value={formData.description}
             onChange={(e) => handleInputChange("description", e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
+            placeholder="Décrivez votre projet, les technologies utilisées, votre rôle et les résultats obtenus..."
           />
           <button
             type="submit"

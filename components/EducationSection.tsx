@@ -15,7 +15,8 @@ interface Education {
 
 interface Degree {
   id: string;
-  titre: string;
+  name: string;
+  level: string;
 }
 
 interface EducationSectionProps {
@@ -191,13 +192,22 @@ const EducationSection: React.FC<EducationSectionProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Education</h2>
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 flex justify-between items-center border-b border-green-100">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <span className="text-green-600">🎓</span>
+            Formation Académique
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Vos diplômes et certifications
+          </p>
+        </div>
         <button
           onClick={() => handleEditClick(null)} // Add new education entry
-          className="text-gray-400 hover:text-gray-600"
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
         >
-          <PlusSquare />
+          <PlusSquare width={18} height={18} />
+          <span className="hidden sm:inline">Ajouter</span>
         </button>
       </div>
 
@@ -206,20 +216,53 @@ const EducationSection: React.FC<EducationSectionProps> = ({
           editedEducation.map((edu: Education) => (
             <div
               key={edu.id}
-              className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow"
+              className="bg-white border-l-4 border-green-500 shadow-sm hover:shadow-md rounded-lg p-6 mb-4 transition-all duration-200"
             >
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-900 mb-1">{edu.school_name}</h3>
-                  <p className="text-green-600 font-semibold mb-2">{edu.title}</p>
+                  {/* Title of the formation */}
+                  <div className="mb-3">
+                    <h3 className="font-bold text-xl text-gray-900 mb-1">
+                      {edu.title || "Formation"}
+                    </h3>
+                    <div className="h-1 w-16 bg-green-500 rounded-full"></div>
+                  </div>
+                  
+                  {/* Degree/Diploma */}
                   {edu.degree && (
-                    <p className="text-sm text-gray-600 mb-2">{edu.degree}</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-green-600 font-medium">🎓</span>
+                      <p className="text-base font-semibold text-green-700">
+                        {edu.degree}
+                      </p>
+                    </div>
                   )}
-                  <p className="text-sm text-gray-600 flex items-center gap-1">
-                    <span>📅</span> {edu.graduation_date}
-                  </p>
+                  
+                  {/* School/Institution */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-gray-500">🏫</span>
+                    <p className="text-sm text-gray-700 font-medium">
+                      {edu.school_name}
+                    </p>
+                  </div>
+                  
+                  {/* Graduation Date */}
+                  {edu.graduation_date && (
+                    <div className="flex items-center gap-2 mt-3">
+                      <span className="text-gray-400">📅</span>
+                      <p className="text-sm text-gray-600">
+                        Diplômé(e) le {new Date(edu.graduation_date).toLocaleDateString('fr-FR', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 ml-4">
+                
+                {/* Action buttons */}
+                <div className="flex flex-col gap-2">
                   <button
                     type="button"
                     onClick={() => handleEditClick(edu)}
@@ -273,53 +316,100 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             : "Ajouter un diplôme ou une certification"
         }
       >
-        <form onSubmit={handleEducationUpdate}>
-          <label htmlFor="school_name">Structure de Formation</label>
-          <input
-            type="text"
-            id="school_name"
-            value={formData.school_name}
-            onChange={(e) => handleInputChange("school_name", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-          <label htmlFor="degree">Equivalence de Diplôme</label>
-          <select
-            id="degree"
-            value={formData.degree}
-            onChange={(e) => handleInputChange("degree", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          >
-            <option value="">Titre </option>
-            {degrees.map((degree) => (
-              <option key={degree.id} value={degree.titre}>
-                {degree.titre}
-              </option>
-            ))}
-          </select>
-          <label htmlFor="title">Title:</label>
-          <input
-            type="text"
-            id="title"
-            value={formData.title}
-            onChange={(e) => handleInputChange("title", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-          <label htmlFor="graduation_date">Date de diplomation </label>
-          <input
-            type="date"
-            id="graduation_date"
-            value={formData.graduation_date}
-            onChange={(e) =>
-              handleInputChange("graduation_date", e.target.value)
-            }
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
-          <button
-            type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
-          >
-            {selectedEducation ? "Modifier les changements" : "Ajouter la Formation"}
-          </button>
+        <form onSubmit={handleEducationUpdate} className="space-y-4">
+          {/* Title of Formation */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
+              Titre de la Formation <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={formData.title || ""}
+              onChange={(e) => handleInputChange("title", e.target.value)}
+              placeholder="Ex: Ingénieur en Informatique, Master en Marketing..."
+              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">Le titre ou spécialité de votre formation</p>
+          </div>
+
+          {/* Degree/Diploma Level */}
+          <div>
+            <label htmlFor="degree" className="block text-sm font-semibold text-gray-700 mb-2">
+              Niveau de Diplôme <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="degree"
+              value={formData.degree || ""}
+              onChange={(e) => handleInputChange("degree", e.target.value)}
+              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
+              required
+            >
+              <option value="">-- Sélectionnez un niveau --</option>
+              {degrees.map((degree) => (
+                <option key={degree.id} value={degree.name}>
+                  {degree.name} {degree.level && `(${degree.level})`}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">Le niveau ou équivalence de votre diplôme</p>
+          </div>
+
+          {/* School/Institution */}
+          <div>
+            <label htmlFor="school_name" className="block text-sm font-semibold text-gray-700 mb-2">
+              Établissement <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="school_name"
+              value={formData.school_name || ""}
+              onChange={(e) => handleInputChange("school_name", e.target.value)}
+              placeholder="Ex: Université Mohammed V, ENSA Rabat, OFPPT..."
+              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">Le nom de l'école, université ou centre de formation</p>
+          </div>
+
+          {/* Graduation Date */}
+          <div>
+            <label htmlFor="graduation_date" className="block text-sm font-semibold text-gray-700 mb-2">
+              Date d'Obtention <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              id="graduation_date"
+              value={formData.graduation_date || ""}
+              onChange={(e) =>
+                handleInputChange("graduation_date", e.target.value)
+              }
+              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">La date à laquelle vous avez obtenu ce diplôme</p>
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              {selectedEducation ? (
+                <>
+                  <Edit width={18} height={18} />
+                  Enregistrer les modifications
+                </>
+              ) : (
+                <>
+                  <PlusSquare width={18} height={18} />
+                  Ajouter la formation
+                </>
+              )}
+            </button>
+          </div>
         </form>
       </Modal>
     </div>

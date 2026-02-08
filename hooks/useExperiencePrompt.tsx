@@ -41,7 +41,7 @@ export function useExperiencePrompt(candidatId: number | null): UseExperiencePro
     try {
       const authToken = Cookies.get("authToken");
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${candidatId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

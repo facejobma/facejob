@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Modal from "@/components/Modal";
 import Cookies from "js-cookie";
+import SafeHtmlDisplay from "@/components/SafeHtmlDisplay";
 import {
   MapPin,
   Building,
@@ -68,7 +69,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
-  const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -89,7 +89,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const checkProfileCompletion = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -116,18 +116,22 @@ const OffreCard: React.FC<OffreCardProps> = ({
         (field) => !profileData[field] || profileData[field].length === 0
       );
   
-      if (missingFields.length > 0) {
-        toast.error(`Please complete the following fields: ${missingFields.join(", ")}`);
-        setIsProfileComplete(false);
-      } else {
-        setIsProfileComplete(true);
-      }
+      setIsProfileComplete(missingFields.length === 0);
     } catch (error) {
       setError("Error fetching profile");
       console.error("Error fetching profile:", error);
+      setIsProfileComplete(false);
     }
   };
 
+  // Check profile completion on component mount
+  useEffect(() => {
+    if (userId) {
+      checkProfileCompletion();
+    }
+  }, [userId]);
+
+  // Check if user already applied to this offer on component mount
   useEffect(() => {
     if (modalIsOpen && userId) {
       const fetchVideos = async () => {
@@ -135,8 +139,9 @@ const OffreCard: React.FC<OffreCardProps> = ({
         setError(null);
 
         try {
+          // Fetch approved videos only - backend determines user from token
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/${userId}`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video?status=Accepted`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -150,7 +155,23 @@ const OffreCard: React.FC<OffreCardProps> = ({
           }
 
           const data = await response.json();
+          
           setVideos(data);
+
+          // Auto-select and auto-submit if only one video available
+          if (data.length === 1) {
+            const video = data[0];
+            setSelectedVideo(video.link);
+            setSelectedVideoId(video.id);
+            setIsButtonDisabled(false);
+            
+            // Automatically submit the application with the single video
+            setTimeout(() => {
+              handleValidate(video.link);
+            }, 500); // Small delay to show the modal briefly
+          } else if (data.length === 0) {
+            toast.error("Aucun CV vidéo approuvé disponible. Veuillez créer et faire approuver un CV vidéo.");
+          }
         } catch (error) {
           setError("Error fetching videos");
           console.error("Error fetching videos:", error);
@@ -160,7 +181,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
       };
 
       fetchVideos();
-      checkProfileCompletion();
     }
   }, [modalIsOpen, userId]);
 
@@ -171,13 +191,14 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const openModal = () => {
     setModalData({ titre, entreprise_name, sector_name, job_name });
     setModalIsOpen(true);
-    setAlreadyApplied(false);
+    setSelectedVideo("");
+    setSelectedVideoId(null);
+    setIsButtonDisabled(true);
   };
 
   const closeModal = () => {
     setModalIsOpen(false);
     setIsConfirmationVisible(false);
-    setAlreadyApplied(false);
   };
 
   const handleVideoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -276,7 +297,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
               onClick={handleBookmark}
               className={`p-2 rounded-full transition-colors ${
                 isBookmarked 
-                  ? 'text-blue-600 bg-blue-50' 
+                  ? 'text-green-600 bg-green-50' 
                   : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -294,8 +315,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
         {/* Job Details */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <div className="bg-blue-100 rounded-lg p-2">
-              <Briefcase className="text-blue-600" size={16} />
+            <div className="bg-green-100 rounded-lg p-2">
+              <Briefcase className="text-green-600" size={16} />
             </div>
             <div>
               <p className="text-xs text-gray-500 font-medium">Secteur</p>
@@ -322,18 +343,17 @@ const OffreCard: React.FC<OffreCardProps> = ({
           </div>
           
           <div className="relative">
-            <div
+            <SafeHtmlDisplay
+              html={description || "Aucune description disponible."}
               className={`text-gray-700 text-sm leading-relaxed ${
                 showFullDescription ? "" : "line-clamp-3"
               }`}
-            >
-              <div dangerouslySetInnerHTML={{ __html: description || "Aucune description disponible." }} />
-            </div>
+            />
           </div>
           
           {(description?.length || 0) > 200 && (
             <button
-              className="text-blue-600 hover:text-blue-800 font-medium text-sm mt-2 transition-colors"
+              className="text-green-600 hover:text-green-800 font-medium text-sm mt-2 transition-colors"
               onClick={toggleDescription}
             >
               {showFullDescription ? (
@@ -353,8 +373,9 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
         {/* Action Button */}
         <button
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
           onClick={openModal}
+          disabled={!isProfileComplete}
         >
           <span>Postuler</span>
           <ArrowRight size={18} />
@@ -401,31 +422,9 @@ const OffreCard: React.FC<OffreCardProps> = ({
         sector_name={modalData.sector_name}
         videos={videos}
         selectedVideo={selectedVideo}
+        selectedVideoId={selectedVideoId}
         onVideoChange={handleVideoChange}
       />
-
-      {/* Already Applied Modal */}
-      {alreadyApplied && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-center">
-            <div className="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <Clock className="text-yellow-600" size={32} />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Candidature déjà envoyée
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Vous avez déjà postulé à cette offre avec cette vidéo.
-            </p>
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-2 font-medium transition-colors"
-              onClick={closeModal}
-            >
-              Compris
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Success Modal */}
       {isConfirmationVisible && (
@@ -441,7 +440,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
               Votre candidature a été soumise avec succès. L'entreprise examinera votre profil prochainement.
             </p>
             <button
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-2 font-medium transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-6 py-2 font-medium transition-colors"
               onClick={closeModal}
             >
               Parfait !

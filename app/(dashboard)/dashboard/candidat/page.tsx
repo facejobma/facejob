@@ -34,6 +34,7 @@ interface CV {
   secteur_name: string;
   is_verified: string;
   job_name: string;
+  comment?: string; // Add comment field for decline reason
 }
 
 export default function UsersPage() {
@@ -41,11 +42,6 @@ export default function UsersPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const { toast: toastUI } = useToast();
   const authToken = Cookies.get("authToken");
-  const user =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user")
-      : null;
-  const userId = user ? JSON.parse(user).id : null;
 
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [selectedSector, setSelectedSector] = useState<string>("");
@@ -161,23 +157,6 @@ export default function UsersPage() {
         ),
       },
       {
-        accessorKey: "candidat_name",
-        header: () => <div className="font-semibold text-gray-700">Candidat</div>,
-        cell: ({ row }) => (
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-              {row.original.candidat_name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <span className="font-semibold text-gray-900 block">
-                {row.original.candidat_name}
-              </span>
-              <span className="text-xs text-gray-500">Candidat</span>
-            </div>
-          </div>
-        ),
-      },
-      {
         accessorKey: "job_name",
         header: () => <div className="font-semibold text-gray-700">Poste recherché</div>,
         cell: ({ row }) => (
@@ -201,6 +180,7 @@ export default function UsersPage() {
         header: () => <div className="font-semibold text-gray-700">Statut</div>,
         cell: ({ row }) => {
           const statusRaw = row.original.is_verified;
+          const comment = row.original.comment;
 
           // convertir le status en string correspondant à ton config
           const status: "Accepted" | "Declined" | "Pending" =
@@ -248,12 +228,39 @@ export default function UsersPage() {
           const config = statusConfig[status];
 
           return (
-            <span
-              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold ${config.bg} ${config.text} border ${config.border} shadow-sm`}
-            >
-              <span className="text-sm">{config.icon}</span>
-              {config.label}
-            </span>
+            <div className="relative group">
+              <span
+                className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold ${config.bg} ${config.text} border ${config.border} shadow-sm cursor-pointer`}
+              >
+                <span className="text-sm">{config.icon}</span>
+                {config.label}
+                {status === "Declined" && comment && (
+                  <span className="text-xs opacity-70">ℹ️</span>
+                )}
+              </span>
+              
+              {/* Tooltip for declined reason */}
+              {status === "Declined" && comment && (
+                <div className="absolute left-0 top-full mt-2 w-80 bg-white border-2 border-red-200 rounded-lg shadow-xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="flex items-start gap-2 mb-2">
+                    <div className="h-6 w-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                      <span className="text-red-600 text-sm">✕</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-red-900 mb-1">Raison du refus</p>
+                      <p className="text-sm text-gray-700 leading-relaxed">{comment}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-red-100">
+                    <p className="text-xs text-gray-600">
+                      💡 Consultez votre email pour les détails complets et les règles à respecter
+                    </p>
+                  </div>
+                  {/* Arrow */}
+                  <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-t-2 border-l-2 border-red-200 transform rotate-45"></div>
+                </div>
+              )}
+            </div>
           );
         },
       },
@@ -285,13 +292,13 @@ export default function UsersPage() {
     if (selectedJob) params.append("job", selectedJob);
 
     const queryString = params.toString();
-    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/${userId}`;
+    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video`;
 
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
-  }, [userId, selectedStatus, selectedSector, selectedJob]);
+  }, [selectedStatus, selectedSector, selectedJob]);
 
   const fetchData = useCallback(async () => {
-    if (!userId || !authToken) {
+    if (!authToken) {
       toastUI({
         title: "Erreur",
         variant: "destructive",
@@ -352,7 +359,6 @@ export default function UsersPage() {
   }, [
     authToken,
     toastUI,
-    userId,
     buildFetchUrl,
     allSectors.length,
     allJobs.length,

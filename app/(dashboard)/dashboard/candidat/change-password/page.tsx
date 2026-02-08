@@ -46,6 +46,7 @@ const ChangePassword: React.FC = () => {
             value={oldPassword}
             onChange={(e) => setOldPassword(e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3"
+            placeholder="Entrez votre ancien mot de passe"
             required
           />
         </div>
@@ -58,6 +59,7 @@ const ChangePassword: React.FC = () => {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3"
+            placeholder="Entrez votre nouveau mot de passe"
             required
           />
         </div>
@@ -70,6 +72,7 @@ const ChangePassword: React.FC = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full border-gray-300 rounded-md py-2 px-3"
+            placeholder="Confirmez votre nouveau mot de passe"
             required
           />
         </div>

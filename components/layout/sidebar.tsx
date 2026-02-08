@@ -4,10 +4,37 @@ import { cn } from "@/lib/utils";
 import { Star, Video, User, Crown } from "lucide-react";
 
 export default function Sidebar() {
-  const userRole =
+  // Try to get userRole from sessionStorage first
+  let userRole =
     typeof window !== "undefined"
       ? window.sessionStorage?.getItem("userRole")
       : null;
+
+  // Fallback: try to get user data and determine role from it
+  if (!userRole && typeof window !== "undefined") {
+    const userData = window.sessionStorage?.getItem("user");
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        // Check if user object has role property
+        if (user.role) {
+          userRole = user.role;
+          // Store it for next time
+          window.sessionStorage.setItem("userRole", user.role);
+        }
+        // Fallback: detect from user data structure
+        else if (user.company_name || user.sector_id) {
+          userRole = "entreprise";
+          window.sessionStorage.setItem("userRole", "entreprise");
+        } else if (user.first_name || user.last_name || user.job_id !== undefined) {
+          userRole = "candidat";
+          window.sessionStorage.setItem("userRole", "candidat");
+        }
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
+  }
 
   const userData = 
     typeof window !== "undefined"

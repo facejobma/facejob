@@ -5,7 +5,7 @@ import "@uploadthing/react/styles.css";
 import { UploadDropzone } from "@/lib/uploadthing";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import { FaTrash, FaVideo, FaUpload, FaCheckCircle } from "react-icons/fa";
+import { FaTrash, FaVideo, FaUpload, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
 import { HiOutlineVideoCamera, HiOutlineCloudUpload } from "react-icons/hi";
 import { fetchSectors, submitCandidateApplication } from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -100,9 +100,8 @@ const PublishVideo: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      <div className="space-y-8 p-4">
-        {/* Header with enhanced design */}
+    <>
+      {/* Header with enhanced design */}
       <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-2xl p-8 text-white shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex-1">
@@ -258,6 +257,7 @@ const PublishVideo: React.FC = () => {
                   onChange={(e) => setExperiences(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   placeholder="Ex: 3"
+                  min="0"
                 />
               </div>
 
@@ -329,8 +329,7 @@ const PublishVideo: React.FC = () => {
           </form>
         </div>
       </div>
-      </div>
-    </div>
+    </>
   );
 };
 

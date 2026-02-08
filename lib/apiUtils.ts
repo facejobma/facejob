@@ -98,19 +98,51 @@ export async function handleApiResponse<T = any>(response: Response): Promise<Ap
 
 /**
  * Makes an API request with consistent error handling
+ * Automatically includes authentication token if available
  */
 export async function apiRequest<T = any>(
   url: string, 
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   try {
+    // Get auth token from cookies or sessionStorage
+    let authToken: string | undefined;
+    
+    if (typeof window !== 'undefined') {
+      // First try sessionStorage (most reliable during signup flow)
+      authToken = sessionStorage.getItem('authToken') || undefined;
+      
+      // If not in sessionStorage, try cookies
+      if (!authToken) {
+        try {
+          const Cookies = require('js-cookie');
+          authToken = Cookies.default?.get('authToken') || Cookies.get?.('authToken');
+        } catch (e) {
+          // Cookie reading failed, continue without token
+          console.warn('Failed to read auth token from cookies:', e);
+        }
+      }
+      
+      // Debug log
+      if (!authToken) {
+        console.warn('No auth token found for request to:', url);
+      }
+    }
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+      ...options.headers,
+    };
+
+    // Add Authorization header if token exists
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
     const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
-        ...options.headers,
-      },
       ...options,
+      headers,
     });
 
     return await handleApiResponse<T>(response);

@@ -36,32 +36,32 @@ const OffresPage: React.FC = () => {
     control: (base: any, state: any) => ({
       ...base,
       borderRadius: '8px',
-      borderColor: state.isFocused ? '#0a66c2' : '#d0d5dd',
+      borderColor: state.isFocused ? '#4f46e5' : '#d0d5dd',
       borderWidth: '1px',
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(10, 102, 194, 0.1)' : 'none',
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(79, 70, 229, 0.1)' : 'none',
       padding: '4px',
       minHeight: '44px',
       backgroundColor: 'white',
       '&:hover': {
-        borderColor: '#0a66c2',
+        borderColor: '#4f46e5',
       },
     }),
     option: (base: any, state: any) => ({
       ...base,
       backgroundColor: state.isSelected 
-        ? '#0a66c2' 
+        ? '#4f46e5' 
         : state.isFocused 
-        ? '#f3f6f8' 
+        ? '#f3f4f6' 
         : 'white',
-      color: state.isSelected ? 'white' : '#1d2129',
+      color: state.isSelected ? 'white' : '#1f2937',
       padding: '12px 16px',
       '&:active': {
-        backgroundColor: '#0a66c2',
+        backgroundColor: '#4f46e5',
       },
     }),
     placeholder: (base: any) => ({
       ...base,
-      color: '#666666',
+      color: '#6b7280',
       fontWeight: '400',
     }),
   };
@@ -251,7 +251,7 @@ const OffresPage: React.FC = () => {
                 Secteur d'activité
               </label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 value={selectedSector}
                 onChange={(e) => setSelectedSector(e.target.value)}
               >
@@ -270,7 +270,7 @@ const OffresPage: React.FC = () => {
                 Type de poste
               </label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                 value={selectedJob}
                 onChange={(e) => setSelectedJob(e.target.value)}
                 disabled={!selectedSector}
@@ -309,7 +309,7 @@ const OffresPage: React.FC = () => {
                 Ville
               </label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
               >
@@ -329,11 +329,11 @@ const OffresPage: React.FC = () => {
               <div className="flex flex-wrap gap-2 items-center">
                 <span className="text-sm text-gray-600 font-medium">Filtres actifs:</span>
                 {searchQuery && (
-                  <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                  <span className="inline-flex items-center gap-1 bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">
                     "{searchQuery}"
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
+                      className="hover:bg-indigo-200 rounded-full p-0.5"
                     >
                       <X size={12} />
                     </button>
@@ -430,7 +430,7 @@ const OffresPage: React.FC = () => {
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
               >
                 Réinitialiser les filtres
               </button>

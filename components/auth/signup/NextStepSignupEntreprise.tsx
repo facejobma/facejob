@@ -46,18 +46,24 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
     useEffect(() => {
         const fetchSectors = async () => {
             try {
-                const result = await apiRequest(
-                    process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
-                );
-                
-                if (result.success && Array.isArray(result.data)) {
-                    setSecteurOptions(result.data);
-                } else {
-                    console.error("Error fetching sectors:", result.error);
-                    setSecteurOptions([]);
-                    if (result.error) {
-                        toast.error(result.error);
+                const response = await fetch(
+                    process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
                     }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Handle both direct array and wrapped response
+                    const sectorsData = Array.isArray(data) ? data : (data.data || []);
+                    setSecteurOptions(sectorsData);
+                } else {
+                    console.error("Error fetching sectors:", response.statusText);
+                    setSecteurOptions([]);
+                    toast.error("Erreur de récupération des secteurs!");
                 }
             } catch (error) {
                 console.error("Error fetching sectors:", error);
@@ -66,9 +72,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             }
         };
 
-        fetchSectors().then(() => {
-            console.log('sectors fetched');
-        });
+        fetchSectors();
     }, []);
 
     const handleSubmit = async () => {
@@ -104,6 +108,15 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 siteWeb,
                 linkedin,
             };
+
+            // Debug: Check if token exists
+            const token = sessionStorage.getItem('authToken');
+            console.log('Auth token exists:', !!token);
+            if (!token) {
+                toast.error("Session expirée. Veuillez vous reconnecter.");
+                router.push("/auth/signup-entreprise");
+                return;
+            }
 
             const result = await apiRequest(
                 process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-enterprise",

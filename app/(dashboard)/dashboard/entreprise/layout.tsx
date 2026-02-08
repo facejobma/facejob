@@ -1,13 +1,10 @@
 import ServerAuthGuard from "@/components/auth/ServerAuthGuard";
 import dynamic from "next/dynamic";
+import SimpleLoadingBar from "@/components/SimpleLoadingBar";
 
 // Dynamic import for client layout
 const EntrepriseClientLayout = dynamic(() => import("./client-layout"), {
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-    </div>
-  )
+  loading: () => <SimpleLoadingBar />
 });
 
 interface LayoutProps {

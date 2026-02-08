@@ -4,6 +4,7 @@ import { FC, FormEvent, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
+import Cookies from "js-cookie";
 import { Eye, EyeOff, Mail, Lock, Building2, Phone, Check, CheckCircle, XCircle } from "lucide-react";
 import google from "@/public/svg/google.svg";
 import linkedin from "@/public/svg/linkedin.svg";
@@ -129,7 +130,17 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
       );
 
       if (result.success) {
+        // Store user ID for profile completion
         sessionStorage.setItem("userId", result.data.user_id);
+        
+        // Store authentication token
+        if (result.data.token) {
+          // Store in cookies for persistence
+          Cookies.set("authToken", result.data.token, { expires: 7 }); // 7 days
+          // Also store in sessionStorage as backup
+          sessionStorage.setItem("authToken", result.data.token);
+        }
+        
         toast.success("Votre compte entreprise a été créé avec succès !");
         onNextStep();
       } else {

@@ -278,7 +278,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             name="newCompanyName"
             value={formData.newCompanyName}
             onChange={handleInputChange}
-            placeholder="Enter new company name"
+            placeholder="Entrez le nom de l'entreprise"
             className="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
           />
             </div>
@@ -314,7 +314,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             name="newWebsite"
             value={formData.newWebsite}
             onChange={handleInputChange}
-            placeholder="Enter new website"
+            placeholder="Entrez l'URL du site web"
             className="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
           />
             </div>
@@ -341,7 +341,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             name="newSiegeSocial"
             value={formData.newSiegeSocial}
             onChange={handleInputChange}
-            placeholder="Enter new siege social"
+            placeholder="Entrez l'adresse du siège social"
             className="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
           />
             </div>

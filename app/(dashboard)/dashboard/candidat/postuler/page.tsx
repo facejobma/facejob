@@ -44,10 +44,12 @@ const PublishVideo: React.FC = () => {
     const fetchSectorsData = async () => {
       try {
         const data = await fetchSectors();
-        setSectors(data);
+        // Ensure data is an array
+        setSectors(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching sectors:", error);
         toast.error("Error fetching sectors!");
+        setSectors([]); // Set empty array on error
       }
     };
 
@@ -219,8 +221,19 @@ const PublishVideo: React.FC = () => {
                       jobId: undefined
                     }}
                     onClientUploadComplete={(res) => {
-                      console.log("Files: ", res);
-                      setVideoUrl(res[0].url);
+                      console.log("=== Upload Complete ===");
+                      console.log("Full response:", JSON.stringify(res, null, 2));
+                      
+                      const uploadedFile = res[0];
+                      console.log("Uploaded file object:", uploadedFile);
+                      console.log("Key:", uploadedFile.key);
+                      console.log("Name:", uploadedFile.name);
+                      
+                      // Use ufsUrl (new) or fallback to url (deprecated) or construct from key
+                      const cdnUrl = uploadedFile.ufsUrl || uploadedFile.url || `https://utfs.io/f/${uploadedFile.key}`;
+                      console.log("CDN URL:", cdnUrl);
+                      
+                      setVideoUrl(cdnUrl);
                       toast.success("Upload Completed!");
                     }}
                     onUploadError={(error: Error) => {

@@ -13,7 +13,10 @@ export interface AuthUser {
 
 async function getUserFromToken(token: string): Promise<AuthUser | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`, {
+    const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`;
+    console.log('[ServerAuthGuard] Fetching user from:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -22,11 +25,15 @@ async function getUserFromToken(token: string): Promise<AuthUser | null> {
       cache: 'no-store', // Don't cache auth requests
     });
 
+    console.log('[ServerAuthGuard] Response status:', response.status);
+
     if (!response.ok) {
+      console.error('[ServerAuthGuard] Failed to fetch user:', response.status, response.statusText);
       return null;
     }
 
     const userData = await response.json();
+    console.log('[ServerAuthGuard] User data received:', { email: userData.email, hasTokenCan: !!userData.tokenCan });
     
     // Determine user role from the token abilities or user type
     let role: UserRole;
@@ -47,12 +54,14 @@ async function getUserFromToken(token: string): Promise<AuthUser | null> {
       }
     }
 
+    console.log('[ServerAuthGuard] Determined role:', role);
+
     return {
       ...userData,
       role
     };
   } catch (error) {
-    console.error('Error fetching user data in server auth guard:', error);
+    console.error('[ServerAuthGuard] Error fetching user data:', error);
     return null;
   }
 }

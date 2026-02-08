@@ -123,12 +123,15 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
         
         if (result.success) {
           console.log("sectors data : ", result.data);
-          setSectors(result.data);
+          const data = result.data || result;
+          setSectors(Array.isArray(data) ? data : []);
         } else {
           console.error("Error fetching sectors:", result.error);
+          setSectors([]); // Set empty array on error
         }
       } catch (error) {
         console.error("Error fetching sectors:", error);
+        setSectors([]); // Set empty array on error
       }
     };
 

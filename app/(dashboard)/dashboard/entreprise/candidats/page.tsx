@@ -78,11 +78,14 @@ const Hiring: React.FC = () => {
           },
         },
       );
-      const data = await response.json();
-      setSectors(data);
+      const result = await response.json();
+      // Extract data from wrapped response
+      const data = result.data || result;
+      setSectors(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching sectors:", error);
       toast.error("Error fetching sectors!");
+      setSectors([]); // Set empty array on error
     }
   };
 

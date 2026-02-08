@@ -138,10 +138,13 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
         );
-        const data = await response.json();
-        setSecteurOptions(data);
+        const result = await response.json();
+        // Extract data from wrapped response
+        const data = result.data || result;
+        setSecteurOptions(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching sectors:", error);
+        setSecteurOptions([]); // Set empty array on error
         // toast.error("Erreur de récupération des secteurs!");
       }
     };

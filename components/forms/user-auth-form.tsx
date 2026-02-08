@@ -95,7 +95,7 @@ export default function UserAuthForm() {
           />
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ formState }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>

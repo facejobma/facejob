@@ -71,7 +71,7 @@ const Notification: React.FC = () => {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notifications`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

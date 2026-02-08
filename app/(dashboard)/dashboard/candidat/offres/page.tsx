@@ -23,9 +23,9 @@ const OffresPage: React.FC = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
 
-  const sortedEntreprises = [...entreprises].sort((a, b) =>
-    a.company_name.localeCompare(b.company_name)
-  );
+  const sortedEntreprises = Array.isArray(entreprises) 
+    ? [...entreprises].sort((a, b) => a.company_name.localeCompare(b.company_name))
+    : [];
 
   const entrepriseOptions = sortedEntreprises.map((entreprise) => ({
     value: entreprise.id,
@@ -87,20 +87,24 @@ const OffresPage: React.FC = () => {
   const fetchSectorsData = async () => {
     try {
       const data = await fetchSectors();
-      setSectors(data);
+      // Ensure data is an array
+      setSectors(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching sectors:", error);
       toast.error("Error fetching sectors!");
+      setSectors([]); // Set empty array on error
     }
   };
 
   const fetchEntreprisesData = async () => {
     try {
       const data = await fetchEnterprises();
-      setEntreprises(data);
+      // Ensure data is an array
+      setEntreprises(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching entreprises:", error);
       toast.error("Error fetching entreprises!");
+      setEntreprises([]); // Set empty array on error
     }
   };
 
@@ -407,6 +411,8 @@ const OffresPage: React.FC = () => {
                 date_debut={offre.date_debut}
                 date_fin={offre.date_fin}
                 description={offre.description}
+                applications_count={offre.applications_count}
+                views_count={offre.views_count}
               />
             ))}
           </div>

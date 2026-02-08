@@ -85,15 +85,17 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
 
 /**
  * Get CSRF cookie before making authenticated requests
+ * Note: Not needed for Bearer token authentication, but kept for compatibility
  */
 export async function getCsrfCookie() {
   try {
     console.log('🍪 Getting CSRF cookie...');
-    await apiCall('/sanctum/csrf-cookie', { 
-      requireAuth: false,
-      method: 'GET'
-    });
-    console.log('✅ CSRF cookie obtained');
+    // CSRF cookie not needed for Bearer token auth - skip this call
+    // await apiCall('/sanctum/csrf-cookie', { 
+    //   requireAuth: false,
+    //   method: 'GET'
+    // });
+    console.log('✅ CSRF cookie skipped (using Bearer token auth)');
   } catch (error) {
     console.warn('❌ Failed to get CSRF cookie:', error);
   }
@@ -218,7 +220,11 @@ export async function deleteCandidateVideo(id: string) {
 
 export async function fetchSectors() {
   const response = await publicApiCall('/api/sectors');
-  if (response.ok) return response.json();
+  if (response.ok) {
+    const result = await response.json();
+    // Handle both wrapped response and direct array
+    return result.data || result;
+  }
   throw new Error(`Failed to fetch sectors: ${response.status}`);
 }
 
@@ -266,7 +272,11 @@ export async function fetchSpecialties() {
 
 export async function fetchOffers() {
   const response = await publicApiCall('/api/offres');
-  if (response.ok) return response.json();
+  if (response.ok) {
+    const result = await response.json();
+    // Handle both paginated response and direct array
+    return result.data || result;
+  }
   throw new Error(`Failed to fetch offers: ${response.status}`);
 }
 
@@ -301,19 +311,23 @@ export async function fetchPlans() {
 }
 
 export async function fetchEnterprises() {
-  const response = await authenticatedApiCall('/api/entreprises');
-  if (response.ok) return response.json();
+  const response = await authenticatedApiCall('/api/v1/entreprises');
+  if (response.ok) {
+    const result = await response.json();
+    // Handle both paginated response and direct array
+    return result.data || result;
+  }
   throw new Error(`Failed to fetch enterprises: ${response.status}`);
 }
 
 export async function fetchAvailabilityStatus() {
-  const response = await authenticatedApiCall('/api/availability/status');
+  const response = await authenticatedApiCall('/api/v1/availability/status');
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch availability status: ${response.status}`);
 }
 
 export async function updateAvailabilityStatus(status: 'available' | 'unavailable') {
-  const response = await authenticatedApiCall('/api/availability/update', {
+  const response = await authenticatedApiCall('/api/v1/availability/update', {
     method: 'POST',
     body: JSON.stringify({ status })
   });
@@ -322,7 +336,7 @@ export async function updateAvailabilityStatus(status: 'available' | 'unavailabl
 }
 
 export async function fetchPostuleAll() {
-  const response = await authenticatedApiCall('/api/postule/all');
+  const response = await authenticatedApiCall('/api/v1/postule/all');
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch postule all: ${response.status}`);
 }
@@ -334,13 +348,13 @@ export async function fetchEntrepriseStats() {
 }
 
 export async function fetchNotifications() {
-  const response = await authenticatedApiCall('/api/notifications');
+  const response = await authenticatedApiCall('/api/v1/notifications');
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch notifications: ${response.status}`);
 }
 
 export async function markNotificationsAsRead() {
-  const response = await authenticatedApiCall('/api/notifications/mark-as-read', {
+  const response = await authenticatedApiCall('/api/v1/notifications/mark-as-read', {
     method: 'POST'
   });
   if (response.ok) return response.json();
@@ -354,7 +368,7 @@ export async function fetchLastPayment(entrepriseId: string) {
 }
 
 export async function checkContactAccess(candidateId: string) {
-  const response = await authenticatedApiCall('/api/contact-access/check', {
+  const response = await authenticatedApiCall('/api/v1/contact-access/check', {
     method: 'POST',
     body: JSON.stringify({ candidate_id: candidateId })
   });
@@ -363,7 +377,7 @@ export async function checkContactAccess(candidateId: string) {
 }
 
 export async function consumeContactAccess(candidateId: string) {
-  const response = await authenticatedApiCall('/api/contact-access/consume', {
+  const response = await authenticatedApiCall('/api/v1/contact-access/consume', {
     method: 'POST',
     body: JSON.stringify({ candidate_id: candidateId })
   });
@@ -372,7 +386,7 @@ export async function consumeContactAccess(candidateId: string) {
 }
 
 export async function getContactAccessStats() {
-  const response = await authenticatedApiCall('/api/contact-access/stats');
+  const response = await authenticatedApiCall('/api/v1/contact-access/stats');
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch contact access stats: ${response.status}`);
 }
@@ -382,13 +396,13 @@ export async function getContactAccessStats() {
 // =============================================================================
 
 export async function fetchUserData() {
-  const response = await authenticatedApiCall('/api/user');
+  const response = await authenticatedApiCall('/api/v1/user');
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch user data: ${response.status}`);
 }
 
 export async function updateCandidate(data: any) {
-  const response = await authenticatedApiCall('/api/candidate/update', {
+  const response = await authenticatedApiCall('/api/v1/candidate/update', {
     method: 'POST',
     body: JSON.stringify(data)
   });
@@ -397,7 +411,7 @@ export async function updateCandidate(data: any) {
 }
 
 export async function createOffer(data: any) {
-  const response = await authenticatedApiCall('/api/offre/create', {
+  const response = await authenticatedApiCall('/api/v1/offre/create', {
     method: 'POST',
     body: JSON.stringify(data)
   });
@@ -406,7 +420,7 @@ export async function createOffer(data: any) {
 }
 
 export async function logout() {
-  const response = await authenticatedApiCall('/api/logout', {
+  const response = await authenticatedApiCall('/api/v1/logout', {
     method: 'POST'
   });
   if (response.ok) return response.json();

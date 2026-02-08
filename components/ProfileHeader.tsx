@@ -74,10 +74,17 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   };
 
   const handleImageUploadComplete = (res: any) => {
-    if (res && res[0] && res[0].fileUrl) {
+    console.log("Upload complete - Files:", res);
+    if (res && res[0]) {
+      const uploadedFile = res[0];
+      // Use ufsUrl (new) or fallback to url (deprecated) or construct from key
+      const cdnUrl = uploadedFile.ufsUrl || uploadedFile.url || `https://utfs.io/f/${uploadedFile.key}`;
+      console.log("File key:", uploadedFile.key);
+      console.log("CDN URL:", cdnUrl);
+      
       setFormData((prevData) => ({
         ...prevData,
-        newImage: res[0].fileUrl,
+        newImage: cdnUrl,
       }));
       toast.success("Image uploaded successfully!");
     }
@@ -154,11 +161,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         const response = await fetch(
           process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
         );
-        const data = await response.json();
-        setSectors(data);
+        const result = await response.json();
+        // Extract data from wrapped response
+        const data = result.data || result;
+        setSectors(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching sectors:", error);
         toast.error("Error fetching sectors!");
+        setSectors([]); // Set empty array on error
       }
     };
 

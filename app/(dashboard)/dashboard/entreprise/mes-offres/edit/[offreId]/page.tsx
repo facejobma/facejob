@@ -45,11 +45,14 @@ const PublishOffer: React.FC = () => {
         if (!response.ok) {
           throw new Error("Failed to fetch sectors");
         }
-        const data = await response.json();
-        setSectors(data);
+        const result = await response.json();
+        // Extract data from wrapped response
+        const data = result.data || result;
+        setSectors(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching sectors:", error);
         toast.error("Error fetching sectors!");
+        setSectors([]); // Set empty array on error
       }
     };
 
@@ -106,7 +109,7 @@ const PublishOffer: React.FC = () => {
         const user = JSON.parse(userData);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update_offre/${offreId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${offreId}`,
           {
             method: "PUT",
             headers: {

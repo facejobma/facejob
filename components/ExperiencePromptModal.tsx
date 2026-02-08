@@ -91,7 +91,7 @@ export default function ExperiencePromptModal({
     try {
       // Submit each valid experience
       const promises = validExperiences.map((experience) =>
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/experiences`, {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/experiences`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

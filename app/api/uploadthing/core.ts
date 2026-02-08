@@ -96,14 +96,16 @@ export const ourFileRouter = {
       console.log("Secure video upload completed:", {
         userId: metadata.userId,
         userType: metadata.userType,
-        fileUrl: file.url,
+        fileKey: file.key,
         fileSize: file.size,
         fileName: file.name,
+        fileType: file.type,
         timestamp: new Date().toISOString()
       });
       
-      // Security: Validate file type by content (magic numbers)
-      if (!file.url.match(/\.(mp4|webm|mov)$/i)) {
+      // Security: Validate file type by MIME type
+      const validVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+      if (!validVideoTypes.includes(file.type)) {
         throw new Error("Invalid file type detected");
       }
       
@@ -132,14 +134,16 @@ export const ourFileRouter = {
       console.log("Secure image upload completed:", {
         userId: metadata.userId,
         userType: metadata.userType,
-        fileUrl: file.url,
+        fileKey: file.key,
         fileSize: file.size,
         fileName: file.name,
+        fileType: file.type,
         timestamp: new Date().toISOString()
       });
       
-      // Security: Validate file type by content
-      if (!file.url.match(/\.(jpg|jpeg|png|webp)$/i)) {
+      // Security: Validate file type by MIME type
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!validImageTypes.includes(file.type)) {
         throw new Error("Invalid image type detected");
       }
       
@@ -166,14 +170,15 @@ export const ourFileRouter = {
       console.log("Secure document upload completed:", {
         userId: metadata.userId,
         userType: metadata.userType,
-        fileUrl: file.url,
+        fileKey: file.key,
         fileSize: file.size,
         fileName: file.name,
+        fileType: file.type,
         timestamp: new Date().toISOString()
       });
       
-      // Security: Validate PDF file
-      if (!file.url.match(/\.pdf$/i)) {
+      // Security: Validate PDF file by MIME type
+      if (file.type !== 'application/pdf') {
         throw new Error("Only PDF documents are allowed");
       }
       

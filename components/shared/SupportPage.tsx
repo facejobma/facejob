@@ -296,7 +296,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">Téléphone</p>
-                  <p className="text-gray-600">+33 1 23 45 67 89</p>
+                  <p className="text-gray-600">+212 8 08588918</p>
                 </div>
               </div>
               
@@ -306,7 +306,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">Email</p>
-                  <p className="text-gray-600">support@facejob.com</p>
+                  <p className="text-gray-600">contact@facejob.ma</p>
                 </div>
               </div>
               
@@ -318,17 +318,6 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                   <p className="font-semibold text-gray-800">Horaires</p>
                   <p className="text-gray-600">Lun-Ven: 9h-18h</p>
                   <p className="text-gray-600">Sam: 10h-16h</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className={`h-12 w-12 rounded-lg bg-${theme.accent}-100 flex items-center justify-center`}>
-                  <FiMapPin className={`text-${theme.accent}-600 text-xl`} />
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-800">Adresse</p>
-                  <p className="text-gray-600">123 Rue de la Paix</p>
-                  <p className="text-gray-600">75001 Paris, France</p>
                 </div>
               </div>
             </CardContent>

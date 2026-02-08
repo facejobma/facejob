@@ -40,10 +40,12 @@ export default function PublierPage() {
   const fetchSectorsData = async () => {
     try {
       const data = await fetchSectors();
-      setSectors(data);
+      // Ensure data is an array
+      setSectors(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching sectors:", error);
       toast.error("Erreur lors du chargement des secteurs");
+      setSectors([]); // Set empty array on error
     }
   };
 

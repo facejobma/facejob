@@ -33,6 +33,8 @@ interface OffreCardProps {
   date_debut: string;
   date_fin: string;
   description: string;
+  applications_count?: number;
+  views_count?: number;
 }
 
 const OffreCard: React.FC<OffreCardProps> = ({
@@ -46,6 +48,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
   date_debut,
   description,
   date_fin,
+  applications_count = 0,
+  views_count = 0,
 }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -363,11 +367,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <Eye size={14} />
-              <span>{((offreId * 7) % 100) + 50} vues</span>
+              <span>{views_count} vue{views_count > 1 ? 's' : ''}</span>
             </div>
             <div className="flex items-center gap-1">
               <Users size={14} />
-              <span>{((offreId * 3) % 20) + 5} candidatures</span>
+              <span>{applications_count} candidature{applications_count > 1 ? 's' : ''}</span>
             </div>
           </div>
           

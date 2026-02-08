@@ -47,7 +47,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     const fetchDegrees = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/diplomes`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/diplomes`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

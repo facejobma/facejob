@@ -185,7 +185,7 @@ const ApplicationHistory: React.FC = () => {
       <Separator />
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -255,6 +255,7 @@ const ApplicationHistory: React.FC = () => {
               <SelectItem value="all">Tous les statuts</SelectItem>
               <SelectItem value="not_viewed">Non vues</SelectItem>
               <SelectItem value="viewed">Vues par recruteur</SelectItem>
+              <SelectItem value="pending">En attente</SelectItem>
               <SelectItem value="rejected">Refusées</SelectItem>
             </SelectContent>
           </Select>

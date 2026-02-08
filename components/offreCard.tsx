@@ -157,7 +157,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
           const data = await response.json();
           
           setVideos(data);
-
+          
           // Auto-select and auto-submit if only one video available
           if (data.length === 1) {
             const video = data[0];

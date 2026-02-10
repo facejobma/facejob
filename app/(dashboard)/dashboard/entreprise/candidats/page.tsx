@@ -3,14 +3,50 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import ResumePDF, { downloadResumePDF } from "@/components/ResumePDF";
+import { downloadResumePDF } from "@/components/ResumePDF";
+import { CandidateCard } from "@/components/CandidateCard";
+import { 
+  ChevronLeft, ChevronRight, MapPin, Briefcase, GraduationCap, 
+  Award, Code, Folder, Calendar, Eye, Download, X, Check,
+  User, Building2, Clock, Star, TrendingUp
+} from "lucide-react";
 
-import BreadCrumb from "@/components/breadcrumb";
-import { Circles } from "react-loader-spinner";
+interface Formation {
+  id: number;
+  school: string;
+  diplome: string;
+  diplome_id: number;
+  field_of_study: string;
+  start_date: string;
+  end_date: string;
+  description: string;
+}
 
-const breadcrumbItems = [
-  { title: "Les CVs videos de candidats", link: "/dashboard/candidats" },
-];
+interface Experience {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+  is_current: boolean;
+  description: string;
+}
+
+interface Skill {
+  id: number;
+  name: string;
+  category: string;
+}
+
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+  url: string;
+  start_date: string;
+  end_date: string;
+}
 
 interface Candidate {
   id: number;
@@ -19,14 +55,25 @@ interface Candidate {
   image: string;
   first_name: string;
   last_name: string;
+  full_name: string;
   link: string;
-  job_id: number;
   job: {
     id: number;
     name: string;
     sector_id: number;
   };
-  nb_experiences: number;
+  city: string;
+  years_of_experience: number;
+  gender: string;
+  bio: string;
+  availability_status: string;
+  formations: Formation[];
+  experiences: Experience[];
+  skills: Skill[];
+  projects: Project[];
+  highest_education: Formation | null;
+  profile_completion: number;
+  created_at: string;
 }
 
 interface Payment {
@@ -36,31 +83,36 @@ interface Payment {
   status: string;
 }
 
-const Hiring: React.FC = () => {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
-  const [loadingPDF, setLoadingPDF] = useState<{ [key: number]: boolean }>({});
+const CandidatsPage: React.FC = () => {
+  const [candidate, setCandidate] = useState<Candidate | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [loadingPDF, setLoadingPDF] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [candidateToConsume, setCandidateToConsume] = useState<Candidate | null>(null);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [lastPayment, setLastPayment] = useState<Payment | null>(null);
+  const [showVideo, setShowVideo] = useState(false);
+  
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  
+  // Filters
   const [sectors, setSectors] = useState<any[]>([]);
+  const [diplomes, setDiplomes] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedGender, setSelectedGender] = useState<string>("");
+  const [selectedEducation, setSelectedEducation] = useState<string>("");
+  const [minExperience, setMinExperience] = useState<string>("");
+  const [maxExperience, setMaxExperience] = useState<string>("");
+  const [cities, setCities] = useState<string[]>([]);
   
-  // Pagination state
+  // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [perPage, setPerPage] = useState<number>(15);
   const [totalCandidates, setTotalCandidates] = useState<number>(0);
 
-  const company =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user")
-      : null;
+  const company = typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
   const companyId = company ? JSON.parse(company).id : null;
 
   useEffect(() => {
@@ -85,13 +137,31 @@ const Hiring: React.FC = () => {
         },
       );
       const result = await response.json();
-      // Extract data from wrapped response
       const data = result.data || result;
       setSectors(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching sectors:", error);
-      toast.error("Error fetching sectors!");
-      setSectors([]); // Set empty array on error
+      setSectors([]);
+    }
+  };
+
+  const fetchDiplomes = async () => {
+    try {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/diplomes",
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const result = await response.json();
+      const data = result.data || result;
+      setDiplomes(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching diplomes:", error);
+      setDiplomes([]);
     }
   };
 
@@ -106,652 +176,429 @@ const Hiring: React.FC = () => {
           },
         },
       );
-      
       if (response.ok) {
         const data = await response.json();
         setLastPayment(data);
-      } else if (response.status === 404) {
-        // Handle "No payment found for this entreprise" case
-        console.log("No payment found for this enterprise");
-        setLastPayment(null);
-      } else {
-        console.error("Error fetching last payment:", response.status);
-        toast.error("Error fetching last payment!");
       }
     } catch (error) {
-      console.error("Error fetching last payment:", error);
-      toast.error("Error fetching last payment!");
+      console.error("Error fetching payment:", error);
+    }
+  };
+
+  const fetchCandidate = async () => {
+    try {
+      setLoading(true);
+      
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        per_page: "1",
+      });
+      
+      if (selectedSector) params.append('sector_id', selectedSector);
+      if (selectedJob) params.append('job_id', selectedJob);
+      if (selectedCity) params.append('city', selectedCity);
+      if (selectedGender) params.append('gender', selectedGender);
+      if (selectedEducation) params.append('education_level', selectedEducation);
+      if (minExperience) params.append('min_experience', minExperience);
+      if (maxExperience) params.append('max_experience', maxExperience);
+      
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postule/all?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        setCandidate(result.data[0]);
+        
+        // Extract unique cities
+        const uniqueCities = Array.from(new Set(
+          result.data.map((c: Candidate) => c.city).filter(Boolean)
+        ));
+        setCities(uniqueCities as string[]);
+        
+        if (result.pagination) {
+          setTotalPages(result.pagination.last_page);
+          setTotalCandidates(result.pagination.total);
+        }
+      } else {
+        setCandidate(null);
+        toast("Aucun candidat disponible", { icon: "ℹ️" });
+      }
+    } catch (error) {
+      console.error("Error fetching candidate:", error);
+      setCandidate(null);
+      toast.error("Erreur lors du chargement");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchCandidates = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postule/all?page=${currentPage}&per_page=${perPage}`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        // Handle paginated response
-        if (result.data && Array.isArray(result.data)) {
-          setCandidates(result.data);
-          
-          // Update pagination state
-          if (result.pagination) {
-            setTotalPages(result.pagination.last_page);
-            setTotalCandidates(result.pagination.total);
-          }
-        } else {
-          console.error("API returned invalid data format:", result);
-          setCandidates([]);
-          toast.error("Format de données invalide");
-        }
-      } catch (error) {
-        console.error("Error fetching candidates:", error);
-        setCandidates([]); // Set empty array on error
-        toast.error("Erreur lors du chargement des candidats");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCandidates();
+    fetchCandidate();
     fetchSectors();
+    fetchDiplomes();
     fetchLastPayment();
-  }, [authToken, companyId, currentPage, perPage]);
+  }, [currentPage, selectedSector, selectedJob, selectedCity, selectedGender, selectedEducation, minExperience, maxExperience]);
 
-const handleGenerateCV = async (candidateId: number) => {
-  setLoadingPDF((prev) => ({ ...prev, [candidateId]: true }));
-  setSelectedCandidate(candidateId);
-
-  try {
-    await downloadResumePDF(candidateId);
-  } finally {
-    // Quoi qu'il arrive (succès ou erreur), on désactive le spinner
-    setLoadingPDF((prev) => ({ ...prev, [candidateId]: false }));
-  }
-};
-
-  const handleConsumeClick = (candidate: Candidate) => {
-    if (
-      lastPayment &&
-      lastPayment.status !== "pending" &&
-      lastPayment.cv_video_remaining > 0
-    ) {
-      setCandidateToConsume(candidate);
-      setIsModalOpen(true);
-    } else {
-      setIsUpgradeModalOpen(true);
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+      setShowVideo(false);
     }
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+      setShowVideo(false);
+    }
+  };
+
+  const handleGenerateCV = async () => {
+    if (!candidate) return;
+    
+    setLoadingPDF(true);
+    try {
+      await downloadResumePDF(candidate.id);
+      toast.success("CV téléchargé avec succès!");
+    } catch (error) {
+      toast.error("Erreur lors du téléchargement");
+    } finally {
+      setLoadingPDF(false);
+    }
+  };
+
+  const handleConsumeClick = () => {
+    if (!lastPayment || lastPayment.status === "pending" || lastPayment.cv_video_remaining <= 0) {
+      setIsUpgradeModalOpen(true);
+      return;
+    }
+    setIsModalOpen(true);
   };
 
   const handleConfirmConsume = async () => {
-    if (candidateToConsume) {
-      try {
-        const checkResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              candidat_id: candidateToConsume.id,
-              entreprise_id: companyId,
-            }),
-          },
-        );
-
-        if (!checkResponse.ok) {
-          toast.error("Failed to check consumption status.");
-          return;
-        }
-
-        const checkData = await checkResponse.json();
-
-        if (checkData.consumed) {
-          toast.error("This video has already been consumed by your enterprise.");
-          return;
-        }
-
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/consume_cv_video",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              postuler_id: candidateToConsume.cv_id,
-              entreprise_id: companyId,
-            }),
-          },
-        );
-
-        if (response.ok) {
-          toast.success("Vidéo consommée !");
-          fetchLastPayment();
-        } else {
-          toast.error("Failed to consume video.");
-        }
-      } catch (error) {
-        console.error("Error consuming video:", error);
-        toast.error("Error consuming video!");
-      }
-    }
-    setIsModalOpen(false);
-    setCandidateToConsume(null);
-  };
-
-  const handleCancelConsume = () => {
-    setIsModalOpen(false);
-    setCandidateToConsume(null);
-  };
-
-  const handleUpgradePlan = () => {
-    window.location.href = "/dashboard/entreprise/services";
-  };
-
-  const filteredCandidates = candidates.filter((candidate) => {
-    return (
-      candidate.is_verified === "Accepted" &&
-      (!selectedSector || candidate.job?.sector_id === Number(selectedSector)) &&
-      (!selectedJob || candidate.job.id === Number(selectedJob))
-    );
-  });
-
-  // Setup video progress tracking
-  useEffect(() => {
-    const setupVideoListeners = () => {
-      filteredCandidates.forEach((candidate) => {
-        const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
-        const progress = document.getElementById(`progress-${candidate.id}`) as HTMLElement;
-        const duration = document.getElementById(`duration-${candidate.id}`) as HTMLElement;
-        
-        if (video && progress && duration) {
-          // Update duration when metadata is loaded
-          const handleLoadedMetadata = () => {
-            const mins = Math.floor(video.duration / 60);
-            const secs = Math.floor(video.duration % 60);
-            duration.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-          };
-          
-          // Update progress bar
-          const handleTimeUpdate = () => {
-            const percent = (video.currentTime / video.duration) * 100;
-            progress.style.width = `${percent}%`;
-          };
-          
-          video.addEventListener('loadedmetadata', handleLoadedMetadata);
-          video.addEventListener('timeupdate', handleTimeUpdate);
-          
-          // Cleanup
-          return () => {
-            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-            video.removeEventListener('timeupdate', handleTimeUpdate);
-          };
-        }
-      });
-    };
+    if (!candidate) return;
     
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(setupVideoListeners, 100);
-    return () => clearTimeout(timer);
-  }, [filteredCandidates]);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            entreprise_id: companyId,
+            postuler_id: candidate.cv_id,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        toast.success("CV consommé avec succès!");
+        setIsModalOpen(false);
+        handleNext();
+      } else {
+        toast.error("Erreur lors de la consommation");
+      }
+    } catch (error) {
+      toast.error("Erreur réseau");
+    }
+  };
+
+  const clearFilters = () => {
+    setSelectedSector("");
+    setSelectedJob("");
+    setSelectedCity("");
+    setSelectedGender("");
+    setSelectedEducation("");
+    setMinExperience("");
+    setMaxExperience("");
+    setCurrentPage(1);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!candidate) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+        <div className="max-w-4xl mx-auto text-center py-20">
+          <User className="w-20 h-20 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Aucun candidat disponible</h2>
+          <p className="text-gray-600 mb-6">Essayez de modifier vos filtres</p>
+          <button
+            onClick={clearFilters}
+            className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Header with enhanced design */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <svg className="text-2xl text-white w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">Vidéos des candidats</h1>
-                <p className="text-indigo-100 mt-1">Parcourez les vidéos pour trouver votre candidat idéal</p>
-              </div>
-            </div>
-            
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
-                    <svg className="text-white text-lg w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{filteredCandidates.length}</p>
-                    <p className="text-xs text-indigo-100">Candidats</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
-                    <span className="text-white font-bold">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{candidates.filter(c => c.is_verified === "Accepted").length}</p>
-                    <p className="text-xs text-indigo-100">Vérifiés</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-blue-500/30 flex items-center justify-center">
-                    <svg className="text-white w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{lastPayment?.cv_video_remaining || 0}</p>
-                    <p className="text-xs text-indigo-100">CV restants</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-amber-500/30 flex items-center justify-center">
-                    <svg className="text-white w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h8z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{sectors.length}</p>
-                    <p className="text-xs text-indigo-100">Secteurs</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50/20 to-emerald-50/20">
+      {/* Filters Sidebar */}
+      <div className="fixed left-0 top-20 bottom-0 w-80 bg-white border-r border-gray-200 shadow-lg overflow-y-auto z-10 hidden lg:block">
+        <div className="p-6 space-y-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Filtres</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              {totalCandidates} candidat{totalCandidates > 1 ? 's' : ''} disponible{totalCandidates > 1 ? 's' : ''}
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* Filters Section */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Filtres de recherche</h3>
-        </div>
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-            <div className="relative w-full md:w-72 group">
-              <select
-                className="w-full bg-white border-2 border-gray-200 hover:border-blue-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
-                value={selectedSector}
-                onChange={(e) => setSelectedSector(e.target.value)}
-              >
-                <option value="">Sélectionner le secteur</option>
-                {sectors.map((sector) => (
-                  <option key={sector.id} value={sector.id}>
-                    {sector.name}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-blue-500 group-hover:text-blue-600 transition-colors">
-                <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-                  <path d="M7 10l5 5 5-5H7z" />
-                </svg>
-              </div>
-            </div>
-            
-            <div className="relative w-full md:w-72 group">
-              <select
-                className="w-full bg-white border-2 border-gray-200 hover:border-purple-400 px-4 py-3 pr-10 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer text-gray-700 font-medium"
-                value={selectedJob}
-                onChange={(e) => setSelectedJob(e.target.value)}
-              >
-                <option value="">Sélectionner le poste</option>
-                {filteredJobs.map((job) => (
-                  <option key={job.id} value={job.id}>
-                    {job.name}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-purple-500 group-hover:text-purple-600 transition-colors">
-                <svg className="fill-current h-5 w-5" viewBox="0 0 20 20">
-                  <path d="M7 10l5 5 5-5H7z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex flex-col items-center justify-center h-[calc(80vh-220px)] gap-6">
-          <div className="relative">
-            <Circles
-              height={80}
-              width={80}
-              color="#4f46e5"
-              ariaLabel="circles-loading"
-              visible={true}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="text-2xl text-indigo-600 animate-pulse w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold text-gray-900 mb-2">Chargement des candidats</p>
-            <p className="text-sm text-gray-500">Veuillez patienter quelques instants...</p>
-          </div>
-        </div>
-      ) : (
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {filteredCandidates.map((candidate) => (
-            <div
-              key={`${candidate.cv_id}`}
-              className="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-primary/30"
+          {/* Sector */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Secteur</label>
+            <select
+              value={selectedSector}
+              onChange={(e) => { setSelectedSector(e.target.value); setCurrentPage(1); }}
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
             >
-              <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-                <div className="aspect-video relative group/video">
-                  <video
-                    src={candidate.link}
-                    className="w-full h-full object-cover cursor-pointer"
-                    preload="metadata"
-                    playsInline
-                    controls={false}
-                    id={`video-${candidate.id}`}
-                    onPlay={(e) => {
-                      // Stop all other videos
-                      document.querySelectorAll('video').forEach((vid) => {
-                        if (vid !== e.currentTarget && !vid.paused) {
-                          vid.pause();
-                        }
-                      });
-                      
-                      const icon = e.currentTarget.parentElement?.querySelector('.play-pause-icon');
-                      if (icon) icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />';
-                    }}
-                    onPause={(e) => {
-                      const icon = e.currentTarget.parentElement?.querySelector('.play-pause-icon');
-                      if (icon) icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />';
-                    }}
-                    onClick={(e) => {
-                      if (e.currentTarget.paused) {
-                        e.currentTarget.play();
-                      } else {
-                        e.currentTarget.pause();
-                      }
-                    }}
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 transition-all duration-300 pointer-events-none" />
-                  
-                  {/* Play/Pause Icon */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl opacity-0 group-hover/video:opacity-100 transition-all duration-300 scale-90 group-hover/video:scale-100">
-                      <svg className="play-pause-icon w-8 h-8 sm:w-10 sm:h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Video Controls Bar */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 sm:p-4 opacity-0 group-hover/video:opacity-100 transition-all duration-300">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      {/* Play/Pause Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
-                          if (video) {
-                            if (video.paused) {
-                              video.play();
-                            } else {
-                              video.pause();
-                            }
-                          }
-                        }}
-                        className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-lg flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
-                      >
-                        <svg className="play-pause-icon-small w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        </svg>
-                      </button>
-
-                      {/* Progress Bar */}
-                      <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
-                          if (video) {
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            const percent = (e.clientX - rect.left) / rect.width;
-                            video.currentTime = percent * video.duration;
-                          }
-                        }}
-                      >
-                        <div 
-                          className="h-full bg-gradient-to-r from-primary to-primary-2 transition-all duration-100"
-                          style={{ width: '0%' }}
-                          id={`progress-${candidate.id}`}
-                        />
-                      </div>
-
-                      {/* Volume Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
-                          if (video) {
-                            video.muted = !video.muted;
-                            const icon = e.currentTarget.querySelector('svg');
-                            if (icon) {
-                              if (video.muted) {
-                                icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />';
-                              } else {
-                                icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />';
-                              }
-                            }
-                          }
-                        }}
-                        className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-lg flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
-                      >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                        </svg>
-                      </button>
-
-                      {/* Fullscreen Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
-                          if (video) {
-                            if (video.requestFullscreen) {
-                              video.requestFullscreen();
-                            }
-                          }
-                        }}
-                        className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-lg flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
-                      >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Video Duration Badge */}
-                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-black/70 backdrop-blur-md text-white text-xs sm:text-sm px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-semibold shadow-lg flex items-center gap-1.5">
-                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    <span id={`duration-${candidate.id}`}>--:--</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 sm:p-5 lg:p-6">
-                <div className="mb-3 sm:mb-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">
-                      {candidate.first_name[0]}. {candidate.last_name[0]}.
-                    </h3>
-                    <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-primary-2 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md">
-                      {candidate.first_name[0]}{candidate.last_name[0]}
-                    </div>
-                  </div>
-                  <p className="text-primary font-semibold text-sm sm:text-base line-clamp-2">
-                    {candidate.job?.name}
-                  </p>
-                  <p className="text-gray-500 text-xs sm:text-sm mt-1">
-                    {candidate.nb_experiences} années d'expérience
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-100">
-                  <button
-                    onClick={() => handleGenerateCV(candidate.id)}
-                    disabled={loadingPDF[candidate.id]}
-                    className={`w-full bg-gradient-to-r from-primary to-primary-2 hover:from-primary-2 hover:to-primary text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 ${
-                      loadingPDF[candidate.id] ? "cursor-wait opacity-75" : ""
-                    }`}
-                  >
-                    {loadingPDF[candidate.id] ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-xs sm:text-sm lg:text-base">Génération...</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span className="text-xs sm:text-sm lg:text-base">Extraire CV</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => handleConsumeClick(candidate)}
-                    className="w-full bg-white hover:bg-gradient-to-r hover:from-primary hover:to-primary-2 text-primary hover:text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg border-2 border-primary transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
-                  >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span className="text-xs sm:text-sm lg:text-base">Consommer</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Pagination Controls */}
-      {!loading && filteredCandidates.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-6 bg-white rounded-xl shadow-md border border-gray-100">
-          <div className="text-sm text-gray-600">
-            Affichage de <span className="font-semibold text-gray-900">{candidates.length}</span> candidats sur <span className="font-semibold text-gray-900">{totalCandidates}</span>
+              <option value="">Tous</option>
+              {sectors.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Job */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Poste</label>
+            <select
+              value={selectedJob}
+              onChange={(e) => { setSelectedJob(e.target.value); setCurrentPage(1); }}
+              disabled={!selectedSector}
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100"
+            >
+              <option value="">Tous</option>
+              {filteredJobs.map((j) => (
+                <option key={j.id} value={j.id}>{j.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* City */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Ville</label>
+            <select
+              value={selectedCity}
+              onChange={(e) => { setSelectedCity(e.target.value); setCurrentPage(1); }}
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Toutes</option>
+              {cities.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Education */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Niveau d'études</label>
+            <select
+              value={selectedEducation}
+              onChange={(e) => { setSelectedEducation(e.target.value); setCurrentPage(1); }}
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Tous</option>
+              {diplomes.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Experience */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Expérience</label>
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={minExperience}
+                onChange={(e) => { setMinExperience(e.target.value); setCurrentPage(1); }}
+                className="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+              >
+                <option value="">Min</option>
+                {[0, 1, 2, 3, 5, 7, 10].map((y) => (
+                  <option key={y} value={y}>{y} an{y > 1 ? 's' : ''}</option>
+                ))}
+              </select>
+              <select
+                value={maxExperience}
+                onChange={(e) => { setMaxExperience(e.target.value); setCurrentPage(1); }}
+                className="px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+              >
+                <option value="">Max</option>
+                {[1, 2, 3, 5, 7, 10, 15, 20].map((y) => (
+                  <option key={y} value={y}>{y} an{y > 1 ? 's' : ''}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Gender */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Genre</label>
+            <select
+              value={selectedGender}
+              onChange={(e) => { setSelectedGender(e.target.value); setCurrentPage(1); }}
+              className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Tous</option>
+              <option value="male">Homme</option>
+              <option value="female">Femme</option>
+            </select>
+          </div>
+
+          {/* Clear Filters */}
+          {(selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || minExperience || maxExperience) && (
             <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+              onClick={clearFilters}
+              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
             >
+              <X className="w-4 h-4" />
+              Réinitialiser
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="lg:ml-80 p-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Candidats Disponibles</h1>
+            <p className="text-gray-600">
+              Candidat {currentPage} sur {totalCandidates}
+            </p>
+          </div>
+
+          {/* Candidate Card */}
+          <div className="mb-8">
+            <CandidateCard candidate={candidate} />
+          </div>
+
+          {/* Video Section */}
+          <div className="bg-white rounded-3xl shadow-xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">CV Vidéo</h3>
+              <button
+                onClick={() => setShowVideo(!showVideo)}
+                className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold rounded-xl transition-colors flex items-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                {showVideo ? "Masquer" : "Voir la vidéo"}
+              </button>
+            </div>
+            {showVideo && (
+              <div className="aspect-video bg-black rounded-2xl overflow-hidden">
+                <video
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${candidate.link}`}
+                  controls
+                  className="w-full h-full"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <button
+              onClick={handleGenerateCV}
+              disabled={loadingPDF}
+              className="px-6 py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl disabled:opacity-50"
+            >
+              <Download className="w-5 h-5" />
+              {loadingPDF ? "Génération..." : "Télécharger CV"}
+            </button>
+            
+            <button
+              onClick={handleConsumeClick}
+              className="px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+            >
+              <Check className="w-5 h-5" />
+              Consommer le CV
+            </button>
+
+            <button
+              onClick={handleNext}
+              disabled={currentPage >= totalPages}
+              className="px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              Passer
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between bg-white rounded-2xl p-4 shadow-lg">
+            <button
+              onClick={handlePrevious}
+              disabled={currentPage <= 1}
+              className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <ChevronLeft className="w-5 h-5" />
               Précédent
             </button>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
-                      currentPage === pageNum
-                        ? 'bg-gradient-to-r from-primary to-primary-2 text-white shadow-md'
-                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-            </div>
+            
+            <span className="text-gray-600 font-medium">
+              {currentPage} / {totalPages}
+            </span>
+            
             <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+              onClick={handleNext}
+              disabled={currentPage >= totalPages}
+              className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               Suivant
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         </div>
-      )}
+      </div>
 
+      {/* Consume Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCancelConsume}></div>
-          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full animate-in fade-in zoom-in duration-200">
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Confirmer la consommation
-              </h2>
-              <p className="text-gray-600">
-                Êtes-vous sûr de vouloir consommer cette vidéo de CV ?
-              </p>
-            </div>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Confirmer la consommation</h2>
+            <p className="text-gray-600 mb-6">
+              Êtes-vous sûr de vouloir consommer ce CV vidéo ? Cette action est irréversible.
+            </p>
             <div className="flex gap-3">
               <button
-                onClick={handleCancelConsume}
-                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-200"
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl"
               >
                 Annuler
               </button>
               <button
                 onClick={handleConfirmConsume}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-primary-2 hover:from-primary-2 hover:to-primary text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
+                className="flex-1 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl"
               >
                 Confirmer
               </button>
@@ -760,29 +607,29 @@ const handleGenerateCV = async (candidateId: number) => {
         </div>
       )}
 
+      {/* Upgrade Modal */}
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsUpgradeModalOpen(false)}></div>
-          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full animate-in fade-in zoom-in duration-200">
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Limite atteinte
-              </h2>
-              <p className="text-gray-600">
-                Vous avez atteint la limite de votre plan, veuillez souscrire à nouveau.
-              </p>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Limite atteinte</h2>
+            <p className="text-gray-600 mb-6">
+              Vous avez atteint la limite de votre plan. Mettez à niveau pour consulter plus de CVs.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsUpgradeModalOpen(false)}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => window.location.href = "/dashboard/entreprise/services"}
+                className="flex-1 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl"
+              >
+                Mettre à niveau
+              </button>
             </div>
-            <button
-              onClick={handleUpgradePlan}
-              className="w-full px-6 py-3 bg-gradient-to-r from-primary to-primary-2 hover:from-primary-2 hover:to-primary text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
-            >
-              Mettre à niveau
-            </button>
           </div>
         </div>
       )}
@@ -790,4 +637,4 @@ const handleGenerateCV = async (candidateId: number) => {
   );
 };
 
-export default Hiring;
+export default CandidatsPage;

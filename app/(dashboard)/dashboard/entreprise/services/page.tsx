@@ -20,6 +20,47 @@ const breadcrumbItems = [
   { title: "Recharger compte d'entreprise", link: "/dashboard/payments" },
 ];
 
+// Helper component for rendering plan features
+const PlanFeatures = ({ plan, period }: { plan: any; period: string }) => {
+  const isFree = plan.monthly_price === 0;
+  
+  return (
+    <div className="space-y-4 mb-8 flex-grow min-h-[280px]">
+      <div className="flex items-start gap-3">
+        <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+        <span className="text-sm text-gray-700 leading-relaxed">
+          Création de compte incluse
+        </span>
+      </div>
+      
+      <div className="flex items-start gap-3">
+        <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+        <span className="text-sm text-gray-700 leading-relaxed">
+          <strong>{plan.cv_video_consultations || "Illimité"}</strong> consultations CV vidéo/mois
+        </span>
+      </div>
+      
+      <div className="flex items-start gap-3">
+        <BriefcaseIcon className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
+        <span className="text-sm text-gray-700 leading-relaxed">
+          <strong>{plan.job_postings || 0}</strong> {plan.job_postings === 1 ? "offre d'emploi/mois" : "offres d'emploi/mois"}
+        </span>
+      </div>
+      
+      {plan.dedicated_support && (
+        <div className="flex items-start gap-3">
+          <svg className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z" />
+          </svg>
+          <span className="text-sm text-gray-700 font-medium leading-relaxed">
+            Support dédié prioritaire
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function ServicePlanPage() {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -577,60 +618,66 @@ function ServicePlanPage() {
                                   <div className="p-6 h-full flex flex-col">
                                     {/* Plan Header */}
                                     <div className="text-center mb-6">
-                                      <h3 className="text-xl font-bold text-gray-900 mb-3">
+                                      <h3 className="text-xl font-bold text-gray-900 mb-3 min-h-[3.5rem] flex items-center justify-center">
                                         {plan.name}
                                       </h3>
                                       <div className="mb-4">
-                                        <span className="text-4xl font-bold text-gray-900">
-                                          {plan.monthly_price}
-                                        </span>
-                                        <span className="text-gray-600 ml-1">DH</span>
+                                        <div className="flex items-baseline justify-center gap-1">
+                                          <span className="text-4xl font-bold text-gray-900">
+                                            {plan.monthly_price.toFixed(2)}
+                                          </span>
+                                          <span className="text-gray-600 text-lg">DH</span>
+                                        </div>
                                         <div className="text-sm text-gray-500 mt-1">
                                           par mois
                                         </div>
                                       </div>
                                       
                                       {/* Plan Description */}
-                                      <p className="text-sm text-gray-600 mb-4 min-h-[2.5rem] flex items-center justify-center">
+                                      <p className="text-sm text-gray-600 mb-4 min-h-[3rem] flex items-center justify-center px-2">
                                         {plan.description || (isFree ? "Parfait pour découvrir nos services" : "Plan professionnel")}
                                       </p>
                                     </div>
 
                                     {/* Features List */}
-                                    <div className="space-y-4 mb-8 flex-grow">
+                                    <div className="space-y-4 mb-8 flex-grow min-h-[280px]">
                                       <div className="flex items-start gap-3">
                                         <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                                         <span className="text-sm text-gray-700 leading-relaxed">
-                                          Création de compte client et gestion des candidatures *
+                                          Création de compte client et gestion des candidatures
                                         </span>
                                       </div>
                                       
                                       <div className="flex items-start gap-3">
                                         <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          Accès visualisation de CV vidéos **
-                                        </span>
-                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                                          Illimité
-                                        </span>
+                                        <div className="flex-1">
+                                          <span className="text-sm text-gray-700 leading-relaxed">
+                                            Accès visualisation de CV vidéos
+                                          </span>
+                                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full ml-2">
+                                            Illimité
+                                          </span>
+                                        </div>
                                       </div>
                                       
                                       <div className="flex items-start gap-3">
                                         <svg className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          Accès coordonnées candidats ***
-                                        </span>
-                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                          {plan.contact_access === 0 ? "Non inclus" : `${plan.contact_access}/mois`}
-                                        </span>
+                                        <div className="flex-1">
+                                          <span className="text-sm text-gray-700 leading-relaxed">
+                                            Accès coordonnées candidats
+                                          </span>
+                                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">
+                                            {plan.contact_access === 0 ? "Non inclus" : plan.contact_access === "Illimité" ? "Illimité" : `${plan.contact_access}/mois`}
+                                          </span>
+                                        </div>
                                       </div>
                                       
                                       <div className="flex items-start gap-3">
                                         <BriefcaseIcon className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
                                         <span className="text-sm text-gray-700 leading-relaxed">
-                                          <strong>{plan.job_postings}</strong> offres d'emploi
+                                          <strong>{plan.job_postings || 0}</strong> {plan.job_postings === 1 ? "offre d'emploi" : "offres d'emploi"}
                                         </span>
                                       </div>
                                       
@@ -798,58 +845,28 @@ function ServicePlanPage() {
 
                                   <div className="p-6 h-full flex flex-col">
                                     <div className="text-center mb-6">
-                                      <h3 className="text-xl font-bold text-gray-900 mb-3">
+                                      <h3 className="text-xl font-bold text-gray-900 mb-3 min-h-[3.5rem] flex items-center justify-center">
                                         {plan.name}
                                       </h3>
                                       <div className="mb-4">
-                                        <span className="text-4xl font-bold text-gray-900">
-                                          {plan.quarterly_price}
-                                        </span>
-                                        <span className="text-gray-600 ml-1">DH</span>
+                                        <div className="flex items-baseline justify-center gap-1">
+                                          <span className="text-4xl font-bold text-gray-900">
+                                            {plan.quarterly_price.toFixed(2)}
+                                          </span>
+                                          <span className="text-gray-600 text-lg">DH</span>
+                                        </div>
                                         <div className="text-sm text-gray-500 mt-1">
                                           par trimestre
                                         </div>
                                         {!isFree && (
                                           <div className="text-xs text-green-600 font-medium mt-1">
-                                            {(plan.quarterly_price / 3).toFixed(0)} DH/mois
+                                            {(plan.quarterly_price / 3).toFixed(2)} DH/mois
                                           </div>
                                         )}
                                       </div>
                                     </div>
 
-                                    <div className="space-y-4 mb-8 flex-grow">
-                                      <div className="flex items-start gap-3">
-                                        <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          Création de compte incluse
-                                        </span>
-                                      </div>
-                                      
-                                      <div className="flex items-start gap-3">
-                                        <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          <strong>{plan.cv_video_consultations}</strong> consultations CV vidéo/mois
-                                        </span>
-                                      </div>
-                                      
-                                      <div className="flex items-start gap-3">
-                                        <BriefcaseIcon className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          <strong>{plan.job_postings}</strong> offres d'emploi/mois
-                                        </span>
-                                      </div>
-                                      
-                                      {plan.dedicated_support && (
-                                        <div className="flex items-start gap-3">
-                                          <svg className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z" />
-                                          </svg>
-                                          <span className="text-sm text-gray-700 font-medium leading-relaxed">
-                                            Support dédié prioritaire
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
+                                    <PlanFeatures plan={plan} period="Trimestriel" />
 
                                     <div className="mt-auto">
                                       <button
@@ -976,58 +993,28 @@ function ServicePlanPage() {
 
                                   <div className="p-6 h-full flex flex-col">
                                     <div className="text-center mb-6">
-                                      <h3 className="text-xl font-bold text-gray-900 mb-3">
+                                      <h3 className="text-xl font-bold text-gray-900 mb-3 min-h-[3.5rem] flex items-center justify-center">
                                         {plan.name}
                                       </h3>
                                       <div className="mb-4">
-                                        <span className="text-4xl font-bold text-gray-900">
-                                          {plan.annual_price}
-                                        </span>
-                                        <span className="text-gray-600 ml-1">DH</span>
+                                        <div className="flex items-baseline justify-center gap-1">
+                                          <span className="text-4xl font-bold text-gray-900">
+                                            {plan.annual_price.toFixed(2)}
+                                          </span>
+                                          <span className="text-gray-600 text-lg">DH</span>
+                                        </div>
                                         <div className="text-sm text-gray-500 mt-1">
                                           par année
                                         </div>
                                         {!isFree && (
                                           <div className="text-xs text-blue-600 font-medium mt-1">
-                                            {(plan.annual_price / 12).toFixed(0)} DH/mois
+                                            {(plan.annual_price / 12).toFixed(2)} DH/mois
                                           </div>
                                         )}
                                       </div>
                                     </div>
 
-                                    <div className="space-y-4 mb-8 flex-grow">
-                                      <div className="flex items-start gap-3">
-                                        <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          Création de compte incluse
-                                        </span>
-                                      </div>
-                                      
-                                      <div className="flex items-start gap-3">
-                                        <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          <strong>{plan.cv_video_consultations}</strong> consultations CV vidéo/mois
-                                        </span>
-                                      </div>
-                                      
-                                      <div className="flex items-start gap-3">
-                                        <BriefcaseIcon className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          <strong>{plan.job_postings}</strong> offres d'emploi/mois
-                                        </span>
-                                      </div>
-                                      
-                                      {plan.dedicated_support && (
-                                        <div className="flex items-start gap-3">
-                                          <svg className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z" />
-                                          </svg>
-                                          <span className="text-sm text-gray-700 font-medium leading-relaxed">
-                                            Support dédié prioritaire
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
+                                    <PlanFeatures plan={plan} period="Annuel" />
 
                                     <div className="mt-auto">
                                       <button

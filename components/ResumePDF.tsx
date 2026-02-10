@@ -27,13 +27,13 @@ const styles = StyleSheet.create({
   avatar: {
     width: 80,
     height: 80,
-    borderRadius: "50%",
+    borderRadius: 40, // Half of width/height for circle
     marginRight: 20,
   },
   avatarBlur: {
     width: 80,
     height: 80,
-    borderRadius: "50%",
+    borderRadius: 40, // Half of width/height for circle
     marginRight: 20,
     opacity: 0,
     display: "none",

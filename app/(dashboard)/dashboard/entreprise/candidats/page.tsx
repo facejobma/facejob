@@ -162,6 +162,45 @@ const Hiring: React.FC = () => {
     fetchLastPayment();
   }, [authToken, companyId]);
 
+  // Setup video progress tracking
+  useEffect(() => {
+    const setupVideoListeners = () => {
+      filteredCandidates.forEach((candidate) => {
+        const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
+        const progress = document.getElementById(`progress-${candidate.id}`) as HTMLElement;
+        const duration = document.getElementById(`duration-${candidate.id}`) as HTMLElement;
+        
+        if (video && progress && duration) {
+          // Update duration when metadata is loaded
+          const handleLoadedMetadata = () => {
+            const mins = Math.floor(video.duration / 60);
+            const secs = Math.floor(video.duration % 60);
+            duration.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+          };
+          
+          // Update progress bar
+          const handleTimeUpdate = () => {
+            const percent = (video.currentTime / video.duration) * 100;
+            progress.style.width = `${percent}%`;
+          };
+          
+          video.addEventListener('loadedmetadata', handleLoadedMetadata);
+          video.addEventListener('timeupdate', handleTimeUpdate);
+          
+          // Cleanup
+          return () => {
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('timeupdate', handleTimeUpdate);
+          };
+        }
+      });
+    };
+    
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(setupVideoListeners, 100);
+    return () => clearTimeout(timer);
+  }, [filteredCandidates]);
+
 const handleGenerateCV = async (candidateId: number) => {
   setLoadingPDF((prev) => ({ ...prev, [candidateId]: true }));
   setSelectedCandidate(candidateId);
@@ -428,9 +467,10 @@ const handleGenerateCV = async (candidateId: number) => {
                     className="w-full h-full object-cover cursor-pointer"
                     preload="metadata"
                     playsInline
+                    controls={false}
                     id={`video-${candidate.id}`}
                     onPlay={(e) => {
-                      // Arrêter toutes les autres vidéos
+                      // Stop all other videos
                       document.querySelectorAll('video').forEach((vid) => {
                         if (vid !== e.currentTarget && !vid.paused) {
                           vid.pause();
@@ -438,11 +478,11 @@ const handleGenerateCV = async (candidateId: number) => {
                       });
                       
                       const icon = e.currentTarget.parentElement?.querySelector('.play-pause-icon');
-                      if (icon) icon.innerHTML = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />';
+                      if (icon) icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />';
                     }}
                     onPause={(e) => {
                       const icon = e.currentTarget.parentElement?.querySelector('.play-pause-icon');
-                      if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z" />';
+                      if (icon) icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />';
                     }}
                     onClick={(e) => {
                       if (e.currentTarget.paused) {
@@ -454,37 +494,112 @@ const handleGenerateCV = async (candidateId: number) => {
                   >
                     Your browser does not support the video tag.
                   </video>
-                  <div className="absolute inset-0 bg-black/20 transition-all duration-300 pointer-events-none" />
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 transition-all duration-300 pointer-events-none" />
                   
                   {/* Play/Pause Icon */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
-                      <svg className="play-pause-icon w-6 h-6 sm:w-8 sm:h-8 text-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl opacity-0 group-hover/video:opacity-100 transition-all duration-300 scale-90 group-hover/video:scale-100">
+                      <svg className="play-pause-icon w-8 h-8 sm:w-10 sm:h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                       </svg>
                     </div>
                   </div>
 
-                  {/* Fullscreen Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
-                      if (video) {
-                        if (video.requestFullscreen) {
-                          video.requestFullscreen();
-                        }
-                      }
-                    }}
-                    className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 bg-black/70 hover:bg-black/90 backdrop-blur-md rounded-lg flex items-center justify-center text-white transition-all duration-300 opacity-0 group-hover/video:opacity-100 z-10"
-                  >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  {/* Video Controls Bar */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 sm:p-4 opacity-0 group-hover/video:opacity-100 transition-all duration-300">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      {/* Play/Pause Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
+                          if (video) {
+                            if (video.paused) {
+                              video.play();
+                            } else {
+                              video.pause();
+                            }
+                          }
+                        }}
+                        className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-lg flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
+                      >
+                        <svg className="play-pause-icon-small w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        </svg>
+                      </button>
+
+                      {/* Progress Bar */}
+                      <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
+                          if (video) {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const percent = (e.clientX - rect.left) / rect.width;
+                            video.currentTime = percent * video.duration;
+                          }
+                        }}
+                      >
+                        <div 
+                          className="h-full bg-gradient-to-r from-primary to-primary-2 transition-all duration-100"
+                          style={{ width: '0%' }}
+                          id={`progress-${candidate.id}`}
+                        />
+                      </div>
+
+                      {/* Volume Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
+                          if (video) {
+                            video.muted = !video.muted;
+                            const icon = e.currentTarget.querySelector('svg');
+                            if (icon) {
+                              if (video.muted) {
+                                icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />';
+                              } else {
+                                icon.innerHTML = '<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />';
+                              }
+                            }
+                          }
+                        }}
+                        className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-lg flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
+                      >
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                      </button>
+
+                      {/* Fullscreen Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const video = document.getElementById(`video-${candidate.id}`) as HTMLVideoElement;
+                          if (video) {
+                            if (video.requestFullscreen) {
+                              video.requestFullscreen();
+                            }
+                          }
+                        }}
+                        className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-lg flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
+                      >
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Video Duration Badge */}
+                  <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-black/70 backdrop-blur-md text-white text-xs sm:text-sm px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-semibold shadow-lg flex items-center gap-1.5">
+                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
-                  </button>
-                </div>
-                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/70 backdrop-blur-md text-white text-xs sm:text-sm px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-semibold shadow-lg">
-                  {candidate.nb_experiences} ans
+                    <span id={`duration-${candidate.id}`}>--:--</span>
+                  </div>
                 </div>
               </div>
 

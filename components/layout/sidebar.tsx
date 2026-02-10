@@ -1,9 +1,15 @@
+"use client";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { navItemsCandidat, navItemsEntreprise } from "@/constants/data";
 import { cn } from "@/lib/utils";
 import { Star, Video, User, Crown } from "lucide-react";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 export default function Sidebar() {
+  const [currentPlan, setCurrentPlan] = useState<string>("Chargement...");
+  const [isLoadingPlan, setIsLoadingPlan] = useState(true);
+
   // Try to get userRole from sessionStorage first
   let userRole =
     typeof window !== "undefined"
@@ -46,7 +52,46 @@ export default function Sidebar() {
   const navItems =
     userRole === "entreprise" ? navItemsEntreprise : navItemsCandidat;
 
-  const currentPlan = "Plan Premium";
+  // Fetch current plan for entreprise users
+  useEffect(() => {
+    const fetchCurrentPlan = async () => {
+      if (userRole !== "entreprise" || !user?.id) {
+        setIsLoadingPlan(false);
+        return;
+      }
+
+      try {
+        const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/last`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentPlan(data.plan_name || "Plan Standard");
+        } else if (response.status === 404) {
+          // No payment found
+          setCurrentPlan("Aucun plan");
+        } else {
+          setCurrentPlan("Plan Standard");
+        }
+      } catch (error) {
+        console.error("Error fetching plan:", error);
+        setCurrentPlan("Plan Standard");
+      } finally {
+        setIsLoadingPlan(false);
+      }
+    };
+
+    fetchCurrentPlan();
+  }, [userRole, user?.id]);
 
   return (
     <nav className={cn('relative h-screen border-r pt-20 hidden md:block w-80 bg-gradient-to-b from-green-50 via-white to-emerald-50')}>

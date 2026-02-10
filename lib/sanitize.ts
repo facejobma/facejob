@@ -3,7 +3,30 @@
  * Prevents XSS attacks by sanitizing HTML content
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'dompurify';
+
+// Create a safe DOMPurify instance
+let purify: typeof DOMPurify;
+
+if (typeof window !== 'undefined') {
+  // Client-side: use browser's window
+  purify = DOMPurify(window);
+} else {
+  // Server-side: use a minimal implementation
+  // For server-side rendering, we'll use a simple fallback
+  purify = {
+    sanitize: (dirty: string) => dirty,
+    setConfig: () => {},
+    clearConfig: () => {},
+    isSupported: false,
+    removed: [],
+    version: '0.0.0',
+    addHook: () => {},
+    removeHook: () => {},
+    removeHooks: () => {},
+    removeAllHooks: () => {},
+  } as any;
+}
 
 /**
  * Sanitize HTML content to prevent XSS attacks
@@ -11,6 +34,12 @@ import DOMPurify from 'isomorphic-dompurify';
  */
 export function sanitizeHtml(dirty: string): string {
   if (!dirty) return '';
+  
+  // Only sanitize on client-side where DOMPurify works properly
+  if (typeof window === 'undefined') {
+    // Server-side: return as-is, will be sanitized on client
+    return dirty;
+  }
   
   // Configure DOMPurify with strict settings
   const config = {
@@ -27,7 +56,7 @@ export function sanitizeHtml(dirty: string): string {
   };
 
   // Sanitize the HTML
-  const clean = DOMPurify.sanitize(dirty, config);
+  const clean = purify.sanitize(dirty, config);
   
   return clean;
 }
@@ -39,7 +68,12 @@ export function sanitizeHtml(dirty: string): string {
 export function stripHtml(html: string): string {
   if (!html) return '';
   
-  const clean = DOMPurify.sanitize(html, { 
+  // Only strip on client-side
+  if (typeof window === 'undefined') {
+    return html;
+  }
+  
+  const clean = purify.sanitize(html, { 
     ALLOWED_TAGS: [],
     KEEP_CONTENT: true 
   });

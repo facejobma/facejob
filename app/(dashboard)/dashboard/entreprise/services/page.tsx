@@ -22,7 +22,7 @@ const breadcrumbItems = [
 
 // Helper component for rendering plan features
 const PlanFeatures = ({ plan, period }: { plan: any; period: string }) => {
-  const isFree = plan.monthly_price === 0;
+  const isFree = Number(plan.monthly_price || 0) === 0;
   
   return (
     <div className="space-y-4 mb-8 flex-grow min-h-[280px]">
@@ -572,7 +572,7 @@ function ServicePlanPage() {
                             {plans.map((plan, index) => {
                               const isPopular = plan.popular;
                               const isExclusive = plan.exclusif;
-                              const isFree = plan.monthly_price === 0;
+                              const isFree = Number(plan.monthly_price || 0) === 0;
                               
                               return (
                                 <div
@@ -624,7 +624,7 @@ function ServicePlanPage() {
                                       <div className="mb-4">
                                         <div className="flex items-baseline justify-center gap-1">
                                           <span className="text-4xl font-bold text-gray-900">
-                                            {plan.monthly_price.toFixed(2)}
+                                            {Number(plan.monthly_price || 0).toFixed(2)}
                                           </span>
                                           <span className="text-gray-600 text-lg">DH</span>
                                         </div>
@@ -808,8 +808,8 @@ function ServicePlanPage() {
                             {plans.map((plan, index) => {
                               const isPopular = plan.popular;
                               const isExclusive = plan.exclusif;
-                              const isFree = plan.monthly_price === 0;
-                              const monthlySavings = plan.monthly_price * 3 - plan.quarterly_price;
+                              const isFree = Number(plan.monthly_price || 0) === 0;
+                              const monthlySavings = Number(plan.monthly_price || 0) * 3 - Number(plan.quarterly_price || 0);
                               
                               return (
                                 <div
@@ -851,7 +851,7 @@ function ServicePlanPage() {
                                       <div className="mb-4">
                                         <div className="flex items-baseline justify-center gap-1">
                                           <span className="text-4xl font-bold text-gray-900">
-                                            {plan.quarterly_price.toFixed(2)}
+                                            {Number(plan.quarterly_price || 0).toFixed(2)}
                                           </span>
                                           <span className="text-gray-600 text-lg">DH</span>
                                         </div>
@@ -956,8 +956,8 @@ function ServicePlanPage() {
                             {plans.map((plan, index) => {
                               const isPopular = plan.popular;
                               const isExclusive = plan.exclusif;
-                              const isFree = plan.monthly_price === 0;
-                              const monthlySavings = plan.monthly_price * 12 - plan.annual_price;
+                              const isFree = Number(plan.monthly_price || 0) === 0;
+                              const monthlySavings = Number(plan.monthly_price || 0) * 12 - Number(plan.annual_price || 0);
                               
                               return (
                                 <div
@@ -999,7 +999,7 @@ function ServicePlanPage() {
                                       <div className="mb-4">
                                         <div className="flex items-baseline justify-center gap-1">
                                           <span className="text-4xl font-bold text-gray-900">
-                                            {plan.annual_price.toFixed(2)}
+                                            {Number(plan.annual_price || 0).toFixed(2)}
                                           </span>
                                           <span className="text-gray-600 text-lg">DH</span>
                                         </div>

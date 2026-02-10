@@ -35,6 +35,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   minHeight = '200px',
 }) => {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: {

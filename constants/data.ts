@@ -166,16 +166,16 @@ export const navItemsCandidat: NavItem[] = [
 
 export const navItemsEntreprise: NavItem[] = [
   {
-    title: "Dashboard",
-    href: "/dashboard/entreprise",
-    icon: "dashboard",
-    label: "Dashboard",
-  },
-  {
     title: "Candidats",
-    href: "/dashboard/entreprise/candidats",
+    href: "/dashboard/entreprise",
     icon: "candidats",
     label: "candidats",
+  },
+  {
+    title: "Statistiques",
+    href: "/dashboard/entreprise/dashboard",
+    icon: "dashboard",
+    label: "statistiques",
   },
   { 
     title: "Publier une offre",

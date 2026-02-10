@@ -364,6 +364,10 @@ export async function markNotificationsAsRead() {
 export async function fetchLastPayment(entrepriseId: string) {
   const response = await authenticatedApiCall(`/api/payments/${entrepriseId}/last`);
   if (response.ok) return response.json();
+  if (response.status === 404) {
+    // No payment found - return null instead of throwing
+    return null;
+  }
   throw new Error(`Failed to fetch last payment: ${response.status}`);
 }
 

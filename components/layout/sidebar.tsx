@@ -9,51 +9,64 @@ import Cookies from "js-cookie";
 export default function Sidebar() {
   const [currentPlan, setCurrentPlan] = useState<string>("Chargement...");
   const [isLoadingPlan, setIsLoadingPlan] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // Try to get userRole from sessionStorage first
-  let userRole =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("userRole")
-      : null;
+  // Initialize client-side data after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Try to get userRole from sessionStorage first
+    let role = window.sessionStorage?.getItem("userRole");
 
-  // Fallback: try to get user data and determine role from it
-  if (!userRole && typeof window !== "undefined") {
-    const userData = window.sessionStorage?.getItem("user");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        // Check if user object has role property
-        if (user.role) {
-          userRole = user.role;
-          // Store it for next time
-          window.sessionStorage.setItem("userRole", user.role);
+    // Fallback: try to get user data and determine role from it
+    if (!role) {
+      const userData = window.sessionStorage?.getItem("user");
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          // Check if user object has role property
+          if (parsedUser.role) {
+            role = parsedUser.role;
+            // Store it for next time
+            window.sessionStorage.setItem("userRole", parsedUser.role);
+          }
+          // Fallback: detect from user data structure
+          else if (parsedUser.company_name || parsedUser.sector_id) {
+            role = "entreprise";
+            window.sessionStorage.setItem("userRole", "entreprise");
+          } else if (parsedUser.first_name || parsedUser.last_name || parsedUser.job_id !== undefined) {
+            role = "candidat";
+            window.sessionStorage.setItem("userRole", "candidat");
+          }
+          setUser(parsedUser);
+        } catch (e) {
+          console.error("Error parsing user data:", e);
         }
-        // Fallback: detect from user data structure
-        else if (user.company_name || user.sector_id) {
-          userRole = "entreprise";
-          window.sessionStorage.setItem("userRole", "entreprise");
-        } else if (user.first_name || user.last_name || user.job_id !== undefined) {
-          userRole = "candidat";
-          window.sessionStorage.setItem("userRole", "candidat");
+      }
+    } else {
+      // If we have role, also get user data
+      const userData = window.sessionStorage?.getItem("user");
+      if (userData) {
+        try {
+          setUser(JSON.parse(userData));
+        } catch (e) {
+          console.error("Error parsing user data:", e);
         }
-      } catch (e) {
-        console.error("Error parsing user data:", e);
       }
     }
-  }
 
-  const userData = 
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user")
-      : null;
-  
-  const user = userData ? JSON.parse(userData) : null;
+    setUserRole(role);
+  }, []);
 
   const navItems =
     userRole === "entreprise" ? navItemsEntreprise : navItemsCandidat;
 
   // Fetch current plan for entreprise users
   useEffect(() => {
+    if (!isClient) return;
+
     const fetchCurrentPlan = async () => {
       if (userRole !== "entreprise" || !user?.id) {
         setIsLoadingPlan(false);
@@ -91,7 +104,7 @@ export default function Sidebar() {
     };
 
     fetchCurrentPlan();
-  }, [userRole, user?.id]);
+  }, [isClient, userRole, user?.id]);
 
   return (
     <nav className={cn('relative h-screen border-r pt-20 hidden md:block w-80 bg-gradient-to-b from-green-50 via-white to-emerald-50')}>

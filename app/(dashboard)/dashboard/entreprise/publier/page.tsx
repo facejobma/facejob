@@ -18,6 +18,7 @@ export default function PublierPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading">("idle");
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -65,8 +66,20 @@ export default function PublierPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
     if (!formData.titre || !formData.description || !formData.sector_id) {
       toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
+    // Validate title length
+    if (formData.titre.trim().length < 10) {
+      toast.error("Le titre doit contenir au moins 10 caractères");
+      return;
+    }
+
+    if (formData.titre.length > 255) {
+      toast.error("Le titre ne peut pas dépasser 255 caractères");
       return;
     }
 
@@ -95,7 +108,7 @@ export default function PublierPage() {
         entreprise_id: companyId,
       });
 
-      toast.success("Offre publiée avec succès!");
+      // Clear form fields
       setFormData({
         titre: "",
         description: "",
@@ -105,6 +118,9 @@ export default function PublierPage() {
         date_debut: "",
         date_fin: "",
       });
+
+      // Show success modal
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error("Error creating offer:", error);
       toast.error(error instanceof Error ? error.message : "Erreur lors de la publication de l'offre");
@@ -188,10 +204,28 @@ export default function PublierPage() {
                     name="titre"
                     value={formData.titre}
                     onChange={handleInputChange}
-                    className="w-full px-5 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400"
+                    className={`w-full px-5 py-3.5 bg-gray-50 border-2 rounded-xl focus:ring-2 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400 ${
+                      formData.titre && formData.titre.trim().length < 10
+                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-200 focus:ring-green-500 focus:border-green-500'
+                    }`}
                     placeholder="Ex: Développeur Full Stack Senior"
                     required
+                    minLength={10}
+                    maxLength={255}
                   />
+                  {formData.titre && formData.titre.trim().length < 10 && (
+                    <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                      <span className="font-medium">⚠</span>
+                      Le titre doit contenir au moins 10 caractères ({formData.titre.trim().length}/10)
+                    </p>
+                  )}
+                  {formData.titre && formData.titre.trim().length >= 10 && (
+                    <p className="mt-2 text-sm text-green-600 flex items-center gap-1">
+                      <span className="font-medium">✓</span>
+                      Titre valide ({formData.titre.length}/255)
+                    </p>
+                  )}
                 </div>
 
                 {/* Secteur */}
@@ -401,6 +435,45 @@ export default function PublierPage() {
         </div>
       </div>
       
+      {/* Success Modal */}
+      {isSuccessModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSuccessModalOpen(false)}></div>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full animate-in fade-in zoom-in duration-200">
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Offre publiée avec succès!
+              </h2>
+              <p className="text-gray-600">
+                Votre offre d'emploi a été publiée et est maintenant visible par les candidats.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setIsSuccessModalOpen(false);
+                  window.location.href = "/dashboard/entreprise/offres";
+                }}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-200"
+              >
+                Voir mes offres
+              </button>
+              <button
+                onClick={() => setIsSuccessModalOpen(false)}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
+              >
+                Créer une autre
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Upgrade Modal */}
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">

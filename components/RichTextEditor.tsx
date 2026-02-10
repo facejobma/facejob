@@ -41,6 +41,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         heading: {
           levels: [2, 3],
         },
+        // Disable the built-in link extension from StarterKit
+        link: false,
       }),
       Link.configure({
         openOnClick: false,

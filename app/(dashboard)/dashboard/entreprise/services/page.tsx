@@ -860,7 +860,7 @@ function ServicePlanPage() {
                                         </div>
                                         {!isFree && (
                                           <div className="text-xs text-green-600 font-medium mt-1">
-                                            {(plan.quarterly_price / 3).toFixed(2)} DH/mois
+                                            {(Number(plan.quarterly_price || 0) / 3).toFixed(2)} DH/mois
                                           </div>
                                         )}
                                       </div>
@@ -1008,7 +1008,7 @@ function ServicePlanPage() {
                                         </div>
                                         {!isFree && (
                                           <div className="text-xs text-blue-600 font-medium mt-1">
-                                            {(plan.annual_price / 12).toFixed(2)} DH/mois
+                                            {(Number(plan.annual_price || 0) / 12).toFixed(2)} DH/mois
                                           </div>
                                         )}
                                       </div>

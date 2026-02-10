@@ -9,18 +9,31 @@ const LoginCandidatPage = () => {
   const router = useRouter();
 
   useEffect(() => {
+    let isChecking = false;
+    
     // Check if user is already logged in using secure method
     const checkAuth = async () => {
-      const user = await getAuthenticatedUser();
-      if (user) {
-        // Redirect to appropriate dashboard based on actual role from backend
-        if (user.role === "candidat") {
-          router.push("/dashboard/candidat");
-        } else if (user.role === "entreprise") {
-          router.push("/dashboard/entreprise");
-        } else if (user.role === "admin") {
-          router.push("/dashboard/admin");
+      // Prevent multiple simultaneous checks
+      if (isChecking) return;
+      isChecking = true;
+      
+      try {
+        const user = await getAuthenticatedUser();
+        if (user) {
+          // Redirect to appropriate dashboard based on actual role from backend
+          if (user.role === "candidat") {
+            router.push("/dashboard/candidat");
+          } else if (user.role === "entreprise") {
+            router.push("/dashboard/entreprise");
+          } else if (user.role === "admin") {
+            router.push("/dashboard/admin");
+          }
         }
+      } catch (error) {
+        console.error("Auth check error on login page:", error);
+        // Stay on login page if there's an error
+      } finally {
+        isChecking = false;
       }
     };
 

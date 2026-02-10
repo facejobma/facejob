@@ -133,11 +133,27 @@ const Hiring: React.FC = () => {
             },
           },
         );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        setCandidates(data);
+        
+        // Ensure data is an array
+        if (Array.isArray(data)) {
+          setCandidates(data);
+        } else {
+          console.error("API returned non-array data:", data);
+          setCandidates([]);
+          toast.error("Format de données invalide");
+        }
       } catch (error) {
         console.error("Error fetching candidates:", error);
-        toast.error("Error fetching candidates!");
+        setCandidates([]); // Set empty array on error
+        toast.error("Erreur lors du chargement des candidats");
+      } finally {
+        setLoading(false);
       }
     };
 

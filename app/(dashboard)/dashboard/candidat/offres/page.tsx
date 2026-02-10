@@ -36,15 +36,30 @@ const OffresPage: React.FC = () => {
     control: (base: any, state: any) => ({
       ...base,
       borderRadius: '8px',
-      borderColor: state.isFocused ? '#4f46e5' : '#d0d5dd',
+      borderColor: state.isFocused ? '#4f46e5' : '#d1d5db',
       borderWidth: '1px',
       boxShadow: state.isFocused ? '0 0 0 2px rgba(79, 70, 229, 0.1)' : 'none',
-      padding: '4px',
-      minHeight: '44px',
+      padding: '0px',
+      minHeight: '42px',
+      height: '42px',
       backgroundColor: 'white',
       '&:hover': {
         borderColor: '#4f46e5',
       },
+    }),
+    valueContainer: (base: any) => ({
+      ...base,
+      padding: '2px 12px',
+      height: '42px',
+    }),
+    input: (base: any) => ({
+      ...base,
+      margin: '0px',
+      padding: '0px',
+    }),
+    indicatorsContainer: (base: any) => ({
+      ...base,
+      height: '42px',
     }),
     option: (base: any, state: any) => ({
       ...base,

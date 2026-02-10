@@ -71,6 +71,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [hasAlreadyApplied, setHasAlreadyApplied] = useState(false);
+  const [checkingApplicationStatus, setCheckingApplicationStatus] = useState(false);
 
   const authToken = Cookies.get("authToken");
   const user =
@@ -128,8 +130,35 @@ const OffreCard: React.FC<OffreCardProps> = ({
   useEffect(() => {
     if (userId) {
       checkProfileCompletion();
+      checkApplicationStatus();
     }
   }, [userId]);
+
+  const checkApplicationStatus = async () => {
+    if (!authToken || !userId) return;
+    
+    setCheckingApplicationStatus(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-application-status?offre_id=${offreId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setHasAlreadyApplied(data.has_applied);
+      }
+    } catch (error) {
+      console.error("Error checking application status:", error);
+    } finally {
+      setCheckingApplicationStatus(false);
+    }
+  };
 
   // Check if user already applied to this offer on component mount
   useEffect(() => {
@@ -245,9 +274,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
       if (response.ok) {
         setIsConfirmationVisible(true);
         setSelectedVideo("");
-        setSelectedVideoId(null)
+        setSelectedVideoId(null);
+        setHasAlreadyApplied(true); // Update the application status
       } else {
-        toast.error("Échec de la candidature. Réessayez plus tard.");
+        const errorData = await response.json();
+        toast.error(errorData.message || "Échec de la candidature. Réessayez plus tard.");
       }
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -372,14 +403,22 @@ const OffreCard: React.FC<OffreCardProps> = ({
         </div>
 
         {/* Action Button */}
-        <button
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          onClick={openModal}
-          disabled={!isProfileComplete}
-        >
-          <span>Postuler</span>
-          <ArrowRight size={18} />
-        </button>
+        {hasAlreadyApplied ? (
+          <div className="w-full bg-green-50 border-2 border-green-200 text-green-700 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2">
+            <CheckCircle size={18} />
+            <span>Déjà postulé</span>
+          </div>
+        ) : (
+          <button
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            onClick={openModal}
+            disabled={!isProfileComplete || checkingApplicationStatus}
+            title={!isProfileComplete ? "Veuillez compléter votre profil (bio, projets, compétences, expériences)" : ""}
+          >
+            <span>{checkingApplicationStatus ? "Vérification..." : "Postuler"}</span>
+            <ArrowRight size={18} />
+          </button>
+        )}
       </div>
 
       {/* Footer Stats */}

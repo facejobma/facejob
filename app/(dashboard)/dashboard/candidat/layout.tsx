@@ -21,9 +21,14 @@ export default function CandidatLayout({ children, params }: LayoutProps) {
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const checkAuth = async () => {
       try {
         const user = await getAuthenticatedUser();
+        
+        // Only update state if component is still mounted
+        if (!isMounted) return;
         
         if (!user) {
           // No user, redirect to login
@@ -47,13 +52,22 @@ export default function CandidatLayout({ children, params }: LayoutProps) {
         setIsAuthorized(true);
       } catch (error) {
         console.error("Auth check error:", error);
-        router.push("/auth/login-candidate");
+        if (isMounted) {
+          router.push("/auth/login-candidate");
+        }
       } finally {
-        setIsChecking(false);
+        if (isMounted) {
+          setIsChecking(false);
+        }
       }
     };
 
     checkAuth();
+    
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
 
   if (isChecking) {

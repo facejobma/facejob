@@ -28,8 +28,14 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
     });
 
     if (!response.ok) {
-      // Token is invalid, clear it
-      logout();
+      // Token is invalid, clear it silently without calling logout
+      // This prevents redirect loops - let the calling code handle the redirect
+      Cookies.remove("authToken");
+      Cookies.remove("userRole");
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("userRole");
+      }
       return null;
     }
 
@@ -82,7 +88,13 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
     };
   } catch (error) {
     console.error('Error fetching user data:', error);
-    logout();
+    // Don't call logout() here - just clear the token to prevent redirect loops
+    Cookies.remove("authToken");
+    Cookies.remove("userRole");
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("userRole");
+    }
     return null;
   }
 }

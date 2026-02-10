@@ -34,7 +34,7 @@ export default function UsersPage() {
         try {
           setLoading(true);
           const response = await fetch(
-            process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/offres/${user.id}`,
+            process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/offres/by-owner/${user.id}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -42,9 +42,28 @@ export default function UsersPage() {
               },
             },
           );
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
           const data = await response.json();
-          setJobs(data);
+          
+          // Ensure data is an array
+          if (Array.isArray(data)) {
+            setJobs(data);
+          } else {
+            console.error("API returned non-array data:", data);
+            setJobs([]);
+            toast({
+              title: "Erreur",
+              variant: "destructive",
+              description: "Format de données invalide.",
+            });
+          }
         } catch (error) {
+          console.error("Error fetching jobs:", error);
+          setJobs([]); // Set empty array on error
           toast({
             title: "Whoops!",
             variant: "destructive",

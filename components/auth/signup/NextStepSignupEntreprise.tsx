@@ -4,6 +4,7 @@ import {useRouter} from "next/navigation";
 import {toast} from "react-hot-toast";
 import {FaGlobe, FaLinkedin} from "react-icons/fa";
 import Image from "next/image";
+import Cookies from "js-cookie";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { apiRequest, handleApiError } from "@/lib/apiUtils";
 import { Building2, MapPin, Users, Globe, Linkedin, Camera, Upload, X } from "lucide-react";
@@ -109,10 +110,17 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 linkedin,
             };
 
-            // Debug: Check if token exists
-            const token = sessionStorage.getItem('authToken');
-            console.log('Auth token exists:', !!token);
-            if (!token) {
+            // Debug: Check if token exists in both locations
+            const sessionToken = sessionStorage.getItem('authToken');
+            const cookieToken = Cookies.get('authToken');
+            
+            console.log('Token check:', {
+                sessionStorage: sessionToken ? '✓ Present' : '✗ Missing',
+                cookies: cookieToken ? '✓ Present' : '✗ Missing',
+                userId: sessionStorage.getItem('userId')
+            });
+            
+            if (!sessionToken && !cookieToken) {
                 toast.error("Session expirée. Veuillez vous reconnecter.");
                 router.push("/auth/signup-entreprise");
                 return;

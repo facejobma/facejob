@@ -135,10 +135,20 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
         
         // Store authentication token
         if (result.data.token) {
-          // Store in cookies for persistence
-          Cookies.set("authToken", result.data.token, { expires: 7 }); // 7 days
-          // Also store in sessionStorage as backup
+          // Store in cookies for persistence with proper settings
+          Cookies.set("authToken", result.data.token, { 
+            expires: 7, // 7 days
+            path: '/',
+            sameSite: 'lax'
+          });
+          // Also store in sessionStorage as primary source
           sessionStorage.setItem("authToken", result.data.token);
+          
+          // Debug log
+          console.log("Token stored successfully:", {
+            cookie: Cookies.get("authToken") ? "✓" : "✗",
+            session: sessionStorage.getItem("authToken") ? "✓" : "✗"
+          });
         }
         
         toast.success("Votre compte entreprise a été créé avec succès !");

@@ -34,19 +34,19 @@ export async function handleApiResponse<T = any>(response: Response): Promise<Ap
         break;
       case 401:
         errorType = 'credentials';
-        errorMessage = "Email ou mot de passe incorrect";
+        errorMessage = data.message || "Session expirée. Veuillez vous reconnecter.";
         break;
       case 403:
         errorType = 'verification';
-        errorMessage = "Accès refusé - vérification requise";
+        errorMessage = data.message || "Accès refusé - vérification requise";
         break;
       case 404:
         errorType = 'client';
-        errorMessage = "Ressource non trouvée";
+        errorMessage = data.message || "Ressource non trouvée";
         break;
       case 409:
         errorType = 'validation';
-        errorMessage = "Cette ressource existe déjà";
+        errorMessage = data.message || "Cette ressource existe déjà";
         break;
       case 422:
         errorType = 'validation';

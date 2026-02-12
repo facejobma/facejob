@@ -126,14 +126,15 @@ const ResumePDFDocument: React.FC<{
   cvConsumed: boolean;
   userRole: string | null;
 }> = ({ userProfile, cvConsumed, userRole }) => {
-  const abbreviatedLastName =
-    userRole === "entreprise" && !cvConsumed
-      ? `${userProfile.last_name?.charAt(0)}.`
-      : userProfile.last_name;
-       const abbreviatedName =
-    userRole === "entreprise" && !cvConsumed
-      ? `${userProfile.first_name?.charAt(0)}.`
-      : userProfile.first_name;
+  // For enterprises, always show only first letter (even if consumed)
+  // Full names are only available through the consumations endpoint
+  const displayFirstName = userRole === "entreprise" 
+    ? (userProfile.first_name?.charAt(0) || 'C') + '.'
+    : userProfile.first_name;
+    
+  const displayLastName = userRole === "entreprise"
+    ? (userProfile.last_name?.charAt(0) || 'A') + '.'
+    : userProfile.last_name;
 
   return (
     <Document>
@@ -152,14 +153,14 @@ const ResumePDFDocument: React.FC<{
           )}
           <View>
             <Text style={styles.name}>
-              {abbreviatedName} {abbreviatedLastName}
+              {displayFirstName} {displayLastName}
             </Text>
             <Text style={styles.headline}>
               {userProfile.job ? userProfile.job.name : " "}
             </Text>
           </View>
 
-          {/* Contact Information */}
+          {/* Contact Information - only show if consumed */}
           {cvConsumed && (
             <View>
               <Text style={styles.contactInfo}>
@@ -354,14 +355,11 @@ const ResumePDFDocument: React.FC<{
 // Fonction pour télécharger le PDF
 export const downloadResumePDF = async (candidateId: number) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const company =
-    typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
-  const companyId = company ? JSON.parse(company).id : null;
   const userRole =
     typeof window !== "undefined" ? sessionStorage.getItem("userRole") : null;
 
   try {
-    // Fetch profile data
+    // Fetch profile data (backend will automatically anonymize if needed)
     const profileResponse = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${candidateId}`,
       {
@@ -373,38 +371,27 @@ export const downloadResumePDF = async (candidateId: number) => {
     );
     const userProfile = await profileResponse.json();
 
-    // Check consumption status
-    const consumeResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          candidat_id: candidateId,
-          entreprise_id: companyId,
-        }),
-      }
-    );
-    const consumeData = await consumeResponse.json();
-    const cvConsumed = consumeData.consumed;
+    // Backend returns is_anonymized flag
+    const isAnonymized = userProfile.is_anonymized || false;
 
-    // Generate PDF
+    // Generate PDF with appropriate name
     const blob = await pdf(
       <ResumePDFDocument
         userProfile={userProfile}
-        cvConsumed={cvConsumed}
+        cvConsumed={!isAnonymized}
         userRole={userRole}
       />
     ).toBlob();
 
-    // Download PDF
+    // For enterprises, always use initials in filename
+    const fileName = userRole === "entreprise"
+      ? `CV_${userProfile.first_name}_${userProfile.last_name}.pdf`
+      : `CV_${userProfile.first_name}_${userProfile.last_name}.pdf`;
+    
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `CV_${userProfile.first_name}_${userProfile.last_name}.pdf`;
+    link.download = fileName;
     link.click();
     URL.revokeObjectURL(url);
 
@@ -420,14 +407,10 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [cvConsumed, setCvConsumed] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
       const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-      const company =
-        typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
-      const companyId = company ? JSON.parse(company).id : null;
 
       try {
         const profileResponse = await fetch(
@@ -441,23 +424,6 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
         );
         const profileData = await profileResponse.json();
         setUserProfile(profileData || {});
-
-        const consumeResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              candidat_id: candidateId,
-              entreprise_id: companyId,
-            }),
-          }
-        );
-        const consumeData = await consumeResponse.json();
-        setCvConsumed(consumeData.consumed);
       } catch (error) {
         setError("Error fetching data");
         toast.error("Error fetching data");
@@ -483,11 +449,14 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
 
   const userRole =
     typeof window !== "undefined" ? sessionStorage.getItem("userRole") : null;
+  
+  // Backend returns is_anonymized flag
+  const isAnonymized = userProfile.is_anonymized || false;
 
   return (
     <ResumePDFDocument
       userProfile={userProfile}
-      cvConsumed={cvConsumed}
+      cvConsumed={!isAnonymized}
       userRole={userRole}
     />
   );

@@ -116,19 +116,6 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
       const userId = typeof window !== "undefined"
         ? window.sessionStorage?.getItem("userId") || ""
         : "";
-      
-      const authToken = typeof window !== "undefined"
-        ? window.sessionStorage?.getItem("authToken") || ""
-        : "";
-
-      console.log("Complete profile - userId:", userId);
-      console.log("Complete profile - authToken:", authToken ? "Token exists" : "No token");
-
-      if (!authToken) {
-        toast.error("Session expirée. Veuillez vous reconnecter.");
-        router.push("/auth/signup-candidate");
-        return;
-      }
 
       const formData = {
         userId,
@@ -138,27 +125,20 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
         yearsOfExperience,
       };
 
-      console.log("Complete profile - formData:", formData);
-
       const result = await apiRequest(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-candidate",
         {
           method: "PUT",
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify(formData),
         }
       );
-
-      console.log("Complete profile - result:", result);
 
       if (result.success) {
         toast.success("Votre compte s'est terminé avec succès !");
         router.push("/auth/login-candidate");
         sessionStorage.clear();
       } else {
+        // Backend will return appropriate error message
         handleApiError(result, toast);
       }
     } catch (error) {

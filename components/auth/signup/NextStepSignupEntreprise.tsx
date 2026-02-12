@@ -98,33 +98,18 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             toast.error("Veuillez uploader le logo de votre entreprise");
             return;
         }
+        
         try {
             const formData = {
                 user_id: Number(sessionStorage.getItem("userId")) || "",
-                bio:bio?bio:"",
+                bio: bio ? bio : "",
                 secteur: Number(secteur),
-                image:logoUrl,
+                image: logoUrl,
                 adresse,
                 effectif,
                 siteWeb,
                 linkedin,
             };
-
-            // Debug: Check if token exists in both locations
-            const sessionToken = sessionStorage.getItem('authToken');
-            const cookieToken = Cookies.get('authToken');
-            
-            console.log('Token check:', {
-                sessionStorage: sessionToken ? '✓ Present' : '✗ Missing',
-                cookies: cookieToken ? '✓ Present' : '✗ Missing',
-                userId: sessionStorage.getItem('userId')
-            });
-            
-            if (!sessionToken && !cookieToken) {
-                toast.error("Session expirée. Veuillez vous reconnecter.");
-                router.push("/auth/signup-entreprise");
-                return;
-            }
 
             const result = await apiRequest(
                 process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-enterprise",
@@ -139,6 +124,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
                 router.push("/auth/login-enterprise");
                 sessionStorage.clear();
             } else {
+                // Backend will return appropriate error message
                 handleApiError(result, toast);
             }
         } catch (error) {

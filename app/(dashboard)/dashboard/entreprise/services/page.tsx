@@ -23,37 +23,39 @@ const breadcrumbItems = [
 // Helper component for rendering plan features
 const PlanFeatures = ({ plan, period }: { plan: any; period: string }) => {
   const isFree = Number(plan.monthly_price || 0) === 0;
+  const cvConsultations = plan.cv_video_consultations === -1 ? "Illimité" : plan.cv_video_consultations;
+  const jobPostings = plan.job_postings === -1 ? "Illimité" : plan.job_postings;
   
   return (
-    <div className="space-y-4 mb-8 flex-grow min-h-[280px]">
-      <div className="flex items-start gap-3">
-        <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-        <span className="text-sm text-gray-700 leading-relaxed">
-          Création de compte incluse
+    <div className="space-y-3 mb-6">
+      <div className="flex items-center gap-2">
+        <CheckCircleIcon className="h-4 w-4 text-green-500 flex-shrink-0" />
+        <span className="text-xs text-gray-600">
+          Gestion des candidatures
         </span>
       </div>
       
-      <div className="flex items-start gap-3">
-        <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-        <span className="text-sm text-gray-700 leading-relaxed">
-          <strong>{plan.cv_video_consultations || "Illimité"}</strong> consultations CV vidéo/mois
+      <div className="flex items-center gap-2">
+        <VideoCameraIcon className="h-4 w-4 text-blue-500 flex-shrink-0" />
+        <span className="text-xs text-gray-700">
+          <strong className="text-sm">{cvConsultations}</strong> {cvConsultations === "Illimité" ? "acquisitions CV" : "acquisition(s) CV"}
         </span>
       </div>
       
-      <div className="flex items-start gap-3">
-        <BriefcaseIcon className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
-        <span className="text-sm text-gray-700 leading-relaxed">
-          <strong>{plan.job_postings || 0}</strong> {plan.job_postings === 1 ? "offre d'emploi/mois" : "offres d'emploi/mois"}
+      <div className="flex items-center gap-2">
+        <BriefcaseIcon className="h-4 w-4 text-purple-500 flex-shrink-0" />
+        <span className="text-xs text-gray-700">
+          <strong className="text-sm">{jobPostings}</strong> {jobPostings === "Illimité" ? "offres d'emploi" : (plan.job_postings === 1 ? "offre" : "offres")}
         </span>
       </div>
       
       {plan.dedicated_support && (
-        <div className="flex items-start gap-3">
-          <svg className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-2">
+          <svg className="h-4 w-4 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z" />
           </svg>
-          <span className="text-sm text-gray-700 font-medium leading-relaxed">
-            Support dédié prioritaire
+          <span className="text-xs text-gray-700 font-medium">
+            Support dédié
           </span>
         </div>
       )}
@@ -129,9 +131,8 @@ function ServicePlanPage() {
       // Transform the data to match frontend expectations
       const transformedPlans = plansData.map((plan: any) => ({
         ...plan,
-        contact_access: plan.cv_video_consultations, // Map contact access
-        exclusif: plan.exclusive, // Map exclusive field
-        cv_video_consultations: "Illimité", // All plans have unlimited viewing
+        contact_access: plan.cv_video_consultations === -1 ? "Illimité" : plan.cv_video_consultations,
+        exclusif: plan.exclusive,
       }));
       setPlans(transformedPlans);
     } catch (error) {
@@ -577,129 +578,103 @@ function ServicePlanPage() {
                               return (
                                 <div
                                   key={index}
-                                  className={`relative rounded-2xl border-2 transition-all duration-300 ${
+                                  className={`relative rounded-xl border-2 transition-all duration-300 ${
                                     isPopular 
-                                      ? 'border-indigo-500 shadow-xl shadow-indigo-100' 
+                                      ? 'border-indigo-500 shadow-lg shadow-indigo-100' 
                                       : isExclusive
-                                      ? 'border-purple-500 shadow-xl shadow-purple-100'
+                                      ? 'border-purple-500 shadow-lg shadow-purple-100'
                                       : isFree
-                                      ? 'border-green-500 shadow-xl shadow-green-100'
-                                      : 'border-gray-200 shadow-lg hover:border-gray-300'
+                                      ? 'border-green-500 shadow-lg shadow-green-100'
+                                      : 'border-gray-200 shadow-md hover:border-gray-300'
                                   } flex-shrink-0`}
                                   style={{ width: `calc(${100 / cardsPerView}% - ${(cardsPerView - 1) * 1.5}rem / ${cardsPerView})` }}
                                 >
                                   {/* Popular Badge */}
                                   {isPopular && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                                      <span className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg whitespace-nowrap">
-                                        ⭐ Plus Populaire
+                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                                      <span className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md whitespace-nowrap">
+                                        ⭐ Populaire
                                       </span>
                                     </div>
                                   )}
                                   
                                   {/* Exclusive Badge */}
                                   {isExclusive && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                                      <span className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg whitespace-nowrap">
-                                        👑 Exclusif
+                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                                      <span className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md whitespace-nowrap">
+                                        👑 Premium
                                       </span>
                                     </div>
                                   )}
 
                                   {/* Free Badge */}
                                   {isFree && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                                      <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg whitespace-nowrap">
+                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                                      <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md whitespace-nowrap">
                                         🎉 Gratuit
                                       </span>
                                     </div>
                                   )}
 
-                                  <div className="p-6 h-full flex flex-col">
+                                  <div className="p-5 h-full flex flex-col">
                                     {/* Plan Header */}
-                                    <div className="text-center mb-6">
-                                      <h3 className="text-xl font-bold text-gray-900 mb-3 min-h-[3.5rem] flex items-center justify-center">
+                                    <div className="text-center mb-4">
+                                      <h3 className="text-lg font-bold text-gray-900 mb-2">
                                         {plan.name}
                                       </h3>
-                                      <div className="mb-4">
+                                      <div className="mb-3">
                                         <div className="flex items-baseline justify-center gap-1">
-                                          <span className="text-4xl font-bold text-gray-900">
-                                            {Number(plan.monthly_price || 0).toFixed(2)}
+                                          <span className="text-3xl font-bold text-gray-900">
+                                            {Number(plan.monthly_price || 0).toFixed(0)}
                                           </span>
-                                          <span className="text-gray-600 text-lg">DH</span>
+                                          <span className="text-gray-600 text-base">DH</span>
                                         </div>
-                                        <div className="text-sm text-gray-500 mt-1">
+                                        <div className="text-xs text-gray-500 mt-1">
                                           par mois
                                         </div>
                                       </div>
-                                      
-                                      {/* Plan Description */}
-                                      <p className="text-sm text-gray-600 mb-4 min-h-[3rem] flex items-center justify-center px-2">
-                                        {plan.description || (isFree ? "Parfait pour découvrir nos services" : "Plan professionnel")}
-                                      </p>
                                     </div>
 
-                                    {/* Features List */}
-                                    <div className="space-y-4 mb-8 flex-grow min-h-[280px]">
-                                      <div className="flex items-start gap-3">
-                                        <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          Création de compte client et gestion des candidatures
-                                        </span>
-                                      </div>
-                                      
-                                      <div className="flex items-start gap-3">
-                                        <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                                        <div className="flex-1">
-                                          <span className="text-sm text-gray-700 leading-relaxed">
-                                            Accès visualisation de CV vidéos
-                                          </span>
-                                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full ml-2">
-                                            Illimité
-                                          </span>
+                                    {/* Features List - Compact */}
+                                    <div className="space-y-2.5 mb-4 flex-grow">
+                                      <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-2">
+                                        <VideoCameraIcon className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-gray-500">Visualisation CV</div>
+                                          <div className="text-sm font-semibold text-gray-900">Illimité</div>
                                         </div>
                                       </div>
                                       
-                                      <div className="flex items-start gap-3">
-                                        <svg className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <div className="flex items-center gap-2 bg-blue-50 rounded-lg p-2">
+                                        <svg className="h-4 w-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
-                                        <div className="flex-1">
-                                          <span className="text-sm text-gray-700 leading-relaxed">
-                                            Accès coordonnées candidats
-                                          </span>
-                                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">
-                                            {plan.contact_access === 0 ? "Non inclus" : plan.contact_access === "Illimité" ? "Illimité" : `${plan.contact_access}/mois`}
-                                          </span>
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-gray-500">Acquisition CV</div>
+                                          <div className="text-sm font-semibold text-gray-900">
+                                            {plan.cv_video_consultations === -1 ? "Illimité" : `${plan.cv_video_consultations}/mois`}
+                                          </div>
                                         </div>
                                       </div>
                                       
-                                      <div className="flex items-start gap-3">
-                                        <BriefcaseIcon className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-gray-700 leading-relaxed">
-                                          <strong>{plan.job_postings || 0}</strong> {plan.job_postings === 1 ? "offre d'emploi" : "offres d'emploi"}
-                                        </span>
+                                      <div className="flex items-center gap-2 bg-purple-50 rounded-lg p-2">
+                                        <BriefcaseIcon className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="text-xs text-gray-500">Offres d'emploi</div>
+                                          <div className="text-sm font-semibold text-gray-900">
+                                            {plan.job_postings === -1 ? "Illimité" : `${plan.job_postings}/mois`}
+                                          </div>
+                                        </div>
                                       </div>
                                       
                                       {plan.dedicated_support && (
-                                        <div className="flex items-start gap-3">
-                                          <svg className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div className="flex items-center gap-2 bg-orange-50 rounded-lg p-2">
+                                          <svg className="h-4 w-4 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z" />
                                           </svg>
-                                          <span className="text-sm text-gray-700 font-medium leading-relaxed">
-                                            Support dédié prioritaire
-                                          </span>
-                                        </div>
-                                      )}
-                                      
-                                      {plan.cv_video_access && (
-                                        <div className="flex items-start gap-3">
-                                          <svg className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                          </svg>
-                                          <span className="text-sm text-gray-700 leading-relaxed">
-                                            Accès complet aux CV vidéo
-                                          </span>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-semibold text-orange-700">Support Dédié</div>
+                                          </div>
                                         </div>
                                       )}
                                     </div>
@@ -707,16 +682,16 @@ function ServicePlanPage() {
                                     {/* CTA Button */}
                                     <div className="mt-auto">
                                       <button
-                                        className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                                        className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                                           isCurrentPlanDisabled(plan)
                                             ? "bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200"
                                             : isPopular
-                                            ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-lg hover:shadow-xl"
+                                            ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg"
                                             : isExclusive
-                                            ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl"
+                                            ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700 shadow-md hover:shadow-lg"
                                             : isFree
-                                            ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl"
-                                            : "bg-gray-900 text-white hover:bg-gray-800 shadow-lg hover:shadow-xl"
+                                            ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg"
+                                            : "bg-gray-900 text-white hover:bg-gray-800 shadow-md hover:shadow-lg"
                                         }`}
                                         onClick={() => handleUpgradeClick(plan)}
                                         disabled={isCurrentPlanDisabled(plan)}
@@ -724,18 +699,9 @@ function ServicePlanPage() {
                                         {isCurrentPlanDisabled(plan)
                                           ? `✓ Plan Actuel`
                                           : isFree
-                                          ? "Commencer Gratuitement"
-                                          : "Choisir ce Plan"}
+                                          ? "Commencer"
+                                          : "Choisir"}
                                       </button>
-
-                                      {/* Value Proposition */}
-                                      {!isFree && (
-                                        <div className="mt-3 text-center">
-                                          <p className="text-xs text-gray-500">
-                                            {!isFree && (plan.dedicated_support ? "Solution entreprise complète" : "Optimisez vos recrutements")}
-                                          </p>
-                                        </div>
-                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -814,14 +780,14 @@ function ServicePlanPage() {
                               return (
                                 <div
                                   key={index}
-                                  className={`relative rounded-2xl border-2 transition-all duration-300 ${
+                                  className={`relative rounded-xl border-2 transition-all duration-300 ${
                                     isPopular 
-                                      ? 'border-indigo-500 shadow-xl shadow-indigo-100' 
+                                      ? 'border-indigo-500 shadow-lg shadow-indigo-100' 
                                       : isExclusive
-                                      ? 'border-purple-500 shadow-xl shadow-purple-100'
+                                      ? 'border-purple-500 shadow-lg shadow-purple-100'
                                       : isFree
-                                      ? 'border-green-500 shadow-xl shadow-green-100'
-                                      : 'border-gray-200 shadow-lg hover:border-gray-300'
+                                      ? 'border-green-500 shadow-lg shadow-green-100'
+                                      : 'border-gray-200 shadow-md hover:border-gray-300'
                                   } flex-shrink-0`}
                                   style={{ width: `calc(${100 / cardsPerView}% - ${(cardsPerView - 1) * 1.5}rem / ${cardsPerView})` }}
                                 >
@@ -843,24 +809,24 @@ function ServicePlanPage() {
                                     </div>
                                   )}
 
-                                  <div className="p-6 h-full flex flex-col">
-                                    <div className="text-center mb-6">
-                                      <h3 className="text-xl font-bold text-gray-900 mb-3 min-h-[3.5rem] flex items-center justify-center">
+                                  <div className="p-5 h-full flex flex-col">
+                                    <div className="text-center mb-4">
+                                      <h3 className="text-lg font-bold text-gray-900 mb-2">
                                         {plan.name}
                                       </h3>
-                                      <div className="mb-4">
+                                      <div className="mb-3">
                                         <div className="flex items-baseline justify-center gap-1">
-                                          <span className="text-4xl font-bold text-gray-900">
-                                            {Number(plan.quarterly_price || 0).toFixed(2)}
+                                          <span className="text-3xl font-bold text-gray-900">
+                                            {Number(plan.quarterly_price || 0).toFixed(0)}
                                           </span>
-                                          <span className="text-gray-600 text-lg">DH</span>
+                                          <span className="text-gray-600 text-base">DH</span>
                                         </div>
-                                        <div className="text-sm text-gray-500 mt-1">
+                                        <div className="text-xs text-gray-500 mt-1">
                                           par trimestre
                                         </div>
                                         {!isFree && (
                                           <div className="text-xs text-green-600 font-medium mt-1">
-                                            {(Number(plan.quarterly_price || 0) / 3).toFixed(2)} DH/mois
+                                            {(Number(plan.quarterly_price || 0) / 3).toFixed(0)} DH/mois
                                           </div>
                                         )}
                                       </div>
@@ -870,10 +836,10 @@ function ServicePlanPage() {
 
                                     <div className="mt-auto">
                                       <button
-                                        className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                                        className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                                           isCurrentPlanDisabled(plan)
                                             ? "bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200"
-                                            : "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl"
+                                            : "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg"
                                         }`}
                                         onClick={() => handleUpgradeClick(plan)}
                                         disabled={isCurrentPlanDisabled(plan)}
@@ -881,8 +847,8 @@ function ServicePlanPage() {
                                         {isCurrentPlanDisabled(plan)
                                           ? `✓ Plan Actuel`
                                           : isFree
-                                          ? "Rester Gratuit"
-                                          : "Économiser avec ce Plan"}
+                                          ? "Gratuit"
+                                          : "Choisir"}
                                       </button>
                                     </div>
                                   </div>
@@ -962,14 +928,14 @@ function ServicePlanPage() {
                               return (
                                 <div
                                   key={index}
-                                  className={`relative rounded-2xl border-2 transition-all duration-300 ${
+                                  className={`relative rounded-xl border-2 transition-all duration-300 ${
                                     isPopular 
-                                      ? 'border-indigo-500 shadow-xl shadow-indigo-100' 
+                                      ? 'border-indigo-500 shadow-lg shadow-indigo-100' 
                                       : isExclusive
-                                      ? 'border-purple-500 shadow-xl shadow-purple-100'
+                                      ? 'border-purple-500 shadow-lg shadow-purple-100'
                                       : isFree
-                                      ? 'border-green-500 shadow-xl shadow-green-100'
-                                      : 'border-gray-200 shadow-lg hover:border-gray-300'
+                                      ? 'border-green-500 shadow-lg shadow-green-100'
+                                      : 'border-gray-200 shadow-md hover:border-gray-300'
                                   } flex-shrink-0`}
                                   style={{ width: `calc(${100 / cardsPerView}% - ${(cardsPerView - 1) * 1.5}rem / ${cardsPerView})` }}
                                 >
@@ -991,24 +957,24 @@ function ServicePlanPage() {
                                     </div>
                                   )}
 
-                                  <div className="p-6 h-full flex flex-col">
-                                    <div className="text-center mb-6">
-                                      <h3 className="text-xl font-bold text-gray-900 mb-3 min-h-[3.5rem] flex items-center justify-center">
+                                  <div className="p-5 h-full flex flex-col">
+                                    <div className="text-center mb-4">
+                                      <h3 className="text-lg font-bold text-gray-900 mb-2">
                                         {plan.name}
                                       </h3>
-                                      <div className="mb-4">
+                                      <div className="mb-3">
                                         <div className="flex items-baseline justify-center gap-1">
-                                          <span className="text-4xl font-bold text-gray-900">
-                                            {Number(plan.annual_price || 0).toFixed(2)}
+                                          <span className="text-3xl font-bold text-gray-900">
+                                            {Number(plan.annual_price || 0).toFixed(0)}
                                           </span>
-                                          <span className="text-gray-600 text-lg">DH</span>
+                                          <span className="text-gray-600 text-base">DH</span>
                                         </div>
-                                        <div className="text-sm text-gray-500 mt-1">
+                                        <div className="text-xs text-gray-500 mt-1">
                                           par année
                                         </div>
                                         {!isFree && (
                                           <div className="text-xs text-blue-600 font-medium mt-1">
-                                            {(Number(plan.annual_price || 0) / 12).toFixed(2)} DH/mois
+                                            {(Number(plan.annual_price || 0) / 12).toFixed(0)} DH/mois
                                           </div>
                                         )}
                                       </div>
@@ -1018,10 +984,10 @@ function ServicePlanPage() {
 
                                     <div className="mt-auto">
                                       <button
-                                        className={`w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                                        className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
                                           isCurrentPlanDisabled(plan)
                                             ? "bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200"
-                                            : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-lg hover:shadow-xl"
+                                            : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg"
                                         }`}
                                         onClick={() => handleUpgradeClick(plan)}
                                         disabled={isCurrentPlanDisabled(plan)}
@@ -1029,8 +995,8 @@ function ServicePlanPage() {
                                         {isCurrentPlanDisabled(plan)
                                           ? `✓ Plan Actuel`
                                           : isFree
-                                          ? "Rester Gratuit"
-                                          : "Meilleure Valeur"}
+                                          ? "Gratuit"
+                                          : "Choisir"}
                                       </button>
                                     </div>
                                   </div>

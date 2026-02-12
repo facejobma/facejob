@@ -150,7 +150,9 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
           
           // Store the authentication token
           if (userData.token) {
-            sessionStorage.setItem("authToken", userData.token);
+            // Clean the token (remove any quotes)
+            const cleanToken = userData.token.replace(/['"]/g, '');
+            sessionStorage.setItem("authToken", cleanToken);
             console.log("Token stored in sessionStorage");
           } else {
             console.warn("No token received from registration");

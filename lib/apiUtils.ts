@@ -123,10 +123,18 @@ export async function apiRequest<T = any>(
         }
       }
       
-      // Debug log
-      if (!authToken) {
-        console.warn('No auth token found for request to:', url);
+      // Clean token if it exists (remove quotes)
+      if (authToken) {
+        authToken = authToken.replace(/['"]/g, '');
       }
+      
+      // Debug log
+      console.log('API Request Debug:', {
+        url,
+        hasToken: !!authToken,
+        tokenPreview: authToken ? `${authToken.substring(0, 20)}...` : 'none',
+        tokenLength: authToken?.length || 0
+      });
     }
 
     const headers: Record<string, string> = {

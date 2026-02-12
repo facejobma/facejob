@@ -64,23 +64,29 @@ const ModernLoginForm = ({ loginFor }: ModernLoginFormProps) => {
         toast.success("Connecté avec succès");
       } else {
         // Handle different error types with appropriate messages
+        // Use the error message from the backend (result.error) which already contains the proper message
         switch (result.errorType) {
-          case 'credentials':
-            toast.error("Email ou mot de passe incorrect");
-            break;
           case 'verification':
-            toast.error("Votre adresse e-mail doit être vérifiée avant de vous connecter");
-            break;
-          case 'validation':
-            toast.error(result.error || "Données de connexion invalides");
-            break;
-          case 'network':
-            toast.error("Erreur de connexion, vérifiez votre connexion internet");
-            break;
-          case 'server':
-            toast.error("Erreur du serveur, veuillez réessayer plus tard");
+            // Show the backend message with extended duration
+            toast.error(result.error || "Votre adresse e-mail doit être vérifiée avant de vous connecter.", { duration: 6000 });
+            // Show option to resend verification email
+            setTimeout(() => {
+              toast((t) => (
+                <div className="flex flex-col gap-2">
+                  <span>Vous n'avez pas reçu l'email ?</span>
+                  <Link
+                    href="/auth/resend-verification"
+                    className="text-primary font-medium hover:underline"
+                    onClick={() => toast.dismiss(t.id)}
+                  >
+                    Renvoyer l'email de vérification
+                  </Link>
+                </div>
+              ), { duration: 8000 });
+            }, 1000);
             break;
           default:
+            // For all other errors, just show the backend message
             toast.error(result.error || "Une erreur s'est produite lors de la connexion");
         }
       }

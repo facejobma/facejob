@@ -215,20 +215,20 @@ export async function secureLogin(email: string, password: string, expectedRole:
       
       // Determine error type based on status code and message
       let errorType: AuthResult['errorType'] = 'server';
-      let errorMessage = "Une erreur s'est produite lors de la connexion";
+      let errorMessage = errorData.message || "Une erreur s'est produite lors de la connexion";
 
       if (response.status === 401) {
         errorType = 'credentials';
-        errorMessage = "Email ou mot de passe incorrect";
+        errorMessage = errorData.message || "Email ou mot de passe incorrect";
       } else if (response.status === 403) {
         errorType = 'verification';
-        errorMessage = "Votre compte doit être vérifié avant de vous connecter";
+        errorMessage = errorData.message || "Votre compte doit être vérifié avant de vous connecter";
       } else if (response.status === 422) {
         errorType = 'validation';
         errorMessage = errorData.message || "Données de connexion invalides";
       } else if (response.status >= 500) {
         errorType = 'server';
-        errorMessage = "Erreur du serveur, veuillez réessayer plus tard";
+        errorMessage = errorData.message || "Erreur du serveur, veuillez réessayer plus tard";
       }
 
       return {

@@ -306,14 +306,29 @@ const CandidatsPage: React.FC = () => {
       );
 
       if (response.ok) {
-        toast.success("CV consommé!");
+        toast.success("CV consommé avec succès!");
         setIsModalOpen(false);
         setCandidates(prev => prev.filter(c => c.cv_id !== selectedCandidate.cv_id));
+        // Refresh payment info to update remaining consultations
+        fetchLastPayment();
       } else {
-        toast.error("Erreur");
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Handle quota limit error specifically
+        if (response.status === 402 && errorData.needs_upgrade) {
+          setIsModalOpen(false);
+          toast.error(errorData.message || "Vous avez atteint la limite de consultations de CV.", { duration: 5000 });
+          // Show upgrade modal after a short delay
+          setTimeout(() => {
+            setIsUpgradeModalOpen(true);
+          }, 500);
+        } else {
+          toast.error(errorData.message || "Erreur lors de la consommation du CV");
+        }
       }
     } catch (error) {
-      toast.error("Erreur réseau");
+      console.error("Error consuming CV:", error);
+      toast.error("Erreur réseau. Veuillez réessayer.");
     }
   };
 

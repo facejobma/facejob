@@ -130,25 +130,40 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
       );
 
       if (result.success) {
+        console.log("Registration response:", result);
+        console.log("Result data:", result.data);
+        
         // Store user ID for profile completion
-        sessionStorage.setItem("userId", result.data.user_id);
+        const userId = result.data?.user_id || result.data?.data?.user_id;
+        const token = result.data?.token || result.data?.data?.token;
+        
+        if (userId) {
+          sessionStorage.setItem("userId", userId.toString());
+        }
         
         // Store authentication token
-        if (result.data.token) {
+        if (token) {
+          // Clean the token (remove any quotes)
+          const cleanToken = token.replace(/['"]/g, '');
+          
           // Store in cookies for persistence with proper settings
-          Cookies.set("authToken", result.data.token, { 
+          Cookies.set("authToken", cleanToken, { 
             expires: 7, // 7 days
             path: '/',
             sameSite: 'lax'
           });
           // Also store in sessionStorage as primary source
-          sessionStorage.setItem("authToken", result.data.token);
+          sessionStorage.setItem("authToken", cleanToken);
           
           // Debug log
           console.log("Token stored successfully:", {
+            tokenLength: cleanToken.length,
+            tokenPreview: cleanToken.substring(0, 20) + '...',
             cookie: Cookies.get("authToken") ? "✓" : "✗",
             session: sessionStorage.getItem("authToken") ? "✓" : "✗"
           });
+        } else {
+          console.error("No token found in response!");
         }
         
         toast.success("Votre compte entreprise a été créé avec succès !");

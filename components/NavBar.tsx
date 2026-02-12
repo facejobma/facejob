@@ -63,7 +63,7 @@ export default function NavBar() {
         whileInView={{ y: 0 }}
         viewport={{ once: true }}
       >
-        <div className="w-full my-3 px-6 md:px-10 mx-auto">
+        <div className="w-full px-6 md:px-10 mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-7">
               <div>

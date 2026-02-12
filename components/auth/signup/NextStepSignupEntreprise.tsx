@@ -100,6 +100,15 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
         }
         
         try {
+            // Debug: Check stored values
+            const storedToken = sessionStorage.getItem('authToken');
+            const storedUserId = sessionStorage.getItem('userId');
+            console.log('Profile Completion Debug:', {
+                hasToken: !!storedToken,
+                tokenPreview: storedToken ? `${storedToken.substring(0, 20)}...` : 'none',
+                userId: storedUserId
+            });
+            
             const formData = {
                 user_id: Number(sessionStorage.getItem("userId")) || "",
                 bio: bio ? bio : "",

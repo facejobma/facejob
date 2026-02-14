@@ -20,20 +20,6 @@ const breadcrumbItems = [
   { title: "Recharger compte d'entreprise", link: "/dashboard/payments" },
 ];
 
-// Helper function to translate payment period to French
-const translatePeriod = (period: string | undefined): string => {
-  if (!period) return "-";
-  const translations: { [key: string]: string } = {
-    "Mensuel": "Mensuel",
-    "Trimestriel": "Trimestriel",
-    "Annuel": "Annuel",
-    "monthly": "Mensuel",
-    "quarterly": "Trimestriel",
-    "annual": "Annuel",
-  };
-  return translations[period] || period;
-};
-
 function ServicePlanPage() {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -265,75 +251,75 @@ function ServicePlanPage() {
   return (
     <>
       <ScrollArea className="h-full">
-        <div className="space-y-4 md:space-y-6 lg:space-y-8 p-4 md:p-6 lg:p-8">
+        <div className="space-y-8">
           {/* Header with enhanced design */}
-          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 text-white shadow-xl">
-            <div className="flex flex-col gap-4 md:gap-6">
+          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex-1">
-                <div className="flex items-start md:items-center gap-3 mb-4">
-                  <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg md:rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-                    <svg className="text-white w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <svg className="text-2xl text-white w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">Plans & Abonnements</h1>
-                    <p className="text-indigo-100 mt-1 text-sm md:text-base">Choisissez le plan adapté à vos besoins</p>
+                  <div>
+                    <h1 className="text-3xl font-bold">Services & Abonnements</h1>
+                    <p className="text-indigo-100 mt-1">Choisissez le plan qui correspond à vos besoins d'entreprise</p>
                   </div>
                 </div>
                 
                 {/* Statistics Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 mt-4 md:mt-6">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-3 md:p-4 border border-white/20">
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-                      <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
-                        <CheckCircleIcon className="text-white w-4 h-4 md:w-5 md:h-5" />
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
+                        <CheckCircleIcon className="text-white text-lg w-5 h-5" />
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-lg md:text-xl lg:text-2xl font-bold text-white truncate">
-                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment.plan_name : hasNoPayment ? "Aucun" : "-")}
+                      <div>
+                        <p className="text-2xl font-bold text-white">
+                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment.plan_name : hasNoPayment ? "Aucun plan" : "-")}
                         </p>
                         <p className="text-xs text-indigo-100">Plan actuel</p>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-3 md:p-4 border border-white/20">
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-                      <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center flex-shrink-0">
-                        <VideoCameraIcon className="text-white w-4 h-4 md:w-5 md:h-5" />
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
+                        <VideoCameraIcon className="text-white w-5 h-5" />
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-lg md:text-xl lg:text-2xl font-bold text-white truncate">
+                      <div>
+                        <p className="text-2xl font-bold text-white">
                           {isLoadingPayment ? "..." : (lastPayment ? lastPayment.contact_access_remaining : hasNoPayment ? "0" : "-")}
                         </p>
-                        <p className="text-xs text-indigo-100">Contacts</p>
+                        <p className="text-xs text-indigo-100">Contacts restants</p>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-3 md:p-4 border border-white/20">
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-                      <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-blue-500/30 flex items-center justify-center flex-shrink-0">
-                        <BriefcaseIcon className="text-white w-4 h-4 md:w-5 md:h-5" />
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-blue-500/30 flex items-center justify-center">
+                        <BriefcaseIcon className="text-white w-5 h-5" />
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-lg md:text-xl lg:text-2xl font-bold text-white truncate">
+                      <div>
+                        <p className="text-2xl font-bold text-white">
                           {isLoadingPayment ? "..." : (lastPayment ? lastPayment.job_remaining : hasNoPayment ? "0" : "-")}
                         </p>
-                        <p className="text-xs text-indigo-100">Offres</p>
+                        <p className="text-xs text-indigo-100">Offres restantes</p>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-3 md:p-4 border border-white/20">
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-                      <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-amber-500/30 flex items-center justify-center flex-shrink-0">
-                        <ClockIcon className="text-white w-4 h-4 md:w-5 md:h-5" />
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-amber-500/30 flex items-center justify-center">
+                        <ClockIcon className="text-white w-5 h-5" />
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-lg md:text-xl lg:text-2xl font-bold text-white truncate">
-                          {isLoadingPayment ? "..." : (lastPayment ? translatePeriod(lastPayment?.payment_period) : hasNoPayment ? "Aucune" : "-")}
+                      <div>
+                        <p className="text-2xl font-bold text-white">
+                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment?.payment_period : hasNoPayment ? "Aucune" : "-")}
                         </p>
                         <p className="text-xs text-indigo-100">Période</p>
                       </div>
@@ -345,42 +331,43 @@ function ServicePlanPage() {
           </div>
 
           {/* Current Plan Overview */}
-          <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 md:px-6 py-3 md:py-4 border-b border-gray-200">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900">Aperçu de votre abonnement</h3>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Aperçu de votre abonnement</h3>
             </div>
-            <div className="p-4 md:p-6">
+            <div className="p-6">
               {isLoadingPayment ? (
                 <div className="flex justify-center items-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                  <span className="ml-2 text-sm md:text-base text-gray-600">Chargement...</span>
+                  <span className="ml-2 text-gray-600">Chargement des informations...</span>
                 </div>
               ) : hasNoPayment ? (
-                <div className="text-center py-6 md:py-8">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6 border border-blue-200">
+                <div className="text-center py-8">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
                     <div className="flex justify-center mb-4">
-                      <div className="h-12 w-12 md:h-16 md:w-16 rounded-full bg-blue-100 flex items-center justify-center">
-                        <BriefcaseIcon className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+                      <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
+                        <BriefcaseIcon className="h-8 w-8 text-blue-600" />
                       </div>
                     </div>
-                    <h4 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">Aucun abonnement actif</h4>
-                    <p className="text-sm md:text-base text-gray-600 mb-4">
-                      Choisissez un plan ci-dessous pour commencer.
+                    <h4 className="text-xl font-semibold text-gray-900 mb-2">Aucun abonnement actif</h4>
+                    <p className="text-gray-600 mb-4">
+                      Vous n'avez pas encore d'abonnement actif. Choisissez un plan ci-dessous pour commencer à utiliser nos services.
                     </p>
-                    <div className="bg-white rounded-lg p-3 md:p-4 border border-blue-200">
-                      <p className="text-xs md:text-sm text-gray-700 font-medium mb-2">
-                        Avantages d'un abonnement :
+                    <div className="bg-white rounded-lg p-4 border border-blue-200">
+                      <p className="text-sm text-gray-700">
+                        <strong>Avantages d'un abonnement :</strong>
                       </p>
-                      <ul className="text-xs md:text-sm text-gray-600 space-y-1 text-left">
-                        <li>• Accès aux CV vidéos</li>
+                      <ul className="text-sm text-gray-600 mt-2 space-y-1">
+                        <li>• Accès aux CV vidéos des candidats</li>
                         <li>• Publication d'offres d'emploi</li>
                         <li>• Support dédié selon le plan</li>
+                        <li>• Gestion complète des candidatures</li>
                       </ul>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto">
                   <Card className="p-6 shadow-lg hover:shadow-xl transition-shadow border rounded-lg flex flex-col items-center">
                     <CheckCircleIcon className="h-8 w-8 text-green-500 mb-2" />
                     <CardHeader className="flex flex-col items-center space-y-0 pb-2">
@@ -403,7 +390,7 @@ function ServicePlanPage() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-700 text-center">
-                        {lastPayment ? translatePeriod(lastPayment?.payment_period) : "-"}
+                        {lastPayment ? lastPayment?.payment_period : "-"}
                       </p>
                     </CardContent>
                   </Card>
@@ -465,40 +452,40 @@ function ServicePlanPage() {
           </div>
 
           {/* Plans Section */}
-          <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 md:px-6 lg:px-8 py-4 md:py-6 border-b border-gray-200">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-8 py-6 border-b border-gray-200">
               <div className="text-center">
-                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                  Choisissez votre plan
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  Choisissez le plan parfait pour votre entreprise
                 </h2>
-                <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
-                  Des solutions flexibles pour tous les besoins
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Des solutions flexibles adaptées à tous les besoins de recrutement, 
+                  du startup à la grande entreprise
                 </p>
               </div>
             </div>
             
-            <div className="p-4 md:p-6 lg:p-8">
+            <div className="p-8">
               {/* Period Selector */}
-              <div className="flex justify-center mb-6 md:mb-8">
-                <div className="bg-gray-100 p-1 rounded-lg md:rounded-xl w-full max-w-md md:max-w-none md:w-auto">
-                  <Tabs defaultValue="Mensuel" className="space-y-6 md:space-y-8">
-                    <TabsList className="bg-transparent space-x-1 grid grid-cols-3 md:flex w-full">
+              <div className="flex justify-center mb-8">
+                <div className="bg-gray-100 p-1 rounded-xl">
+                  <Tabs defaultValue="Mensuel" className="space-y-8">
+                    <TabsList className="bg-transparent space-x-1">
                       <TabsTrigger
                         value="Mensuel"
                         onClick={() => handlePeriodChange("Mensuel")}
-                        className="px-3 md:px-6 py-2 rounded-lg text-xs md:text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                        className="px-6 py-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
                       >
                         Mensuel
                       </TabsTrigger>
                       <TabsTrigger
                         value="Trimestriel"
                         onClick={() => handlePeriodChange("Trimestriel")}
-                        className="px-3 md:px-6 py-2 rounded-lg text-xs md:text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                        className="px-6 py-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
                       >
-                        <span className="flex items-center gap-1 md:gap-2">
-                          <span className="hidden sm:inline">Trimestriel</span>
-                          <span className="sm:hidden">3 mois</span>
-                          <span className="bg-green-100 text-green-700 text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium">
+                        <span className="flex items-center gap-2">
+                          Trimestriel
+                          <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">
                             -10%
                           </span>
                         </span>
@@ -506,11 +493,11 @@ function ServicePlanPage() {
                       <TabsTrigger
                         value="Annuel"
                         onClick={() => handlePeriodChange("Annuel")}
-                        className="px-3 md:px-6 py-2 rounded-lg text-xs md:text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                        className="px-6 py-2 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
                       >
-                        <span className="flex items-center gap-1 md:gap-2">
+                        <span className="flex items-center gap-2">
                           Annuel
-                          <span className="bg-blue-100 text-blue-700 text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium">
+                          <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
                             -20%
                           </span>
                         </span>
@@ -519,20 +506,20 @@ function ServicePlanPage() {
 
                     {/* Monthly Plans Carousel */}
                     <TabsContent value="Mensuel">
-                      <div className="relative max-w-7xl mx-auto px-2 md:px-4 pt-14 md:pt-16 pb-6 md:pb-8">
+                      <div className="relative max-w-7xl mx-auto px-4 py-8">
                         {isLoadingPlans ? (
-                          <div className="flex justify-center items-center py-12 md:py-16">
-                            <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-indigo-600"></div>
-                            <span className="ml-3 text-sm md:text-base text-gray-600">Chargement...</span>
+                          <div className="flex justify-center items-center py-16">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                            <span className="ml-3 text-gray-600">Chargement des plans...</span>
                           </div>
                         ) : plans.length === 0 ? (
-                          <div className="text-center py-12 md:py-16">
-                            <p className="text-gray-500 text-sm md:text-base">Aucun plan disponible</p>
+                          <div className="text-center py-16">
+                            <p className="text-gray-500">Aucun plan disponible</p>
                           </div>
                         ) : (
                           <>
                             {/* Carousel Container */}
-                            <div className="overflow-hidden pt-6">
+                            <div className="overflow-hidden">
                               <div 
                                 className="flex transition-transform duration-300 ease-in-out gap-6"
                                 style={{ 
@@ -548,7 +535,7 @@ function ServicePlanPage() {
                               return (
                                 <div
                                   key={index}
-                                  className={`relative rounded-2xl border-2 transition-all duration-300 h-full ${
+                                  className={`relative rounded-2xl border-2 transition-all duration-300 ${
                                     isPopular 
                                       ? 'border-indigo-500 shadow-xl shadow-indigo-100' 
                                       : isExclusive
@@ -562,8 +549,8 @@ function ServicePlanPage() {
                                   {/* Popular Badge */}
                                   {isPopular && (
                                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                                      <span className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 md:px-4 py-1 rounded-full text-xs md:text-sm font-semibold shadow-lg whitespace-nowrap">
-                                        ⭐ Populaire
+                                      <span className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg whitespace-nowrap">
+                                        ⭐ Plus Populaire
                                       </span>
                                     </div>
                                   )}
@@ -571,7 +558,7 @@ function ServicePlanPage() {
                                   {/* Exclusive Badge */}
                                   {isExclusive && (
                                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                                      <span className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-3 md:px-4 py-1 rounded-full text-xs md:text-sm font-semibold shadow-lg whitespace-nowrap">
+                                      <span className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg whitespace-nowrap">
                                         👑 Exclusif
                                       </span>
                                     </div>
@@ -580,81 +567,81 @@ function ServicePlanPage() {
                                   {/* Free Badge */}
                                   {isFree && (
                                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                                      <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 md:px-4 py-1 rounded-full text-xs md:text-sm font-semibold shadow-lg whitespace-nowrap">
+                                      <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg whitespace-nowrap">
                                         🎉 Gratuit
                                       </span>
                                     </div>
                                   )}
 
-                                  <div className="p-4 md:p-6 h-full flex flex-col">
+                                  <div className="p-6 h-full flex flex-col">
                                     {/* Plan Header */}
-                                    <div className="text-center mb-4 md:mb-6">
-                                      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2 md:mb-3">
+                                    <div className="text-center mb-6">
+                                      <h3 className="text-xl font-bold text-gray-900 mb-3">
                                         {plan.name}
                                       </h3>
-                                      <div className="mb-3 md:mb-4">
-                                        <span className="text-3xl md:text-4xl font-bold text-gray-900">
+                                      <div className="mb-4">
+                                        <span className="text-4xl font-bold text-gray-900">
                                           {Number(plan.monthly_price || 0).toFixed(0)}
                                         </span>
-                                        <span className="text-gray-600 ml-1 text-sm md:text-base">DH</span>
-                                        <div className="text-xs md:text-sm text-gray-500 mt-1">
+                                        <span className="text-gray-600 ml-1">DH</span>
+                                        <div className="text-sm text-gray-500 mt-1">
                                           par mois
                                         </div>
                                       </div>
                                       
                                       {/* Plan Description */}
-                                      <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4 min-h-[2rem] md:min-h-[2.5rem] flex items-center justify-center px-2">
-                                        {plan.description || (isFree ? "Parfait pour découvrir" : "Plan professionnel")}
+                                      <p className="text-sm text-gray-600 mb-4 min-h-[2.5rem] flex items-center justify-center">
+                                        {plan.description || (isFree ? "Parfait pour découvrir nos services" : "Plan professionnel")}
                                       </p>
                                     </div>
 
                                     {/* Features List */}
-                                    <div className="space-y-3 md:space-y-4 mb-6 md:mb-8 flex-grow">
-                                      <div className="flex items-start gap-2 md:gap-3">
-                                        <CheckCircleIcon className="h-4 w-4 md:h-5 md:w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-xs md:text-sm text-gray-700 leading-relaxed">
-                                          Gestion des candidatures *
+                                    <div className="space-y-4 mb-8 flex-grow">
+                                      <div className="flex items-start gap-3">
+                                        <CheckCircleIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                        <span className="text-sm text-gray-700 leading-relaxed">
+                                          Création de compte client et gestion des candidatures *
                                         </span>
                                       </div>
                                       
-                                      <div className="flex items-start gap-2 md:gap-3">
-                                        <VideoCameraIcon className="h-4 w-4 md:h-5 md:w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-xs md:text-sm text-gray-700 leading-relaxed">
-                                          Visualisation CV vidéos **
+                                      <div className="flex items-start gap-3">
+                                        <VideoCameraIcon className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                                        <span className="text-sm text-gray-700 leading-relaxed">
+                                          Accès visualisation de CV vidéos **
                                         </span>
-                                        <span className="text-xs bg-green-100 text-green-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">
+                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
                                           Illimité
                                         </span>
                                       </div>
                                       
-                                      <div className="flex items-start gap-2 md:gap-3">
-                                        <svg className="h-4 w-4 md:h-5 md:w-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <div className="flex items-start gap-3">
+                                        <svg className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
-                                        <span className="text-xs md:text-sm text-gray-700 leading-relaxed">
-                                          Coordonnées candidats ***
+                                        <span className="text-sm text-gray-700 leading-relaxed">
+                                          Accès coordonnées candidats ***
                                         </span>
-                                        <span className="text-xs bg-blue-100 text-blue-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium">
+                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
                                           {plan.cv_video_consultations === -1 ? "Illimité" : `${plan.cv_video_consultations}/mois`}
                                         </span>
                                       </div>
                                       
-                                      <div className="flex items-start gap-2 md:gap-3">
-                                        <BriefcaseIcon className="h-4 w-4 md:h-5 md:w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
-                                        <span className="text-xs md:text-sm text-gray-700 leading-relaxed">
+                                      <div className="flex items-start gap-3">
+                                        <BriefcaseIcon className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+                                        <span className="text-sm text-gray-700 leading-relaxed">
                                           Offres d'emploi
                                         </span>
-                                        <span className="text-xs bg-purple-100 text-purple-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full font-medium">
+                                        <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full font-medium">
                                           {plan.job_postings === -1 ? "Illimité" : `${plan.job_postings}/mois`}
                                         </span>
                                       </div>
                                       
                                       {plan.dedicated_support && (
-                                        <div className="flex items-start gap-2 md:gap-3">
-                                          <svg className="h-4 w-4 md:h-5 md:w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div className="flex items-start gap-3">
+                                          <svg className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 109.75 9.75A9.75 9.75 0 0012 2.25z" />
                                           </svg>
-                                          <span className="text-xs md:text-sm text-gray-700 font-medium leading-relaxed">
+                                          <span className="text-sm text-gray-700 font-medium leading-relaxed">
                                             Support Dédié
                                           </span>
                                         </div>
@@ -664,7 +651,7 @@ function ServicePlanPage() {
                                     {/* CTA Button */}
                                     <div className="mt-auto">
                                       <button
-                                        className={`w-full py-2.5 md:py-3 px-4 md:px-6 rounded-xl font-semibold text-sm md:text-base transition-all duration-200 ${
+                                        className={`w-full py-3 px-6 rounded-xl font-semibold text-base transition-all duration-200 ${
                                           isCurrentPlanDisabled(plan)
                                             ? "bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200"
                                             : isPopular
@@ -731,7 +718,7 @@ function ServicePlanPage() {
 
                     {/* Quarterly Plans Carousel */}
                     <TabsContent value="Trimestriel">
-                      <div className="relative max-w-7xl mx-auto px-2 md:px-4 pt-14 md:pt-16 pb-6 md:pb-8">
+                      <div className="relative max-w-7xl mx-auto px-4 py-8">
                         {isLoadingPlans ? (
                           <div className="flex justify-center items-center py-16">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
@@ -743,7 +730,7 @@ function ServicePlanPage() {
                           </div>
                         ) : (
                           <>
-                            <div className="overflow-hidden pt-6">
+                            <div className="overflow-hidden">
                               <div 
                                 className="flex transition-transform duration-300 ease-in-out gap-6"
                                 style={{ 
@@ -760,7 +747,7 @@ function ServicePlanPage() {
                               return (
                                 <div
                                   key={index}
-                                  className={`relative rounded-2xl border-2 transition-all duration-300 h-full ${
+                                  className={`relative rounded-2xl border-2 transition-all duration-300 ${
                                     isPopular 
                                       ? 'border-indigo-500 shadow-xl shadow-indigo-100' 
                                       : isExclusive
@@ -931,7 +918,7 @@ function ServicePlanPage() {
 
                     {/* Annual Plans Carousel */}
                     <TabsContent value="Annuel">
-                      <div className="relative max-w-7xl mx-auto px-2 md:px-4 pt-14 md:pt-16 pb-6 md:pb-8">
+                      <div className="relative max-w-7xl mx-auto px-4 py-8">
                         {isLoadingPlans ? (
                           <div className="flex justify-center items-center py-16">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -943,7 +930,7 @@ function ServicePlanPage() {
                           </div>
                         ) : (
                           <>
-                            <div className="overflow-hidden pt-6">
+                            <div className="overflow-hidden">
                               <div 
                                 className="flex transition-transform duration-300 ease-in-out gap-6"
                                 style={{ 
@@ -960,7 +947,7 @@ function ServicePlanPage() {
                               return (
                                 <div
                                   key={index}
-                                  className={`relative rounded-2xl border-2 transition-all duration-300 h-full ${
+                                  className={`relative rounded-2xl border-2 transition-all duration-300 ${
                                     isPopular 
                                       ? 'border-indigo-500 shadow-xl shadow-indigo-100' 
                                       : isExclusive

@@ -365,12 +365,14 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
             className="bg-white text-gray-800 hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg transition-all duration-200"
+            onClick={() => window.location.href = 'tel:+212808588918'}
           >
             <FiPhone className="mr-2" />
             Nous appeler
           </Button>
           <Button 
             className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 font-semibold px-8 py-3 rounded-lg transition-all duration-200 border border-white/30"
+            onClick={() => window.location.href = 'mailto:contact@facejob.ma'}
           >
             <FiMail className="mr-2" />
             Nous écrire

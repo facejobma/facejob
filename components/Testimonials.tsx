@@ -1,6 +1,16 @@
 import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+import Image from "next/image";
+
+// Lazy load Swiper to reduce initial bundle size
+const Swiper = dynamic(() => import("swiper/react").then(mod => ({ default: mod.Swiper })), {
+  ssr: false
+});
+const SwiperSlide = dynamic(() => import("swiper/react").then(mod => ({ default: mod.SwiperSlide })), {
+  ssr: false
+});
+
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/effect-cards";
@@ -8,7 +18,6 @@ import "swiper/css/scrollbar";
 
 // import required modules
 import { EffectCards, Scrollbar } from "swiper/modules";
-import Image from "next/image";
 
 type Props = {};
 

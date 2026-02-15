@@ -43,14 +43,35 @@ const FeaturedOffers: React.FC = () => {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
+        // Check if we have cached data
+        const cachedData = sessionStorage.getItem('featured_offers');
+        const cacheTime = sessionStorage.getItem('featured_offers_time');
+        const now = Date.now();
+        
+        // Use cache if less than 5 minutes old
+        if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 300000) {
+          const cached = JSON.parse(cachedData);
+          setOffers(cached.offers);
+          setStats(cached.stats);
+          setLoading(false);
+          return;
+        }
+        
+        // Use AbortController for request timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+        
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`, {
           headers: {
             'ngrok-skip-browser-warning': 'true'
-          }
+          },
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           const result = await response.json();
-          const data = result.data; // Extract the data array from the response
+          const data = result.data;
           
           // Get latest 6 offers for featured section
           const sortedOffers = data
@@ -68,11 +89,20 @@ const FeaturedOffers: React.FC = () => {
           
           const uniqueCompanies = Array.from(new Set(data.map((offer: Offer) => offer.company_name))).length;
           
-          setStats({
+          const statsData = {
             totalOffers: data.length,
             newThisWeek,
             totalCompanies: uniqueCompanies
-          });
+          };
+          
+          setStats(statsData);
+          
+          // Cache the data
+          sessionStorage.setItem('featured_offers', JSON.stringify({
+            offers: sortedOffers,
+            stats: statsData
+          }));
+          sessionStorage.setItem('featured_offers_time', Date.now().toString());
         }
       } catch (error) {
         console.error("Error fetching offers:", error);
@@ -81,7 +111,12 @@ const FeaturedOffers: React.FC = () => {
       }
     };
 
-    fetchOffers();
+    // Defer API call slightly to prioritize above-the-fold content
+    const timer = setTimeout(() => {
+      fetchOffers();
+    }, 200);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const handleApply = (offerId: number) => {

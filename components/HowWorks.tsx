@@ -22,7 +22,15 @@ export default function HowWorks({}: Props) {
   useEffect(() => {
     const fetchRandomOffre = async () => {
       try {
-        const response = await authenticatedApiCall('/api/v1/random');
+        // Use AbortController for request timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        const response = await authenticatedApiCall('/api/v1/random', {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           const data = await response.json();
           console.log("data", data);
@@ -47,7 +55,11 @@ export default function HowWorks({}: Props) {
       }
     };
 
-    fetchRandomOffre();
+    // Defer API call to not block initial render
+    const timer = setTimeout(() => {
+      fetchRandomOffre();
+    }, 100);
+
     // Array of image paths
     const images = [
       "/LandingImages/Image 1.jpg",
@@ -61,6 +73,8 @@ export default function HowWorks({}: Props) {
     // Select a random image
     const randomIndex = Math.floor(Math.random() * images.length);
     setRandomImage(images[randomIndex]);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -75,7 +89,7 @@ export default function HowWorks({}: Props) {
         </p>
       </div>
 
-      <div className="relative flex flex-col gap-12 sm:gap-16 md:gap-20 my-12 sm:my-16 md:my-24 lg:flex-row lg:gap-36 lg:justify-between max-w-6xl mx-auto">
+      <div className="relative flex flex-col gap-12 sm:gap-16 md:gap-20 my-12 sm:my-16 md:my-24 lg:flex-row lg:gap-36 lg:justify-between max-w-6xl mx-auto overflow-hidden">
         <motion.div
           initial={{ x: -100 }}
           transition={{ duration: 1 }}
@@ -122,7 +136,7 @@ export default function HowWorks({}: Props) {
             </div>
           </div>
         </motion.div>
-        <div className="absolute -right-28 bottom-32 lg:-top-44 lg:-right-32 opacity-10">
+        <div className="absolute -right-28 bottom-32 lg:-top-44 lg:-right-32 opacity-10 pointer-events-none hidden lg:block">
           <Image
             src="/images/blue-circle.png"
             className="z-0 w-96 h-96"

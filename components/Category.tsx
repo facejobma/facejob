@@ -6,23 +6,25 @@ type Props = {};
 
 export default function Category({}: Props) {
     return (
-        <section className="w-full mx-auto mt-16 sm:mt-24 md:mt-36 pb-8 sm:pb-12" id={"section2"}>
+        <section className="w-full mx-auto mt-16 sm:mt-24 md:mt-36 pb-8 sm:pb-12 overflow-hidden" id={"section2"}>
             <div className="container mx-auto px-4 sm:px-6">
-                <div className="relative text-center font-default pb-10 sm:pb-14">
+                <div className="relative text-center font-default pb-10 sm:pb-14 overflow-hidden">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-3 sm:mb-4 px-4">
                         Explorez les emplois par <span className="text-primary">catégorie</span>
                     </h2>
                     <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-6 sm:mb-8 px-4">
                         Découvrez les opportunités d'emploi dans différents secteurs au Maroc
                     </p>
-                    <Image
-                        src="/images/pluses.png"
-                        className="absolute right-1 top-24 sm:right-4 sm:top-28 md:right-20 md:top-1 opacity-20 w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-[200px] lg:h-[200px]"
-                        role="presentation"
-                        width={200}
-                        height={200}
-                        alt=""
-                    />
+                    <div className="absolute right-1 top-24 sm:right-4 sm:top-28 md:right-20 md:top-1 opacity-20 w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-[200px] lg:h-[200px] pointer-events-none hidden md:block">
+                        <Image
+                            src="/images/pluses.png"
+                            role="presentation"
+                            width={200}
+                            height={200}
+                            alt=""
+                            className="w-full h-full"
+                        />
+                    </div>
                 </div>
                 <motion.div
                     initial={{y: 100}}
@@ -31,11 +33,11 @@ export default function Category({}: Props) {
                     viewport={{once: true}}
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 md:gap-12 mt-12 sm:mt-16 md:mt-20 max-w-6xl mx-auto font-default"
                 >
-                    <div className="relative group">
+                    <div className="relative group overflow-hidden">
                         <div
-                            className="opacity-0 group-hover:opacity-100 transition duration-200 delay-100 ease-in absolute -bottom-6 sm:-bottom-9 -left-6 sm:-left-10 w-16 h-16 sm:w-20 sm:h-20 rounded-bl-sm rounded-tl-[2rem] bg-primary rounded-br-md"></div>
+                            className="opacity-0 md:group-hover:opacity-100 transition duration-200 delay-100 ease-in absolute -bottom-6 sm:-bottom-9 -left-6 sm:-left-10 w-16 h-16 sm:w-20 sm:h-20 rounded-bl-sm rounded-tl-[2rem] bg-primary rounded-br-md pointer-events-none"></div>
                         <div
-                            className="grid px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-12 transition transform place-items-center rounded-[2rem] hover:scale-105 hover:bg-white hover:drop-shadow-2xl cursor-pointer">
+                            className="grid px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-12 transition transform place-items-center rounded-[2rem] md:hover:scale-105 md:hover:bg-white md:hover:drop-shadow-2xl cursor-pointer overflow-hidden">
                             <div className="relative flex mb-4 sm:mb-6 w-max">
                                 <Image
                                     width={64}
@@ -59,11 +61,11 @@ export default function Category({}: Props) {
                         </div>
                     </div>
 
-                    <div className="relative group">
+                    <div className="relative group overflow-hidden">
                         <div
-                            className="opacity-0 group-hover:opacity-100 transition duration-200 delay-100 ease-in absolute -bottom-6 sm:-bottom-9 -left-6 sm:-left-10 w-16 h-16 sm:w-20 sm:h-20 rounded-bl-sm rounded-tl-[2rem] bg-primary rounded-br-md"></div>
+                            className="opacity-0 md:group-hover:opacity-100 transition duration-200 delay-100 ease-in absolute -bottom-6 sm:-bottom-9 -left-6 sm:-left-10 w-16 h-16 sm:w-20 sm:h-20 rounded-bl-sm rounded-tl-[2rem] bg-primary rounded-br-md pointer-events-none"></div>
                         <div
-                            className="grid px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-12 transition transform place-items-center rounded-[2rem] hover:scale-105 hover:bg-white hover:drop-shadow-2xl cursor-pointer">
+                            className="grid px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-12 transition transform place-items-center rounded-[2rem] md:hover:scale-105 md:hover:bg-white md:hover:drop-shadow-2xl cursor-pointer overflow-hidden">
                             <div className="relative flex mb-4 sm:mb-6 w-max">
                                 <Image
                                     width={64}
@@ -87,11 +89,11 @@ export default function Category({}: Props) {
                         </div>
                     </div>
 
-                    <div className="relative group">
+                    <div className="relative group overflow-hidden">
                         <div
-                            className="opacity-0 group-hover:opacity-100 transition duration-200 delay-100 ease-in absolute -bottom-4 sm:-bottom-6 -left-6 sm:-left-10 w-16 h-16 sm:w-20 sm:h-20 rounded-bl-sm rounded-tl-[2rem] bg-primary rounded-br-md"></div>
+                            className="opacity-0 md:group-hover:opacity-100 transition duration-200 delay-100 ease-in absolute -bottom-4 sm:-bottom-6 -left-6 sm:-left-10 w-16 h-16 sm:w-20 sm:h-20 rounded-bl-sm rounded-tl-[2rem] bg-primary rounded-br-md pointer-events-none"></div>
                         <div
-                            className="grid px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-12 transition transform place-items-center rounded-[2rem] hover:scale-105 hover:bg-white hover:drop-shadow-2xl cursor-pointer">
+                            className="grid px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-12 transition transform place-items-center rounded-[2rem] md:hover:scale-105 md:hover:bg-white md:hover:drop-shadow-2xl cursor-pointer overflow-hidden">
                             <div className="relative flex mb-4 sm:mb-6 w-max">
                                 <Image
                                     src="/agent.png"

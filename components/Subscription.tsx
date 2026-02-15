@@ -71,7 +71,7 @@ export default function Subscription({}: Props) {
       <div className="relative">
         <div className="overflow-hidden relative w-full h-80 sm:h-96 bg-optional1 rounded-2xl md:rounded-b-2xl md:rounded-tr-2xl md:rounded-tl-[6rem]"></div>
 
-        <div className="absolute hidden md:block -right-16 lg:-right-24 -bottom-12 lg:-bottom-16">
+        <div className="absolute hidden md:block -right-16 lg:-right-24 -bottom-12 lg:-bottom-16 pointer-events-none">
           <Image
             src="/images/bottom-pattern.svg"
             role="none"

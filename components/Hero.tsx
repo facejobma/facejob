@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import NavBar from "./NavBar";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,12 +22,7 @@ export default function Hero({}: Props) {
         <NavBar />
         <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className="order-2 md:order-1"
-            >
+            <div className="order-2 md:order-1 animate-fade-in">
               {/* Main Heading - Proper H1 */}
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-secondary mb-4 sm:mb-6 leading-tight">
                 Trouvez votre emploi avec votre{" "}
@@ -89,17 +83,13 @@ export default function Hero({}: Props) {
                   className="w-4 h-4"
                   width={16}
                   height={16}
+                  loading="lazy"
                 />
                 <span className="text-sm font-medium">Découvrir comment ça marche</span>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="order-1 md:order-2 relative"
-            >
+            <div className="order-1 md:order-2 relative animate-fade-in-delayed">
               <div className="relative max-w-md mx-auto md:max-w-none">
                 <Image
                   src="/img1.jpg"
@@ -116,7 +106,7 @@ export default function Hero({}: Props) {
                 <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-20 sm:h-20 bg-primary-light rounded-full opacity-20 animate-pulse"></div>
                 <div className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 w-10 h-10 sm:w-16 sm:h-16 bg-primary rounded-full opacity-30 animate-bounce"></div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </header>

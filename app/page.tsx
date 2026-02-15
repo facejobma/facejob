@@ -1,14 +1,7 @@
 "use client";
-import AboutUs from "../components/AboutUs";
-import AboutUsArabic from "../components/AboutUsArabic";
-import Category from "../components/Category";
-import FAQs from "../components/FAQs";
-import Footer from "../components/Footer";
+import dynamic from "next/dynamic";
 import Hero from "../components/Hero";
 import HowWorks from "../components/HowWorks";
-import Subscription from "../components/Subscription";
-import Testimonials from "../components/Testimonials";
-import FeaturedOffers from "../components/FeaturedOffers";
 import { 
   OrganizationStructuredData, 
   WebSiteStructuredData, 
@@ -16,24 +9,50 @@ import {
   BreadcrumbStructuredData 
 } from "../components/StructuredData";
 
+// Lazy load below-the-fold components
+const Category = dynamic(() => import("../components/Category"), {
+  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />
+});
+const FeaturedOffers = dynamic(() => import("../components/FeaturedOffers"), {
+  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />
+});
+const Testimonials = dynamic(() => import("../components/Testimonials"), {
+  loading: () => <div className="h-96 bg-optional1 animate-pulse" />
+});
+const Subscription = dynamic(() => import("../components/Subscription"), {
+  loading: () => <div className="h-80 bg-gray-50 animate-pulse" />
+});
+const FAQs = dynamic(() => import("../components/FAQs"), {
+  loading: () => <div className="h-96 bg-white animate-pulse" />
+});
+const AboutUs = dynamic(() => import("../components/AboutUs"), {
+  loading: () => <div className="h-64 bg-gray-50 animate-pulse" />
+});
+const AboutUsArabic = dynamic(() => import("../components/AboutUsArabic"), {
+  loading: () => <div className="h-64 bg-gray-50 animate-pulse" />
+});
+const Footer = dynamic(() => import("../components/Footer"), {
+  loading: () => <div className="h-96 bg-gray-900 animate-pulse" />
+});
+
 export default function Home() {
     const breadcrumbItems = [
         { name: "Accueil", url: "/" }
     ];
 
     return (
-        <div className="relative">
+        <div className="relative overflow-x-hidden w-full max-w-[100vw]">
             {/* Enhanced Structured Data */}
             <OrganizationStructuredData />
             <WebSiteStructuredData />
             <FAQStructuredData />
             <BreadcrumbStructuredData items={breadcrumbItems} />
             
-            {/* Hero Section - Above the fold content */}
+            {/* Hero Section - Above the fold content - Load immediately */}
             <Hero/>
             
             {/* Main Content - Optimized section order for conversion */}
-            <main>
+            <main className="overflow-x-hidden w-full">
                 {/* Social Proof - Early trust building */}
                 <section className="bg-white py-6 sm:py-8 border-b border-gray-100">
                     <div className="container mx-auto px-4 sm:px-6 text-center">
@@ -60,29 +79,29 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* How It Works - Core value proposition */}
+                {/* How It Works - Core value proposition - Load immediately */}
                 <HowWorks/>
                 
-                {/* Job Categories - Help users find relevant opportunities */}
+                {/* Job Categories - Lazy loaded */}
                 <Category/>
                 
-                {/* Featured Offers - Show real opportunities */}
+                {/* Featured Offers - Lazy loaded */}
                 <FeaturedOffers/>
                 
-                {/* Testimonials - Social proof and credibility */}
+                {/* Testimonials - Lazy loaded */}
                 <Testimonials/>
                 
-                {/* Benefits/Subscription - Value proposition for different user types */}
+                {/* Benefits/Subscription - Lazy loaded */}
                 <Subscription/>
                 
-                {/* FAQ - Address common concerns */}
+                {/* FAQ - Lazy loaded */}
                 <FAQs/>
                 
-                {/* About sections - Company credibility */}
+                {/* About sections - Lazy loaded */}
                 <AboutUs/>
                 <AboutUsArabic/>
                 
-                {/* Footer - Contact and additional links */}
+                {/* Footer - Lazy loaded */}
                 <Footer/>
             </main>
         </div>

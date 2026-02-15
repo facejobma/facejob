@@ -141,6 +141,43 @@
     .card-hover {
       transform: none; /* Disable hover transforms on mobile */
     }
+    
+    /* Prevent horizontal scroll on mobile */
+    body {
+      overflow-x: hidden;
+    }
+    
+    /* Better touch targets */
+    button, a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Optimize images for mobile */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  /* Tablet optimizations */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Prevent zoom on input focus (iOS) */
+  @media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
   }
 
   /* Accessibility improvements */

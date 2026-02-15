@@ -14,9 +14,9 @@ type Props = {};
 
 export default function Testimonials({}: Props) {
   return (
-    <section className="w-full px-6 py-16 mx-auto mb-20 bg-optional1">
+    <section className="w-full px-4 sm:px-6 py-12 sm:py-16 mx-auto mb-12 sm:mb-20 bg-optional1">
       <div className="container mx-auto max-w-6xl">
-        <div className="relative flex flex-col lg:flex-row items-center justify-between w-full gap-12 lg:gap-20">
+        <div className="relative flex flex-col lg:flex-row items-center justify-between w-full gap-8 sm:gap-12 lg:gap-20">
           <motion.div
             initial={{ x: -10, opacity: 0 }}
             transition={{ duration: 1 }}
@@ -24,20 +24,20 @@ export default function Testimonials({}: Props) {
             viewport={{ once: true }}
             className="flex-1 text-center lg:text-left"
           >
-            <div className="mb-8">
-              <p className="text-primary font-semibold text-lg mb-4">Ce qu'ils disent de nous</p>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 font-default">
+            <div className="mb-6 sm:mb-8">
+              <p className="text-primary font-semibold text-base sm:text-lg mb-3 sm:mb-4">Ce qu'ils disent de nous</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 sm:mb-6 font-default">
                 Témoignages de nos utilisateurs
               </h2>
-              <p className="text-xl text-gray-600 max-w-lg">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-lg mx-auto lg:mx-0">
                 Découvrez comment FaceJob a aidé des centaines de candidats à trouver leur emploi idéal au Maroc
               </p>
             </div>
             
-            <div className="relative w-full max-w-md mx-auto lg:mx-0">
+            <div className="relative w-full max-w-sm sm:max-w-md mx-auto lg:mx-0">
               <Image
                 src="/img3.jpg"
-                className="rounded-3xl shadow-2xl w-full h-auto"
+                className="rounded-2xl sm:rounded-3xl shadow-2xl w-full h-auto"
                 alt="Candidate enregistrant son CV vidéo sur FaceJob"
                 width={400}
                 height={300}
@@ -47,18 +47,18 @@ export default function Testimonials({}: Props) {
               />
               
               {/* Floating testimonial preview */}
-              <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-lg shadow-lg max-w-xs">
-                <div className="flex items-center gap-3 mb-2">
+              <div className="absolute -bottom-4 sm:-bottom-6 -right-4 sm:-right-6 bg-white p-3 sm:p-4 rounded-lg shadow-lg max-w-[200px] sm:max-w-xs">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2">
                   <div className="flex text-yellow-400">
                     {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                      <svg key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-current" viewBox="0 0 20 20">
                         <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
                       </svg>
                     ))}
                   </div>
-                  <span className="text-sm text-gray-600">5.0/5</span>
+                  <span className="text-xs sm:text-sm text-gray-600">5.0/5</span>
                 </div>
-                <p className="text-sm text-gray-700 font-medium">
+                <p className="text-xs sm:text-sm text-gray-700 font-medium">
                   "Grâce à FaceJob, j'ai trouvé mon emploi en 2 semaines !"
                 </p>
               </div>
@@ -70,7 +70,7 @@ export default function Testimonials({}: Props) {
             transition={{ duration: 1 }}
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true }}
-            className="flex-1 max-w-md mx-auto lg:mx-0"
+            className="flex-1 max-w-sm sm:max-w-md mx-auto lg:mx-0 w-full"
           >
             <Swiper
               scrollbar={{
@@ -79,7 +79,7 @@ export default function Testimonials({}: Props) {
               effect={"cards"}
               grabCursor={true}
               modules={[EffectCards, Scrollbar]}
-              className="mySwiper h-96"
+              className="mySwiper h-80 sm:h-96"
             >
               <SwiperSlide>
                 <div className="relative flex flex-col h-full p-8 font-poppins bg-white rounded-2xl shadow-xl text-[#5E6282]">
@@ -177,18 +177,18 @@ export default function Testimonials({}: Props) {
         </div>
         
         {/* Statistics Section */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="text-3xl font-bold text-primary mb-2">783+</div>
-            <div className="text-gray-600">Candidats recrutés</div>
+        <div className="mt-12 sm:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 text-center">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">783+</div>
+            <div className="text-gray-600 text-sm sm:text-base">Candidats recrutés</div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="text-3xl font-bold text-primary mb-2">95%</div>
-            <div className="text-gray-600">Taux de satisfaction</div>
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">95%</div>
+            <div className="text-gray-600 text-sm sm:text-base">Taux de satisfaction</div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="text-3xl font-bold text-primary mb-2">2 min</div>
-            <div className="text-gray-600">Temps d'inscription</div>
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">2 min</div>
+            <div className="text-gray-600 text-sm sm:text-base">Temps d'inscription</div>
           </div>
         </div>
       </div>

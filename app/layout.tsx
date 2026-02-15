@@ -56,6 +56,12 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://facejob.ma'),
   alternates: {
     canonical: '/',

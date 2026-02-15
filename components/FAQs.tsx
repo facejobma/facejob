@@ -51,17 +51,17 @@ const FaqSection: React.FC = () => {
   ];
 
   return (
-    <section className="container mx-auto px-6 py-24 max-w-4xl font-default" id="faq">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+    <section className="container mx-auto px-4 sm:px-6 py-16 sm:py-20 md:py-24 max-w-4xl font-default" id="faq">
+      <div className="text-center mb-12 sm:mb-16">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 sm:mb-6 px-4">
           Questions fréquemment posées
         </h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
           Trouvez rapidement les réponses à vos questions sur FaceJob et le CV vidéo
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {faqData.map((faq, index) => (
           <div 
             key={index}
@@ -69,15 +69,15 @@ const FaqSection: React.FC = () => {
           >
             <h3 className="mb-0">
               <button
-                className="group relative flex w-full items-center justify-between py-6 px-6 text-left text-lg font-semibold transition-colors hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset"
+                className="group relative flex w-full items-center justify-between py-4 sm:py-5 md:py-6 px-4 sm:px-6 text-left text-base sm:text-lg font-semibold transition-colors hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset touch-manipulation active:bg-gray-100"
                 type="button"
                 onClick={() => handleToggle(index)}
                 aria-expanded={openIndex === index}
                 aria-controls={`faq-answer-${index}`}
               >
-                <span className="text-secondary pr-4">{faq.question}</span>
+                <span className="text-secondary pr-3 sm:pr-4">{faq.question}</span>
                 <span
-                  className={`flex-shrink-0 w-6 h-6 text-primary transition-transform duration-200 ${
+                  className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 text-primary transition-transform duration-200 ${
                     openIndex === index ? "rotate-180" : ""
                   }`}
                   aria-hidden="true"
@@ -98,7 +98,7 @@ const FaqSection: React.FC = () => {
               aria-labelledby={`faq-question-${index}`}
             >
               <div 
-                className="px-6 pb-6 text-gray-600 leading-relaxed"
+                className="px-4 sm:px-6 pb-4 sm:pb-6 text-gray-600 leading-relaxed text-sm sm:text-base"
                 dangerouslySetInnerHTML={{ __html: faq.answer }}
               />
             </div>
@@ -107,23 +107,23 @@ const FaqSection: React.FC = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="text-center mt-16 p-8 bg-optional1 rounded-2xl">
-        <h3 className="text-2xl font-bold text-secondary mb-4">
+      <div className="text-center mt-12 sm:mt-16 p-6 sm:p-8 bg-optional1 rounded-xl sm:rounded-2xl">
+        <h3 className="text-xl sm:text-2xl font-bold text-secondary mb-3 sm:mb-4">
           Vous avez d'autres questions ?
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
           Notre équipe est là pour vous aider. Contactez-nous pour plus d'informations.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <a
             href="/contact"
-            className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-1 transition-colors duration-300"
+            className="inline-flex items-center justify-center px-5 sm:px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-1 transition-colors duration-300 text-sm sm:text-base touch-manipulation active:scale-95"
           >
             Nous contacter
           </a>
           <a
             href="/auth/signup-candidate"
-            className="inline-flex items-center justify-center px-6 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors duration-300"
+            className="inline-flex items-center justify-center px-5 sm:px-6 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors duration-300 text-sm sm:text-base touch-manipulation active:scale-95"
           >
             Commencer maintenant
           </a>

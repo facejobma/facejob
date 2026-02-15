@@ -35,26 +35,26 @@ export default function Home() {
             {/* Main Content - Optimized section order for conversion */}
             <main>
                 {/* Social Proof - Early trust building */}
-                <section className="bg-white py-8 border-b border-gray-100">
-                    <div className="container mx-auto px-6 text-center">
-                        <div className="flex flex-wrap justify-center items-center gap-8 text-gray-600">
+                <section className="bg-white py-6 sm:py-8 border-b border-gray-100">
+                    <div className="container mx-auto px-4 sm:px-6 text-center">
+                        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 text-gray-600">
                             <div className="flex items-center gap-2">
-                                <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="font-semibold">783+ candidats recrutés</span>
+                                <span className="font-semibold text-sm sm:text-base">783+ candidats recrutés</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
-                                <span className="font-semibold">1000+ offres d'emploi</span>
+                                <span className="font-semibold text-sm sm:text-base">1000+ offres d'emploi</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                                 </svg>
-                                <span className="font-semibold">100% gratuit</span>
+                                <span className="font-semibold text-sm sm:text-base">100% gratuit</span>
                             </div>
                         </div>
                     </div>

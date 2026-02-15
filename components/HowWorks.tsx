@@ -64,18 +64,18 @@ export default function HowWorks({}: Props) {
   }, []);
 
   return (
-    <section className="container mx-auto px-6 py-16 mt-32 mb-16 font-default">
-      <div className="max-w-4xl mx-auto text-center mb-16">
-        <p className="text-primary font-semibold text-lg mb-4">Facile et rapide</p>
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+    <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 mt-12 sm:mt-20 md:mt-32 mb-12 sm:mb-16 font-default">
+      <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16">
+        <p className="text-primary font-semibold text-base sm:text-lg mb-3 sm:mb-4">Facile et rapide</p>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 sm:mb-6 px-4">
           Comment créer votre CV vidéo en 3 étapes simples
         </h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
           Rejoignez les 783+ candidats qui ont déjà trouvé leur emploi de rêve grâce à FaceJob
         </p>
       </div>
 
-      <div className="relative flex flex-col gap-20 my-24 lg:flex-row lg:gap-36 lg:justify-between max-w-6xl mx-auto">
+      <div className="relative flex flex-col gap-12 sm:gap-16 md:gap-20 my-12 sm:my-16 md:my-24 lg:flex-row lg:gap-36 lg:justify-between max-w-6xl mx-auto">
         <motion.div
           initial={{ x: -100 }}
           transition={{ duration: 1 }}
@@ -83,39 +83,39 @@ export default function HowWorks({}: Props) {
           viewport={{ once: true }}
           className="flex flex-col gap-12 lg:w-1/2"
         >
-          <div className="flex items-start gap-6 max-w-md">
-            <div className="grid p-4 rounded-xl w-16 h-16 bg-primary-3 place-items-center flex-shrink-0">
-              <FaUserPlus color={"#fff"} size={24} />
+          <div className="flex items-start gap-4 sm:gap-6 max-w-md">
+            <div className="grid p-3 sm:p-4 rounded-xl w-12 h-12 sm:w-16 sm:h-16 bg-primary-3 place-items-center flex-shrink-0">
+              <FaUserPlus color={"#fff"} size={20} className="sm:w-6 sm:h-6" />
             </div>
             <div className="flex flex-col text-[#5E6282] font-poppins">
-              <h3 className="text-xl font-bold mb-2 text-secondary">1. Créez votre compte candidat</h3>
-              <p className="text-base leading-relaxed">
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-secondary">1. Créez votre compte candidat</h3>
+              <p className="text-sm sm:text-base leading-relaxed">
                 Inscrivez-vous gratuitement en 2 minutes. Renseignez vos informations 
                 professionnelles et personnelles pour créer votre profil.
               </p>
             </div>
           </div>
           
-          <div className="flex items-start gap-6 max-w-md">
-            <div className="grid p-4 rounded-xl w-16 h-16 bg-primary-2 place-items-center flex-shrink-0">
-              <FaVideo color={"#fff"} size={24} />
+          <div className="flex items-start gap-4 sm:gap-6 max-w-md">
+            <div className="grid p-3 sm:p-4 rounded-xl w-12 h-12 sm:w-16 sm:h-16 bg-primary-2 place-items-center flex-shrink-0">
+              <FaVideo color={"#fff"} size={20} className="sm:w-6 sm:h-6" />
             </div>
             <div className="flex flex-col text-[#5E6282] font-poppins">
-              <h3 className="text-xl font-bold mb-2 text-secondary">2. Enregistrez votre CV vidéo</h3>
-              <p className="text-base leading-relaxed">
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-secondary">2. Enregistrez votre CV vidéo</h3>
+              <p className="text-sm sm:text-base leading-relaxed">
                 Présentez-vous en 2 minutes maximum. Parlez de votre parcours, 
                 vos compétences et votre motivation avec authenticité.
               </p>
             </div>
           </div>
           
-          <div className="flex items-start gap-6 max-w-md">
-            <div className="grid p-4 rounded-xl w-16 h-16 bg-primary-1 place-items-center flex-shrink-0">
-              <MdOutlineWork color={"#fff"} size={24} />
+          <div className="flex items-start gap-4 sm:gap-6 max-w-md">
+            <div className="grid p-3 sm:p-4 rounded-xl w-12 h-12 sm:w-16 sm:h-16 bg-primary-1 place-items-center flex-shrink-0">
+              <MdOutlineWork color={"#fff"} size={20} className="sm:w-6 sm:h-6" />
             </div>
             <div className="flex flex-col text-[#5E6282] font-poppins">
-              <h3 className="text-xl font-bold mb-2 text-secondary">3. Trouvez votre emploi idéal</h3>
-              <p className="text-base leading-relaxed">
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-secondary">3. Trouvez votre emploi idéal</h3>
+              <p className="text-sm sm:text-base leading-relaxed">
                 Postulez aux offres qui vous intéressent ou laissez les recruteurs 
                 vous découvrir grâce à votre profil vidéo unique.
               </p>

@@ -57,20 +57,21 @@ export default function Subscription({}: Props) {
   };
 
   return (
-    <section className="relative w-full pb-10 mx-auto my-10 md:w-8/12">
-      <div className="md:h-[70px] md:w-[70px] w-[40px] h-[40px] right-0 bg-gradient-to-r rounded-full grid place-items-center absolute md:-right-5 -top-5 from-primary to-[#8ac36b] z-10 p-1">
+    <section className="relative w-full pb-8 sm:pb-10 mx-auto my-8 sm:my-10 px-4 sm:px-6 md:w-10/12 lg:w-8/12">
+      <div className="md:h-[70px] md:w-[70px] w-[50px] h-[50px] right-2 sm:right-4 bg-gradient-to-r rounded-full grid place-items-center absolute md:-right-5 -top-4 sm:-top-5 from-primary to-[#8ac36b] z-10 p-1">
         <Image
           src="/images/send.svg"
           alt={"send logo"}
-          width={30}
-          height={30}
+          width={24}
+          height={24}
+          className="w-5 h-5 sm:w-6 sm:h-6 md:w-[30px] md:h-[30px]"
         />
       </div>
 
       <div className="relative">
-        <div className="overflow-hidden relative w-full h-96 bg-optional1  md:rounded-b-2xl md:rounded-tr-2xl md:rounded-tl-[6rem]"></div>
+        <div className="overflow-hidden relative w-full h-80 sm:h-96 bg-optional1 rounded-2xl md:rounded-b-2xl md:rounded-tr-2xl md:rounded-tl-[6rem]"></div>
 
-        <div className="absolute hidden md:block -right-24 -bottom-16">
+        <div className="absolute hidden md:block -right-16 lg:-right-24 -bottom-12 lg:-bottom-16">
           <Image
             src="/images/bottom-pattern.svg"
             role="none"
@@ -79,20 +80,20 @@ export default function Subscription({}: Props) {
             height={24}
           />
         </div>
-        <div className="absolute top-0 flex items-center w-full h-full">
-          <div className="flex flex-col items-center max-w-2xl mx-auto my-16">
-            <h1 className="max-w-sm text-xl leading-normal text-center text-secondary md:max-w-full md:text-2xl font-semibold font-default">
+        <div className="absolute top-0 flex items-center w-full h-full px-4 sm:px-6">
+          <div className="flex flex-col items-center max-w-2xl mx-auto my-8 sm:my-12 md:my-16">
+            <h2 className="max-w-sm sm:max-w-md md:max-w-full text-lg sm:text-xl md:text-2xl leading-normal text-center text-secondary font-semibold font-default mb-6 sm:mb-8 md:mb-10">
               Abonnez-vous pour recevoir des informations, les dernières
               nouvelles et d&apos;autres offres intéressantes sur facejob
-            </h1>
-            <div className="flex flex-col w-full gap-5 mt-10 md:flex-row md:mt-20">
+            </h2>
+            <div className="flex flex-col w-full gap-3 sm:gap-4 md:gap-5 md:flex-row">
               <div className="relative w-full text-gray-600">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-2">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3">
                   <label htmlFor="email" className="p-1">
                     <Image
                       src="/images/email.svg"
                       role="none"
-                      className="w-6 h-6"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
                       width={24}
                       height={24}
                       alt={"email logo"}
@@ -105,7 +106,7 @@ export default function Subscription({}: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="p-5 pl-12 text-sm bg-white font-default rounded-lg w-full md:h-[55px] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-4 sm:p-5 pl-10 sm:pl-12 text-sm bg-white font-default rounded-lg w-full h-[48px] md:h-[55px] focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="email@example.com"
                   autoComplete="off"
                   id="email"
@@ -116,7 +117,7 @@ export default function Subscription({}: Props) {
               <button
                 onClick={handleSubscribe}
                 disabled={isLoading}
-                className="bg-gradient-to-r inline-block from-primary to-primary font-default px-7 py-2 rounded-lg text-white text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="bg-gradient-to-r inline-block from-primary to-primary font-default px-6 sm:px-7 py-3 sm:py-2 rounded-lg text-white text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:opacity-90 active:scale-95 min-h-[48px] md:min-h-[55px] whitespace-nowrap touch-manipulation"
               >
                 {isLoading ? "Abonnement..." : "S'inscrire"}
               </button>

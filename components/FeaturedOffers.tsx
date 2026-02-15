@@ -120,45 +120,45 @@ const FeaturedOffers: React.FC = () => {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
+    <section className="py-12 sm:py-16 bg-gray-50">
+      <div className="container mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">
             Offres d'emploi récentes
           </h2>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 px-4">
             Découvrez les dernières opportunités d'emploi au Maroc
           </p>
           
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto mb-8">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex items-center justify-center">
-                <Briefcase className="h-6 w-6 text-primary mr-2" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto mb-6 sm:mb-8">
+            <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+              <div className="flex items-center justify-center gap-2">
+                <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalOffers}</p>
-                  <p className="text-sm text-gray-600">Offres disponibles</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalOffers}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Offres disponibles</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-primary-1 mr-2" />
+            <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+              <div className="flex items-center justify-center gap-2">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary-1 flex-shrink-0" />
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats.newThisWeek}</p>
-                  <p className="text-sm text-gray-600">Nouvelles cette semaine</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.newThisWeek}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Nouvelles cette semaine</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex items-center justify-center">
-                <Building className="h-6 w-6 text-primary-2 mr-2" />
+            <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+              <div className="flex items-center justify-center gap-2">
+                <Building className="h-5 w-5 sm:h-6 sm:w-6 text-primary-2 flex-shrink-0" />
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalCompanies}</p>
-                  <p className="text-sm text-gray-600">Entreprises partenaires</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalCompanies}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Entreprises partenaires</p>
                 </div>
               </div>
             </div>
@@ -168,7 +168,7 @@ const FeaturedOffers: React.FC = () => {
         {/* Featured Offers Grid */}
         {offers.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
               {offers.map((offer) => (
                 <Card key={offer.id} className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary group">
                   <CardHeader className="pb-3">
@@ -226,25 +226,25 @@ const FeaturedOffers: React.FC = () => {
             </div>
 
             {/* Call to Action */}
-            <div className="text-center">
-              <div className="bg-gradient-to-r from-primary to-primary-1 rounded-2xl p-8 text-white">
-                <h3 className="text-2xl font-bold mb-4">
+            <div className="text-center px-4">
+              <div className="bg-gradient-to-r from-primary to-primary-1 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white">
+                <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
                   Plus de {stats.totalOffers} offres vous attendent !
                 </h3>
-                <p className="text-green-100 mb-6 max-w-2xl mx-auto">
+                <p className="text-green-100 mb-4 sm:mb-6 max-w-2xl mx-auto text-sm sm:text-base">
                   Explorez toutes nos offres d'emploi et trouvez l'opportunité parfaite pour votre carrière. 
                   Postulez facilement avec votre CV vidéo.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                   <Link href="/offres">
-                    <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100">
-                      <Briefcase className="h-5 w-5 mr-2" />
+                    <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100 w-full sm:w-auto">
+                      <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Voir toutes les offres
                     </Button>
                   </Link>
                   <Link href="/auth/signup-candidate">
-                    <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                      <Users className="h-5 w-5 mr-2" />
+                    <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary w-full sm:w-auto">
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Créer mon profil
                     </Button>
                   </Link>

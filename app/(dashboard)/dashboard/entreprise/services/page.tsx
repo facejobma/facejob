@@ -519,7 +519,7 @@ function ServicePlanPage() {
 
                     {/* Monthly Plans Carousel */}
                     <TabsContent value="Mensuel">
-                      <div className="relative max-w-7xl mx-auto px-2 md:px-4 pt-14 md:pt-16 pb-6 md:pb-8">
+                      <div className="relative max-w-7xl mx-auto px-8 md:px-12 pt-14 md:pt-16 pb-6 md:pb-8">
                         {isLoadingPlans ? (
                           <div className="flex justify-center items-center py-12 md:py-16">
                             <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-indigo-600"></div>
@@ -532,7 +532,7 @@ function ServicePlanPage() {
                         ) : (
                           <>
                             {/* Carousel Container */}
-                            <div className="overflow-hidden pt-6">
+                            <div className="overflow-hidden pt-6 px-2">
                               <div 
                                 className="flex transition-transform duration-300 ease-in-out gap-6"
                                 style={{ 
@@ -695,13 +695,13 @@ function ServicePlanPage() {
                           <>
                             <button
                               onClick={prevSlide}
-                              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
+                              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 md:p-3 shadow-xl border-2 border-gray-300 hover:bg-gray-50 hover:border-indigo-500 transition-all z-20"
                             >
                               <ChevronLeftIcon className="h-6 w-6 text-gray-600" />
                             </button>
                             <button
                               onClick={nextSlide}
-                              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
+                              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 md:p-3 shadow-xl border-2 border-gray-300 hover:bg-gray-50 hover:border-indigo-500 transition-all z-20"
                             >
                               <ChevronRightIcon className="h-6 w-6 text-gray-600" />
                             </button>
@@ -731,7 +731,7 @@ function ServicePlanPage() {
 
                     {/* Quarterly Plans Carousel */}
                     <TabsContent value="Trimestriel">
-                      <div className="relative max-w-7xl mx-auto px-2 md:px-4 pt-14 md:pt-16 pb-6 md:pb-8">
+                      <div className="relative max-w-7xl mx-auto px-8 md:px-12 pt-14 md:pt-16 pb-6 md:pb-8">
                         {isLoadingPlans ? (
                           <div className="flex justify-center items-center py-16">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
@@ -743,7 +743,7 @@ function ServicePlanPage() {
                           </div>
                         ) : (
                           <>
-                            <div className="overflow-hidden pt-6">
+                            <div className="overflow-hidden pt-6 px-2">
                               <div 
                                 className="flex transition-transform duration-300 ease-in-out gap-6"
                                 style={{ 
@@ -895,13 +895,13 @@ function ServicePlanPage() {
                           <>
                             <button
                               onClick={prevSlide}
-                              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
+                              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 md:p-3 shadow-xl border-2 border-gray-300 hover:bg-gray-50 hover:border-indigo-500 transition-all z-20"
                             >
                               <ChevronLeftIcon className="h-6 w-6 text-gray-600" />
                             </button>
                             <button
                               onClick={nextSlide}
-                              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
+                              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 md:p-3 shadow-xl border-2 border-gray-300 hover:bg-gray-50 hover:border-indigo-500 transition-all z-20"
                             >
                               <ChevronRightIcon className="h-6 w-6 text-gray-600" />
                             </button>
@@ -931,7 +931,7 @@ function ServicePlanPage() {
 
                     {/* Annual Plans Carousel */}
                     <TabsContent value="Annuel">
-                      <div className="relative max-w-7xl mx-auto px-2 md:px-4 pt-14 md:pt-16 pb-6 md:pb-8">
+                      <div className="relative max-w-7xl mx-auto px-8 md:px-12 pt-14 md:pt-16 pb-6 md:pb-8">
                         {isLoadingPlans ? (
                           <div className="flex justify-center items-center py-16">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -943,7 +943,7 @@ function ServicePlanPage() {
                           </div>
                         ) : (
                           <>
-                            <div className="overflow-hidden pt-6">
+                            <div className="overflow-hidden pt-6 px-2">
                               <div 
                                 className="flex transition-transform duration-300 ease-in-out gap-6"
                                 style={{ 
@@ -1095,13 +1095,13 @@ function ServicePlanPage() {
                           <>
                             <button
                               onClick={prevSlide}
-                              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
+                              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 md:p-3 shadow-xl border-2 border-gray-300 hover:bg-gray-50 hover:border-indigo-500 transition-all z-20"
                             >
                               <ChevronLeftIcon className="h-6 w-6 text-gray-600" />
                             </button>
                             <button
                               onClick={nextSlide}
-                              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-10"
+                              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 md:p-3 shadow-xl border-2 border-gray-300 hover:bg-gray-50 hover:border-indigo-500 transition-all z-20"
                             >
                               <ChevronRightIcon className="h-6 w-6 text-gray-600" />
                             </button>

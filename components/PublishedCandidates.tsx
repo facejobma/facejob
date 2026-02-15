@@ -13,27 +13,36 @@ const PublishedCandidates: React.FC<{ candidates: Candidate[] }> = ({
   candidates,
 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
       {candidates.map((candidate) => (
         <div
           key={candidate.id}
-          className="bg-white rounded-lg overflow-hidden shadow-md"
+          className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group"
         >
-          <div className="p-6">
+          <div className="relative aspect-[9/16] bg-gray-100">
             {candidate.link ? (
-              <video src={candidate.link} className="w-full h-auto" controls />
+              <video 
+                src={candidate.link} 
+                className="w-full h-full object-cover" 
+                controls
+                preload="metadata"
+              />
             ) : (
-              <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Aucune vidéo disponible</p>
+              <div className="w-full h-full flex items-center justify-center">
+                <p className="text-gray-400 text-sm">Aucune vidéo</p>
               </div>
             )}
-            <h3 className="text-xl font-semibold mt-4">{candidate.jobTitle}</h3>
-            <p className="text-gray-600">{candidate.name}</p>
-            <p className="text-gray-600">
-              Experiences: {candidate.nb_experiences}
+          </div>
+          <div className="p-3">
+            <h3 className="text-sm font-semibold text-gray-900 truncate mb-1">
+              {candidate.jobTitle}
+            </h3>
+            <p className="text-xs text-gray-600 truncate mb-1">{candidate.name}</p>
+            <p className="text-xs text-gray-500">
+              {candidate.nb_experiences} {candidate.nb_experiences > 1 ? 'expériences' : 'expérience'}
             </p>
-            <button className="bg-primary hover:bg-primary-2 text-white font-medium py-2 px-4 rounded-md shadow-lg transition duration-300">
-              Extract CV
+            <button className="w-full mt-3 bg-primary hover:bg-primary-1 text-white text-xs font-medium py-2 px-3 rounded-lg transition duration-300">
+              Voir le CV
             </button>
           </div>
         </div>

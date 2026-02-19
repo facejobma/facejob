@@ -7,7 +7,7 @@ import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "react-hot-toast";
 import localFont from "next/font/local";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import Clarity from "@/components/analytics/Clarity";
 
 const inter = localFont({

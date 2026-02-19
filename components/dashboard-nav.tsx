@@ -52,10 +52,11 @@ export function DashboardNav({ items, setOpen, closeOnClick = true }: DashboardN
           } else if (path.startsWith(item.href + '/')) {
             // Sub-page match, but make sure it's not a false positive
             // Check if there's a more specific match in the items
+            const currentHref = item.href; // Store in const for type safety
             const hasMoreSpecificMatch = items.some(otherItem => 
               otherItem.href && 
-              otherItem.href !== item.href && 
-              otherItem.href.startsWith(item.href) && 
+              otherItem.href !== currentHref && 
+              otherItem.href.startsWith(currentHref) && 
               (path === otherItem.href || path.startsWith(otherItem.href + '/'))
             );
             isActive = !hasMoreSpecificMatch;

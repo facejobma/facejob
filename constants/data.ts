@@ -173,7 +173,7 @@ export const navItemsEntreprise: NavItem[] = [
   },
   {
     title: "Candidats",
-    href: "/dashboard/entreprise/candidats",
+    href: "/dashboard/entreprise/public-candidats",
     icon: "candidats",
     label: "candidats",
   },

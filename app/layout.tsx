@@ -8,7 +8,6 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "react-hot-toast";
 import localFont from "next/font/local";
 import { Metadata, Viewport } from "next";
-import Clarity from "@/components/analytics/Clarity";
 
 const inter = localFont({
   src: [
@@ -131,7 +130,6 @@ export default async function RootLayout({
         <Toaster position="top-center" />
         <Providers session={session}>
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS!!} />
-          <Clarity />
           {children}
         </Providers>
       </body>

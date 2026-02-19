@@ -11,7 +11,18 @@ export interface AuthUser {
   [key: string]: any;
 }
 
+// Cache pour éviter les appels répétés
+const userCache = new Map<string, { user: AuthUser | null; timestamp: number }>();
+const CACHE_DURATION = 30000; // 30 secondes
+
 async function getUserFromToken(token: string): Promise<AuthUser | null> {
+  // Vérifier le cache d'abord
+  const cached = userCache.get(token);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    console.log('[ServerAuthGuard] Using cached user data');
+    return cached.user;
+  }
+
   try {
     const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`;
     console.log('[ServerAuthGuard] Fetching user from:', apiUrl);
@@ -22,7 +33,7 @@ async function getUserFromToken(token: string): Promise<AuthUser | null> {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
       },
-      cache: 'no-store', // Don't cache auth requests
+      next: { revalidate: 30 }, // Revalidate every 30 seconds
     });
 
     console.log('[ServerAuthGuard] Response status:', response.status);
@@ -56,12 +67,19 @@ async function getUserFromToken(token: string): Promise<AuthUser | null> {
 
     console.log('[ServerAuthGuard] Determined role:', role);
 
-    return {
+    const user = {
       ...userData,
       role
     };
+
+    // Mettre en cache le résultat
+    userCache.set(token, { user, timestamp: Date.now() });
+
+    return user;
   } catch (error) {
     console.error('[ServerAuthGuard] Error fetching user data:', error);
+    // Mettre en cache l'échec aussi pour éviter les appels répétés
+    userCache.set(token, { user: null, timestamp: Date.now() });
     return null;
   }
 }
@@ -103,19 +121,26 @@ export default async function ServerAuthGuard({
 }: ServerAuthGuardProps) {
   const cookieStore = await cookies();
   const authToken = cookieStore.get('authToken')?.value;
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : 'server';
+
+  console.log('[ServerAuthGuard] Path:', currentPath, '| Token exists:', !!authToken, '| Required role:', requiredRole);
 
   if (!authToken) {
     // No token, redirect to login
     const loginUrl = getDefaultLogin(requiredRole);
+    console.log('[ServerAuthGuard] No token, redirecting to:', loginUrl);
     redirect(loginUrl);
   }
 
   // Verify token and get user data
   const user = await getUserFromToken(authToken);
   
+  console.log('[ServerAuthGuard] User fetched:', user ? `${user.email} (${user.role})` : 'null');
+  
   if (!user) {
     // Invalid token, redirect to login
     const loginUrl = getDefaultLogin(requiredRole);
+    console.log('[ServerAuthGuard] Invalid token, redirecting to:', loginUrl);
     redirect(loginUrl);
   }
 
@@ -124,15 +149,20 @@ export default async function ServerAuthGuard({
   
   if (requiredRole) {
     authorized = user.role === requiredRole;
+    console.log('[ServerAuthGuard] Role check:', user.role, '===', requiredRole, '?', authorized);
   } else if (allowedRoles && allowedRoles.length > 0) {
     authorized = allowedRoles.includes(user.role);
+    console.log('[ServerAuthGuard] Allowed roles check:', user.role, 'in', allowedRoles, '?', authorized);
   }
 
   if (!authorized) {
     // User doesn't have the required role, redirect to their appropriate dashboard
     const dashboardUrl = getDefaultDashboard(user.role);
+    console.log('[ServerAuthGuard] Wrong role, redirecting to:', dashboardUrl);
     redirect(dashboardUrl);
   }
+
+  console.log('[ServerAuthGuard] ✓ Auth OK, rendering page');
 
   // User is authorized, render children
   return <>{children}</>;

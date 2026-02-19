@@ -1,4 +1,3 @@
-import ServerAuthGuard from "@/components/auth/ServerAuthGuard";
 import dynamic from "next/dynamic";
 import SimpleLoadingBar from "@/components/SimpleLoadingBar";
 
@@ -13,11 +12,11 @@ interface LayoutProps {
 }
 
 export default function EntrepriseLayout({ children, params }: LayoutProps) {
+  // Note: Removed ServerAuthGuard to prevent redirect loops
+  // Authentication is now handled client-side in the client-layout
   return (
-    <ServerAuthGuard requiredRole="entreprise">
-      <EntrepriseClientLayout params={params}>
-        {children}
-      </EntrepriseClientLayout>
-    </ServerAuthGuard>
+    <EntrepriseClientLayout params={params}>
+      {children}
+    </EntrepriseClientLayout>
   );
 }

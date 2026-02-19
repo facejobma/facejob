@@ -102,7 +102,7 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
 // Cache for authentication check to prevent multiple simultaneous calls
 let authCheckPromise: Promise<AuthUser | null> | null = null;
 let lastAuthCheck: { timestamp: number; result: AuthUser | null } | null = null;
-const AUTH_CACHE_DURATION = 5000; // 5 seconds cache
+const AUTH_CACHE_DURATION = 30000; // 30 secondes (augmenté de 5s à 30s)
 
 // Check if user is authenticated and get their role
 export async function getAuthenticatedUser(): Promise<AuthUser | null> {

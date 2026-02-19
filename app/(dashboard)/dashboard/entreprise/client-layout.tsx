@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import HeaderEntreprise from "@/components/layout/header-entreprise";
 import Sidebar from "@/components/layout/sidebar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import DashboardPageWrapper from "@/components/layout/DashboardPageWrapper";
+import Cookies from "js-cookie";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,12 +16,7 @@ interface LayoutProps {
 function DashboardLayoutInner({ children, params }: LayoutProps) {
   const router = useRouter();
   const { isOpen } = useSidebar();
-
-  const userDataString =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user")
-      : null;
-  const userData = userDataString ? JSON.parse(userDataString) : null;
+  const [isChecking, setIsChecking] = useState(true);
 
   // Add dashboard-page class to body
   useEffect(() => {
@@ -30,12 +26,27 @@ function DashboardLayoutInner({ children, params }: LayoutProps) {
     };
   }, []);
 
-  // Fallback client-side check - server-side auth should handle most cases
+  // Simple auth check - only check once on mount
   useEffect(() => {
-    if (!userData) {
-      router.push(`/auth/login-entreprise`);
+    const authToken = Cookies.get("authToken");
+    
+    if (!authToken) {
+      // No token, redirect to login
+      router.replace("/auth/login-entreprise");
+    } else {
+      // Token exists, allow access
+      setIsChecking(false);
     }
-  }, [userData, router]);
+  }, []); // Empty deps - only run once
+
+  // Show loading while checking
+  if (isChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-layout min-h-screen font-sans bg-gray-50 flex flex-col">

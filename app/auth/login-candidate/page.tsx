@@ -1,26 +1,26 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuthenticatedUser } from "@/lib/auth";
 import ModernLoginForm from "../../../components/auth/login/ModernLoginForm";
 import ModernAuthLayout from "../../../components/auth/ModernAuthLayout";
+import AuthLoadingSpinner from "../../../components/auth/AuthLoadingSpinner";
 
 const LoginCandidatPage = () => {
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    let isChecking = false;
+    let isMounted = true;
     
-    // Check if user is already logged in using secure method
     const checkAuth = async () => {
-      // Prevent multiple simultaneous checks
-      if (isChecking) return;
-      isChecking = true;
-      
       try {
         const user = await getAuthenticatedUser();
+        
+        if (!isMounted) return;
+        
         if (user) {
-          // Redirect to appropriate dashboard based on actual role from backend
+          // User is already logged in, redirect to their dashboard
           if (user.role === "candidat") {
             router.push("/dashboard/candidat");
           } else if (user.role === "entreprise") {
@@ -28,17 +28,29 @@ const LoginCandidatPage = () => {
           } else if (user.role === "admin") {
             router.push("/dashboard/admin");
           }
+        } else {
+          // No user, show login form
+          setIsChecking(false);
         }
       } catch (error) {
-        console.error("Auth check error on login page:", error);
-        // Stay on login page if there's an error
-      } finally {
-        isChecking = false;
+        console.error("Auth check error:", error);
+        if (isMounted) {
+          setIsChecking(false);
+        }
       }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
+
+  // Show loading spinner while checking authentication
+  if (isChecking) {
+    return <AuthLoadingSpinner message="Vérification de votre session..." />;
+  }
 
   return (
     <ModernAuthLayout

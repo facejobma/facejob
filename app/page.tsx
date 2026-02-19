@@ -41,7 +41,7 @@ export default function Home() {
     ];
 
     return (
-        <div className="relative overflow-x-hidden w-full max-w-[100vw]">
+        <div className="w-full">
             {/* Enhanced Structured Data */}
             <OrganizationStructuredData />
             <WebSiteStructuredData />
@@ -52,7 +52,7 @@ export default function Home() {
             <Hero/>
             
             {/* Main Content - Optimized section order for conversion */}
-            <main className="overflow-x-hidden w-full">
+            <main className="w-full">
                 {/* Social Proof - Early trust building */}
                 <section className="bg-white py-6 sm:py-8 border-b border-gray-100">
                     <div className="container mx-auto px-4 sm:px-6 text-center">

@@ -5,6 +5,7 @@ import HeaderEntreprise from "@/components/layout/header-entreprise";
 import Sidebar from "@/components/layout/sidebar";
 import { useEffect } from "react";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
+import DashboardPageWrapper from "@/components/layout/DashboardPageWrapper";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,14 @@ function DashboardLayoutInner({ children, params }: LayoutProps) {
       : null;
   const userData = userDataString ? JSON.parse(userDataString) : null;
 
+  // Add dashboard-page class to body
+  useEffect(() => {
+    document.body.classList.add('dashboard-page');
+    return () => {
+      document.body.classList.remove('dashboard-page');
+    };
+  }, []);
+
   // Fallback client-side check - server-side auth should handle most cases
   useEffect(() => {
     if (!userData) {
@@ -29,15 +38,15 @@ function DashboardLayoutInner({ children, params }: LayoutProps) {
   }, [userData, router]);
 
   return (
-    <div className="fixed inset-0 font-sans bg-gray-50 flex flex-col">
+    <div className="dashboard-layout min-h-screen font-sans bg-gray-50 flex flex-col">
       <HeaderEntreprise />
 
-      <div className="flex flex-1 overflow-hidden pt-16">
+      <div className="flex flex-1 pt-16">
         <Sidebar />
-        <main className={`flex-1 overflow-y-auto transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
-          <div className="p-6">
+        <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
+          <DashboardPageWrapper>
             {children}
-          </div>
+          </DashboardPageWrapper>
         </main>
       </div>
     </div>

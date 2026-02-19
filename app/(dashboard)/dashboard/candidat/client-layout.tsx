@@ -7,6 +7,7 @@ import ExperiencePromptModal from "@/components/ExperiencePromptModal";
 import { useExperiencePrompt } from "@/hooks/useExperiencePrompt";
 import { ExperiencePromptProvider, useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import { useEffect, useState } from "react";
+import DashboardPageWrapper from "@/components/layout/DashboardPageWrapper";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,14 @@ function DashboardLayoutContent({
       ? window.sessionStorage?.getItem("user")
       : null;
   const userData = userDataString ? JSON.parse(userDataString) : null;
+
+  // Add dashboard-page class to body
+  useEffect(() => {
+    document.body.classList.add('dashboard-page');
+    return () => {
+      document.body.classList.remove('dashboard-page');
+    };
+  }, []);
 
   useEffect(() => {
     if (userData?.id) {
@@ -59,15 +68,15 @@ function DashboardLayoutContent({
 
   return (
     <>
-      <div className="font-sans bg-gray-50 min-h-screen overflow-x-hidden w-full max-w-[100vw]">
+      <div className="dashboard-layout font-sans bg-gray-50 min-h-screen w-full">
         <HeaderCandidat />
 
-        <div className={`flex h-screen overflow-x-hidden`}>
+        <div className="flex pt-16">
           <Sidebar />
-          <main className="flex-1 pt-20 overflow-auto overflow-x-hidden w-full">
-            <div className="p-4 sm:p-6 max-w-full overflow-x-hidden">
+          <main className="flex-1 w-full">
+            <DashboardPageWrapper>
               {children}
-            </div>
+            </DashboardPageWrapper>
           </main>
         </div>
 

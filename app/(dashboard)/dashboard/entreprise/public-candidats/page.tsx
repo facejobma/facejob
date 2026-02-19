@@ -77,6 +77,21 @@ const CandidatsPage: React.FC = () => {
   
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Fonction pour corriger les URLs avec des backslashes échappés
+  const fixImageUrl = (url: string | null): string => {
+    if (!url) return '';
+    // Remplacer les backslashes échappés par des slashes normaux
+    return url.replace(/\\\//g, '/');
+  };
+
+  // Fonction pour obtenir l'URL complète de l'image
+  const getImageUrl = (imageUrl: string | null): string => {
+    if (!imageUrl) return '';
+    const fixedUrl = fixImageUrl(imageUrl);
+    // Si l'URL commence par http, l'utiliser directement, sinon ajouter le chemin du backend
+    return fixedUrl.startsWith('http') ? fixedUrl : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${fixedUrl}`;
+  };
   
   // Filters
   const [sectors, setSectors] = useState<any[]>([]);
@@ -318,9 +333,9 @@ const CandidatsPage: React.FC = () => {
   const handleGenerateCV = async (candidateId: number) => {
     try {
       await downloadResumePDF(candidateId);
-      toast.success("CV t├®l├®charg├®!");
+      toast.success("CV téléchargé !");
     } catch (error) {
-      toast.error("Erreur");
+      toast.error("Erreur lors du téléchargement");
     }
   };
 
@@ -353,7 +368,7 @@ const CandidatsPage: React.FC = () => {
       );
 
       if (response.ok) {
-        toast.success("CV consomm├® avec succ├¿s!");
+        toast.success("CV consommé avec succès !");
         setIsModalOpen(false);
         setCandidates(prev => prev.filter(c => c.cv_id !== selectedCandidate.cv_id));
       } else {
@@ -373,7 +388,7 @@ const CandidatsPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Error consuming CV:", error);
-      toast.error("Erreur r├®seau. Veuillez r├®essayer.");
+      toast.error("Erreur réseau. Veuillez réessayer.");
     }
   };
 
@@ -415,13 +430,13 @@ const CandidatsPage: React.FC = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Candidats</h1>
-              <p className="text-green-50 text-sm">D├®couvrez les profils disponibles</p>
+              <p className="text-green-50 text-sm">Découvrez les profils disponibles</p>
             </div>
           </div>
           
           {lastPayment && lastPayment.status === "completed" && (
             <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/30">
-              <p className="text-green-50 text-xs font-medium">Cr├®dits restants</p>
+              <p className="text-green-50 text-xs font-medium">Crédits restants</p>
               <p className="text-2xl font-bold text-white">{lastPayment.cv_video_remaining}</p>
             </div>
           )}
@@ -451,8 +466,11 @@ const CandidatsPage: React.FC = () => {
           
           {/* Filters Panel */}
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-              <h2 className="text-lg font-bold text-gray-900">Filtres de recherche</h2>
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Filtres de recherche</h2>
+                <p className="text-sm text-gray-500">Les résultats se mettent à jour automatiquement</p>
+              </div>
               <button
                 onClick={() => setShowFilters(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -462,7 +480,7 @@ const CandidatsPage: React.FC = () => {
             </div>
             
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Secteur */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Secteur</label>
@@ -471,7 +489,7 @@ const CandidatsPage: React.FC = () => {
                     onChange={setSelectedSector}
                     options={sectors.map(s => ({ value: s.id, label: s.name }))}
                     styles={selectStyles}
-                    placeholder="Rechercher un secteur..."
+                    placeholder="Tous les secteurs..."
                     isClearable
                     isSearchable
                   />
@@ -485,7 +503,7 @@ const CandidatsPage: React.FC = () => {
                     onChange={setSelectedJob}
                     options={filteredJobs.map(j => ({ value: j.id, label: j.name }))}
                     styles={selectStyles}
-                    placeholder="Rechercher un poste..."
+                    placeholder="Tous les postes..."
                     isClearable
                     isSearchable
                     isDisabled={!selectedSector}
@@ -500,48 +518,48 @@ const CandidatsPage: React.FC = () => {
                     onChange={setSelectedCity}
                     options={cities.map(c => ({ value: c, label: c }))}
                     styles={selectStyles}
-                    placeholder="Rechercher une ville..."
+                    placeholder="Toutes les villes..."
                     isClearable
                     isSearchable
                   />
                 </div>
 
-                {/* Niveau d'├®tudes */}
+                {/* Niveau d'études */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Niveau d'├®tudes</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Niveau d'études</label>
                   <Select
                     value={selectedEducation}
                     onChange={setSelectedEducation}
                     options={diplomes.map(d => ({ value: d.id, label: d.name }))}
                     styles={selectStyles}
-                    placeholder="Rechercher un dipl├┤me..."
+                    placeholder="Tous les niveaux..."
                     isClearable
                     isSearchable
                   />
                 </div>
 
-                {/* Exp├®rience minimum */}
+                {/* Expérience minimum */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Exp. minimum</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Expérience minimum</label>
                   <Select
                     value={minExperience}
                     onChange={setMinExperience}
                     options={[0, 1, 2, 3, 5, 7, 10].map(y => ({ value: y, label: `${y} an${y > 1 ? 's' : ''}` }))}
                     styles={selectStyles}
-                    placeholder="Min..."
+                    placeholder="Minimum..."
                     isClearable
                   />
                 </div>
 
-                {/* Exp├®rience maximum */}
+                {/* Expérience maximum */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Exp. maximum</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Expérience maximum</label>
                   <Select
                     value={maxExperience}
                     onChange={setMaxExperience}
                     options={[1, 2, 3, 5, 7, 10, 15, 20].map(y => ({ value: y, label: `${y} an${y > 1 ? 's' : ''}` }))}
                     styles={selectStyles}
-                    placeholder="Max..."
+                    placeholder="Maximum..."
                     isClearable
                   />
                 </div>
@@ -557,28 +575,23 @@ const CandidatsPage: React.FC = () => {
                       { value: 'female', label: 'Femme' }
                     ]}
                     styles={selectStyles}
-                    placeholder="S├®lectionner..."
+                    placeholder="Tous les genres..."
                     isClearable
                   />
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
-                {hasActiveFilters && (
+              {hasActiveFilters && (
+                <div className="mt-6 pt-4 border-t border-gray-200">
                   <button
                     onClick={clearFilters}
-                    className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                    className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
-                    R├®initialiser
+                    <X className="w-4 h-4" />
+                    Réinitialiser tous les filtres
                   </button>
-                )}
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
-                >
-                  Appliquer les filtres
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </>
@@ -600,14 +613,14 @@ const CandidatsPage: React.FC = () => {
                 <User className="w-8 h-8 text-gray-400" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Aucun candidat trouv├®</h2>
-                <p className="text-gray-600 mb-4">Essayez de modifier vos crit├¿res de recherche</p>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Aucun candidat trouvé</h2>
+                <p className="text-gray-600 mb-4">Essayez de modifier vos critères de recherche</p>
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
                     className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                   >
-                    R├®initialiser les filtres
+                    Réinitialiser les filtres
                   </button>
                 )}
               </div>
@@ -648,19 +661,28 @@ const CandidatsPage: React.FC = () => {
                         <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-500 flex-shrink-0">
                           {candidate.image ? (
                             <img 
-                              src={candidate.image.startsWith('http') ? candidate.image : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${candidate.image}`}
+                              src={getImageUrl(candidate.image)}
                               alt={candidate.full_name || 'Candidat'}
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                // En cas d'erreur de chargement, afficher l'avatar par défaut
+                                e.currentTarget.style.display = 'none';
+                                if (e.currentTarget.nextElementSibling) {
+                                  (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                                }
+                              }}
                             />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-sm font-bold">
-                              {candidate.full_name?.[0] || 'C'}
-                            </div>
-                          )}
+                          ) : null}
+                          <div 
+                            className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-sm font-bold"
+                            style={{ display: candidate.image ? 'none' : 'flex' }}
+                          >
+                            {candidate.full_name?.[0] || 'C'}
+                          </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-sm text-gray-900 truncate">{candidate.full_name || 'Candidat'}</h3>
-                          <p className="text-xs text-gray-600 truncate">{candidate.job?.name || 'Non sp├®cifi├®'}</p>
+                          <p className="text-xs text-gray-600 truncate">{candidate.job?.name || 'Non spécifié'}</p>
                         </div>
                       </div>
 
@@ -674,7 +696,7 @@ const CandidatsPage: React.FC = () => {
                         )}
                         <span className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {candidate.years_of_experience}ans
+                          {candidate.years_of_experience} ans
                         </span>
                       </div>
 
@@ -700,7 +722,7 @@ const CandidatsPage: React.FC = () => {
                       <button
                         onClick={() => handleGenerateCV(candidate.id)}
                         className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
-                        title="T├®l├®charger le CV"
+                        title="Télécharger le CV"
                       >
                         <FileText className="w-4 h-4" />
                         CV
@@ -724,7 +746,7 @@ const CandidatsPage: React.FC = () => {
               {candidates.map((candidate) => (
               <div
                 key={candidate.cv_id}
-                className="h-screen snap-start relative flex items-center justify-center -mx-6"
+                className="min-h-screen snap-start relative flex items-center justify-center"
               >
                 {/* Video Container - Full responsive */}
                 <div className="relative w-full h-full flex items-center justify-center">
@@ -750,21 +772,30 @@ const CandidatsPage: React.FC = () => {
                       <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
                         {candidate.image ? (
                           <img 
-                            src={candidate.image.startsWith('http') ? candidate.image : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${candidate.image}`}
+                            src={getImageUrl(candidate.image)}
                             alt={candidate.full_name || 'Candidat'}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // En cas d'erreur de chargement, afficher l'avatar par défaut
+                              e.currentTarget.style.display = 'none';
+                              if (e.currentTarget.nextElementSibling) {
+                                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                              }
+                            }}
                           />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xl font-bold">
-                            {candidate.full_name?.[0] || 'C'}
-                          </div>
-                        )}
+                        ) : null}
+                        <div 
+                          className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xl font-bold"
+                          style={{ display: candidate.image ? 'none' : 'flex' }}
+                        >
+                          {candidate.full_name?.[0] || 'C'}
+                        </div>
                       </div>
                       <div className="flex-1">
                         <h2 className="text-white font-bold text-2xl mb-1">{candidate.full_name || 'Candidat'}</h2>
                         <p className="text-white/90 font-medium flex items-center gap-2">
                           <Briefcase className="w-4 h-4" />
-                          {candidate.job?.name || 'Non sp├®cifi├®'}
+                          {candidate.job?.name || 'Non spécifié'}
                         </p>
                       </div>
                     </div>
@@ -813,7 +844,7 @@ const CandidatsPage: React.FC = () => {
                       <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
                         <h3 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
                           <Building2 className="w-4 h-4" />
-                          Exp├®rience
+                          Expérience
                         </h3>
                         <div className="space-y-1">
                           {candidate.experiences.slice(0, 2).map((e) => (
@@ -831,7 +862,7 @@ const CandidatsPage: React.FC = () => {
                       <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
                         <h3 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
                           <Code className="w-4 h-4" />
-                          Comp├®tences
+                          Compétences
                         </h3>
                         <div className="flex flex-wrap gap-1.5">
                           {candidate.skills.slice(0, 8).map((s) => (
@@ -854,7 +885,7 @@ const CandidatsPage: React.FC = () => {
                     <button
                       onClick={toggleMute}
                       className="w-16 h-16 bg-gray-800/90 hover:bg-gray-700 rounded-full flex flex-col items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm"
-                      title={isMuted ? "Activer le son" : "D├®sactiver le son"}
+                      title={isMuted ? "Activer le son" : "Désactiver le son"}
                     >
                       {isMuted ? (
                         <VolumeX className="w-6 h-6 text-white" />
@@ -867,7 +898,7 @@ const CandidatsPage: React.FC = () => {
                     <button
                       onClick={() => handleGenerateCV(candidate.id)}
                       className="flex flex-col items-center gap-1"
-                      title="T├®l├®charger le CV"
+                      title="Télécharger le CV"
                     >
                       <div className="w-16 h-16 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110">
                         <FileText className="w-6 h-6 text-gray-700" />
@@ -914,7 +945,7 @@ const CandidatsPage: React.FC = () => {
           <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Confirmer</h2>
             <p className="text-gray-600 mb-6">
-              Voulez-vous consulter ce CV vid├®o ? Cette action consommera un cr├®dit et est irr├®versible.
+              Voulez-vous consulter ce CV vidéo ? Cette action consommera un crédit et est irréversible.
             </p>
             <div className="flex gap-3">
               <button
@@ -940,7 +971,7 @@ const CandidatsPage: React.FC = () => {
           <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Limite atteinte</h2>
             <p className="text-gray-600 mb-6">
-              Vous avez atteint votre limite de consultations. Mettez ├á niveau votre forfait pour consulter plus de CVs.
+              Vous avez atteint votre limite de consultations. Mettez à niveau votre forfait pour consulter plus de CVs.
             </p>
             <div className="flex gap-3">
               <button
@@ -953,7 +984,7 @@ const CandidatsPage: React.FC = () => {
                 onClick={() => window.location.href = "/dashboard/entreprise/services"}
                 className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
               >
-                Mettre ├á niveau
+                Mettre à niveau
               </button>
             </div>
           </div>

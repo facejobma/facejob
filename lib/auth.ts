@@ -99,6 +99,11 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
   }
 }
 
+// Cache for authentication check to prevent multiple simultaneous calls
+let authCheckPromise: Promise<AuthUser | null> | null = null;
+let lastAuthCheck: { timestamp: number; result: AuthUser | null } | null = null;
+const AUTH_CACHE_DURATION = 5000; // 5 seconds cache
+
 // Check if user is authenticated and get their role
 export async function getAuthenticatedUser(): Promise<AuthUser | null> {
   // First check if we have a token
@@ -107,8 +112,36 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
     return null;
   }
 
-  // Get user data from backend
-  return await getUserFromToken();
+  // Check if we have a recent cached result
+  if (lastAuthCheck && Date.now() - lastAuthCheck.timestamp < AUTH_CACHE_DURATION) {
+    console.log('🔄 Using cached auth result');
+    return lastAuthCheck.result;
+  }
+
+  // If there's already a check in progress, return that promise
+  if (authCheckPromise) {
+    console.log('⏳ Auth check already in progress, waiting...');
+    return authCheckPromise;
+  }
+
+  // Start a new auth check
+  authCheckPromise = getUserFromToken()
+    .then(result => {
+      // Cache the result
+      lastAuthCheck = {
+        timestamp: Date.now(),
+        result
+      };
+      authCheckPromise = null;
+      return result;
+    })
+    .catch(error => {
+      console.error('Auth check failed:', error);
+      authCheckPromise = null;
+      return null;
+    });
+
+  return authCheckPromise;
 }
 
 // Redirect user to appropriate dashboard based on their role

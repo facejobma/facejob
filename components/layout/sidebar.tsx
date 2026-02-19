@@ -110,7 +110,7 @@ export default function Sidebar() {
 
   return (
     <nav className={cn(
-      'fixed left-0 top-0 h-screen border-r pt-20 hidden md:block bg-white z-30 transition-all duration-300 overflow-hidden',
+      'fixed left-0 top-0 h-screen border-r pt-16 hidden md:block bg-white z-30 transition-all duration-300 overflow-hidden',
       isOpen ? 'w-64' : 'w-0 border-r-0'
     )}>
       <div className={cn(

@@ -1,18 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import HeaderEntreprise from "@/components/layout/header-entreprise";
 import Sidebar from "@/components/layout/sidebar";
 import { useEffect } from "react";
+import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 
 interface LayoutProps {
   children: React.ReactNode;
   params: any;
 }
 
-function DashboardLayoutContent({ children, params }: LayoutProps) {
+function DashboardLayoutInner({ children, params }: LayoutProps) {
   const router = useRouter();
+  const { isOpen } = useSidebar();
 
   const userDataString =
     typeof window !== "undefined"
@@ -28,23 +29,25 @@ function DashboardLayoutContent({ children, params }: LayoutProps) {
   }, [userData, router]);
 
   return (
-    <>
-      <div className="font-sans bg-gray-50 min-h-screen">
-        <HeaderEntreprise />
+    <div className="font-sans bg-gray-50 min-h-screen">
+      <HeaderEntreprise />
 
-        <div className={`flex h-screen`}>
-          <Sidebar />
-          <main className="flex-1 pt-20 overflow-auto">
-            <div className="p-6">
-              {children}
-            </div>
-          </main>
-        </div>
+      <div className={`flex h-screen`}>
+        <Sidebar />
+        <main className={`flex-1 pt-20 overflow-auto transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
+          <div className="p-6">
+            {children}
+          </div>
+        </main>
       </div>
-    </>
+    </div>
   );
 }
 
 export default function EntrepriseClientLayout({ children, params }: LayoutProps) {
-  return <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>;
+  return (
+    <SidebarProvider>
+      <DashboardLayoutInner params={params}>{children}</DashboardLayoutInner>
+    </SidebarProvider>
+  );
 }

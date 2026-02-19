@@ -44,11 +44,19 @@ const Notification: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const echoInitialized = useRef(false);
 
+  // Ensure component is mounted before rendering
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Initialisation de l'utilisateur
   useEffect(() => {
+    if (!isMounted) return;
+    
     if (typeof window !== "undefined") {
       try {
         const userStr = window.sessionStorage?.getItem("user");
@@ -66,7 +74,7 @@ const Notification: React.FC = () => {
         console.error("Error parsing user data:", error);
       }
     }
-  }, []);
+  }, [isMounted]);
 
   // Fonction pour récupérer les notifications
   const fetchNotifications = useCallback(async () => {
@@ -273,6 +281,21 @@ const Notification: React.FC = () => {
     ? notifications.filter((n) => !n.read_at).length
     : 0;
 
+  // Don't render until mounted to avoid hydration mismatch
+  if (!isMounted) {
+    return (
+      <div className="relative">
+        <button
+          className="relative p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          aria-label="Notifications"
+          disabled
+        >
+          <Bell size={24} className="text-gray-600" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="relative" ref={notificationRef}>
       <button
@@ -289,20 +312,20 @@ const Notification: React.FC = () => {
       </button>
 
       {isVisible && (
-        <div className="absolute w-80 sm:w-96 top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+        <div className="fixed top-20 right-4 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden">
           {/* En-tête */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800">
+          <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <h3 className="text-base font-semibold text-gray-900">
               Notifications
               {unreadCount > 0 && (
-                <span className="ml-2 text-sm text-blue-600">
-                  ({unreadCount} non lue{unreadCount > 1 ? "s" : ""})
+                <span className="ml-2 text-sm text-green-600">
+                  ({unreadCount})
                 </span>
               )}
             </h3>
             <button
               onClick={() => setIsVisible(false)}
-              className="p-1 hover:bg-white rounded-full transition-colors"
+              className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
               aria-label="Fermer"
             >
               <X size={18} className="text-gray-600" />
@@ -310,7 +333,7 @@ const Notification: React.FC = () => {
           </div>
 
           {/* Liste des notifications */}
-          <div className="overflow-y-auto max-h-96">
+          <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -326,10 +349,10 @@ const Notification: React.FC = () => {
                   <li
                     key={notification.id}
                     className={`relative border-b border-gray-100 last:border-b-0 transition-colors hover:bg-gray-50 ${
-                      !notification.read_at ? "bg-blue-50" : ""
+                      !notification.read_at ? "bg-green-50/30" : ""
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-3 px-4 py-3">
+                    <div className="flex items-start gap-3 px-4 py-3">
                       {/* Indicateur non lu */}
                       {!notification.read_at && (
                         <div className="flex-shrink-0 w-2 h-2 mt-2 bg-green-600 rounded-full"></div>
@@ -407,7 +430,7 @@ const Notification: React.FC = () => {
                           {notification.data.action_url && (
                             <Link
                               href={notification.data.action_url}
-                              className="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline"
+                              className="text-xs text-green-600 hover:text-green-700 font-medium hover:underline"
                               onClick={() => setIsVisible(false)}
                             >
                               {notification.data.action_text || "Consulter"} →
@@ -419,7 +442,7 @@ const Notification: React.FC = () => {
                             notification.data.offre && (
                               <Link
                                 href={`/dashboard/entreprise/mes-offres/${notification.data.offre}`}
-                                className="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline"
+                                className="text-xs text-green-600 hover:text-green-700 font-medium hover:underline"
                                 onClick={() => setIsVisible(false)}
                               >
                                 Consulter →
@@ -427,21 +450,6 @@ const Notification: React.FC = () => {
                             )}
                         </div>
                       </div>
-
-                      {/* Bouton supprimer 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteNotification(notification.id);
-                        }}
-                        className="flex-shrink-0 p-1 hover:bg-red-100 rounded-full transition-colors group"
-                        aria-label="Supprimer"
-                      >
-                        <X
-                          size={16}
-                          className="text-gray-400 group-hover:text-red-600"
-                        />
-                      </button>*/}
                     </div>
                   </li>
                 ))}
@@ -451,13 +459,13 @@ const Notification: React.FC = () => {
 
           {/* Pied de page */}
           {notifications.length > 0 && (
-            <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
+            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
               <button
                 onClick={() => {
                   markNotificationsAsRead();
                   toast.success("Toutes les notifications sont marquées comme lues");
                 }}
-                className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium"
+                className="w-full text-sm text-green-600 hover:text-green-700 font-medium py-1"
               >
                 Tout marquer comme lu
               </button>

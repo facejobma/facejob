@@ -50,48 +50,15 @@ export function DashboardNav({ items, setOpen, closeOnClick = true }: DashboardN
             href={item.disabled ? "/" : (item.href || "/")}
             onClick={() => handleItemClick(item)}
             className={cn(
-              "group flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ease-in-out relative overflow-hidden",
+              "flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               isActive
-                ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg"
-                : "hover:bg-green-50 hover:text-green-700 text-gray-600",
+                ? "bg-green-600 text-white"
+                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
               item.disabled && "cursor-not-allowed opacity-50",
             )}
           >
-            {/* Active indicator */}
-            {isActive && (
-              <div className="absolute left-0 top-0 h-full w-1 bg-white rounded-r-full"></div>
-            )}
-            
-            {/* Icon with enhanced styling */}
-            <div className={cn(
-              "flex items-center justify-center w-8 h-8 rounded-lg mr-3 transition-all duration-200",
-              isActive 
-                ? "bg-white/20 text-white" 
-                : "bg-gray-100 text-gray-500 group-hover:bg-green-100 group-hover:text-green-600"
-            )}>
-              <Icon className="h-4 w-4" />
-            </div>
-            
-            {/* Text with better typography */}
-            <span className={cn(
-              "flex-1 font-medium transition-all duration-200",
-              isActive ? "text-white" : ""
-            )}>
-              {item.title}
-            </span>
-            
-            {/* Subtle arrow for active state */}
-            {isActive && (
-              <div className="ml-auto">
-                <div className="w-2 h-2 bg-white rounded-full opacity-75"></div>
-              </div>
-            )}
-            
-            {/* Hover effect overlay */}
-            <div className={cn(
-              "absolute inset-0 bg-gradient-to-r opacity-0 transition-opacity duration-200 rounded-xl",
-              !isActive && "from-green-500/5 to-emerald-600/5 group-hover:opacity-100"
-            )}></div>
+            <Icon className="h-5 w-5 mr-3" />
+            <span>{item.title}</span>
           </Link>
         );
       })}

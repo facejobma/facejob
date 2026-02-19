@@ -63,20 +63,26 @@ const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Présentation de l'Entreprise</h2>
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden h-full flex flex-col">
+      <div className="p-4 flex justify-between items-center border-b border-gray-200">
+        <h2 className="text-base font-semibold text-gray-900">Présentation de l'entreprise</h2>
         <button
           onClick={handleEditClick}
-          className="text-gray-400 hover:text-gray-600"
+          className="text-gray-400 hover:text-green-600 transition-colors"
         >
-          <Edit />
+          <Edit className="w-4 h-4" />
         </button>
       </div>
-      <div className="p-6 relative">
-        <div className="bg-gray-100 rounded-lg p-4 mb-4">
-          <div dangerouslySetInnerHTML={{ __html: newBio }} />
-        </div>
+      <div className="p-4 flex-1">
+        <div className="text-gray-700 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: newBio }} />
+        
+        <button
+          onClick={handleEditClick}
+          className="mt-4 text-sm text-green-600 hover:text-green-700 font-medium transition-colors flex items-center gap-2"
+        >
+          <Edit className="w-4 h-4" />
+          Modifier la description
+        </button>
       </div>
 
       <Modal
@@ -90,7 +96,7 @@ const BioEntrepSection: React.FC<BioEntrepSectionProps> = ({ id, bio }) => {
             value={newBio}
             onChange={(e)=>handleInputChange(e.target.value)}
             className="w-full border border-gray-300 rounded-md p-2 mt 6 h-32"
-            placeholder="Entrez la description de l’entreprise"
+            placeholder="Entrez la description de l'entreprise"
           />
           <br></br>
           <br></br>

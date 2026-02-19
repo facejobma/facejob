@@ -7,7 +7,7 @@ import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "react-hot-toast";
 import localFont from "next/font/local";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 
 const inter = localFont({
   src: [
@@ -24,6 +24,13 @@ const inter = localFont({
   ],
   variable: "--font-inter",
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -55,12 +62,6 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://facejob.ma'),
   alternates: {

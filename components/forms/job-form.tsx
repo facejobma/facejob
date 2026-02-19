@@ -16,6 +16,8 @@ import {
 import { FiUser } from "react-icons/fi";
 import { OfferCandidatActions } from "../OfferCandidatActions";
 import { apiRequest, handleApiError } from "@/lib/apiUtils";
+import RichTextEditor from "@/components/RichTextEditor";
+import toast from "react-hot-toast";
 
 interface Job {
   id: number;
@@ -62,6 +64,7 @@ interface JobData {
   location: string;
   contractType: string;
   is_verified: string;
+  entreprise_id: number;
   applications: {
     candidat: Candidat;
     link: string;
@@ -71,7 +74,7 @@ interface JobData {
   candidats_count: number;
 }
 
-const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
+const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initialData, autoEdit = false }) => {
   const isPending = initialData.is_verified === "Pending";
   const isAccepted = initialData.is_verified === "Accepted";
   const isDeclined = initialData.is_verified === "Declined";
@@ -82,11 +85,74 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
   const [sectors, setSectors] = useState<Sector[]>([]);
+  const [isEditing, setIsEditing] = useState(autoEdit);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Local state for updated data
+  const [currentData, setCurrentData] = useState(initialData);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    titre: initialData.titre,
+    description: initialData.description,
+    location: initialData.location,
+    contractType: initialData.contractType,
+    date_debut: initialData.date_debut ? initialData.date_debut.split('T')[0] : '',
+    sector_id: initialData.sector_id,
+    job_id: initialData.job_id,
+    entreprise_id: initialData.entreprise_id,
+  });
 
   const modalRef = useRef<HTMLDivElement>(null);
 
   const toggleShowAllCandidates = () => {
     setShowAllCandidates(!showAllCandidates);
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Submitting offre update:', {
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${initialData.id}`,
+        method: 'PUT',
+        data: formData
+      });
+      
+      const result = await apiRequest(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${initialData.id}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(formData),
+        }
+      );
+      
+      console.log('Update result:', result);
+      
+      if (result.success) {
+        toast.success('Offre mise à jour avec succès!');
+        setIsEditing(false);
+        // Update local state with new data
+        setCurrentData({
+          ...currentData,
+          ...formData
+        });
+      } else {
+        toast.error(result.error || 'Une erreur est survenue');
+        console.error('Update failed:', result);
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error('Erreur lors de la mise à jour');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const displayedApplications = showAllCandidates
@@ -187,140 +253,270 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50  shadow-xl max-w-4xl mx-auto mt-8 overflow-hidden border border-gray-100">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
-        <div className="flex justify-between items-start mb-3">
-          <h1 className="text-3xl font-bold">{initialData.titre}</h1>
-          {getStatusBadge()}
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      {/* Simple Header */}
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
+        <div className="flex justify-between items-start mb-2">
+          <h1 className="text-2xl font-bold">{isEditing ? "Modifier l'offre" : currentData.titre}</h1>
+          <div className="flex items-center gap-2">
+            {getStatusBadge()}
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                Modifier
+              </button>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-blue-100">
+        <div className="flex items-center gap-4 text-green-50 text-sm">
           <div className="flex items-center gap-2">
             <Building className="w-4 h-4" />
-            <span className="text-sm font-medium">{initialData.company_name}</span>
+            <span>{currentData.company_name}</span>
           </div>
-          <div className="flex items-center gap-2 bg-blue-500/30 px-3 py-1 rounded-full">
+          <div className="flex items-center gap-2">
             <User className="w-4 h-4" />
-            <span className="text-sm font-semibold">{initialData.candidats_count} Candidats</span>
+            <span>{currentData.candidats_count} Candidat{currentData.candidats_count !== 1 ? 's' : ''}</span>
           </div>
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
-        {/* Info Grid */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* Simple Info Grid - Editable */}
+        {isEditing ? (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Titre de l'offre <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="titre"
+                value={formData.titre}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Localisation
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Type de contrat
+                </label>
+                <select
+                  name="contractType"
+                  value={formData.contractType}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                >
+                  <option value="">Sélectionner</option>
+                  <option value="CDI">CDI</option>
+                  <option value="CDD">CDD</option>
+                  <option value="Stage">Stage</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="Alternance">Alternance</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Date de début
+              </label>
+              <input
+                type="date"
+                name="date_debut"
+                value={formData.date_debut}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Description <span className="text-red-500">*</span>
+              </label>
+              <RichTextEditor
+                content={formData.description}
+                onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
+                placeholder="Décrivez le poste, les responsabilités, les compétences requises..."
+                minHeight="300px"
+              />
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <ReceiptText className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="text-xs text-gray-500">Métier</p>
+              <p className="text-sm font-semibold text-gray-800">{getJobName(currentData.job_id)}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <Calendar className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="text-xs text-gray-500">Date de début</p>
+              <p className="text-sm font-semibold text-gray-800">
+                {new Date(currentData.date_debut).toLocaleDateString("fr-FR", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <Briefcase className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="text-xs text-gray-500">Type de contrat</p>
+              <p className="text-sm font-semibold text-gray-800">{currentData.contractType}</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <ReceiptText className="w-5 h-5 text-blue-600" />
-            </div>
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <MapPin className="w-5 h-5 text-green-600" />
             <div>
-              <p className="text-xs text-gray-500 font-medium">Métier</p>
-              <p className="text-sm font-semibold text-gray-800">{getJobName(initialData.job_id)}</p>
+              <p className="text-xs text-gray-500">Localisation</p>
+              <p className="text-sm font-semibold text-gray-800">{currentData.location || "Non spécifié"}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="p-2 bg-green-50 rounded-lg">
-              <Calendar className="w-5 h-5 text-green-600" />
-            </div>
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <Building className="w-5 h-5 text-green-600" />
             <div>
-              <p className="text-xs text-gray-500 font-medium">Date de Démarrage</p>
-              <p className="text-sm font-semibold text-gray-800">{initialData.date_debut}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="p-2 bg-purple-50 rounded-lg">
-              <Briefcase className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-medium">Type de Contrat</p>
-              <p className="text-sm font-semibold text-gray-800">{initialData.contractType}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="p-2 bg-orange-50 rounded-lg">
-              <MapPin className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-medium">Secteur</p>
-              <p className="text-sm font-semibold text-gray-800">{getSectorName(initialData.sector_id)}</p>
+              <p className="text-xs text-gray-500">Secteur</p>
+              <p className="text-sm font-semibold text-gray-800">{getSectorName(currentData.sector_id)}</p>
             </div>
           </div>
         </div>
 
         {/* Description Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
           <div className="flex items-center gap-2 mb-3">
-            <FileText className="w-5 h-5 text-blue-600" />
+            <FileText className="w-5 h-5 text-green-600" />
             <h2 className="text-lg font-semibold text-gray-800">Description</h2>
           </div>
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4">
-            <p className="text-gray-700 leading-relaxed">{initialData.description}</p>
-          </div>
+          <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: currentData.description }}></div>
         </div>
+          </>
+        )}
 
         {/* Candidates Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <User className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-800">Candidatures</h2>
+        <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5 text-green-600" />
+              <h2 className="text-lg font-semibold text-gray-800">Candidatures ({initialData.candidats_count})</h2>
+            </div>
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {displayedApplications?.map((application, index) => (
               <div
                 key={index}
-                className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-200 hover:shadow-md transition-all group"
+                className="bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all p-4 flex flex-col"
               >
-                {application.candidat.image ? (
-                  <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-blue-100 group-hover:ring-blue-300 transition-all">
-                    <img
-                      src={application.candidat.image}
-                      alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
-                      className="w-full h-full object-cover"
-                    />
+                {/* Header with Avatar and Name */}
+                <div className="flex items-start gap-3 mb-3">
+                  {application.candidat.image ? (
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-green-100 flex-shrink-0">
+                      <img
+                        src={application.candidat.image.replace(/\\/g, '')}
+                        alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = `
+                            <div class="w-14 h-14 bg-gradient-to-br from-green-100 to-emerald-200 rounded-full flex items-center justify-center ring-2 ring-green-100">
+                              <svg class="text-green-600 h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            </div>
+                          `;
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 bg-gradient-to-br from-green-100 to-emerald-200 rounded-full flex items-center justify-center ring-2 ring-green-100 flex-shrink-0">
+                      <FiUser className="text-green-600 h-7 w-7" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 truncate">
+                      {`${application.candidat.first_name} ${application.candidat.last_name}`}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {new Date(application.created_at).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
                   </div>
-                ) : (
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center ring-2 ring-blue-100 group-hover:ring-blue-300 transition-all">
-                    <FiUser className="text-blue-600 h-7 w-7" />
+                </div>
+
+                {/* Bio Preview */}
+                {application.candidat.bio && (
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {application.candidat.bio}
+                  </p>
+                )}
+
+                {/* Experience Badge */}
+                {application.candidat.years_of_experience > 0 && (
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Briefcase className="w-4 h-4 text-green-600" />
+                    <span className="text-xs text-gray-600">
+                      {application.candidat.years_of_experience} an{application.candidat.years_of_experience > 1 ? 's' : ''} d'expérience
+                    </span>
                   </div>
                 )}
-                <div className="flex-grow">
-                  <p className="font-semibold text-gray-800">
-                    {`${application.candidat.first_name} ${application.candidat.last_name}`}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {new Date(application.created_at).toLocaleString("fr-FR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+
+                {/* Actions */}
+                <div className="mt-auto pt-3 border-t border-gray-100 flex flex-col gap-2">
                   <button
+                    type="button"
                     onClick={() => {
                       setVideoLink(application.link);
                       setShowModal(true);
                     }}
-                    className="inline-flex items-center gap-1.5 mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium group/button"
+                    className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
                   >
-                    <Play className="w-3.5 h-3.5 group-hover/button:scale-110 transition-transform" />
+                    <Play className="w-4 h-4" />
                     Voir CV vidéo
                   </button>
+                  <OfferCandidatActions
+                    candidat={application.candidat}
+                    postuler={application.postuler}
+                  />
                 </div>
-                <OfferCandidatActions
-                  candidat={application.candidat}
-                  postuler={application.postuler}
-                />
               </div>
             ))}
           </div>
           {initialData?.applications?.length > 4 && (
             <button
               onClick={toggleShowAllCandidates}
-              className="w-full mt-4 py-2.5 text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
+              className="w-full mt-4 py-2.5 text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors"
             >
               {showAllCandidates ? "Voir moins" : `Voir tous les candidats (${initialData.applications.length})`}
             </button>
@@ -328,7 +524,52 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-2">
+        {isEditing ? (
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setFormData({
+                  titre: initialData.titre,
+                  description: initialData.description,
+                  location: initialData.location,
+                  contractType: initialData.contractType,
+                  date_debut: initialData.date_debut ? initialData.date_debut.split('T')[0] : '',
+                  sector_id: initialData.sector_id,
+                  job_id: initialData.job_id,
+                  entreprise_id: initialData.entreprise_id,
+                });
+              }}
+              className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isSubmitting}
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`px-6 py-2.5 font-medium rounded-lg transition-colors flex items-center gap-2 ${
+                isSubmitting
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700"
+              }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Enregistrement...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Enregistrer</span>
+                </>
+              )}
+            </button>
+          </div>
+        ) : (
+          <div className="flex justify-end gap-3 pt-2">
           {isPending && (
             <>
               <button className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2">
@@ -354,7 +595,8 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
             </button>
           )}
         </div>
-      </div>
+        )}
+      </form>
 
       {/* Modal */}
       {showModal && (
@@ -374,25 +616,32 @@ const JobForm: React.FC<{ initialData: JobData }> = ({ initialData }) => {
             </div>
             <div className="p-6">
               {videoLink && (
-                <>
-                  {videoLink.endsWith(".mp4") || videoLink.endsWith(".webm") || videoLink.endsWith(".ogg") ? (
-                    <video
-                      src={videoLink}
-                      controls
-                      className="w-full rounded-xl shadow-lg"
-                    />
-                  ) : (
-                    <a
-                      href={videoLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 p-8 bg-blue-50 hover:bg-blue-100 rounded-xl border-2 border-dashed border-blue-300 text-blue-600 font-medium transition-colors"
-                    >
-                      <FileText className="w-6 h-6" />
-                      Ouvrir le fichier dans un nouvel onglet
-                    </a>
-                  )}
-                </>
+                <div className="relative">
+                  <video
+                    src={videoLink.replace(/\\/g, '')}
+                    controls
+                    controlsList="nodownload"
+                    className="w-full rounded-xl shadow-lg"
+                    onError={(e) => {
+                      // Si la vidéo ne charge pas, afficher un message d'erreur
+                      e.currentTarget.style.display = 'none';
+                      const errorDiv = document.createElement('div');
+                      errorDiv.className = 'flex flex-col items-center justify-center gap-4 p-8 bg-red-50 rounded-xl border-2 border-dashed border-red-300 text-red-600';
+                      errorDiv.innerHTML = `
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="font-medium">Impossible de charger la vidéo</p>
+                        <a href="${videoLink.replace(/\\/g, '')}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                          Ouvrir dans un nouvel onglet
+                        </a>
+                      `;
+                      e.currentTarget.parentElement?.appendChild(errorDiv);
+                    }}
+                  >
+                    Votre navigateur ne supporte pas la lecture de vidéos.
+                  </video>
+                </div>
               )}
             </div>
           </div>

@@ -42,7 +42,25 @@ export function DashboardNav({ items, setOpen, closeOnClick = true }: DashboardN
     <nav className="grid items-start gap-1">
       {items.map((item, index) => {
         const Icon = Icons[item.icon || "arrowRight"];
-        const isActive = path === item.href;
+        
+        // More precise active detection
+        let isActive = false;
+        if (item.href) {
+          if (path === item.href) {
+            // Exact match
+            isActive = true;
+          } else if (path.startsWith(item.href + '/')) {
+            // Sub-page match, but make sure it's not a false positive
+            // Check if there's a more specific match in the items
+            const hasMoreSpecificMatch = items.some(otherItem => 
+              otherItem.href && 
+              otherItem.href !== item.href && 
+              otherItem.href.startsWith(item.href) && 
+              (path === otherItem.href || path.startsWith(otherItem.href + '/'))
+            );
+            isActive = !hasMoreSpecificMatch;
+          }
+        }
         
         return (
           <Link

@@ -4,7 +4,7 @@ import BreadCrumb from "@/components/breadcrumb";
 import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
 import { JobRequests } from "@/components/tables/job-tables/requests";
-import { Plus, Search, Users, Briefcase, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Search, Users, Briefcase, Clock, CheckCircle, XCircle, LayoutGrid, Table as TableIcon, Building, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [viewMode, setViewMode] = useState<"table" | "cards">("cards");
   const { toast } = useToast();
   const router = useRouter();
   const authToken = Cookies.get("authToken");
@@ -196,9 +197,37 @@ export default function UsersPage() {
             <h2 className="text-lg font-semibold text-gray-900">Filtrer vos offres</h2>
             <p className="text-sm text-gray-600">Recherchez et filtrez vos offres d'emploi</p>
           </div>
-          <Badge variant="outline" className="text-sm border-gray-300 text-gray-700">
-            {filteredJobs.length} offre{filteredJobs.length !== 1 ? 's' : ''} trouvée{filteredJobs.length !== 1 ? 's' : ''}
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="text-sm border-gray-300 text-gray-700">
+              {filteredJobs.length} offre{filteredJobs.length !== 1 ? 's' : ''} trouvée{filteredJobs.length !== 1 ? 's' : ''}
+            </Badge>
+            
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === "table" 
+                    ? "bg-white text-green-600 shadow-sm" 
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                title="Vue tableau"
+              >
+                <TableIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("cards")}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === "cards" 
+                    ? "bg-white text-green-600 shadow-sm" 
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                title="Vue cartes"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4">
@@ -276,9 +305,94 @@ export default function UsersPage() {
             </Button>
           )}
         </div>
-      ) : (
+      ) : viewMode === "table" ? (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <JobRequests data={filteredJobs} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredJobs.map((job) => (
+            <div
+              key={job.id}
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-green-300 hover:shadow-lg transition-all"
+            >
+              <div className="p-5">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
+                      {job.titre}
+                    </h3>
+                    <p className="text-sm text-gray-600 flex items-center gap-1">
+                      <Building className="w-3.5 h-3.5" />
+                      {job.company_name}
+                    </p>
+                  </div>
+                  
+                  {/* Status Badge */}
+                  <Badge 
+                    className={`ml-2 ${
+                      job.is_verified === "Accepted" 
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                        : job.is_verified === "Pending"
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-red-50 text-red-700 border-red-200"
+                    } border`}
+                  >
+                    {job.is_verified === "Accepted" ? "Validée" : 
+                     job.is_verified === "Pending" ? "En attente" : "Refusée"}
+                  </Badge>
+                </div>
+
+                {/* Info */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Building className="w-4 h-4 text-gray-400" />
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      {job.sector?.name || "Non spécifié"}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <span>
+                      {job.created_at 
+                        ? new Date(job.created_at).toLocaleDateString("fr-FR")
+                        : "Date non disponible"
+                      }
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Users className="w-4 h-4 text-gray-400" />
+                    <span className="font-medium">
+                      {job.postuler_offres_count || 0} candidature{(job.postuler_offres_count || 0) !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-4 border-t border-gray-100">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => router.push(`/dashboard/entreprise/mes-offres/${job.id}?mode=edit`)}
+                  >
+                    Modifier
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-green-600 border-green-300 hover:bg-green-50"
+                    onClick={() => router.push(`/dashboard/entreprise/mes-offres/${job.id}`)}
+                  >
+                    Voir l'offre
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

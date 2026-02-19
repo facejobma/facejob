@@ -29,12 +29,12 @@ function DashboardLayoutInner({ children, params }: LayoutProps) {
   }, [userData, router]);
 
   return (
-    <div className="font-sans bg-gray-50 min-h-screen">
+    <div className="fixed inset-0 font-sans bg-gray-50 flex flex-col">
       <HeaderEntreprise />
 
-      <div className={`flex h-screen`}>
+      <div className="flex flex-1 overflow-hidden pt-16">
         <Sidebar />
-        <main className={`flex-1 pt-20 overflow-auto transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
+        <main className={`flex-1 overflow-y-auto transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
           <div className="p-6">
             {children}
           </div>

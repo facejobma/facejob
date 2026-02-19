@@ -59,7 +59,7 @@ export const columns: ColumnDef<Job>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <Badge variant="secondary" className="font-medium">
+      <Badge variant="outline" className="font-medium bg-blue-50 text-blue-700 border-blue-200">
         {row.original.sector_name || "Non spécifié"}
       </Badge>
     ),

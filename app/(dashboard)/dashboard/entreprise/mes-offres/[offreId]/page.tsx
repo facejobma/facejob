@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import BreadCrumb from "@/components/breadcrumb";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import JobForm from "@/components/forms/job-form";
 import { LoadingSpinner } from "@/components/ui/spinner";
+import { Edit } from "lucide-react";
 
 interface Sector {
   id: number;
@@ -46,6 +45,7 @@ interface JobData {
   location: string;
   contractType: string;
   is_verified: string;
+  entreprise_id: number;
   applications: {
     candidat: Candidat;
     link: string;
@@ -59,11 +59,9 @@ export default function Page() {
   const [jobData, setJobData] = useState<JobData | null>(null);
   const { offreId } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
-  
-  const breadcrumbItems = [
-    { title: "Offre", link: "/dashboard/entreprise/mes-offres" },
-    { title: "Consulter", link: `/dashboard/entreprise/mes-offres/${offreId}` },
-  ];
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const editMode = searchParams.get('mode') === 'edit';
 
   useEffect(() => {
     setLoading(true);
@@ -96,18 +94,50 @@ export default function Page() {
     }
   }, [offreId]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-220px)]">
+        <LoadingSpinner message="Chargement de l'offre..." />
+      </div>
+    );
+  }
+
   return (
-    <ScrollArea className="h-full">
-      <div className="flex-1 space-y-4 p-5">
-        <BreadCrumb items={breadcrumbItems} />
-        {jobData ? (
-          <JobForm initialData={jobData} key={offreId as string} />
-        ) : (
-        <div className="flex items-center justify-center h-[calc(80vh-220px)]">
-          <LoadingSpinner />
+    <div className="max-w-4xl mx-auto">
+      {/* Back Button */}
+      <button
+        onClick={() => router.push("/dashboard/entreprise/mes-offres")}
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        <span className="font-medium">Retour aux offres</span>
+      </button>
+
+      {/* Header Simple */}
+      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-6 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+            <Edit className="text-green-600 w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Modifier l'offre d'emploi</h1>
+            <p className="text-gray-600">Mettez à jour les informations de votre offre</p>
+          </div>
         </div>
+      </div>
+
+      {/* Main Form Card */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        {jobData ? (
+          <JobForm initialData={jobData} key={offreId as string} autoEdit={editMode} />
+        ) : (
+          <div className="p-12 text-center">
+            <p className="text-gray-600">Offre introuvable</p>
+          </div>
         )}
       </div>
-    </ScrollArea>
+    </div>
   );
 }

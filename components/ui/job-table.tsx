@@ -32,8 +32,6 @@ export function JobDataTable<TData, TValue>({
   data,
   searchKey,
 }: DataTableProps<TData, TValue>) {
-  const [searchValue, setSearchValue] = useState<string>("");
-  const [selectValue, setSelectValue] = useState<string>("Accepted");
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -61,38 +59,8 @@ export function JobDataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  useEffect(() => {
-    table.getColumn(searchKey)?.setFilterValue(searchValue);
-  }, [searchKey, searchValue]);
-
-  useEffect(() => {
-    table.setGlobalFilter(selectValue);
-  }, [selectValue]);
-
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = event.target.value;
-    setSelectValue(selectedValue);
-  };
-
   return (
     <>
-      <div className="flex space-x-2">
-        <Input
-          placeholder={`Rechercher par  ${searchKey}...`}
-          value={searchValue}
-          onChange={(event) => setSearchValue(event.target.value)}
-          className="w-full md:max-w-sm"
-        />
-        <select
-          value={selectValue || ""}
-          onChange={handleSelectChange}
-          className="border bg-white text-gray-500 p-2 rounded-md focus:outline-none focus:border-accent focus:ring focus:ring-accent disabled:opacity-50"
-        >
-          <option value="Pending">En attente</option>
-          <option value="Accepted">Acceptée</option>
-          <option value="Declined">Déclinée</option>
-        </select>
-      </div>
       {loading ? (
         <InlineLoading 
           message="Chargement des données..."

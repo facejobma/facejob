@@ -5,7 +5,7 @@ import ProfileEntrepHeader from "@/components/ProfileEntrepriseHeader";
 import BioEntrepSection from "@/components/BioEntrep";
 import ContactSection from "@/components/contactSection";
 import Cookies from "js-cookie";
-import { Circles } from "react-loader-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { HiOutlineOfficeBuilding, HiOutlineCollection } from "react-icons/hi";
 import { FaBuilding, FaGlobe, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 

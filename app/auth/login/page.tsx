@@ -7,7 +7,6 @@ import ExperiencesSection from "@/components/ExperiencesSection";
 import SkillsSection from "@/components/SkillsSection";
 import ProjectsSection from "@/components/ProjectsSection";
 import EducationSection from "@/components/EducationSection";
-import { Circles } from "react-loader-spinner";
 
 const Profile: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -55,15 +54,7 @@ const Profile: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(120vh-220px)]">
-        <Circles
-          height="80"
-          width="80"
-          color="#4fa94d"
-          ariaLabel="circles-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
+        <div className="w-20 h-20 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }

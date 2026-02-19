@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useParams } from "next/navigation";
 import Cookies from "js-cookie";
 import JobForm from "@/components/forms/job-form";
-import { Circles } from "react-loader-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 interface Sector {
   id: number;
@@ -104,15 +104,7 @@ export default function Page() {
           <JobForm initialData={jobData} key={offreId as string} />
         ) : (
         <div className="flex items-center justify-center h-[calc(80vh-220px)]">
-          <Circles
-            height="80"
-            width="80"
-            color="#4fa94d"
-            ariaLabel="circles-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={true}
-          />
+          <LoadingSpinner />
         </div>
         )}
       </div>

@@ -19,7 +19,7 @@ import {
 import { Input } from "./input";
 import { Button } from "./button";
 import { ScrollArea, ScrollBar } from "./scroll-area";
-import { Circles } from "react-loader-spinner";
+import { Spinner } from "./spinner";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -103,15 +103,7 @@ export function EntrepriseDataTable<TData, TValue>({
       </div>
       {loading ? (
         <div className="flex items-center justify-center h-[calc(80vh-220px)]">
-          <Circles
-            height="80"
-            width="80"
-            color="#4fa94d"
-            ariaLabel="circles-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={true}
-          />
+          <Spinner size="lg" />
         </div>
       ) : (
         <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">

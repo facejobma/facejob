@@ -48,8 +48,6 @@ export default function UsersPage() {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] gap-6">
         <LoadingSpinner message="Chargement des demandes" />
-          <p className="text-sm text-gray-500">Veuillez patienter quelques instants...</p>
-        </div>
       </div>
     );
   }

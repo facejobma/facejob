@@ -417,12 +417,12 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-      <div className="space-y-8 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 overflow-x-hidden w-full max-w-full">
+      <div className="space-y-6 sm:space-y-8 p-0 max-w-full overflow-x-hidden">
         {/* Header with enhanced design */}
-      <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-2xl p-8 text-white shadow-xl">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="flex-1">
+      <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-none sm:rounded-2xl p-6 sm:p-8 text-white shadow-xl overflow-x-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 max-w-full">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                 <HiOutlineCollection className="text-2xl text-white" />
@@ -434,7 +434,7 @@ export default function UsersPage() {
             </div>
             
             {/* Statistics Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6 overflow-x-hidden">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
@@ -488,8 +488,8 @@ export default function UsersPage() {
       </div>
 
       {/* Enhanced Filters */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+      <div className="bg-white rounded-none sm:rounded-2xl border border-gray-200 shadow-lg overflow-hidden max-w-full">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 overflow-x-hidden">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
@@ -508,8 +508,8 @@ export default function UsersPage() {
             </div>
           </div>
           
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-4 sm:p-6 overflow-x-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-full">
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                   <BiStats className="text-green-600" />
@@ -568,8 +568,8 @@ export default function UsersPage() {
       </div>
 
       {/* Enhanced Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-        <ScrollArea className="h-[calc(80vh-200px)]">
+      <div className="bg-white rounded-none sm:rounded-2xl border border-gray-200 shadow-lg overflow-hidden max-w-full">
+        <ScrollArea className="h-[calc(80vh-200px)] w-full overflow-x-auto">
           <Table>
             <TableHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -639,8 +639,8 @@ export default function UsersPage() {
       </div>
 
       {/* Enhanced Pagination */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-none sm:rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 overflow-x-hidden max-w-full">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 overflow-x-hidden">
           <div className="text-sm text-gray-600 font-medium">
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <>

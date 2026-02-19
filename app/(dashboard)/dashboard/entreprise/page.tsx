@@ -362,10 +362,10 @@ const CandidatsPage: React.FC = () => {
   const hasActiveFilters = selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || minExperience || maxExperience;
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex flex-col max-w-full overflow-x-hidden">
       {/* Top Bar with Filters */}
-      <div className="bg-white border-b border-gray-200 shadow-sm z-20">
-        <div className="px-4 py-3 flex items-center justify-between">
+      <div className="bg-white border-b border-gray-200 shadow-sm z-20 overflow-x-hidden max-w-full">
+        <div className="px-3 sm:px-4 py-3 flex items-center justify-between gap-3 overflow-x-hidden">
           <h1 className="text-gray-900 font-bold text-lg">Candidats</h1>
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -381,8 +381,8 @@ const CandidatsPage: React.FC = () => {
 
         {/* Filters Panel */}
         {showFilters && (
-          <div className="bg-gray-50 border-t border-gray-200 p-4 max-h-96 overflow-y-auto">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-3">
+          <div className="bg-gray-50 border-t border-gray-200 p-3 sm:p-4 max-h-96 overflow-y-auto overflow-x-hidden max-w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-2 sm:mb-3 overflow-x-hidden">
               <select
                 value={selectedSector}
                 onChange={(e) => setSelectedSector(e.target.value)}
@@ -477,7 +477,7 @@ const CandidatsPage: React.FC = () => {
       {/* TikTok-style Scrollable Content */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
+        className="flex-1 overflow-y-scroll snap-y snap-mandatory scrollbar-hide overflow-x-hidden max-w-full"
         style={{ scrollBehavior: 'smooth' }}
       >
         {loading ? (
@@ -506,10 +506,10 @@ const CandidatsPage: React.FC = () => {
             {candidates.map((candidate) => (
               <div
                 key={candidate.cv_id}
-                className="h-screen snap-start relative flex items-center justify-center"
+                className="h-screen snap-start relative flex items-center justify-center overflow-hidden max-w-full"
               >
                 {/* Video Container - Full responsive */}
-                <div className="relative w-full h-full flex items-center justify-center">
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
                   {/* Video Background */}
                   <video
                     ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
@@ -524,12 +524,12 @@ const CandidatsPage: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
 
                   {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 pb-20 pointer-events-none">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 pb-16 sm:pb-20 pointer-events-none overflow-x-hidden max-w-full">
                     {/* Profile Info */}
-                    <div className="space-y-3 pointer-events-auto">
+                    <div className="space-y-2 sm:space-y-3 pointer-events-auto overflow-x-hidden max-w-full">
                     {/* Name and Job */}
-                    <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
+                    <div className="flex items-start gap-3 sm:gap-4 overflow-x-hidden max-w-full">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
                         {candidate.image ? (
                           <img 
                             src={candidate.image.startsWith('http') ? candidate.image : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${candidate.image}`}
@@ -542,9 +542,9 @@ const CandidatsPage: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h2 className="text-white font-bold text-2xl mb-1">{candidate.full_name || 'Candidat'}</h2>
-                        <p className="text-white/90 font-medium flex items-center gap-2">
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <h2 className="text-white font-bold text-xl sm:text-2xl mb-1 truncate">{candidate.full_name || 'Candidat'}</h2>
+                        <p className="text-white/90 font-medium flex items-center gap-2 text-sm sm:text-base truncate">
                           <Briefcase className="w-4 h-4" />
                           {candidate.job?.name || 'Non spécifié'}
                         </p>
@@ -552,7 +552,7 @@ const CandidatsPage: React.FC = () => {
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 overflow-x-hidden max-w-full">
                       {candidate.city && (
                         <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-sm flex items-center gap-2">
                           <MapPin className="w-3 h-3" />
@@ -631,42 +631,42 @@ const CandidatsPage: React.FC = () => {
                   </div>
 
                   {/* Action Buttons (Right Side) - Inside video container */}
-                  <div className="absolute right-2 bottom-24 flex flex-col gap-3 pointer-events-auto">
+                  <div className="absolute right-1 sm:right-2 bottom-20 sm:bottom-24 flex flex-col gap-2 sm:gap-3 pointer-events-auto">
                     {/* Mute/Unmute Button */}
                     <button
                       onClick={toggleMute}
-                      className="w-16 h-16 bg-gray-800/90 hover:bg-gray-700 rounded-full flex flex-col items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm"
+                      className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800/90 hover:bg-gray-700 rounded-full flex flex-col items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm"
                       title={isMuted ? "Activer le son" : "Désactiver le son"}
                     >
                       {isMuted ? (
-                        <VolumeX className="w-6 h-6 text-white" />
+                        <VolumeX className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       ) : (
-                        <Volume2 className="w-6 h-6 text-white" />
+                        <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       )}
                     </button>
 
                     {/* Download CV Button */}
                     <button
                       onClick={() => handleGenerateCV(candidate.id)}
-                      className="flex flex-col items-center gap-1"
+                      className="flex flex-col items-center gap-0.5 sm:gap-1"
                       title="Télécharger le CV"
                     >
-                      <div className="w-16 h-16 bg-blue-500/90 hover:bg-blue-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm">
-                        <FileText className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/90 hover:bg-blue-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm">
+                        <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
-                      <span className="text-white text-xs font-medium bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-sm">CV</span>
+                      <span className="text-white text-[10px] sm:text-xs font-medium bg-black/50 px-1.5 sm:px-2 py-0.5 rounded-full backdrop-blur-sm">CV</span>
                     </button>
                     
                     {/* View/Consume CV Button */}
                     <button
                       onClick={() => handleConsumeClick(candidate)}
-                      className="flex flex-col items-center gap-1"
+                      className="flex flex-col items-center gap-0.5 sm:gap-1"
                       title="Consulter le CV complet"
                     >
-                      <div className="w-16 h-16 bg-green-500/90 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm">
-                        <Eye className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/90 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm">
+                        <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
-                      <span className="text-white text-xs font-medium bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-sm">Voir</span>
+                      <span className="text-white text-[10px] sm:text-xs font-medium bg-black/50 px-1.5 sm:px-2 py-0.5 rounded-full backdrop-blur-sm">Voir</span>
                     </button>
                   </div>
                 </div>

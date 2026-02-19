@@ -59,13 +59,13 @@ function DashboardLayoutContent({
 
   return (
     <>
-      <div className="font-sans bg-gray-50 min-h-screen">
+      <div className="font-sans bg-gray-50 min-h-screen overflow-x-hidden w-full max-w-[100vw]">
         <HeaderCandidat />
 
-        <div className={`flex h-screen`}>
+        <div className={`flex h-screen overflow-x-hidden`}>
           <Sidebar />
-          <main className="flex-1 pt-20 overflow-auto">
-            <div className="p-6">
+          <main className="flex-1 pt-20 overflow-auto overflow-x-hidden w-full">
+            <div className="p-4 sm:p-6 max-w-full overflow-x-hidden">
               {children}
             </div>
           </main>

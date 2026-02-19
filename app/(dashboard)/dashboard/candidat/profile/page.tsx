@@ -8,7 +8,7 @@ import SkillsSection from "@/components/SkillsSection";
 import ProjectsSection from "@/components/ProjectsSection";
 import EducationSection from "@/components/EducationSection";
 import Cookies from "js-cookie";
-import { Circles } from "react-loader-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaCheckCircle, FaExclamationTriangle, FaPlus, FaDownload, FaFilePdf, FaArrowLeft } from "react-icons/fa";
 import { HiOutlineUser, HiOutlineCollection, HiOutlineLightBulb } from "react-icons/hi";
 import { downloadFaceJobCV } from "@/components/FaceJobCV";
@@ -83,13 +83,7 @@ const Profile: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] gap-6">
         <div className="relative">
-          <Circles
-            height={80}
-            width={80}
-            color="#10b981"
-            ariaLabel="circles-loading"
-            visible={true}
-          />
+          <LoadingSpinner message="Chargement du profil..." />
           <div className="absolute inset-0 flex items-center justify-center">
             <HiOutlineUser className="text-2xl text-green-600 animate-pulse" />
           </div>

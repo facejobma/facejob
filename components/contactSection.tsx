@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Edit, Mail, Phone, Linkedin, MapPin } from "lucide-react"; // Import icons from Lucide React
+import { Edit, Mail, Phone, Linkedin, MapPin } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 
@@ -12,6 +12,7 @@ interface ContactSectionProps {
   linkedin: string;
   adresse: string;
 }
+
 const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linkedin, adresse }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
@@ -67,48 +68,82 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Coordonnées de l’entreprise</h2>
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden h-full flex flex-col">
+      <div className="p-4 flex justify-between items-center border-b border-gray-200">
+        <h2 className="text-base font-semibold text-gray-900">Coordonnées de l'entreprise</h2>
         <button
           onClick={handleEditClick}
-          className="text-gray-400 hover:text-gray-600"
+          className="text-gray-400 hover:text-green-600 transition-colors"
         >
-          <Edit />
+          <Edit className="w-4 h-4" />
         </button>
       </div>
-      <div className="p-6 relative grid grid-cols-1 gap-4">
-        <div className="bg-gray-100 rounded-lg p-4 border">
-          <div className="flex items-center">
-            <Mail className="mr-2" />
-            <p>{newEmail}</p>
+      <div className="p-4 flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <Mail className="w-4 h-4 text-green-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-gray-500 mb-0.5">Email</p>
+              <p className="text-sm text-gray-900 truncate">{newEmail}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <Phone className="w-4 h-4 text-green-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-gray-500 mb-0.5">Téléphone</p>
+              <p className="text-sm text-gray-900 truncate">{newPhone}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <Linkedin className="w-4 h-4 text-green-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-gray-500 mb-0.5">LinkedIn</p>
+              <a 
+                href={newLinkedin} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-green-600 hover:text-green-700 truncate block"
+              >
+                {newLinkedin || "Non renseigné"}
+              </a>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <MapPin className="w-4 h-4 text-green-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-gray-500 mb-0.5">Adresse</p>
+              <p className="text-sm text-gray-900 truncate">{newAdresse}</p>
+            </div>
           </div>
         </div>
-        <div className="bg-gray-100 rounded-lg p-4 border">
-          <div className="flex items-center">
-            <Phone className="mr-2" />
-            <p>{newPhone}</p>
-          </div>
-        </div>
-        <div className="bg-gray-100 rounded-lg p-4 border">
-          <div className="flex items-center">
-            <Linkedin className="mr-2" />
-            <a href={newLinkedin} target="_blank" rel="noopener noreferrer">{newLinkedin}</a>
-          </div>
-        </div>
-        <div className="bg-gray-100 rounded-lg p-4 border">
-          <div className="flex items-center">
-            <MapPin className="mr-2" />
-            <p>{newAdresse}</p>
-          </div>
-        </div>
+        
+        <button
+          onClick={handleEditClick}
+          className="mt-4 text-sm text-green-600 hover:text-green-700 font-medium transition-colors flex items-center gap-2"
+        >
+          <Edit className="w-4 h-4" />
+          Modifier les coordonnées
+        </button>
       </div>
+
+
 
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
         title="Modifier les informations de Contact"
-        description="Mettre à jour les coordonnées de Contact de l’entreprise"
+        description="Mettre à jour les coordonnées de Contact de l'entreprise"
       >
         <form onSubmit={handleContactUpdate}>
           <label className="block mb-2">
@@ -122,7 +157,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
             />
           </label>
           <label className="block mb-2">
-          Téléphone
+            Téléphone
             <input
               type="text"
               value={newPhone}
@@ -132,7 +167,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
             />
           </label>
           <label className="block mb-2">
-          LinkedIn
+            LinkedIn
             <input
               type="text"
               value={newLinkedin}
@@ -142,7 +177,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linke
             />
           </label>
           <label className="block mb-2">
-          Adresse Postale
+            Adresse Postale
             <input
               type="text"
               value={newAdresse}

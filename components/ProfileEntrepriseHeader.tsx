@@ -201,63 +201,66 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 pb-20 overflow-hidden relative">
-      {/* {coverImageUrl && (
-        <img
-          src={coverImageUrl}
-          alt="Cover"
-          className="w-full h-40 object-cover relative"
-        />
-      )} */}
-
-      <div className="p-6 relative">
-        <div className="absolute top-4 right-6 flex gap-4">
-          <button
-            className="text-gray-400 hover:text-gray-600"
-            onClick={handleEditClick}
-          >
-            <Edit />
-          </button>
-          <button
-            className="text-gray-400 hover:text-gray-600"
-            title="Modifier le Mot de Passe"
-            onClick={handlePasswordChangeClick}
-          >
-            <Key />
-          </button>
-        </div>
+    <div className="relative">
+      <div className="flex items-start gap-4">
+        {/* Logo */}
         {localImage && (
-          <div className="absolute left-10 top-6 md:top-12">
+          <div className="flex-shrink-0">
             <img
               src={localImage}
-              alt="Profile Avatar"
-              className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-contain"
+              alt="Logo entreprise"
+              className="w-16 h-16 rounded-lg border-2 border-gray-200 object-contain"
             />
           </div>
         )}
-        <div className="ml-6 md:ml-36 mt-32 md:mt-0">
-            <h1 className="text-2xl font-bold mb-1">{localCompanyName}</h1>
-            <p className="text-gray-600 mb-2">{localSectorName}</p>
-            {localSiegeSocial && <p className="text-gray-600 mb-3">{localSiegeSocial}</p>}
-            {localWebsite && (
+        
+        {/* Company Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-bold text-gray-900 mb-1">{localCompanyName}</h2>
+              <p className="text-sm text-gray-600 mb-1">{localSectorName}</p>
+              {localSiegeSocial && (
+                <p className="text-sm text-gray-600 mb-1">{localSiegeSocial}</p>
+              )}
+              {localWebsite && (
                 <a
-                    href={localWebsite}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
+                  href={localWebsite}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-green-600 hover:text-green-700 inline-block"
                 >
-                    {localWebsite}
+                  {localWebsite}
                 </a>
-            )}
-        </div>
-
-        {localCreationDate && (
-          <div className="flex items-center absolute bottom-6 right-6">
-            <p className="text-gray-600 text-sm">
-              Date de création: {new Date(localCreationDate).toLocaleDateString()}
-            </p>
+              )}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                className="text-gray-400 hover:text-green-600 transition-colors"
+                onClick={handleEditClick}
+                title="Modifier le profil"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                className="text-gray-400 hover:text-green-600 transition-colors"
+                title="Modifier le mot de passe"
+                onClick={handlePasswordChangeClick}
+              >
+                <Key className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        )}
+          
+          {/* Creation Date */}
+          {localCreationDate && (
+            <p className="text-xs text-gray-500 mt-2">
+              Créée le {new Date(localCreationDate).toLocaleDateString()}
+            </p>
+          )}
+        </div>
       </div>
 
       <Modal

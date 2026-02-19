@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Star, Video, User, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 export default function Sidebar() {
   const [currentPlan, setCurrentPlan] = useState<string>("Chargement...");
@@ -12,6 +13,7 @@ export default function Sidebar() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
+  const { isOpen } = useSidebar();
 
   // Initialize client-side data after mount to avoid hydration mismatch
   useEffect(() => {
@@ -107,14 +109,18 @@ export default function Sidebar() {
   }, [isClient, userRole, user?.id]);
 
   return (
-    <nav className={cn('relative h-screen border-r pt-20 hidden md:block w-80 bg-gradient-to-b from-green-50 via-white to-emerald-50')}>
-      <div className="space-y-6 py-6 px-4 h-full flex flex-col">
-
-
+    <nav className={cn(
+      'fixed left-0 top-0 h-screen border-r pt-20 hidden md:block bg-white z-30 transition-all duration-300 overflow-hidden',
+      isOpen ? 'w-64' : 'w-0 border-r-0'
+    )}>
+      <div className={cn(
+        "space-y-4 py-6 px-3 h-full flex flex-col transition-opacity duration-300",
+        isOpen ? "opacity-100" : "opacity-0"
+      )}>
         {/* Navigation Section */}
         <div className="flex-1">
           <div className="px-2">
-            <h2 className="mb-6 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <h2 className="mb-4 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
               Navigation
             </h2>
             <DashboardNav items={navItems} />
@@ -123,14 +129,14 @@ export default function Sidebar() {
 
         {/* Bottom Section for Enterprise Plan */}
         {userRole === 'entreprise' && (
-          <div className="px-6 py-5 bg-gradient-to-br from-green-100 via-emerald-50 to-green-100 rounded-2xl border border-green-200/50 shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                <Crown className="w-6 h-6 text-white" />
+          <div className="mx-2 px-4 py-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-green-600 flex items-center justify-center flex-shrink-0">
+                <Crown className="w-5 h-5 text-white" />
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-900">{currentPlan}</p>
-                <p className="text-xs text-gray-600 font-medium">Plan actuel</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{currentPlan}</p>
+                <p className="text-xs text-gray-600 whitespace-nowrap">Plan actuel</p>
               </div>
             </div>
           </div>

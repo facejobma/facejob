@@ -363,7 +363,7 @@ const CandidatsPage: React.FC = () => {
     <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex flex-col">
       {/* Top Bar with Filters */}
       <div className="bg-white border-b border-gray-200 shadow-sm z-20">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="px-4 py-3 flex items-center justify-between rounded-sm">
           <h1 className="text-gray-900 font-bold text-lg">Candidats</h1>
           <button
             onClick={() => setShowFilters(!showFilters)}

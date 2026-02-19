@@ -251,79 +251,75 @@ function ServicePlanPage() {
   return (
     <>
       <ScrollArea className="h-full">
-        <div className="space-y-8">
-          {/* Header with enhanced design */}
-          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <svg className="text-2xl text-white w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+        <div className="space-y-6">
+          {/* Simple Header */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                <svg className="text-green-600 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Services & Abonnements</h1>
+                <p className="text-gray-600">Choisissez le plan qui correspond à vos besoins</p>
+              </div>
+            </div>
+            
+            {/* Statistics Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <CheckCircleIcon className="text-green-600 w-5 h-5" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold">Services & Abonnements</h1>
-                    <p className="text-indigo-100 mt-1">Choisissez le plan qui correspond à vos besoins d'entreprise</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      {isLoadingPayment ? "..." : (lastPayment ? lastPayment.plan_name : hasNoPayment ? "Aucun" : "-")}
+                    </p>
+                    <p className="text-xs text-gray-600">Plan actuel</p>
                   </div>
                 </div>
-                
-                {/* Statistics Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
-                        <CheckCircleIcon className="text-white text-lg w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-white">
-                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment.plan_name : hasNoPayment ? "Aucun plan" : "-")}
-                        </p>
-                        <p className="text-xs text-indigo-100">Plan actuel</p>
-                      </div>
-                    </div>
+              </div>
+              
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <VideoCameraIcon className="text-green-600 w-5 h-5" />
                   </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
-                        <VideoCameraIcon className="text-white w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-white">
-                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment.contact_access_remaining : hasNoPayment ? "0" : "-")}
-                        </p>
-                        <p className="text-xs text-indigo-100">Contacts restants</p>
-                      </div>
-                    </div>
+                  <div>
+                    <p className="text-xl font-bold text-gray-900">
+                      {isLoadingPayment ? "..." : (lastPayment ? lastPayment.contact_access_remaining : hasNoPayment ? "0" : "-")}
+                    </p>
+                    <p className="text-xs text-gray-600">Contacts</p>
                   </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-blue-500/30 flex items-center justify-center">
-                        <BriefcaseIcon className="text-white w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-white">
-                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment.job_remaining : hasNoPayment ? "0" : "-")}
-                        </p>
-                        <p className="text-xs text-indigo-100">Offres restantes</p>
-                      </div>
-                    </div>
+                </div>
+              </div>
+              
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <BriefcaseIcon className="text-green-600 w-5 h-5" />
                   </div>
-                  
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-amber-500/30 flex items-center justify-center">
-                        <ClockIcon className="text-white w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-bold text-white">
-                          {isLoadingPayment ? "..." : (lastPayment ? lastPayment?.payment_period : hasNoPayment ? "Aucune" : "-")}
-                        </p>
-                        <p className="text-xs text-indigo-100">Période</p>
-                      </div>
-                    </div>
+                  <div>
+                    <p className="text-xl font-bold text-gray-900">
+                      {isLoadingPayment ? "..." : (lastPayment ? lastPayment.job_remaining : hasNoPayment ? "0" : "-")}
+                    </p>
+                    <p className="text-xs text-gray-600">Offres</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <ClockIcon className="text-green-600 w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold text-gray-900">
+                      {isLoadingPayment ? "..." : (lastPayment ? lastPayment?.payment_period : hasNoPayment ? "Aucune" : "-")}
+                    </p>
+                    <p className="text-xs text-gray-600">Période</p>
                   </div>
                 </div>
               </div>
@@ -331,22 +327,22 @@ function ServicePlanPage() {
           </div>
 
           {/* Current Plan Overview */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">Aperçu de votre abonnement</h3>
             </div>
             <div className="p-6">
               {isLoadingPayment ? (
                 <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                  <span className="ml-2 text-gray-600">Chargement des informations...</span>
+                  <div className="w-8 h-8 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+                  <span className="ml-2 text-gray-600">Chargement...</span>
                 </div>
               ) : hasNoPayment ? (
                 <div className="text-center py-8">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                  <div className="bg-green-50 rounded-lg p-6 border border-green-200">
                     <div className="flex justify-center mb-4">
-                      <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-                        <BriefcaseIcon className="h-8 w-8 text-blue-600" />
+                      <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                        <BriefcaseIcon className="h-8 w-8 text-green-600" />
                       </div>
                     </div>
                     <h4 className="text-xl font-semibold text-gray-900 mb-2">Aucun abonnement actif</h4>

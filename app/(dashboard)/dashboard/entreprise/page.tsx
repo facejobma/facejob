@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
+import Select from "react-select";
 import { downloadResumePDF } from "@/components/ResumePDF";
 import { 
   MapPin, Briefcase, GraduationCap, Code, Building2, 
@@ -81,23 +82,65 @@ const CandidatsPage: React.FC = () => {
   const [sectors, setSectors] = useState<any[]>([]);
   const [diplomes, setDiplomes] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
-  const [selectedSector, setSelectedSector] = useState<string>("");
-  const [selectedJob, setSelectedJob] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState<string>("");
-  const [selectedGender, setSelectedGender] = useState<string>("");
-  const [selectedEducation, setSelectedEducation] = useState<string>("");
-  const [minExperience, setMinExperience] = useState<string>("");
-  const [maxExperience, setMaxExperience] = useState<string>("");
+  const [selectedSector, setSelectedSector] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedCity, setSelectedCity] = useState<any>(null);
+  const [selectedGender, setSelectedGender] = useState<any>(null);
+  const [selectedEducation, setSelectedEducation] = useState<any>(null);
+  const [minExperience, setMinExperience] = useState<any>(null);
+  const [maxExperience, setMaxExperience] = useState<any>(null);
   const [cities, setCities] = useState<string[]>([]);
 
   const company = typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
   const companyId = company ? JSON.parse(company).id : null;
 
+  // Custom styles for react-select
+  const selectStyles = {
+    control: (base: any) => ({
+      ...base,
+      backgroundColor: 'white',
+      borderColor: '#d1d5db',
+      borderRadius: '0.75rem',
+      minHeight: '40px',
+      fontSize: '0.875rem',
+      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      '&:hover': {
+        borderColor: '#10b981',
+        boxShadow: '0 0 0 3px rgba(16, 185, 129, 0.1)'
+      }
+    }),
+    menu: (base: any) => ({
+      ...base,
+      backgroundColor: 'white',
+      borderRadius: '0.75rem',
+      fontSize: '0.875rem',
+      zIndex: 50,
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+    }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#10b981' : state.isFocused ? '#d1fae5' : 'white',
+      color: state.isSelected ? 'white' : '#1f2937',
+      cursor: 'pointer',
+      '&:active': {
+        backgroundColor: '#10b981'
+      }
+    }),
+    placeholder: (base: any) => ({
+      ...base,
+      color: '#9ca3af'
+    }),
+    singleValue: (base: any) => ({
+      ...base,
+      color: '#1f2937'
+    })
+  };
+
   useEffect(() => {
     if (selectedSector) {
-      const sector = sectors.find((sec) => sec.id === Number(selectedSector));
+      const sector = sectors.find((sec) => sec.id === selectedSector.value);
       setFilteredJobs(sector ? sector.jobs : []);
-      setSelectedJob("");
+      setSelectedJob(null);
     } else {
       setFilteredJobs([]);
     }
@@ -157,13 +200,13 @@ const CandidatsPage: React.FC = () => {
         per_page: "10",
       });
       
-      if (selectedSector) params.append('sector_id', selectedSector);
-      if (selectedJob) params.append('job_id', selectedJob);
-      if (selectedCity) params.append('city', selectedCity);
-      if (selectedGender) params.append('gender', selectedGender);
-      if (selectedEducation) params.append('education_level', selectedEducation);
-      if (minExperience) params.append('min_experience', minExperience);
-      if (maxExperience) params.append('max_experience', maxExperience);
+      if (selectedSector) params.append('sector_id', selectedSector.value);
+      if (selectedJob) params.append('job_id', selectedJob.value);
+      if (selectedCity) params.append('city', selectedCity.value);
+      if (selectedGender) params.append('gender', selectedGender.value);
+      if (selectedEducation) params.append('education_level', selectedEducation.value);
+      if (minExperience) params.append('min_experience', minExperience.value);
+      if (maxExperience) params.append('max_experience', maxExperience.value);
       
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postule/all?${params.toString()}`,
@@ -213,9 +256,12 @@ const CandidatsPage: React.FC = () => {
   // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (!containerRef.current || loadingMore || !hasMore) return;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
       
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      if (loadingMore || !hasMore) return;
+      
       if (scrollTop + clientHeight >= scrollHeight - 100) {
         const nextPage = currentPage + 1;
         setCurrentPage(nextPage);
@@ -223,17 +269,14 @@ const CandidatsPage: React.FC = () => {
       }
     };
 
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [currentPage, loadingMore, hasMore]);
 
   // Intersection Observer to control video playback
   useEffect(() => {
     const observerOptions = {
-      root: containerRef.current,
+      root: null,
       threshold: 0.5, // Video is considered "in view" when 50% visible
     };
 
@@ -335,13 +378,13 @@ const CandidatsPage: React.FC = () => {
   };
 
   const clearFilters = () => {
-    setSelectedSector("");
-    setSelectedJob("");
-    setSelectedCity("");
-    setSelectedGender("");
-    setSelectedEducation("");
-    setMinExperience("");
-    setMaxExperience("");
+    setSelectedSector(null);
+    setSelectedJob(null);
+    setSelectedCity(null);
+    setSelectedGender(null);
+    setSelectedEducation(null);
+    setMinExperience(null);
+    setMaxExperience(null);
   };
 
   const toggleMute = () => {
@@ -362,27 +405,45 @@ const CandidatsPage: React.FC = () => {
   const hasActiveFilters = selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || minExperience || maxExperience;
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex flex-col max-w-full overflow-x-hidden">
-      {/* Top Bar with Filters */}
-      <div className="bg-white border-b border-gray-200 shadow-sm z-20 overflow-x-hidden max-w-full">
-        <div className="px-3 sm:px-4 py-3 flex items-center justify-between gap-3 overflow-x-hidden">
-          <h1 className="text-gray-900 font-bold text-lg">Candidats</h1>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors"
-          >
-            <Filter className="w-4 h-4" />
-            Filtres
-            {hasActiveFilters && (
-              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-            )}
-          </button>
+    <div className="space-y-6">
+      {/* Header Simple */}
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <User className="text-white text-xl" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Candidats</h1>
+              <p className="text-green-50 text-sm">Découvrez les profils disponibles</p>
+            </div>
+          </div>
+          
+          {lastPayment && lastPayment.status === "completed" && (
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/30">
+              <p className="text-green-50 text-xs font-medium">Crédits restants</p>
+              <p className="text-2xl font-bold text-white">{lastPayment.cv_video_remaining}</p>
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Floating Filter Button */}
+      <button
+        onClick={() => setShowFilters(!showFilters)}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow-lg transition-colors"
+      >
+        <Filter className="w-5 h-5" />
+        <span>Filtres</span>
+        {hasActiveFilters && (
+          <span className="w-2 h-2 bg-white rounded-full"></span>
+        )}
+      </button>
 
         {/* Filters Panel */}
         {showFilters && (
-          <div className="bg-gray-50 border-t border-gray-200 p-3 sm:p-4 max-h-96 overflow-y-auto overflow-x-hidden max-w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-2 sm:mb-3 overflow-x-hidden">
+          <div className="bg-gray-50 border-t border-gray-200 p-4 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-3">
               <select
                 value={selectedSector}
                 onChange={(e) => setSelectedSector(e.target.value)}
@@ -461,44 +522,58 @@ const CandidatsPage: React.FC = () => {
               </select>
             </div>
 
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm flex items-center justify-center gap-2"
-              >
-                <X className="w-4 h-4" />
-                Réinitialiser
-              </button>
-            )}
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                  >
+                    Réinitialiser
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Appliquer les filtres
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       {/* TikTok-style Scrollable Content */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-scroll snap-y snap-mandatory scrollbar-hide overflow-x-hidden max-w-full"
+        className="flex-1 overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
         style={{ scrollBehavior: 'smooth' }}
       >
         {loading ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-white">Chargement...</p>
+          <div className="bg-white rounded-xl border border-gray-200 p-12">
+            <div className="flex flex-col items-center justify-center gap-4">
+              <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+              <p className="text-gray-600">Chargement des candidats...</p>
             </div>
           </div>
         ) : candidates.length === 0 ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <User className="w-20 h-20 text-gray-600 mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-white mb-2">Aucun candidat</h2>
-              <p className="text-gray-400 mb-4">Modifiez vos filtres</p>
-              <button
-                onClick={clearFilters}
-                className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full"
-              >
-                Réinitialiser
-              </button>
+          <div className="bg-white rounded-xl border border-gray-200 p-12">
+            <div className="flex flex-col items-center justify-center gap-4 text-center">
+              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center">
+                <User className="w-8 h-8 text-gray-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Aucun candidat trouvé</h2>
+                <p className="text-gray-600 mb-4">Essayez de modifier vos critères de recherche</p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                  >
+                    Réinitialiser les filtres
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -506,7 +581,7 @@ const CandidatsPage: React.FC = () => {
             {candidates.map((candidate) => (
               <div
                 key={candidate.cv_id}
-                className="h-screen snap-start relative flex items-center justify-center overflow-hidden max-w-full"
+                className="h-screen snap-start relative flex items-center justify-center"
               >
                 {/* Video Container - Full responsive */}
                 <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
@@ -651,8 +726,8 @@ const CandidatsPage: React.FC = () => {
                       className="flex flex-col items-center gap-0.5 sm:gap-1"
                       title="Télécharger le CV"
                     >
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/90 hover:bg-blue-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm">
-                        <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      <div className="w-16 h-16 bg-blue-500/90 hover:bg-blue-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm">
+                        <FileText className="w-6 h-6 text-white" />
                       </div>
                       <span className="text-white text-[10px] sm:text-xs font-medium bg-black/50 px-1.5 sm:px-2 py-0.5 rounded-full backdrop-blur-sm">CV</span>
                     </button>
@@ -677,10 +752,11 @@ const CandidatsPage: React.FC = () => {
                 </div>
               </div>
             ))}
+            </div>
 
             {/* Loading More Indicator */}
             {loadingMore && (
-              <div className="h-32 flex items-center justify-center">
+              <div className="h-32 flex items-center justify-center mt-6">
                 <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
             )}
@@ -691,22 +767,22 @@ const CandidatsPage: React.FC = () => {
       {/* Modals */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
-          <div className="bg-gray-900 p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-800">
-            <h2 className="text-2xl font-bold text-white mb-4">Confirmer</h2>
-            <p className="text-gray-300 mb-6">
-              Consommer ce CV vidéo ? Cette action est irréversible.
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Confirmer</h2>
+            <p className="text-gray-600 mb-6">
+              Voulez-vous consulter ce CV vidéo ? Cette action consommera un crédit et est irréversible.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl"
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={handleConfirmConsume}
-                className="flex-1 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl"
+                className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
               >
                 Confirmer
               </button>
@@ -717,22 +793,22 @@ const CandidatsPage: React.FC = () => {
 
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsUpgradeModalOpen(false)}></div>
-          <div className="bg-gray-900 p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-800">
-            <h2 className="text-2xl font-bold text-white mb-4">Limite atteinte</h2>
-            <p className="text-gray-300 mb-6">
-              Mettez à niveau pour consulter plus de CVs.
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsUpgradeModalOpen(false)}></div>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Limite atteinte</h2>
+            <p className="text-gray-600 mb-6">
+              Vous avez atteint votre limite de consultations. Mettez à niveau votre forfait pour consulter plus de CVs.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setIsUpgradeModalOpen(false)}
-                className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl"
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={() => window.location.href = "/dashboard/entreprise/services"}
-                className="flex-1 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl"
+                className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
               >
                 Mettre à niveau
               </button>

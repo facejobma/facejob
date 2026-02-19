@@ -4,7 +4,7 @@ import BreadCrumb from "@/components/breadcrumb";
 import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
 import { EnterpriseRequests } from "@/components/tables/request-tables/requests";
-import { Circles } from "react-loader-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { HiOutlineClipboardList, HiOutlineCollection } from "react-icons/hi";
 import { FaBuilding, FaClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { Entreprise } from "@/constants/data";
@@ -49,22 +49,7 @@ export default function UsersPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] gap-6">
-        <div className="relative">
-          <Circles
-            height={80}
-            width={80}
-            color="#4f46e5"
-            ariaLabel="circles-loading"
-            visible={true}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <HiOutlineClipboardList className="text-2xl text-indigo-600 animate-pulse" />
-          </div>
-        </div>
-        <div className="text-center">
-          <p className="text-lg font-semibold text-gray-900 mb-2">Chargement des demandes</p>
-          <p className="text-sm text-gray-500">Veuillez patienter quelques instants...</p>
-        </div>
+        <LoadingSpinner message="Chargement des demandes" />
       </div>
     );
   }

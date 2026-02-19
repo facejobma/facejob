@@ -37,6 +37,8 @@ const nextConfig = {
     experimental: {
         optimizeCss: true,
         optimizePackageImports: ['lucide-react', 'framer-motion'],
+        // Improve HMR stability for problematic packages
+        serverComponentsExternalPackages: ['react-loader-spinner'],
     },
     
     // Headers for caching

@@ -59,10 +59,12 @@ const EducationSection: React.FC<EducationSectionProps> = ({
           const data = await response.json();
           setDegrees(data);
         } else {
-          console.error("Failed to fetch degrees");
+          console.warn("Failed to fetch degrees, using empty list");
+          setDegrees([]);
         }
       } catch (error) {
-        console.error("Error fetching degrees:", error);
+        console.warn("Error fetching degrees, using empty list:", error);
+        setDegrees([]);
       }
     };
 
@@ -191,114 +193,80 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 flex justify-between items-center border-b border-green-100">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <span className="text-green-600">🎓</span>
-            Formation Académique
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Vos diplômes et certifications
-          </p>
-        </div>
+    <div>
+      <div className="flex justify-between items-center mb-4">
         <button
-          onClick={() => handleEditClick(null)} // Add new education entry
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+          onClick={() => handleEditClick(null)}
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
         >
-          <PlusSquare width={18} height={18} />
-          <span className="hidden sm:inline">Ajouter</span>
+          <PlusSquare className="w-4 h-4" />
+          Ajouter
         </button>
       </div>
 
-      <div className="p-6 relative">
+      <div className="space-y-3">
         {editedEducation && editedEducation.length > 0 ? (
           editedEducation.map((edu: Education) => (
             <div
               key={edu.id}
-              className="bg-white border-l-4 border-green-500 shadow-sm hover:shadow-md rounded-lg p-6 mb-4 transition-all duration-200"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  {/* Title of the formation */}
-                  <div className="mb-3">
-                    <h3 className="font-bold text-xl text-gray-900 mb-1">
-                      {edu.title || "Formation"}
-                    </h3>
-                    <div className="h-1 w-16 bg-green-500 rounded-full"></div>
-                  </div>
+                  <h3 className="font-semibold text-base text-gray-900 mb-1">
+                    {edu.title || "Formation"}
+                  </h3>
                   
-                  {/* Degree/Diploma */}
                   {edu.degree && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-green-600 font-medium">🎓</span>
-                      <p className="text-base font-semibold text-green-700">
-                        {edu.degree}
-                      </p>
-                    </div>
+                    <p className="text-sm font-medium text-green-600 mb-1">
+                      {edu.degree}
+                    </p>
                   )}
                   
-                  {/* School/Institution */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-gray-500">🏫</span>
-                    <p className="text-sm text-gray-700 font-medium">
-                      {edu.school_name}
-                    </p>
-                  </div>
+                  <p className="text-sm text-gray-700 mb-1">
+                    {edu.school_name}
+                  </p>
                   
-                  {/* Graduation Date */}
                   {edu.graduation_date && (
-                    <div className="flex items-center gap-2 mt-3">
-                      <span className="text-gray-400">📅</span>
-                      <p className="text-sm text-gray-600">
-                        Diplômé(e) le {new Date(edu.graduation_date).toLocaleDateString('fr-FR', { 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}
-                      </p>
-                    </div>
+                    <p className="text-xs text-gray-600">
+                      📅 {new Date(edu.graduation_date).toLocaleDateString('fr-FR', { 
+                        year: 'numeric', 
+                        month: 'long'
+                      })}
+                    </p>
                   )}
                 </div>
                 
-                {/* Action buttons */}
-                <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 ml-4">
                   <button
                     type="button"
                     onClick={() => handleEditClick(edu)}
-                    className="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="text-blue-500 hover:text-blue-700 p-1.5 hover:bg-blue-50 rounded transition-colors"
                     title="Modifier"
                   >
-                    <Edit width={18} height={18} />
+                    <Edit width={16} height={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteEducation(edu)}
-                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded transition-colors"
                     title="Supprimer"
                   >
-                    <Trash width={18} height={18} />
+                    <Trash width={16} height={16} />
                   </button>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-8">
-            <div className="mb-4">
-              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <PlusSquare className="text-gray-400 text-2xl" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucune formation ajoutée</h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Ajoutez vos diplômes, certifications et formations pour compléter votre profil académique.
-              </p>
-            </div>
+          <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <PlusSquare className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-600 mb-3">Aucune formation ajoutée</p>
             <button
               onClick={() => handleEditClick(null)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <PlusSquare className="text-sm" />
+              <PlusSquare className="w-4 h-4" />
               Ajouter une formation
             </button>
           </div>

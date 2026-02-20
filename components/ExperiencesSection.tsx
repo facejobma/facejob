@@ -246,9 +246,8 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Expériences</h2>
+    <div>
+      <div className="flex justify-between items-center mb-4">
         <div className="flex gap-2">
           <button
             onClick={showPrompt}
@@ -260,13 +259,14 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           </button>
           <button
             onClick={() => handleEditClick(null)} // Add new experience
-            className="text-gray-400 hover:text-gray-600"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
           >
-            <PlusSquare />
+            <PlusSquare className="w-4 h-4" />
+            Ajouter
           </button>
         </div>
       </div>
-      <div className="p-6 relative">
+      <div className="space-y-3">
         {editedExperiences && editedExperiences.length > 0 ? (
           editedExperiences.map((exp: Experience, index: number) => (
             <div
@@ -275,7 +275,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               onDragStart={() => handleDragStart(index)}
               onDragOver={(e) => handleDragOver(e, index)}
               onDragEnd={handleDragEnd}
-              className={`bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow cursor-move ${
+              className={`bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all cursor-move ${
                 draggedIndex === index ? 'opacity-50' : ''
               }`}
             >
@@ -292,14 +292,14 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{exp.poste}</h3>
-                    <p className="text-green-600 font-semibold mb-2">{exp.organisme}</p>
+                    <h3 className="font-semibold text-base text-gray-900 mb-1">{exp.poste}</h3>
+                    <p className="text-green-600 font-medium text-sm mb-2">{exp.organisme}</p>
                   {exp.location && (
-                    <p className="text-sm text-gray-600 mb-2 flex items-center gap-1">
+                    <p className="text-xs text-gray-600 mb-1 flex items-center gap-1">
                       <span>📍</span> {exp.location}
                     </p>
                   )}
-                  <p className="text-sm text-gray-600 mb-3 flex items-center gap-1">
+                  <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
                     <span>📅</span>
                     {formatDate(exp.date_debut)} - {exp.date_fin ? formatDate(exp.date_fin) : "Poste actuel"}
                   </p>
@@ -312,39 +312,32 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                   <button
                     type="button"
                     onClick={() => handleEditClick(exp)}
-                    className="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="text-blue-500 hover:text-blue-700 p-1.5 hover:bg-blue-50 rounded transition-colors"
                     title="Modifier"
                   >
-                    <Edit width={18} height={18} />
+                    <Edit width={16} height={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteExperience(exp)}
-                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded transition-colors"
                     title="Supprimer"
                   >
-                    <Trash width={18} height={18} />
+                    <Trash width={16} height={16} />
                   </button>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-8">
-            <div className="mb-4">
-              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <Briefcase className="text-gray-400 text-2xl" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucune expérience ajoutée</h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Commencez par ajouter votre première expérience professionnelle pour enrichir votre profil.
-              </p>
-            </div>
+          <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <Briefcase className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-600 mb-3">Aucune expérience ajoutée</p>
             <button
               onClick={() => handleEditClick(null)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <PlusSquare className="text-sm" />
+              <PlusSquare className="w-4 h-4" />
               Ajouter une expérience
             </button>
           </div>
@@ -361,95 +354,159 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         }
         description={
           selectedExperience
-            ? "Modifier les détails de l'expérience"
-            : "Ajouter une nouvelle expérience"
+            ? "Modifier les détails de l'expérience professionnelle"
+            : "Ajoutez les détails de votre expérience professionnelle"
         }
       >
-        <form onSubmit={handleExperienceUpdate}>
-          <label htmlFor="poste">Poste</label>
-          <input
-            type="text"
-            id="poste"
-            value={formData.poste}
-            onChange={(e) => handleInputChange("poste", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-            placeholder="Ex: Développeur Full Stack"
-          />
-          <label htmlFor="organisme">Entreprise</label>
-          <input
-            type="text"
-            id="organisme"
-            value={formData.organisme}
-            onChange={(e) => handleInputChange("organisme", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-            placeholder="Ex: Google, Microsoft, etc."
-          />
-          <label htmlFor="location">Lieu</label>
-          <input
-            type="text"
-            id="location"
-            value={formData.location || ""}
-            onChange={(e) => handleInputChange("location", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-            placeholder="Ex: Casablanca, Maroc"
-          />
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => handleInputChange("description", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-            placeholder="Décrivez vos responsabilités et réalisations..."
-          />
-          <label htmlFor="date_debut">Date de début</label>
-          <input
-            type="date"
-            id="date_debut"
-            value={formData.date_debut || ""}
-            onChange={(e) => handleInputChange("date_debut", e.target.value)}
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-            placeholder="Sélectionnez la date de début"
-          />
-          <div className="flex items-center mb-4">
+        <form onSubmit={handleExperienceUpdate} className="space-y-5">
+          {/* Poste */}
+          <div>
+            <label htmlFor="poste" className="block text-sm font-semibold text-gray-700 mb-2">
+              Poste <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="poste"
+              required
+              value={formData.poste}
+              onChange={(e) => handleInputChange("poste", e.target.value)}
+              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none"
+              placeholder="Ex: Développeur Full Stack"
+            />
+          </div>
+
+          {/* Entreprise */}
+          <div>
+            <label htmlFor="organisme" className="block text-sm font-semibold text-gray-700 mb-2">
+              Entreprise <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="organisme"
+              required
+              value={formData.organisme}
+              onChange={(e) => handleInputChange("organisme", e.target.value)}
+              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none"
+              placeholder="Ex: Google, Microsoft, etc."
+            />
+          </div>
+
+          {/* Lieu */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-semibold text-gray-700 mb-2">
+              Lieu
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">📍</span>
+              <input
+                type="text"
+                id="location"
+                value={formData.location || ""}
+                onChange={(e) => handleInputChange("location", e.target.value)}
+                className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 pl-10 pr-4 transition-all outline-none"
+                placeholder="Ex: Casablanca, Maroc"
+              />
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="date_debut" className="block text-sm font-semibold text-gray-700 mb-2">
+                Date de début <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="date_debut"
+                required
+                value={formData.date_debut || ""}
+                onChange={(e) => handleInputChange("date_debut", e.target.value)}
+                className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="date_fin" className="block text-sm font-semibold text-gray-700 mb-2">
+                Date de fin {!isCurrentJob && <span className="text-red-500">*</span>}
+              </label>
+              <input
+                type="date"
+                id="date_fin"
+                required={!isCurrentJob}
+                disabled={isCurrentJob}
+                value={formData.date_fin || ""}
+                onChange={(e) => handleInputChange("date_fin", e.target.value)}
+                className={`w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none ${
+                  isCurrentJob ? 'bg-gray-100 cursor-not-allowed' : ''
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Checkbox Poste actuel */}
+          <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
             <input
               type="checkbox"
               id="current_job"
               checked={isCurrentJob}
               onChange={handleCurrentJobToggle}
-              className="mr-2"
+              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
             />
-            <label htmlFor="current_job">Je travaille toujours ici</label>
+            <label htmlFor="current_job" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+              Je travaille actuellement à ce poste
+            </label>
           </div>
-          {!isCurrentJob && (
-            <>
-              <label htmlFor="date_fin">Date de fin</label>
-              <input
-                type="date"
-                id="date_fin"
-                value={formData.date_fin || ""}
-                onChange={(e) => handleInputChange("date_fin", e.target.value)}
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-                placeholder="Sélectionnez la date de fin"
-              />
-            </>
-          )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-              isSubmitting 
-                ? "bg-gray-400 cursor-not-allowed text-white" 
-                : "bg-green-600 hover:bg-green-700 text-white shadow-sm"
-            }`}
-          >
-            {isSubmitting
-              ? "Envoi en cours..."
-              : selectedExperience
-                ? "Mettre à jour"
-                : "Ajouter"}
-          </button>
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+              Description <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="description"
+              required
+              rows={4}
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none resize-none"
+              placeholder="Décrivez vos responsabilités, réalisations et compétences développées..."
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Minimum 50 caractères recommandés
+            </p>
+          </div>
 
+          {/* Buttons */}
+          <div className="flex gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className="flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
+                isSubmitting 
+                  ? "bg-gray-400 cursor-not-allowed text-white" 
+                  : "bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md"
+              }`}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Enregistrement...
+                </span>
+              ) : (
+                selectedExperience ? "Mettre à jour" : "Ajouter l'expérience"
+              )}
+            </button>
+          </div>
         </form>
       </Modal>
     </div>

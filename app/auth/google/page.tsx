@@ -1,26 +1,26 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FullPageLoading } from "@/components/ui/loading";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { getUserFromToken, redirectToDashboard } from "@/lib/auth";
+import { Suspense } from "react";
 
-function GoogleCallback() {
+function GoogleCallbackContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const handleGoogleCallback = async () => {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get("token");
-        const userType = urlParams.get("user_type");
-        const error = urlParams.get("error");
-        const provider = urlParams.get("provider");
+        const token = searchParams.get("token");
+        const userType = searchParams.get("user_type");
+        const error = searchParams.get("error");
+        const provider = searchParams.get("provider");
 
-        console.log("Google callback - URL PARAMS:", urlParams.toString());
         console.log("Google callback - Token:", token);
         console.log("Google callback - User Type:", userType);
         console.log("Google callback - Error:", error);
@@ -78,7 +78,7 @@ function GoogleCallback() {
     };
 
     handleGoogleCallback();
-  }, [router]);
+  }, [router, searchParams]);
 
   if (loading) {
     return (
@@ -119,6 +119,20 @@ function GoogleCallback() {
         <p className="text-gray-600">Redirection vers votre tableau de bord...</p>
       </div>
     </div>
+  );
+}
+
+function GoogleCallback() {
+  return (
+    <Suspense fallback={
+      <FullPageLoading 
+        message="Connexion avec Google en cours"
+        submessage="Authentification en cours..."
+        showLogo={true}
+      />
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   );
 }
 

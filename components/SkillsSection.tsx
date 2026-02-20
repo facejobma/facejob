@@ -121,43 +121,36 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Compétences</h2>
+    <div>
+      <div className="flex justify-between items-center mb-4">
         <button
           onClick={handleEditClick}
-          className="text-gray-400 hover:text-gray-600"
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
         >
-          <Edit />
+          <Edit className="w-4 h-4" />
+          {editedSkills && editedSkills.length > 0 ? 'Modifier' : 'Ajouter'}
         </button>
       </div>
-      <div className="p-6 relative">
+      <div>
         {editedSkills && editedSkills.length > 0 ? (
-          <ul className="flex flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {editedSkills.map((skill: Skill) => (
-              <li
+              <span
                 key={skill.id}
-                className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full px-4 py-2 mr-2 mb-2 flex items-center font-medium shadow-sm"
+                className="bg-green-50 text-green-700 border border-green-200 rounded-lg px-3 py-1.5 text-sm font-medium"
               >
-                <span className="mr-2">{skill.title}</span>
-                {isEditing && (
-                  <button
-                    onClick={() => handleRemoveSkill(skill)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash size={16} />
-                  </button>
-                )}
-              </li>
+                {skill.title}
+              </span>
             ))}
-          </ul>
+          </div>
         ) : (
-          <div className="text-center py-4">
+          <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <p className="text-sm text-gray-600 mb-3">Aucune compétence ajoutée</p>
             <button
               onClick={handleEditClick}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <PlusSquare className="text-sm" />
+              <PlusSquare className="w-4 h-4" />
               Ajouter des compétences
             </button>
           </div>

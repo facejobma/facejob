@@ -1,26 +1,26 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FullPageLoading } from "@/components/ui/loading";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { getUserFromToken, redirectToDashboard } from "@/lib/auth";
+import { Suspense } from "react";
 
-function LinkedinCallback() {
+function LinkedinCallbackContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const handleLinkedInCallback = async () => {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get("token");
-        const userType = urlParams.get("user_type");
-        const error = urlParams.get("error");
-        const provider = urlParams.get("provider");
+        const token = searchParams.get("token");
+        const userType = searchParams.get("user_type");
+        const error = searchParams.get("error");
+        const provider = searchParams.get("provider");
 
-        console.log("LinkedIn callback - URL PARAMS:", urlParams.toString());
         console.log("LinkedIn callback - Token:", token);
         console.log("LinkedIn callback - User Type:", userType);
         console.log("LinkedIn callback - Error:", error);
@@ -78,7 +78,7 @@ function LinkedinCallback() {
     };
 
     handleLinkedInCallback();
-  }, [router]);
+  }, [router, searchParams]);
 
   if (loading) {
     return (
@@ -119,6 +119,20 @@ function LinkedinCallback() {
         <p className="text-gray-600">Redirection vers votre tableau de bord...</p>
       </div>
     </div>
+  );
+}
+
+function LinkedinCallback() {
+  return (
+    <Suspense fallback={
+      <FullPageLoading 
+        message="Connexion avec LinkedIn en cours"
+        submessage="Authentification en cours..."
+        showLogo={true}
+      />
+    }>
+      <LinkedinCallbackContent />
+    </Suspense>
   );
 }
 

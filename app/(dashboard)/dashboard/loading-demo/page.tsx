@@ -6,11 +6,6 @@ import {
   InlineLoading, 
   ButtonLoading, 
   LoadingSpinner, 
-  LoadingDots, 
-  LoadingPulse, 
-  TableLoading, 
-  CardLoading, 
-  VideoLoading, 
   ProgressLoading 
 } from "@/components/ui/loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,7 +52,7 @@ const LoadingDemoPage: React.FC = () => {
           Démonstration des composants de chargement
         </h1>
         <p className="text-gray-600">
-          Voici tous les composants de chargement unifiés disponibles dans l'application
+          Voici tous les composants de chargement disponibles dans l'application
         </p>
       </div>
 
@@ -73,19 +68,13 @@ const LoadingDemoPage: React.FC = () => {
             Utilisé pour les chargements de pages principales
           </p>
           <Button 
-            onClick={() => setShowFullPage(true)}
-            className="mr-4"
+            onClick={() => {
+              setShowFullPage(true);
+              setTimeout(() => setShowFullPage(false), 3000);
+            }}
           >
             Voir démo (3s)
           </Button>
-          {showFullPage && (
-            <Button 
-              variant="outline"
-              onClick={() => setShowFullPage(false)}
-            >
-              Fermer
-            </Button>
-          )}
         </CardContent>
       </Card>
 
@@ -97,43 +86,20 @@ const LoadingDemoPage: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center space-y-2">
-              <LoadingSpinner size="sm" color="primary" />
-              <p className="text-sm text-gray-600">Petit - Vert</p>
-            </div>
-            <div className="text-center space-y-2">
-              <LoadingSpinner size="md" color="secondary" />
-              <p className="text-sm text-gray-600">Moyen - Bleu</p>
-            </div>
-            <div className="text-center space-y-2">
-              <LoadingSpinner size="lg" color="gray" />
-              <p className="text-sm text-gray-600">Grand - Gris</p>
-            </div>
-            <div className="text-center space-y-2 bg-gray-800 p-4 rounded">
-              <LoadingSpinner size="xl" color="white" />
-              <p className="text-sm text-white">Très grand - Blanc</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Loading Dots */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Points de chargement</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-6">
-            <div className="text-center space-y-2">
-              <LoadingDots size="sm" color="primary" />
+              <LoadingSpinner size="sm" />
               <p className="text-sm text-gray-600">Petit</p>
             </div>
             <div className="text-center space-y-2">
-              <LoadingDots size="md" color="secondary" />
+              <LoadingSpinner size="md" />
               <p className="text-sm text-gray-600">Moyen</p>
             </div>
             <div className="text-center space-y-2">
-              <LoadingDots size="lg" color="gray" />
+              <LoadingSpinner size="lg" />
               <p className="text-sm text-gray-600">Grand</p>
+            </div>
+            <div className="text-center space-y-2">
+              <LoadingSpinner size="xl" />
+              <p className="text-sm text-gray-600">Très grand</p>
             </div>
           </div>
         </CardContent>
@@ -160,27 +126,8 @@ const LoadingDemoPage: React.FC = () => {
               loading={buttonLoading}
               loadingText="Chargement..."
               onClick={handleButtonClick}
-              size="sm"
             >
-              Petit bouton
-            </ButtonLoading>
-            
-            <ButtonLoading
-              loading={buttonLoading}
-              loadingText="Traitement..."
-              onClick={handleButtonClick}
-              size="md"
-            >
-              Bouton moyen
-            </ButtonLoading>
-            
-            <ButtonLoading
-              loading={buttonLoading}
-              loadingText="Envoi en cours..."
-              onClick={handleButtonClick}
-              size="lg"
-            >
-              Grand bouton
+              Cliquez pour tester
             </ButtonLoading>
           </div>
         </CardContent>
@@ -201,66 +148,6 @@ const LoadingDemoPage: React.FC = () => {
           </Button>
         </CardContent>
       </Card>
-
-      {/* Skeleton Loading */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Chargement squelette</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <LoadingPulse className="h-4 w-3/4" />
-            <LoadingPulse className="h-4 w-full" />
-            <LoadingPulse className="h-4 w-2/3" />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Table Loading */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Chargement de tableau</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TableLoading rows={3} columns={4} />
-        </CardContent>
-      </Card>
-
-      {/* Card Loading */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Chargement de carte</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <CardLoading />
-            <CardLoading />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Video Loading */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Chargement vidéo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <VideoLoading className="w-full h-48" />
-        </CardContent>
-      </Card>
-
-      {/* Auto-hide demo */}
-      <div className="text-center pt-8">
-        <Button 
-          variant="outline"
-          onClick={() => {
-            setShowFullPage(true);
-            setTimeout(() => setShowFullPage(false), 3000);
-          }}
-        >
-          Voir démo complète (3 secondes)
-        </Button>
-      </div>
     </div>
   );
 };

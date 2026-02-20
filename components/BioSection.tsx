@@ -67,28 +67,29 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Votre Description</h2>
+    <div>
+      <div className="flex justify-between items-center mb-4">
         <button
           onClick={handleEditClick}
-          className="text-gray-400 hover:text-gray-600"
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
         >
-          <Edit />
+          <Edit className="w-4 h-4" />
+          {currentBio && currentBio.trim().length > 0 ? 'Modifier' : 'Ajouter'}
         </button>
       </div>
-      <div className="p-6 relative">
+      <div>
         {currentBio && currentBio.trim().length > 0 ? (
-          <div className="bg-gray-100 rounded-lg p-4 mb-4 flex items-center justify-between">
-            <p className="text-gray-800 leading-relaxed">{currentBio}</p>
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <p className="text-gray-800 text-sm leading-relaxed">{currentBio}</p>
           </div>
         ) : (
-          <div className="text-center py-4">
+          <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <p className="text-sm text-gray-600 mb-3">Aucune description ajoutée</p>
             <button
               onClick={handleEditClick}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <FaPlus className="text-sm" />
+              <FaPlus className="w-4 h-4" />
               Ajouter une description
             </button>
           </div>

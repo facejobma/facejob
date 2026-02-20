@@ -2,13 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuthenticatedUser } from "@/lib/auth";
-import dynamic from "next/dynamic";
+import CandidatClientLayout from "./client-layout";
 import SimpleLoadingBar from "@/components/SimpleLoadingBar";
-
-// Dynamic import for client layout
-const CandidatClientLayout = dynamic(() => import("./client-layout"), {
-  loading: () => <SimpleLoadingBar />
-});
 
 interface LayoutProps {
   children: React.ReactNode;

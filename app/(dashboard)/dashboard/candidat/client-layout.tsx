@@ -1,11 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/sidebar";
-import dynamic from "next/dynamic";
 import HeaderCandidat from "@/components/layout/header-candidat";
 import ExperiencePromptModal from "@/components/ExperiencePromptModal";
 import { useExperiencePrompt } from "@/hooks/useExperiencePrompt";
 import { ExperiencePromptProvider, useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
+import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import { useEffect, useState } from "react";
 import DashboardPageWrapper from "@/components/layout/DashboardPageWrapper";
 
@@ -19,6 +19,7 @@ function DashboardLayoutContent({
   params 
 }: LayoutProps) {
   const router = useRouter();
+  const { isOpen } = useSidebar();
   const [candidatId, setCandidatId] = useState<number | null>(null);
   const { showPrompt: showManualPrompt, hidePrompt: hideManualPrompt, isPromptVisible: isManualPromptVisible } = useExperiencePromptContext();
 
@@ -67,30 +68,28 @@ function DashboardLayoutContent({
   };
 
   return (
-    <>
-      <div className="dashboard-layout font-sans bg-gray-50 min-h-screen w-full">
-        <HeaderCandidat />
+    <div className="dashboard-layout min-h-screen font-sans bg-gray-50 flex flex-col">
+      <HeaderCandidat />
 
-        <div className="flex pt-16">
-          <Sidebar />
-          <main className="flex-1 w-full">
-            <DashboardPageWrapper>
-              {children}
-            </DashboardPageWrapper>
-          </main>
-        </div>
-
-        {/* Experience Prompt Modal */}
-        {!isLoading && candidatId && (
-          <ExperiencePromptModal
-            isOpen={shouldShowAutoPrompt || isManualPromptVisible}
-            onClose={handleClosePrompt}
-            onSkip={handleSkipPrompt}
-            candidatId={candidatId}
-          />
-        )}
+      <div className="flex flex-1 pt-16">
+        <Sidebar />
+        <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
+          <DashboardPageWrapper>
+            {children}
+          </DashboardPageWrapper>
+        </main>
       </div>
-    </>
+
+      {/* Experience Prompt Modal */}
+      {!isLoading && candidatId && (
+        <ExperiencePromptModal
+          isOpen={shouldShowAutoPrompt || isManualPromptVisible}
+          onClose={handleClosePrompt}
+          onSkip={handleSkipPrompt}
+          candidatId={candidatId}
+        />
+      )}
+    </div>
   );
 }
 
@@ -99,8 +98,10 @@ export default function CandidatClientLayout({
   params 
 }: LayoutProps) {
   return (
-    <ExperiencePromptProvider>
-      <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>
-    </ExperiencePromptProvider>
+    <SidebarProvider>
+      <ExperiencePromptProvider>
+        <DashboardLayoutContent params={params}>{children}</DashboardLayoutContent>
+      </ExperiencePromptProvider>
+    </SidebarProvider>
   );
 }

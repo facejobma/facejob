@@ -9,7 +9,6 @@ import {
   FaBuilding, 
   FaCalendarAlt, 
   FaFilter,
-  FaCheckCircle,
   FaClock,
   FaTimesCircle,
   FaPlay,
@@ -18,11 +17,7 @@ import {
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Heading } from "@/components/ui/heading";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Application {
   id: number;
@@ -175,80 +170,69 @@ const ApplicationHistory: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Heading
-          title="Historique des candidatures"
-          description="Suivez toutes vos candidatures et leur statut"
-        />
+      {/* Header */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h1 className="text-2xl font-bold text-gray-900">Historique des candidatures</h1>
+        <p className="text-gray-600 mt-1">Suivez toutes vos candidatures et leur statut</p>
       </div>
 
-      <Separator />
-
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <FaBriefcase className="h-4 w-4 text-indigo-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{statistics.total}</p>
-                <p className="text-xs text-muted-foreground">Total</p>
-              </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+              <FaBriefcase className="h-5 w-5 text-green-600" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{statistics.total}</p>
+              <p className="text-sm text-gray-600">Total</p>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <FaClock className="h-4 w-4 text-gray-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{statistics.not_viewed}</p>
-                <p className="text-xs text-muted-foreground">Non vues</p>
-              </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
+              <FaClock className="h-5 w-5 text-gray-600" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{statistics.not_viewed}</p>
+              <p className="text-sm text-gray-600">Non vues</p>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FaEye className="h-4 w-4 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{statistics.viewed}</p>
-                <p className="text-xs text-muted-foreground">Vues</p>
-              </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <FaEye className="h-5 w-5 text-blue-600" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{statistics.viewed}</p>
+              <p className="text-sm text-gray-600">Vues</p>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <FaTimesCircle className="h-4 w-4 text-red-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{statistics.rejected}</p>
-                <p className="text-xs text-muted-foreground">Refusées</p>
-              </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
+              <FaTimesCircle className="h-5 w-5 text-red-600" />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{statistics.rejected}</p>
+              <p className="text-sm text-gray-600">Refusées</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex items-center space-x-2">
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="flex items-center gap-2">
           <FaFilter className="h-4 w-4 text-gray-500" />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Filtrer par statut" />
             </SelectTrigger>
             <SelectContent>
@@ -263,103 +247,94 @@ const ApplicationHistory: React.FC = () => {
       </div>
 
       {/* Applications List */}
-      <div className="space-y-4">
-        {filteredApplications.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <FaBriefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Aucune candidature trouvée
-              </h3>
-              <p className="text-gray-500">
-                {applications.length === 0 
-                  ? "Vous n'avez pas encore postulé à des offres."
-                  : "Aucune candidature ne correspond aux filtres sélectionnés."
-                }
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <ScrollArea className="h-[600px]">
-            <div className="space-y-4 pr-4">
-              {filteredApplications.map((application) => (
-                <Card key={`${application.type}-${application.id}`} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {application.title}
-                          </h3>
-                          {getStatusBadge(application.status)}
-                        </div>
+      {filteredApplications.length === 0 ? (
+        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+          <FaBriefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Aucune candidature trouvée
+          </h3>
+          <p className="text-gray-600">
+            {applications.length === 0 
+              ? "Vous n'avez pas encore postulé à des offres."
+              : "Aucune candidature ne correspond aux filtres sélectionnés."
+            }
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredApplications.map((application) => (
+            <div key={`${application.type}-${application.id}`} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-sm transition-shadow">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {application.title}
+                    </h3>
+                    {getStatusBadge(application.status)}
+                  </div>
 
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-                          <div className="flex items-center space-x-1">
-                            <FaBuilding className="h-4 w-4" />
-                            <span>{application.company}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <FaCalendarAlt className="h-4 w-4" />
-                            <span>{formatDate(application.applied_at)}</span>
-                          </div>
-                        </div>
-
-                        <div 
-                          className="text-gray-700 mb-4 line-clamp-2"
-                          dangerouslySetInnerHTML={{ __html: application.description || "Aucune description disponible." }}
-                        />
-
-                        {/* Show CV video details if available */}
-                        {(application.job_name || application.sector_name) && (
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {application.job_name && (
-                              <Badge variant="outline" className="text-xs">
-                                Poste: {application.job_name}
-                              </Badge>
-                            )}
-                            {application.sector_name && (
-                              <Badge variant="outline" className="text-xs">
-                                Secteur: {application.sector_name}
-                              </Badge>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col space-y-2 ml-4">
-                        {application.video_link && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleVideoPreview(application.video_link!)}
-                            className="flex items-center space-x-1"
-                          >
-                            <FaPlay className="h-3 w-3" />
-                            <span>Voir vidéo</span>
-                          </Button>
-                        )}
-                        
-                        {application.offre_id && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(`/offres/${application.offre_id}`, '_blank')}
-                            className="flex items-center space-x-1"
-                          >
-                            <FaEye className="h-3 w-3" />
-                            <span>Voir offre</span>
-                          </Button>
-                        )}
-                      </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                    <div className="flex items-center gap-1">
+                      <FaBuilding className="h-4 w-4" />
+                      <span>{application.company}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <div className="flex items-center gap-1">
+                      <FaCalendarAlt className="h-4 w-4" />
+                      <span>{formatDate(application.applied_at)}</span>
+                    </div>
+                  </div>
+
+                  <div 
+                    className="text-gray-700 mb-3 line-clamp-2"
+                    dangerouslySetInnerHTML={{ __html: application.description || "Aucune description disponible." }}
+                  />
+
+                  {(application.job_name || application.sector_name) && (
+                    <div className="flex flex-wrap gap-2">
+                      {application.job_name && (
+                        <Badge variant="outline" className="text-xs">
+                          Poste: {application.job_name}
+                        </Badge>
+                      )}
+                      {application.sector_name && (
+                        <Badge variant="outline" className="text-xs">
+                          Secteur: {application.sector_name}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  {application.video_link && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleVideoPreview(application.video_link!)}
+                      className="flex items-center gap-1"
+                    >
+                      <FaPlay className="h-3 w-3" />
+                      <span>Voir vidéo</span>
+                    </Button>
+                  )}
+                  
+                  {application.offre_id && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(`/offres/${application.offre_id}`, '_blank')}
+                      className="flex items-center gap-1"
+                    >
+                      <FaEye className="h-3 w-3" />
+                      <span>Voir offre</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
-          </ScrollArea>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

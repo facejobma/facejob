@@ -156,65 +156,58 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-      <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Projets</h2>
+    <div>
+      <div className="flex justify-between items-center mb-4">
         <button
-          onClick={() => handleEditClick(null)} // Add new project
-          className="text-gray-400 hover:text-gray-600"
+          onClick={() => handleEditClick(null)}
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
         >
-          <PlusSquare />
+          <PlusSquare className="w-4 h-4" />
+          Ajouter
         </button>
       </div>
-      <div className="p-6 relative">
+      <div className="space-y-3">
         {editedProjects && editedProjects.length > 0 ? (
           editedProjects.map((project: Project) => (
             <div
               key={project.id}
-              className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow"
+              className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">{project.title}</h3>
-                  <p className="text-gray-700 leading-relaxed">{project.description}</p>
+                  <h3 className="font-semibold text-base text-gray-900 mb-2">{project.title}</h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">{project.description}</p>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
                   <button
                     type="button"
                     onClick={() => handleEditClick(project)}
-                    className="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="text-blue-500 hover:text-blue-700 p-1.5 hover:bg-blue-50 rounded transition-colors"
                     title="Modifier"
                   >
-                    <Edit width={18} height={18} />
+                    <Edit width={16} height={16} />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleRemoveProject(project)}
-                    className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded transition-colors"
                     title="Supprimer"
                   >
-                    <Trash width={18} height={18} />
+                    <Trash width={16} height={16} />
                   </button>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-8">
-            <div className="mb-4">
-              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <PlusSquare className="text-gray-400 text-2xl" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucun projet ajouté</h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Présentez vos réalisations et projets pour démontrer vos compétences pratiques.
-              </p>
-            </div>
+          <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <PlusSquare className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+            <p className="text-sm text-gray-600 mb-3">Aucun projet ajouté</p>
             <button
               onClick={() => handleEditClick(null)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <PlusSquare className="text-sm" />
+              <PlusSquare className="w-4 h-4" />
               Ajouter un projet
             </button>
           </div>

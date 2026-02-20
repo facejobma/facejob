@@ -1,11 +1,7 @@
 export default function SimpleLoadingBar() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-64 space-y-3">
-        <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full animate-loading-bar"></div>
-        </div>
-      </div>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
     </div>
   );
 }

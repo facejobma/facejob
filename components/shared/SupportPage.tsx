@@ -51,23 +51,13 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
 
   // Dynamic content based on user type
   const getThemeColors = () => {
-    if (userType === 'candidat') {
-      return {
-        accent: 'indigo',
-        buttonColor: 'bg-indigo-600 hover:bg-indigo-700',
-        cardAccent: 'border-indigo-200 bg-indigo-50',
-        iconBg: 'bg-indigo-100',
-        iconColor: 'text-indigo-600'
-      };
-    } else {
-      return {
-        accent: 'green',
-        buttonColor: 'bg-green-600 hover:bg-green-700',
-        cardAccent: 'border-green-200 bg-green-50',
-        iconBg: 'bg-green-100',
-        iconColor: 'text-green-600'
-      };
-    }
+    return {
+      accent: 'green',
+      buttonColor: 'bg-green-600 hover:bg-green-700',
+      cardAccent: 'border-green-200 bg-green-50',
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600'
+    };
   };
 
   const theme = getThemeColors();
@@ -145,7 +135,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
         
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className={`${theme.cardAccent} border-2 ${userType === 'entreprise' ? 'border-green-200' : 'border-indigo-200'} rounded-lg p-4`}>
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
             <div className="flex items-center gap-3">
               <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
                 <FiPhone className={`${theme.iconColor}`} />
@@ -157,7 +147,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
             </div>
           </div>
           
-          <div className={`${theme.cardAccent} border-2 ${userType === 'entreprise' ? 'border-green-200' : 'border-indigo-200'} rounded-lg p-4`}>
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
             <div className="flex items-center gap-3">
               <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
                 <FiMail className={`${theme.iconColor}`} />
@@ -169,7 +159,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
             </div>
           </div>
           
-          <div className={`${theme.cardAccent} border-2 ${userType === 'entreprise' ? 'border-green-200' : 'border-indigo-200'} rounded-lg p-4`}>
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
             <div className="flex items-center gap-3">
               <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
                 <FiUsers className={`${theme.iconColor}`} />
@@ -181,7 +171,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
             </div>
           </div>
           
-          <div className={`${theme.cardAccent} border-2 ${userType === 'entreprise' ? 'border-green-200' : 'border-indigo-200'} rounded-lg p-4`}>
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
             <div className="flex items-center gap-3">
               <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
                 <FiCheckCircle className={`${theme.iconColor}`} />
@@ -345,7 +335,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
       </Card>
 
       {/* Call to Action */}
-      <div className={`${theme.cardAccent} border-2 ${userType === 'entreprise' ? 'border-green-200' : 'border-indigo-200'} rounded-lg p-6 text-center`}>
+      <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-6 text-center`}>
         <div className={`inline-flex h-12 w-12 rounded-lg ${theme.iconBg} items-center justify-center mb-4`}>
           <FiHeadphones className={`${theme.iconColor} text-xl`} />
         </div>

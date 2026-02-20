@@ -3,10 +3,8 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
-import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser, FaUpload } from "react-icons/fa";
 import toast from "react-hot-toast";
-import { UploadDropzone } from "@/lib/uploadthing";
-import "@uploadthing/react/styles.css";
 
 interface ProfileHeaderProps {
   id: number;
@@ -50,6 +48,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   // Initial state setup
   const [isEditing, setIsEditing] = useState(false);
   const [sectors, setSectors] = useState<Sector[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [selectedSector, setSelectedSector] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
@@ -73,25 +72,68 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     setIsEditing(false);
   };
 
-  const handleImageUploadComplete = (res: any) => {
-    console.log("Upload complete - Files:", res);
-    if (res && res[0]) {
-      const uploadedFile = res[0];
-      // Use ufsUrl (new) or fallback to url (deprecated) or construct from key
-      const cdnUrl = uploadedFile.ufsUrl || uploadedFile.url || `https://utfs.io/f/${uploadedFile.key}`;
-      console.log("File key:", uploadedFile.key);
-      console.log("CDN URL:", cdnUrl);
-      
+  const handleImageUploadComplete = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Veuillez sélectionner une image");
+      return;
+    }
+
+    // Validate file size (max 4MB)
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 4MB");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/uploadthing', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const imageUrl = data.url || URL.createObjectURL(file);
+        
+        setFormData((prevData) => ({
+          ...prevData,
+          newImage: imageUrl,
+        }));
+        toast.success("Image téléchargée avec succès!");
+      } else {
+        // Fallback to local preview
+        const imageUrl = URL.createObjectURL(file);
+        setFormData((prevData) => ({
+          ...prevData,
+          newImage: imageUrl,
+        }));
+        toast.success("Image sélectionnée");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      // Fallback to local preview
+      const imageUrl = URL.createObjectURL(file);
       setFormData((prevData) => ({
         ...prevData,
-        newImage: cdnUrl,
+        newImage: imageUrl,
       }));
-      toast.success("Image uploaded successfully!");
+      toast.success("Image sélectionnée");
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const handleImageUploadError = (error: Error) => {
-    toast.error(`Image upload error: ${error.message}`);
+    toast.error(`Erreur: ${error.message}`);
+    setIsUploading(false);
   };
 
   const handleRemoveImage = () => {
@@ -194,60 +236,64 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg mb-6 pb-2 overflow-hidden relative">
-      <div className="p-10 relative">
-        <div className="absolute top-4 right-6 flex gap-4">
+    <div className="relative">
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex gap-2">
           <button
-            className="text-gray-400 hover:text-gray-600"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
             onClick={handleEditClick}
           >
-            <Edit />
+            <Edit className="w-4 h-4" />
+            Modifier
           </button>
           <button
-            className="text-gray-400 hover:text-gray-600"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-600 text-white hover:bg-gray-700 rounded-lg transition-colors"
             title="Modifier le Mot de Passe"
             onClick={handlePasswordChangeClick}
           >
-            <Key />
+            <Key className="w-4 h-4" />
+            Mot de passe
           </button>
         </div>
+      </div>
+      <div className="flex items-start gap-6">
         {formData.newImage && formData.newImage !== "https://via.placeholder.com/150" ? (
-          <div className="absolute left-10 top-6 md:top-12">
+          <div>
             <img
               src={formData.newImage}
               alt="Profile Avatar"
-              className="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover"
+              className="w-20 h-20 rounded-full border-2 border-gray-200 object-cover"
             />
           </div>
         ) : (
-          <div className="absolute left-10 top-6 md:top-12">
-            <div className="w-24 h-24 rounded-full border-4 border-gray-200 shadow-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-              <FaUser className="text-green-600 text-2xl" />
+          <div>
+            <div className="w-20 h-20 rounded-full border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+              <FaUser className="text-gray-400 text-xl" />
             </div>
           </div>
         )}
 
-        <div className="ml-6 md:ml-36 mt-32 md:mt-0">
-          <h1 className="text-2xl font-bold mb-1">
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-gray-900 mb-1">
             {formData.newFirstName} {formData.newLastName}
-          </h1>
-          <p className="text-secondary mb-3">
+          </h2>
+          <p className="text-gray-600 text-sm mb-3">
             {formData.newHeadline || "Poste non renseigné"}
           </p>
-        </div>
 
-        <div className="ml-6 md:ml-36 mt-32 md:mt-0">
-          <div className="flex items-center mb-2">
-            <FaPhone className="text-green-600 mr-2" />
-            <p className="text-gray-600">{formData.newTel || "Téléphone non renseigné"}</p>
-          </div>
-          <div className="flex items-center mb-2">
-            <FaEnvelope className="text-green-600 mr-2" />
-            <p className="text-gray-600">{formData.newEmail || "Email non renseigné"}</p>
-          </div>
-          <div className="flex items-center mb-2">
-            <FaMapPin className="text-green-600 mr-2" />
-            <p className="text-gray-600">{formData.newAddress || "Adresse non renseignée"}</p>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2 text-gray-700">
+              <FaPhone className="text-green-600 w-4 h-4" />
+              <span>{formData.newTel || "Téléphone non renseigné"}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-700">
+              <FaEnvelope className="text-green-600 w-4 h-4" />
+              <span>{formData.newEmail || "Email non renseigné"}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-700">
+              <FaMapPin className="text-green-600 w-4 h-4" />
+              <span>{formData.newAddress || "Adresse non renseignée"}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -367,34 +413,49 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 ))}
               </select>
 
-              <label className="block mb-2 font-bold">Profile Image</label>
+              <label className="block mb-2 font-bold">Photo de profil</label>
               {formData.newImage ? (
                 <div className="mb-4">
                   <img
                     src={formData.newImage}
                     alt="Profile Preview"
-                    className="w-24 h-24 rounded-full border-2 border-gray-300 mb-2"
+                    className="w-24 h-24 rounded-full border-2 border-gray-300 mb-2 object-cover"
                   />
                   <button
                     type="button"
                     onClick={handleRemoveImage}
-                    className="flex items-center text-red-600 hover:text-red-800"
+                    className="flex items-center text-red-600 hover:text-red-800 text-sm"
                   >
                     <FaTrash className="mr-2" />
                     Supprimer
                   </button>
                 </div>
               ) : (
-                <UploadDropzone
-                  endpoint="videoUpload"
-                  input={{
-                    candidateId: undefined,
-                    jobId: undefined
-                  }}
-                  onClientUploadComplete={handleImageUploadComplete}
-                  onUploadError={handleImageUploadError}
-                  className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer transition-colors border-gray-300"
-                />
+                <div className="mb-4">
+                  <label 
+                    htmlFor="image-upload" 
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 transition-colors"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <FaUpload className="w-8 h-8 mb-2 text-gray-400" />
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Cliquez pour télécharger</span>
+                      </p>
+                      <p className="text-xs text-gray-500">PNG, JPG (MAX. 4MB)</p>
+                    </div>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUploadComplete}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                  </label>
+                  {isUploading && (
+                    <p className="text-sm text-gray-600 mt-2">Téléchargement en cours...</p>
+                  )}
+                </div>
               )}
             </div>
           </div>

@@ -48,8 +48,8 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] gap-6">
-        <LoadingSpinner message="Chargement des demandes" />
+      <div className="flex items-center justify-center h-[calc(100vh-220px)]">
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
       </div>
     );
   }

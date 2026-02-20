@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ProfileHeader from "@/components/ProfileHeader";
 import BioSection from "@/components/BioSection";
 import ExperiencesSection from "@/components/ExperiencesSection";
@@ -9,14 +10,19 @@ import ProjectsSection from "@/components/ProjectsSection";
 import EducationSection from "@/components/EducationSection";
 import Cookies from "js-cookie";
 import { LoadingSpinner } from "@/components/ui/spinner";
-import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaCheckCircle, FaExclamationTriangle, FaPlus, FaDownload, FaFilePdf, FaArrowLeft } from "react-icons/fa";
+import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaDownload, FaFileAlt, FaTrash, FaExclamationTriangle } from "react-icons/fa";
 import { HiOutlineUser, HiOutlineCollection, HiOutlineLightBulb } from "react-icons/hi";
 import { downloadFaceJobCV } from "@/components/FaceJobCV";
+import toast from "react-hot-toast";
 
 const Profile: React.FC = () => {
+  const router = useRouter();
   const [userProfile, setUserProfile] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [downloadingCV, setDownloadingCV] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDownloadCV = async () => {
     setDownloadingCV(true);
@@ -24,6 +30,48 @@ const Profile: React.FC = () => {
       await downloadFaceJobCV(userProfile?.id);
     } finally {
       setDownloadingCV(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "SUPPRIMER") {
+      toast.error("Veuillez taper 'SUPPRIMER' pour confirmer");
+      return;
+    }
+
+    setIsDeleting(true);
+    const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/delete/${userProfile.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Votre compte a été supprimé avec succès");
+        // Clear session and cookies
+        Cookies.remove("authToken");
+        window.sessionStorage.removeItem("user");
+        // Redirect to home page
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Erreur lors de la suppression du compte");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      toast.error("Erreur réseau lors de la suppression");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -112,473 +160,321 @@ const Profile: React.FC = () => {
 
   const completionPercentage = Math.round((profileStats.completed / profileStats.total) * 100);
 
-  // Helper function to check if a section is empty
-  const isSectionEmpty = (section: string) => {
-    switch (section) {
-      case 'bio':
-        return !userProfile?.bio || userProfile.bio.trim().length === 0;
-      case 'experiences':
-        return !userProfile?.experiences || userProfile.experiences.length === 0;
-      case 'skills':
-        return !userProfile?.skills || userProfile.skills.length === 0;
-      case 'projects':
-        return !userProfile?.projects || userProfile.projects.length === 0;
-      case 'education':
-        return !userProfile?.education || userProfile.education.length === 0;
-      case 'image':
-        return !userProfile?.image || userProfile?.image === "https://via.placeholder.com/150";
-      default:
-        return false;
-    }
-  };
-
-  // Get completion status for sections
-  const getSectionStatus = (section: string) => {
-    return isSectionEmpty(section) ? 'incomplete' : 'complete';
-  };
-
   return (
-    <>
-      {/* Header with enhanced design */}
-      <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-700 rounded-2xl p-8 text-white shadow-xl">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <HiOutlineUser className="text-2xl text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">Mon Profil</h1>
-                <p className="text-green-100 mt-1">Gérez et personnalisez vos informations professionnelles</p>
-              </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Mon Profil</h1>
+            <p className="text-gray-600 mt-1">Gérez vos informations professionnelles</p>
+          </div>
+          <button
+            onClick={handleDownloadCV}
+            disabled={downloadingCV}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {downloadingCV ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Génération...</span>
+              </>
+            ) : (
+              <>
+                <FaDownload className="h-4 w-4" />
+                <span>Télécharger CV</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+              <FaUser className="h-5 w-5 text-green-600" />
             </div>
-            
-            {/* Profile Statistics with Progress Bar */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-green-100">Progression du profil</span>
-                <span className="text-sm font-bold text-white">{completionPercentage}%</span>
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-3">
-                <div 
-                  className="bg-white rounded-full h-3 transition-all duration-500 ease-out"
-                  style={{ width: `${completionPercentage}%` }}
-                ></div>
-              </div>
-              {completionPercentage < 100 && (
-                <p className="text-xs text-green-100 mt-2">
-                  Complétez votre profil pour plus de visibilité
-                </p>
-              )}
-            </div>
-            
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center">
-                    <FaUser className="text-white text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{completionPercentage}%</p>
-                    <p className="text-xs text-green-100">Complété</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-emerald-500/30 flex items-center justify-center">
-                    <FaBriefcase className="text-white text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{userProfile?.experiences?.length || 0}</p>
-                    <p className="text-xs text-green-100">Expériences</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-teal-500/30 flex items-center justify-center">
-                    <FaGraduationCap className="text-white text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{userProfile?.skills?.length || 0}</p>
-                    <p className="text-xs text-green-100">Compétences</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-green-500/30 flex items-center justify-center">
-                    <HiOutlineCollection className="text-white text-lg" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{userProfile?.projects?.length || 0}</p>
-                    <p className="text-xs text-green-100">Projets</p>
-                  </div>
-                </div>
-              </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{completionPercentage}%</p>
+              <p className="text-sm text-gray-600">Complété</p>
             </div>
           </div>
-          
-          {/* CV Download Button */}
-          <div className="lg:w-auto">
-            <button
-              onClick={handleDownloadCV}
-              disabled={downloadingCV}
-              className="w-full lg:w-auto bg-white text-green-600 hover:bg-green-50 font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
-            >
-              {downloadingCV ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
-                  <span>Génération...</span>
-                </>
-              ) : (
-                <>
-                  <div className="relative">
-                    <FaFilePdf className="text-2xl group-hover:scale-110 transition-transform" />
-                    <FaDownload className="absolute -bottom-1 -right-1 text-xs bg-white rounded-full" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-bold text-base">Télécharger CV FaceJob</div>
-                    <div className="text-xs text-green-500">Format ATS optimisé</div>
-                  </div>
-                </>
-              )}
-            </button>
-            <p className="text-xs text-green-100 mt-2 text-center lg:text-left">
-              ✓ Compatible avec les systèmes de recrutement
-            </p>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <FaBriefcase className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{userProfile?.experiences?.length || 0}</p>
+              <p className="text-sm text-gray-600">Expériences</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+              <FaCog className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{userProfile?.skills?.length || 0}</p>
+              <p className="text-sm text-gray-600">Compétences</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+              <HiOutlineCollection className="h-5 w-5 text-orange-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{userProfile?.projects?.length || 0}</p>
+              <p className="text-sm text-gray-600">Projets</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Completion Tips */}
+      {/* Progress Bar */}
       {completionPercentage < 100 && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 shadow-lg">
-          <div className="flex items-start gap-4">
-            <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <HiOutlineLightBulb className="text-amber-600 text-lg" />
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <HiOutlineLightBulb className="text-amber-600" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-amber-800 mb-3">Complétez votre profil pour plus de visibilité</h3>
-              <p className="text-sm text-amber-700 mb-4">Éléments manquants pour atteindre 100% :</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {(!userProfile?.bio || userProfile.bio.trim().length === 0) && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez une description personnelle</span>
-                  </div>
-                )}
-                {(!userProfile?.experiences || userProfile.experiences.length === 0) && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez vos expériences professionnelles</span>
-                  </div>
-                )}
-                {(!userProfile?.skills || userProfile.skills.length === 0) && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Listez vos compétences</span>
-                  </div>
-                )}
-                {(!userProfile?.projects || userProfile.projects.length === 0) && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Présentez vos projets</span>
-                  </div>
-                )}
-                {(!userProfile?.education || userProfile.education.length === 0) && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez votre formation</span>
-                  </div>
-                )}
-                {(!userProfile?.image || userProfile?.image === "https://via.placeholder.com/150") && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez une photo de profil</span>
-                  </div>
-                )}
-                {!userProfile?.first_name && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez votre prénom</span>
-                  </div>
-                )}
-                {!userProfile?.last_name && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez votre nom de famille</span>
-                  </div>
-                )}
-                {!userProfile?.tel && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez votre numéro de téléphone</span>
-                  </div>
-                )}
-                {!userProfile?.email && (
-                  <div className="flex items-center gap-2 text-sm text-amber-700">
-                    <FaExclamationTriangle className="text-amber-500" />
-                    <span>Ajoutez votre adresse email</span>
-                  </div>
-                )}
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-amber-800 text-sm">Complétez votre profil</h3>
+                <span className="text-sm font-bold text-amber-800">{completionPercentage}%</span>
               </div>
+              <div className="w-full bg-amber-200 rounded-full h-2 mb-2">
+                <div
+                  className="bg-amber-600 rounded-full h-2 transition-all duration-500"
+                  style={{ width: `${completionPercentage}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-amber-700">
+                Complétez toutes les sections pour augmenter vos chances
+              </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="space-y-8">
-        {/* Profile Header Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
-          <div className="absolute top-4 right-4">
-            {(userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email) ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                <FaCheckCircle className="text-xs" />
-                <span>Complété</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
-                <FaExclamationTriangle className="text-xs" />
-                <span>À compléter</span>
-              </div>
-            )}
-          </div>
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                <FaUser className="text-green-600 text-sm" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Informations personnelles</h2>
+      {/* Profile Header Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+              <FaUser className="text-green-600 text-sm" />
             </div>
-            <ProfileHeader
-              id={userProfile.id}
-              first_name={userProfile.first_name}
-              tel={userProfile.tel}
-              email={userProfile.email}
-              zip_code={userProfile.zip_code}
-              last_name={userProfile.last_name}
-              headline={userProfile.job.name}
-              image={userProfile.image}
-              address={userProfile.address}
-              companyName={userProfile.companyName}
-            />
+            <h2 className="text-lg font-semibold text-gray-900">Informations personnelles</h2>
           </div>
+          {(userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email) && (
+            <span className="text-xs text-green-600 font-medium">✓ Complété</span>
+          )}
         </div>
+        <ProfileHeader
+          id={userProfile.id}
+          first_name={userProfile.first_name}
+          tel={userProfile.tel}
+          email={userProfile.email}
+          zip_code={userProfile.zip_code}
+          last_name={userProfile.last_name}
+          headline={userProfile.job.name}
+          image={userProfile.image}
+          address={userProfile.address}
+          companyName={userProfile.companyName}
+        />
+      </div>
 
-        {/* Bio Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
-          <div className="absolute top-4 right-4">
-            {(userProfile?.bio && userProfile.bio.trim().length > 0) ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                <FaCheckCircle className="text-xs" />
-                <span>Complété</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
-                <FaExclamationTriangle className="text-xs" />
-                <span>À compléter</span>
-              </div>
-            )}
-          </div>
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                <span className="text-green-600 text-sm">📝</span>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">À propos de moi</h2>
+      {/* Bio Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+              <FaFileAlt className="text-green-600 text-sm" />
             </div>
-            {isSectionEmpty('bio') ? (
-              <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
-                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-gray-400 text-xl">📝</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Parlez-nous de vous</h3>
-                <p className="text-gray-500 mb-4 max-w-md mx-auto">
-                  Ajoutez une description personnelle pour vous présenter aux recruteurs et mettre en valeur votre personnalité.
-                </p>
-                <BioSection id={userProfile.id} bio={userProfile.bio} />
-              </div>
-            ) : (
-              <BioSection id={userProfile.id} bio={userProfile.bio} />
-            )}
+            <h2 className="text-lg font-semibold text-gray-900">À propos de moi</h2>
           </div>
+          {(userProfile?.bio && userProfile.bio.trim().length > 0) && (
+            <span className="text-xs text-green-600 font-medium">✓ Complété</span>
+          )}
         </div>
+        <BioSection id={userProfile.id} bio={userProfile.bio} />
+      </div>
 
-        {/* Experience Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
-          <div className="absolute top-4 right-4">
-            {(userProfile?.experiences && userProfile.experiences.length > 0) ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                <FaCheckCircle className="text-xs" />
-                <span>{userProfile.experiences.length} expérience{userProfile.experiences.length > 1 ? 's' : ''}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
-                <FaExclamationTriangle className="text-xs" />
-                <span>À compléter</span>
-              </div>
-            )}
-          </div>
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <FaBriefcase className="text-emerald-600 text-sm" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Expériences professionnelles</h2>
+      {/* Experience Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <FaBriefcase className="text-blue-600 text-sm" />
             </div>
-            {isSectionEmpty('experiences') ? (
-              <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
-                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <FaBriefcase className="text-gray-400 text-lg" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Ajoutez vos expériences</h3>
-                <p className="text-gray-500 mb-4 max-w-md mx-auto">
-                  Présentez votre parcours professionnel pour montrer vos compétences et votre évolution de carrière.
-                </p>
-                <ExperiencesSection
-                  id={userProfile.id}
-                  experiences={userProfile.experiences}
-                />
-              </div>
-            ) : (
-              <ExperiencesSection
-                id={userProfile.id}
-                experiences={userProfile.experiences}
-              />
-            )}
+            <h2 className="text-lg font-semibold text-gray-900">Expériences professionnelles</h2>
           </div>
+          {(userProfile?.experiences && userProfile.experiences.length > 0) && (
+            <span className="text-xs text-green-600 font-medium">
+              {userProfile.experiences.length} expérience{userProfile.experiences.length > 1 ? 's' : ''}
+            </span>
+          )}
         </div>
+        <ExperiencesSection
+          id={userProfile.id}
+          experiences={userProfile.experiences}
+        />
+      </div>
 
-        {/* Skills Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
-          <div className="absolute top-4 right-4">
-            {(userProfile?.skills && userProfile.skills.length > 0) ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                <FaCheckCircle className="text-xs" />
-                <span>{userProfile.skills.length} compétence{userProfile.skills.length > 1 ? 's' : ''}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
-                <FaExclamationTriangle className="text-xs" />
-                <span>À compléter</span>
-              </div>
-            )}
-          </div>
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-teal-100 flex items-center justify-center">
-                <FaCog className="text-teal-600 text-sm" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Compétences</h2>
+      {/* Skills Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
+              <FaCog className="text-purple-600 text-sm" />
             </div>
-            {isSectionEmpty('skills') ? (
-              <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
-                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <FaCog className="text-gray-400 text-lg" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Listez vos compétences</h3>
-                <p className="text-gray-500 mb-4 max-w-md mx-auto">
-                  Ajoutez vos compétences techniques et soft skills pour mettre en valeur votre expertise.
-                </p>
-                <SkillsSection id={userProfile.id} skills={userProfile.skills} />
-              </div>
-            ) : (
-              <SkillsSection id={userProfile.id} skills={userProfile.skills} />
-            )}
+            <h2 className="text-lg font-semibold text-gray-900">Compétences</h2>
           </div>
+          {(userProfile?.skills && userProfile.skills.length > 0) && (
+            <span className="text-xs text-green-600 font-medium">
+              {userProfile.skills.length} compétence{userProfile.skills.length > 1 ? 's' : ''}
+            </span>
+          )}
         </div>
+        <SkillsSection id={userProfile.id} skills={userProfile.skills} />
+      </div>
 
-        {/* Projects Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
-          <div className="absolute top-4 right-4">
-            {(userProfile?.projects && userProfile.projects.length > 0) ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                <FaCheckCircle className="text-xs" />
-                <span>{userProfile.projects.length} projet{userProfile.projects.length > 1 ? 's' : ''}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
-                <FaExclamationTriangle className="text-xs" />
-                <span>À compléter</span>
-              </div>
-            )}
-          </div>
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                <HiOutlineCollection className="text-green-600 text-sm" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Projets</h2>
+      {/* Projects Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
+              <HiOutlineCollection className="text-orange-600 text-sm" />
             </div>
-            {isSectionEmpty('projects') ? (
-              <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
-                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <HiOutlineCollection className="text-gray-400 text-lg" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Présentez vos projets</h3>
-                <p className="text-gray-500 mb-4 max-w-md mx-auto">
-                  Mettez en avant vos réalisations et projets personnels ou professionnels pour démontrer vos capacités.
-                </p>
-                <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
-              </div>
-            ) : (
-              <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
-            )}
+            <h2 className="text-lg font-semibold text-gray-900">Projets</h2>
           </div>
+          {(userProfile?.projects && userProfile.projects.length > 0) && (
+            <span className="text-xs text-green-600 font-medium">
+              {userProfile.projects.length} projet{userProfile.projects.length > 1 ? 's' : ''}
+            </span>
+          )}
         </div>
+        <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
+      </div>
 
-        {/* Education Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 relative">
-          <div className="absolute top-4 right-4">
-            {(userProfile?.education && userProfile.education.length > 0) ? (
-              <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                <FaCheckCircle className="text-xs" />
-                <span>{userProfile.education.length} formation{userProfile.education.length > 1 ? 's' : ''}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600 text-sm font-medium">
-                <FaExclamationTriangle className="text-xs" />
-                <span>À compléter</span>
-              </div>
-            )}
-          </div>
-          <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <FaGraduationCap className="text-emerald-600 text-sm" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Formation</h2>
+      {/* Education Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+              <FaGraduationCap className="text-indigo-600 text-sm" />
             </div>
-            {isSectionEmpty('education') ? (
-              <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
-                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <FaGraduationCap className="text-gray-400 text-lg" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Ajoutez votre formation</h3>
-                <p className="text-gray-500 mb-4 max-w-md mx-auto">
-                  Renseignez vos diplômes, certifications et formations pour compléter votre profil académique.
-                </p>
-                <EducationSection
-                  id={userProfile.id}
-                  education={userProfile.education}
-                />
-              </div>
-            ) : (
-              <EducationSection
-                id={userProfile.id}
-                education={userProfile.education}
-              />
-            )}
+            <h2 className="text-lg font-semibold text-gray-900">Formation</h2>
+          </div>
+          {(userProfile?.education && userProfile.education.length > 0) && (
+            <span className="text-xs text-green-600 font-medium">
+              {userProfile.education.length} formation{userProfile.education.length > 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+        <EducationSection
+          id={userProfile.id}
+          education={userProfile.education}
+        />
+      </div>
+
+      {/* Delete Account Section */}
+      <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">
+        <div className="flex items-start gap-4">
+          <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+            <FaExclamationTriangle className="text-red-600 text-lg" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-red-900 mb-2">Zone dangereuse</h2>
+            <p className="text-sm text-red-700 mb-4">
+              La suppression de votre compte est irréversible. Toutes vos données, CV vidéos, candidatures et informations seront définitivement supprimées.
+            </p>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm"
+            >
+              <FaTrash className="text-sm" />
+              Supprimer mon compte
+            </button>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                <FaExclamationTriangle className="text-red-600 text-xl" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-700 mb-4">
+                Cette action est <span className="font-bold text-red-600">irréversible</span>. Toutes vos données seront définitivement supprimées :
+              </p>
+              <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 mb-4">
+                <li>Profil et informations personnelles</li>
+                <li>CV vidéos et candidatures</li>
+                <li>Historique et statistiques</li>
+                <li>Expériences, compétences et projets</li>
+              </ul>
+              <p className="text-sm text-gray-700 mb-4">
+                Pour confirmer, tapez <span className="font-mono font-bold bg-gray-100 px-2 py-1 rounded">SUPPRIMER</span> ci-dessous :
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Tapez SUPPRIMER"
+                className="w-full border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 rounded-lg px-4 py-2 outline-none transition-all"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmText("");
+                }}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== "SUPPRIMER" || isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Suppression...
+                  </>
+                ) : (
+                  <>
+                    <FaTrash className="text-sm" />
+                    Supprimer définitivement
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

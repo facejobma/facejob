@@ -140,17 +140,10 @@ function ServicePlanPage() {
     }
 
     const paymentData = {
-      price: price,
-      start_date: startDate.toISOString().split("T")[0],
-      end_date: endDate.toISOString().split("T")[0],
-      payment_method: "virement",
-      reference: "",
-      payment_period: paymentPeriod,
-      status: "pending",
-      cv_video_consumed: 0,
-      job_posted: 0,
-      entreprise_id: companyId,
       plan_id: selectedPlan.id,
+      payment_method: "bank_transfer",
+      reference: `SUB-${Date.now()}`,
+      payment_period: paymentPeriod,
     };
 
     try {
@@ -169,28 +162,6 @@ function ServicePlanPage() {
       if (response.ok) {
         setShowSuccessMessage(true);
         fetchLastPayment();
-        
-        // Send email notification
-        try {
-          await fetch(
-            process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/payments/notify-subscription",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                entreprise_id: companyId,
-                plan_name: selectedPlan.name,
-                payment_period: paymentPeriod,
-                price: price,
-              }),
-            },
-          );
-        } catch (emailError) {
-          console.error("Error sending email:", emailError);
-        }
       } else {
         toast.error("Erreur lors de la création de l'abonnement!");
       }

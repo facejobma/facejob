@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { UserIcon, PhoneIcon, EnvelopeIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { checkContactAccess, consumeContactAccess } from '@/lib/api';
+import { checkContactAccess, consumeContactAccess, fetchPlans } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 
 interface ContactAccessButtonProps {
@@ -21,6 +21,12 @@ interface ContactInfo {
   name: string;
 }
 
+interface Plan {
+  id: number;
+  name: string;
+  cv_video_consultations: number;
+}
+
 export default function ContactAccessButton({ 
   candidateId, 
   candidateName, 
@@ -31,6 +37,24 @@ export default function ContactAccessButton({
   const [accessStatus, setAccessStatus] = useState<any>(null);
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   const [hasAccessed, setHasAccessed] = useState(false);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false);
+
+  useEffect(() => {
+    const loadPlans = async () => {
+      setIsLoadingPlans(true);
+      try {
+        const plansData = await fetchPlans();
+        setPlans(plansData);
+      } catch (error) {
+        console.error('Error loading plans:', error);
+      } finally {
+        setIsLoadingPlans(false);
+      }
+    };
+    
+    loadPlans();
+  }, []);
 
   const handleCheckAccess = async () => {
     setIsLoading(true);
@@ -222,8 +246,17 @@ export default function ContactAccessButton({
               <ul className="text-xs text-blue-800 space-y-1">
                 <li>• Visualisation des CV vidéos: <strong>Illimitée</strong></li>
                 <li>• Accès aux coordonnées: <strong>Selon votre pack</strong></li>
-                <li>• Pack Pro: 10 contacts/mois</li>
-                <li>• Pack Expert: 25 contacts/mois</li>
+                {isLoadingPlans ? (
+                  <li className="text-gray-500">Chargement des plans...</li>
+                ) : plans.length > 0 ? (
+                  plans.map((plan) => (
+                    <li key={plan.id}>
+                      • {plan.name}: {plan.cv_video_consultations === -1 ? 'Illimité' : `${plan.cv_video_consultations} contacts/mois`}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-gray-500">Plans non disponibles</li>
+                )}
               </ul>
             </div>
           )}

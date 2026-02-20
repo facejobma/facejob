@@ -124,6 +124,15 @@
     height: 100dvh;
   }
   
+  /* Fix for Radix UI Tabs - ensure only active tab content is visible */
+  [data-radix-tabs-content][data-state="inactive"] {
+    display: none !important;
+  }
+  
+  [data-radix-tabs-content][data-state="active"] {
+    display: block !important;
+  }
+  
   /* Line clamp utilities */
   .line-clamp-2 {
     overflow: hidden;

@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,6 @@ import {
   BriefcaseIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { fetchPlans } from "@/lib/api";
 import { toast } from "react-hot-toast";
@@ -17,15 +17,14 @@ function ServicePlanPage() {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("Mensuel");
-  const [paymentReference, setPaymentReference] = useState("");
   const [lastPayment, setLastPayment] = useState<any>(null);
   const [currentPlanId, setCurrentPlanId] = useState(null);
   const [hasNoPayment, setHasNoPayment] = useState(false);
   const [isLoadingPayment, setIsLoadingPayment] = useState(true);
   const [plans, setPlans] = useState<any[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const company =
     typeof window !== "undefined"
@@ -72,12 +71,20 @@ function ServicePlanPage() {
     setIsLoadingPlans(true);
     try {
       const plansData = await fetchPlans();
-      const transformedPlans = plansData.map((plan: any) => ({
+      
+      // Remove duplicates based on plan ID
+      const uniquePlans = plansData.filter((plan: any, index: number, self: any[]) => 
+        index === self.findIndex((p: any) => p.id === plan.id)
+      );
+      
+      const transformedPlans = uniquePlans.map((plan: any) => ({
         ...plan,
         contact_access: plan.cv_video_consultations,
         exclusif: plan.exclusive,
       }));
+      
       setPlans(transformedPlans);
+      console.log('Loaded plans:', transformedPlans.length, transformedPlans);
     } catch (error) {
       console.error("Failed to fetch plans:", error);
       toast.error("Erreur lors de la récupération des plans");
@@ -94,26 +101,16 @@ function ServicePlanPage() {
   const handleUpgradeClick = (plan: any) => {
     setSelectedPlan(plan);
     setIsModalOpen(true);
-  };
-
-
-  const handlePaymentMethodChange = (method: any) => {
-    setPaymentMethod(method);
+    setShowSuccessMessage(false);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setPaymentMethod(null);
+    setShowSuccessMessage(false);
   };
 
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
-  };
-
-  const handlePaymentReferenceChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setPaymentReference(e.target.value);
   };
 
   const handleConfirmClick = async () => {
@@ -142,13 +139,12 @@ function ServicePlanPage() {
         return;
     }
 
-
     const paymentData = {
       price: price,
       start_date: startDate.toISOString().split("T")[0],
       end_date: endDate.toISOString().split("T")[0],
-      payment_method: paymentMethod,
-      reference: paymentReference,
+      payment_method: "virement",
+      reference: "",
       payment_period: paymentPeriod,
       status: "pending",
       cv_video_consumed: 0,
@@ -171,14 +167,36 @@ function ServicePlanPage() {
       );
 
       if (response.ok) {
-        toast.success("Payment created successfully!");
+        setShowSuccessMessage(true);
         fetchLastPayment();
-        handleCloseModal();
+        
+        // Send email notification
+        try {
+          await fetch(
+            process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/payments/notify-subscription",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                entreprise_id: companyId,
+                plan_name: selectedPlan.name,
+                payment_period: paymentPeriod,
+                price: price,
+              }),
+            },
+          );
+        } catch (emailError) {
+          console.error("Error sending email:", emailError);
+        }
       } else {
-        toast.error("Error creating payment!");
+        toast.error("Erreur lors de la création de l'abonnement!");
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error("Erreur lors de la création de l'abonnement!");
     }
   };
 
@@ -208,7 +226,7 @@ function ServicePlanPage() {
     
     return (
       <div
-        key={plan.id}
+        key={`${plan.id}-${priceKey}`}
         className={`relative rounded-lg border-2 transition-colors ${
           isPopular || isExclusive
             ? 'border-green-500 shadow-md' 
@@ -591,7 +609,14 @@ function ServicePlanPage() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {plans.map((plan) => renderPlanCard(plan, "monthly_price", "par mois"))}
+                        {plans.map((plan, index) => {
+                          console.log(`Rendering monthly plan ${index + 1}:`, plan.name, plan.id);
+                          return (
+                            <React.Fragment key={`monthly-${plan.id}`}>
+                              {renderPlanCard(plan, "monthly_price", "par mois")}
+                            </React.Fragment>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -611,7 +636,11 @@ function ServicePlanPage() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {plans.map((plan) => renderPlanCard(plan, "quarterly_price", "par trimestre"))}
+                        {plans.map((plan) => (
+                          <React.Fragment key={`quarterly-${plan.id}`}>
+                            {renderPlanCard(plan, "quarterly_price", "par trimestre")}
+                          </React.Fragment>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -631,7 +660,11 @@ function ServicePlanPage() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {plans.map((plan) => renderPlanCard(plan, "annual_price", "par année"))}
+                        {plans.map((plan) => (
+                          <React.Fragment key={`annual-${plan.id}`}>
+                            {renderPlanCard(plan, "annual_price", "par année")}
+                          </React.Fragment>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -713,63 +746,57 @@ function ServicePlanPage() {
               </button>
             </div>
 
-            <div className="mb-6">
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold text-gray-900 mb-2">{selectedPlan.name}</h4>
-                <p className="text-2xl font-bold text-green-600">
-                  {selectedPeriod === "Mensuel" && `${Number(selectedPlan.monthly_price || 0).toFixed(0)} DH/mois`}
-                  {selectedPeriod === "Trimestriel" && `${Number(selectedPlan.quarterly_price || 0).toFixed(0)} DH/trimestre`}
-                  {selectedPeriod === "Annuel" && `${Number(selectedPlan.annual_price || 0).toFixed(0)} DH/année`}
+            {!showSuccessMessage ? (
+              <>
+                <div className="mb-6">
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <h4 className="font-semibold text-gray-900 mb-2">{selectedPlan.name}</h4>
+                    <p className="text-2xl font-bold text-green-600">
+                      {selectedPeriod === "Mensuel" && `${Number(selectedPlan.monthly_price || 0).toFixed(0)} DH/mois`}
+                      {selectedPeriod === "Trimestriel" && `${Number(selectedPlan.quarterly_price || 0).toFixed(0)} DH/trimestre`}
+                      {selectedPeriod === "Annuel" && `${Number(selectedPlan.annual_price || 0).toFixed(0)} DH/année`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCloseModal}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={handleConfirmClick}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Confirmer
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <div className="flex justify-center mb-4">
+                  <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-3">
+                  Demande envoyée avec succès!
+                </h4>
+                <p className="text-gray-600 mb-6">
+                  Un de nos conseillers va vous contacter prochainement pour finaliser votre abonnement.
                 </p>
-              </div>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Méthode de paiement
-                </label>
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  onChange={(e) => handlePaymentMethodChange(e.target.value)}
-                  value={paymentMethod || ""}
+                <button
+                  onClick={handleCloseModal}
+                  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
-                  <option value="">Sélectionner une méthode</option>
-                  <option value="carte_bancaire">Carte bancaire</option>
-                  <option value="virement">Virement bancaire</option>
-                  <option value="especes">Espèces</option>
-                </select>
+                  Fermer
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Référence de paiement
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  placeholder="Entrez la référence"
-                  value={paymentReference}
-                  onChange={handlePaymentReferenceChange}
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleCloseModal}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleConfirmClick}
-                disabled={!paymentMethod}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-              >
-                Confirmer
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}

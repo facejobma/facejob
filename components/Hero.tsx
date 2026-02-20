@@ -20,7 +20,7 @@ export default function Hero({}: Props) {
     <>
       <header className="relative w-full py-4 pb-12 sm:pb-16 md:pb-20 bg-optional1">
         <NavBar />
-        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20 max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
             <div className="order-2 md:order-1 animate-fade-in">
               {/* Main Heading - Proper H1 */}

@@ -728,25 +728,6 @@ const CandidatsPage: React.FC = () => {
                           {candidate.years_of_experience} ans
                         </span>
                       </div>
-
-                      {/* Skills Preview */}
-                      {candidate.skills && candidate.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {candidate.skills
-                            .filter(s => s.name && s.name.trim() !== '')
-                            .slice(0, 2)
-                            .map((s) => (
-                              <span key={s.id} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs truncate max-w-[70px] font-medium">
-                                {s.name}
-                              </span>
-                            ))}
-                          {candidate.skills.filter(s => s.name && s.name.trim() !== '').length > 2 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                              +{candidate.skills.filter(s => s.name && s.name.trim() !== '').length - 2}
-                            </span>
-                          )}
-                        </div>
-                      )}
                     </div>
 
                     {/* Action Buttons */}
@@ -889,28 +870,6 @@ const CandidatsPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Skills */}
-                    {candidate.skills && candidate.skills.length > 0 && (
-                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
-                        <h3 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
-                          <Code className="w-4 h-4" />
-                          Compétences
-                        </h3>
-                        <div className="flex flex-wrap gap-1.5">
-                          {candidate.skills
-                            .filter(s => s.name && s.name.trim() !== '')
-                            .slice(0, 8)
-                            .map((s) => (
-                              <span
-                                key={s.id}
-                                className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs"
-                              >
-                                {s.name}
-                              </span>
-                            ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                   </div>
 

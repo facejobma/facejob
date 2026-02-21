@@ -197,11 +197,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
             setSelectedVideo(video.link);
             setSelectedVideoId(video.id);
             setIsButtonDisabled(false);
-            
-            // Automatically submit the application with the single video
-            setTimeout(() => {
-              handleValidate(video.link);
-            }, 500); // Small delay to show the modal briefly
+            // Auto-select the video but don't auto-submit
+            // User must click "Valider ma candidature" button
           } else if (data.length === 0) {
             toast.error("Aucun CV vidéo approuvé disponible. Veuillez créer et faire approuver un CV vidéo.");
           }
@@ -242,9 +239,17 @@ const OffreCard: React.FC<OffreCardProps> = ({
     setIsButtonDisabled(event.target.value === "");
   };
 
-  const handleValidate = async (selectedVideo: string) => {
+  const handleValidate = async (selectedVideo: string, videoId?: number | null) => {
     if (!selectedVideo) {
       toast.error("Veuillez sélectionner une vidéo.");
+      return;
+    }
+
+    // Use the provided videoId or fall back to selectedVideoId state
+    const postulerId = videoId !== undefined ? videoId : selectedVideoId;
+
+    if (!postulerId) {
+      toast.error("ID de la vidéo manquant. Veuillez réessayer.");
       return;
     }
   
@@ -270,7 +275,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
             video_url: selectedVideo,
             candidat_id: userId,
             offre_id: offreId,
-            postuler_id: selectedVideoId,
+            postuler_id: postulerId,
           }),
         }
       );

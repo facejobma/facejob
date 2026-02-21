@@ -74,6 +74,9 @@ const CandidatsPage: React.FC = () => {
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const videoRefs = useRef<{ [key: number]: HTMLVideoElement | null }>({});
   const [currentVideoId, setCurrentVideoId] = useState<number | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [detailCandidate, setDetailCandidate] = useState<Candidate | null>(null);
+  const detailVideoRef = useRef<HTMLVideoElement | null>(null);
   
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -417,6 +420,25 @@ const CandidatsPage: React.FC = () => {
     });
   };
 
+  const handleVideoClick = (candidate: Candidate) => {
+    setDetailCandidate(candidate);
+    setIsDetailModalOpen(true);
+    // Pause all other videos
+    Object.values(videoRefs.current).forEach(video => {
+      if (video) {
+        video.pause();
+      }
+    });
+  };
+
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false);
+    if (detailVideoRef.current) {
+      detailVideoRef.current.pause();
+    }
+    setDetailCandidate(null);
+  };
+
   const hasActiveFilters = selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || minExperience || maxExperience;
 
   return (
@@ -636,7 +658,10 @@ const CandidatsPage: React.FC = () => {
                   className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-green-300 hover:shadow-lg transition-all flex flex-col"
                 >
                   {/* Video Preview */}
-                  <div className="relative h-48 bg-black overflow-hidden">
+                  <div 
+                    className="relative h-48 bg-black overflow-hidden cursor-pointer group"
+                    onClick={() => handleVideoClick(candidate)}
+                  >
                     <video
                       ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
                       src={candidate.link.startsWith('http') ? candidate.link : `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${candidate.link}`}
@@ -650,7 +675,11 @@ const CandidatsPage: React.FC = () => {
                         e.currentTarget.currentTime = 0;
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                        <Eye className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Card Content */}
@@ -986,6 +1015,200 @@ const CandidatsPage: React.FC = () => {
               >
                 Mettre à niveau
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal - Large Popup with Video and All Info */}
+      {isDetailModalOpen && detailCandidate && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+            onClick={closeDetailModal}
+          ></div>
+          
+          {/* Modal Content */}
+          <div className="fixed inset-4 md:inset-8 lg:inset-12 z-10 flex items-center justify-center">
+            <div className="bg-white rounded-2xl shadow-2xl w-full h-full max-w-7xl overflow-hidden flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-600 to-emerald-600">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white">
+                    {detailCandidate.image ? (
+                      <img 
+                        src={getImageUrl(detailCandidate.image)}
+                        alt={detailCandidate.full_name || 'Candidat'}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextElementSibling) {
+                            (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-lg font-bold"
+                      style={{ display: detailCandidate.image ? 'none' : 'flex' }}
+                    >
+                      {detailCandidate.full_name?.[0] || 'C'}
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">{detailCandidate.full_name || 'Candidat'}</h2>
+                    <p className="text-green-50 text-sm">{detailCandidate.job?.name || 'Non spécifié'}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={closeDetailModal}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+                  {/* Left Column - Video */}
+                  <div className="space-y-4">
+                    <div className="relative bg-black rounded-xl overflow-hidden aspect-video">
+                      <video
+                        ref={detailVideoRef}
+                        src={detailCandidate.link.startsWith('http') ? detailCandidate.link : `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${detailCandidate.link}`}
+                        className="w-full h-full object-contain"
+                        controls
+                        autoPlay
+                        loop
+                      />
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <MapPin className="w-4 h-4" />
+                          <span className="text-xs font-medium">Localisation</span>
+                        </div>
+                        <p className="text-gray-900 font-semibold">{detailCandidate.city || 'Non spécifié'}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-xs font-medium">Expérience</span>
+                        </div>
+                        <p className="text-gray-900 font-semibold">{detailCandidate.years_of_experience} ans</p>
+                      </div>
+                    </div>
+
+                    {/* Bio */}
+                    {detailCandidate.bio && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          À propos
+                        </h3>
+                        <p className="text-gray-700 text-sm leading-relaxed">{detailCandidate.bio}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Column - Details */}
+                  <div className="space-y-4">
+                    {/* Formations */}
+                    {detailCandidate.formations && detailCandidate.formations.length > 0 && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <GraduationCap className="w-5 h-5 text-green-600" />
+                          Formation
+                        </h3>
+                        <div className="space-y-3">
+                          {detailCandidate.formations.map((formation) => (
+                            <div key={formation.id} className="border-l-2 border-green-500 pl-3">
+                              <p className="font-medium text-gray-900">{formation.diplome}</p>
+                              <p className="text-sm text-gray-700">{formation.field_of_study}</p>
+                              <p className="text-sm text-gray-600">{formation.school}</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {new Date(formation.start_date).getFullYear()} - {new Date(formation.end_date).getFullYear()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expériences */}
+                    {detailCandidate.experiences && detailCandidate.experiences.length > 0 && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Building2 className="w-5 h-5 text-green-600" />
+                          Expérience professionnelle
+                        </h3>
+                        <div className="space-y-3">
+                          {detailCandidate.experiences.map((experience) => (
+                            <div key={experience.id} className="border-l-2 border-green-500 pl-3">
+                              <p className="font-medium text-gray-900">{experience.title}</p>
+                              <p className="text-sm text-gray-700">{experience.company}</p>
+                              {experience.location && (
+                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {experience.location}
+                                </p>
+                              )}
+                              <p className="text-xs text-gray-500 mt-1">
+                                {new Date(experience.start_date).getFullYear()} - {experience.is_current ? 'Présent' : new Date(experience.end_date).getFullYear()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Compétences */}
+                    {detailCandidate.skills && detailCandidate.skills.length > 0 && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Code className="w-5 h-5 text-green-600" />
+                          Compétences
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {detailCandidate.skills.map((skill) => (
+                            <span
+                              key={skill.id}
+                              className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium"
+                            >
+                              {skill.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex gap-3">
+                <button
+                  onClick={() => handleGenerateCV(detailCandidate.id)}
+                  className="flex-1 px-6 py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <Download className="w-5 h-5" />
+                  Télécharger le CV
+                </button>
+                <button
+                  onClick={() => {
+                    closeDetailModal();
+                    handleConsumeClick(detailCandidate);
+                  }}
+                  className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <Check className="w-5 h-5" />
+                  Consulter ce profil
+                </button>
+              </div>
             </div>
           </div>
         </div>

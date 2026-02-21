@@ -732,14 +732,17 @@ const CandidatsPage: React.FC = () => {
                       {/* Skills Preview */}
                       {candidate.skills && candidate.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                          {candidate.skills.slice(0, 2).map((s) => (
-                            <span key={s.id} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs truncate max-w-[70px] font-medium">
-                              {s.name}
-                            </span>
-                          ))}
-                          {candidate.skills.length > 2 && (
+                          {candidate.skills
+                            .filter(s => s.name && s.name.trim() !== '')
+                            .slice(0, 2)
+                            .map((s) => (
+                              <span key={s.id} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs truncate max-w-[70px] font-medium">
+                                {s.name}
+                              </span>
+                            ))}
+                          {candidate.skills.filter(s => s.name && s.name.trim() !== '').length > 2 && (
                             <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                              +{candidate.skills.length - 2}
+                              +{candidate.skills.filter(s => s.name && s.name.trim() !== '').length - 2}
                             </span>
                           )}
                         </div>
@@ -894,14 +897,17 @@ const CandidatsPage: React.FC = () => {
                           Compétences
                         </h3>
                         <div className="flex flex-wrap gap-1.5">
-                          {candidate.skills.slice(0, 8).map((s) => (
-                            <span
-                              key={s.id}
-                              className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs"
-                            >
-                              {s.name}
-                            </span>
-                          ))}
+                          {candidate.skills
+                            .filter(s => s.name && s.name.trim() !== '')
+                            .slice(0, 8)
+                            .map((s) => (
+                              <span
+                                key={s.id}
+                                className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs"
+                              >
+                                {s.name}
+                              </span>
+                            ))}
                         </div>
                       </div>
                     )}
@@ -1174,15 +1180,20 @@ const CandidatsPage: React.FC = () => {
                           Compétences
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          {detailCandidate.skills.map((skill) => (
-                            <span
-                              key={skill.id}
-                              className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium"
-                            >
-                              {skill.name}
-                            </span>
-                          ))}
+                          {detailCandidate.skills
+                            .filter(skill => skill.name && skill.name.trim() !== '')
+                            .map((skill) => (
+                              <span
+                                key={skill.id}
+                                className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium"
+                              >
+                                {skill.name}
+                              </span>
+                            ))}
                         </div>
+                        {detailCandidate.skills.filter(skill => skill.name && skill.name.trim() !== '').length === 0 && (
+                          <p className="text-gray-500 text-sm italic">Aucune compétence renseignée</p>
+                        )}
                       </div>
                     )}
                   </div>

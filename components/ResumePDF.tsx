@@ -351,7 +351,52 @@ const ResumePDFDocument: React.FC<{
   );
 };
 
-// Fonction pour télécharger le PDF
+// Fonction pour télécharger le PDF depuis les CVs consommés (avec données complètes)
+export const downloadConsumedResumePDF = async (candidateData: any) => {
+  try {
+    // Use the data directly from consumed CVs API (already has full names and email)
+    const userProfile = {
+      first_name: candidateData.first_name,
+      last_name: candidateData.last_name,
+      email: candidateData.email,
+      tel: candidateData.tel,
+      address: candidateData.address,
+      bio: candidateData.bio,
+      image: candidateData.image,
+      job: candidateData.job,
+      skills: candidateData.skills || [],
+      projects: candidateData.projects || [],
+      experiences: candidateData.experiences || [],
+      educations: candidateData.formations || [],
+      years_of_experience: candidateData.years_of_experience,
+    };
+
+    // Generate PDF with full information (cvConsumed = true)
+    const blob = await pdf(
+      <ResumePDFDocument
+        userProfile={userProfile}
+        cvConsumed={true}
+        userRole="entreprise"
+      />
+    ).toBlob();
+
+    const fileName = `CV_${userProfile.first_name}_${userProfile.last_name}.pdf`;
+    
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success("PDF téléchargé avec succès!");
+  } catch (error) {
+    console.error("Erreur lors de la génération du PDF:", error);
+    toast.error("Erreur lors du téléchargement du PDF");
+  }
+};
+
+// Fonction pour télécharger le PDF (ancienne version - pour compatibilité)
 export const downloadResumePDF = async (candidateId: number) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const userRole =

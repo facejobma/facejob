@@ -28,17 +28,7 @@ const nextConfig = {
     // Compression
     compress: true,
     
-    // Optimize fonts
-    optimizeFonts: true,
-    
-    // SWC minification (faster than Terser)
-    swcMinify: true,
-    
-    // Experimental features for better performance
-    experimental: {
-        optimizeCss: true,
-        optimizePackageImports: ['lucide-react', 'framer-motion'],
-    },
+ 
     
     // Headers for caching
     async headers() {

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import { downloadResumePDF } from "@/components/ResumePDF";
+import { downloadConsumedResumePDF } from "@/components/ResumePDF";
 import { Eye, Download } from "lucide-react";
 
 interface ConsumedCV {
@@ -104,10 +104,10 @@ const ConsumedCVs: React.FC = () => {
     }
   }, [authToken, entrepriseId]);
 
-  const handleDownloadCV = async (candidatId: number) => {
+  const handleDownloadCV = async (candidateData: any) => {
     try {
-      await downloadResumePDF(candidatId);
-      toast.success("Téléchargement du CV en cours...");
+      await downloadConsumedResumePDF(candidateData);
+      // Toast is already shown in downloadConsumedResumePDF function
     } catch (error) {
       console.error("Error downloading CV:", error);
       toast.error("Erreur lors du téléchargement du CV");
@@ -185,7 +185,19 @@ const ConsumedCVs: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <p className="text-xl font-bold text-gray-900">{Math.round(consumedCVs.reduce((sum, cv) => sum + parseInt(cv.postuler.nb_experiences), 0) / consumedCVs.length) || 0}</p>
+                <p className="text-xl font-bold text-gray-900">
+                  {(() => {
+                    const validExperiences = consumedCVs.filter(cv => 
+                      cv.postuler.candidat.years_of_experience != null
+                    );
+                    if (validExperiences.length === 0) return "0 ans";
+                    const sum = validExperiences.reduce((acc, cv) => 
+                      acc + cv.postuler.candidat.years_of_experience, 0
+                    );
+                    const avg = Math.round(sum / validExperiences.length);
+                    return `${avg} ans`;
+                  })()}
+                </p>
                 <p className="text-xs text-gray-600">Exp. moyenne</p>
               </div>
             </div>
@@ -261,6 +273,7 @@ const ConsumedCVs: React.FC = () => {
                           src={cv.postuler.link}
                           className="w-40 h-28 object-cover rounded-lg shadow-sm"
                           controls
+                          controlsList="nodownload"
                         >
                           Votre navigateur ne supporte pas la vidéo.
                         </video>
@@ -276,7 +289,7 @@ const ConsumedCVs: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 border-b border-gray-200 text-center">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        {cv.postuler.candidat.years_of_experience} ans
+                        {cv.postuler.candidat.years_of_experience ?? 0} ans
                       </span>
                     </td>
                     <td className="px-6 py-4 border-b border-gray-200 text-center text-gray-700">
@@ -288,7 +301,7 @@ const ConsumedCVs: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 border-b border-gray-200 text-center">
                       <button
-                        onClick={() => handleDownloadCV(cv.postuler.candidat.id)}
+                        onClick={() => handleDownloadCV(cv.postuler.candidat)}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                       >
                         <Download className="h-4 w-4" />

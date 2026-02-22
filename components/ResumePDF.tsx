@@ -126,13 +126,12 @@ const ResumePDFDocument: React.FC<{
   cvConsumed: boolean;
   userRole: string | null;
 }> = ({ userProfile, cvConsumed, userRole }) => {
-  // For enterprises, always show only first letter (even if consumed)
-  // Full names are only available through the consumations endpoint
-  const displayFirstName = userRole === "entreprise" 
+  // Show full names if CV is consumed, otherwise show only first letter
+  const displayFirstName = (userRole === "entreprise" && !cvConsumed)
     ? (userProfile.first_name?.charAt(0) || 'C') + '.'
     : userProfile.first_name;
     
-  const displayLastName = userRole === "entreprise"
+  const displayLastName = (userRole === "entreprise" && !cvConsumed)
     ? (userProfile.last_name?.charAt(0) || 'A') + '.'
     : userProfile.last_name;
 

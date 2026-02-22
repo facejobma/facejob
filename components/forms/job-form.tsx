@@ -114,6 +114,23 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
     setIsSubmitting(true);
     
     try {
+      // Validate required fields
+      if (!formData.titre || !formData.description || !formData.date_debut || !formData.location) {
+        toast.error("Veuillez remplir tous les champs obligatoires");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate date de début is in the future
+      const startDate = new Date(formData.date_debut);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (startDate < today) {
+        toast.error("La date de début doit être dans le futur");
+        setIsSubmitting(false);
+        return;
+      }
+
       console.log('Submitting offre update:', {
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${initialData.id}`,
         method: 'PUT',
@@ -303,7 +320,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Localisation
+                  Localisation <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -311,6 +328,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                   value={formData.location}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                  required
                 />
               </div>
               
@@ -336,13 +354,14 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
             
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Date de début
+                Date de début <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 name="date_debut"
                 value={formData.date_debut}
                 onChange={handleInputChange}
+                min={new Date().toISOString().split('T')[0]}
                 className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
               />
             </div>

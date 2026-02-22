@@ -53,10 +53,21 @@ function ServicePlanPage() {
         setHasNoPayment(false);
       } else if (response.status === 404) {
         const errorData = await response.json();
-        console.log("No payment found:", errorData.message);
-        setLastPayment(null);
-        setCurrentPlanId(null);
-        setHasNoPayment(true);
+        console.log("No active payment found:", errorData.message);
+        
+        // Check if there's a pending payment
+        if (errorData.has_pending) {
+          setLastPayment({
+            status: 'Pending',
+            plan_name: errorData.pending_plan,
+            has_pending: true
+          });
+          setHasNoPayment(true);
+        } else {
+          setLastPayment(null);
+          setCurrentPlanId(null);
+          setHasNoPayment(true);
+        }
       } else {
         console.error("Failed to fetch last payment");
         toast.error("Erreur lors de la récupération des informations de paiement");
@@ -116,34 +127,9 @@ function ServicePlanPage() {
   const handleConfirmClick = async () => {
     if (!selectedPlan || !selectedPeriod) return;
 
-    let price, endDate, paymentPeriod;
-    const startDate = new Date();
-
-    switch (selectedPeriod) {
-      case "Mensuel":
-        price = selectedPlan.monthly_price;
-        endDate = new Date(new Date().setMonth(startDate.getMonth() + 1));
-        paymentPeriod = "Mensuel";
-        break;
-      case "Trimestriel":
-        price = selectedPlan.quarterly_price;
-        endDate = new Date(new Date().setMonth(startDate.getMonth() + 3));
-        paymentPeriod = "Trimestriel";
-        break;
-      case "Annuel":
-        price = selectedPlan.annual_price;
-        endDate = new Date(new Date().setFullYear(startDate.getFullYear() + 1));
-        paymentPeriod = "Annuel";
-        break;
-      default:
-        return;
-    }
-
     const paymentData = {
       plan_id: selectedPlan.id,
-      payment_method: "bank_transfer",
-      reference: `SUB-${Date.now()}`,
-      payment_period: paymentPeriod,
+      payment_period: selectedPeriod,
     };
 
     try {
@@ -163,7 +149,20 @@ function ServicePlanPage() {
         setShowSuccessMessage(true);
         fetchLastPayment();
       } else {
-        toast.error("Erreur lors de la création de l'abonnement!");
+        // Parse error response
+        const errorData = await response.json();
+        
+        // Check for specific error messages
+        if (errorData.errors && errorData.errors.subscription) {
+          // Display subscription error (e.g., "Vous avez déjà un abonnement actif")
+          toast.error(errorData.errors.subscription[0] || errorData.errors.subscription);
+        } else if (errorData.message) {
+          toast.error(errorData.message);
+        } else if (errorData.error) {
+          toast.error(errorData.error);
+        } else {
+          toast.error("Erreur lors de la création de l'abonnement!");
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -409,7 +408,27 @@ function ServicePlanPage() {
                 </div>
               ) : hasNoPayment ? (
                 <div className="text-center py-8">
-                  <div className="bg-green-50 rounded-lg p-6 border border-green-200">
+                  {lastPayment && lastPayment.has_pending ? (
+                    <div className="bg-yellow-50 rounded-lg p-6 border-2 border-yellow-200">
+                      <div className="flex justify-center mb-4">
+                        <div className="h-16 w-16 rounded-full bg-yellow-100 flex items-center justify-center">
+                          <svg className="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-2">Demande d'abonnement en cours</h4>
+                      <p className="text-gray-600 mb-4">
+                        Votre demande pour le <strong>{lastPayment.plan_name}</strong> est en attente de confirmation.
+                        Un de nos conseillers va vous contacter prochainement.
+                      </p>
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 rounded-full">
+                        <span className="h-2 w-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                        <span className="text-sm font-medium text-yellow-900">En attente de validation</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-green-50 rounded-lg p-6 border border-green-200">
                     <div className="flex justify-center mb-4">
                       <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
                         <BriefcaseIcon className="h-8 w-8 text-green-600" />
@@ -431,9 +450,57 @@ function ServicePlanPage() {
                       </ul>
                     </div>
                   </div>
+                  )}
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  {/* Payment Status Alert */}
+                  {lastPayment && lastPayment.has_pending && (
+                    <div className="mb-6 bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <svg className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-yellow-900 mb-1">
+                            Nouvelle demande d'abonnement en attente
+                          </h4>
+                          <p className="text-sm text-yellow-800">
+                            Vous avez une demande pour le <strong>{lastPayment.pending_plan}</strong> en attente de confirmation. 
+                            Un de nos conseillers va vous contacter prochainement. Votre plan actuel reste actif jusqu'à la validation.
+                          </p>
+                          <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 rounded-full">
+                            <span className="h-2 w-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                            <span className="text-xs font-medium text-yellow-900">Nouvelle demande en attente</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {lastPayment && lastPayment.status === 'Accepted' && (
+                    <div className="mb-6 bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <svg className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-green-900 mb-1">
+                            Abonnement actif
+                          </h4>
+                          <p className="text-sm text-green-800">
+                            Votre pack <strong>{lastPayment.plan_name}</strong> est actif et opérationnel.
+                          </p>
+                          <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-100 rounded-full">
+                            <span className="h-2 w-2 bg-green-500 rounded-full"></span>
+                            <span className="text-xs font-medium text-green-900">Statut: Actif</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   <Card className="border border-gray-200 rounded-lg">
                     <CardHeader className="flex flex-col items-center space-y-2 pb-2">
                       <CheckCircleIcon className="h-8 w-8 text-green-500" />
@@ -518,6 +585,51 @@ function ServicePlanPage() {
                       </p>
                     </CardContent>
                   </Card>
+                  
+                  <Card className="border border-gray-200 rounded-lg">
+                    <CardHeader className="flex flex-col items-center space-y-2 pb-2">
+                      <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <CardTitle className="text-sm font-medium text-center">
+                        Date de début
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-700 text-center">
+                        {lastPayment && lastPayment.start_date 
+                          ? new Date(lastPayment.start_date).toLocaleDateString('fr-FR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })
+                          : "-"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border border-gray-200 rounded-lg">
+                    <CardHeader className="flex flex-col items-center space-y-2 pb-2">
+                      <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <CardTitle className="text-sm font-medium text-center">
+                        Date de fin
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-700 text-center">
+                        {lastPayment && lastPayment.end_date 
+                          ? new Date(lastPayment.end_date).toLocaleDateString('fr-FR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })
+                          : "-"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
                 </div>
               )}
             </div>
@@ -538,6 +650,24 @@ function ServicePlanPage() {
             </div>
             
             <div className="p-6">
+              {/* Important Note */}
+              <div className="mb-6 bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <svg className="h-6 w-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-blue-900 mb-1">
+                      Information importante
+                    </h4>
+                    <p className="text-sm text-blue-800">
+                      Après avoir choisi votre pack, celui-ci sera activé uniquement après la confirmation de notre conseiller. 
+                      Vous recevrez un email de confirmation et serez contacté dans les plus brefs délais.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
               <Tabs defaultValue="Mensuel" className="w-full">
                 <div className="flex justify-center mb-8">
                   <TabsList className="inline-flex bg-gray-100 p-1 rounded-lg gap-1">

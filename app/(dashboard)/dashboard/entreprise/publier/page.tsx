@@ -65,7 +65,7 @@ export default function PublierPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.titre || !formData.description || !formData.sector_id) {
+    if (!formData.titre || !formData.description || !formData.sector_id || !formData.date_debut || !formData.location) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -88,6 +88,15 @@ export default function PublierPage() {
 
     if (plainText.length > 10000) {
       toast.error("La description ne peut pas dépasser 10000 caractères");
+      return;
+    }
+
+    // Validate date de début is in the future
+    const startDate = new Date(formData.date_debut);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (startDate < today) {
+      toast.error("La date de début doit être dans le futur");
       return;
     }
 
@@ -114,9 +123,19 @@ export default function PublierPage() {
       });
 
       setIsSuccessModalOpen(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating offer:", error);
-      toast.error(error instanceof Error ? error.message : "Erreur lors de la publication de l'offre");
+      
+      // Handle specific backend errors
+      if (error?.error === "JOB_LIMIT_REACHED") {
+        const limit = error?.limit || 3;
+        const used = error?.used || limit;
+        toast.error(`Limite de publication d'offres atteinte pour votre plan actuel. (${used}/${limit} offres utilisées)`);
+      } else if (error?.message) {
+        toast.error(error.message);
+      } else {
+        toast.error(error instanceof Error ? error.message : "Erreur lors de la publication de l'offre");
+      }
     } finally {
       setIsLoading(false);
       setUploadStatus("idle");
@@ -218,7 +237,7 @@ export default function PublierPage() {
           {/* Localisation */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Localisation
+              Localisation <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -227,6 +246,7 @@ export default function PublierPage() {
               onChange={handleInputChange}
               className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
               placeholder="Ex: Casablanca, Maroc"
+              required
             />
           </div>
 
@@ -234,13 +254,14 @@ export default function PublierPage() {
             {/* Date de début */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Date de début
+                Date de début <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 name="date_debut"
                 value={formData.date_debut}
                 onChange={handleInputChange}
+                min={new Date().toISOString().split('T')[0]}
                 className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
               />
             </div>

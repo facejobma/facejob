@@ -4,10 +4,9 @@ import React, { useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
-import { downloadResumePDF } from "@/components/ResumePDF";
 import { 
   MapPin, Briefcase, GraduationCap, Code, Building2, 
-  Calendar, Download, Check, User, Filter, X, ChevronDown, Volume2, VolumeX, FileText, Eye
+  Calendar, Check, User, Filter, X, ChevronDown, Volume2, VolumeX, Eye
 } from "lucide-react";
 
 interface Formation {
@@ -68,9 +67,7 @@ const CandidatsPage: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [lastPayment, setLastPayment] = useState<Payment | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const videoRefs = useRef<{ [key: number]: HTMLVideoElement | null }>({});
   const [currentVideoId, setCurrentVideoId] = useState<number | null>(null);
@@ -333,27 +330,13 @@ const CandidatsPage: React.FC = () => {
     };
   }, [candidates, isMuted]);
 
-  const handleGenerateCV = async (candidateId: number) => {
-    try {
-      await downloadResumePDF(candidateId);
-      toast.success("CV téléchargé !");
-    } catch (error) {
-      toast.error("Erreur lors du téléchargement");
-    }
-  };
-
-  const handleConsumeClick = (candidate: Candidate) => {
+  const handleConsumeClick = async (candidate: Candidate) => {
     if (!lastPayment || lastPayment.status === "pending" || lastPayment.cv_video_remaining <= 0) {
       setIsUpgradeModalOpen(true);
       return;
     }
-    setSelectedCandidate(candidate);
-    setIsModalOpen(true);
-  };
 
-  const handleConfirmConsume = async () => {
-    if (!selectedCandidate) return;
-    
+    // Directly consume without confirmation
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
@@ -365,23 +348,86 @@ const CandidatsPage: React.FC = () => {
           },
           body: JSON.stringify({
             entreprise_id: companyId,
-            postuler_id: selectedCandidate.cv_id,
+            postuler_id: candidate.cv_id,
           }),
         },
       );
 
       if (response.ok) {
-        toast.success("CV consommé avec succès !");
-        setIsModalOpen(false);
-        setCandidates(prev => prev.filter(c => c.cv_id !== selectedCandidate.cv_id));
+        toast.success("CV consommé avec succès ! Vous pouvez maintenant voir toutes les informations.");
+        // Remove from list and show detail modal if not already open
+        setCandidates(prev => prev.filter(c => c.cv_id !== candidate.cv_id));
+        if (!isDetailModalOpen) {
+          setDetailCandidate(candidate);
+          setIsDetailModalOpen(true);
+          // Pause all videos
+          Object.values(videoRefs.current).forEach(video => {
+            if (video) {
+              video.pause();
+            }
+          });
+        }
+        
+        // Show a toast with button to navigate to consumed CVs
+        setTimeout(() => {
+          toast.success(
+            (t) => (
+              <div className="flex flex-col gap-2">
+                <span>CV ajouté à vos consommations</span>
+                <button
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    window.location.href = '/dashboard/entreprise/consumed-cvs';
+                  }}
+                  className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Voir mes consommations
+                </button>
+              </div>
+            ),
+            { duration: 5000 }
+          );
+        }, 1000);
       } else {
         const errorData = await response.json().catch(() => ({}));
         
-        // Handle quota limit error specifically
-        if (response.status === 402 && errorData.needs_upgrade) {
-          setIsModalOpen(false);
+        // Handle already consumed - show the candidate info directly
+        if (response.status === 409 && errorData.error === "Video already consumed") {
+          toast.success("CV déjà consulté - affichage des informations complètes");
+          setCandidates(prev => prev.filter(c => c.cv_id !== candidate.cv_id));
+          if (!isDetailModalOpen) {
+            setDetailCandidate(candidate);
+            setIsDetailModalOpen(true);
+            // Pause all videos
+            Object.values(videoRefs.current).forEach(video => {
+              if (video) {
+                video.pause();
+              }
+            });
+          }
+          
+          // Show a toast with button to navigate to consumed CVs
+          setTimeout(() => {
+            toast.success(
+              (t) => (
+                <div className="flex flex-col gap-2">
+                  <span>Retrouvez ce CV dans vos consommations</span>
+                  <button
+                    onClick={() => {
+                      toast.dismiss(t.id);
+                      window.location.href = '/dashboard/entreprise/consumed-cvs';
+                    }}
+                    className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                  >
+                    Voir mes consommations
+                  </button>
+                </div>
+              ),
+              { duration: 5000 }
+            );
+          }, 1000);
+        } else if (response.status === 402 && errorData.needs_upgrade) {
           toast.error(errorData.message || "Vous avez atteint la limite de consultations de CV.", { duration: 5000 });
-          // Show upgrade modal after a short delay
           setTimeout(() => {
             setIsUpgradeModalOpen(true);
           }, 500);
@@ -733,16 +779,8 @@ const CandidatsPage: React.FC = () => {
                     {/* Action Buttons */}
                     <div className="flex gap-2 pt-3 mt-auto border-t border-gray-100">
                       <button
-                        onClick={() => handleGenerateCV(candidate.id)}
-                        className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
-                        title="Télécharger le CV"
-                      >
-                        <FileText className="w-4 h-4" />
-                        CV
-                      </button>
-                      <button
                         onClick={() => handleConsumeClick(candidate)}
-                        className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+                        className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
                         title="Consulter"
                       >
                         <Eye className="w-4 h-4" />
@@ -887,18 +925,6 @@ const CandidatsPage: React.FC = () => {
                         <Volume2 className="w-6 h-6 text-white" />
                       )}
                     </button>
-
-                    {/* Download CV Button */}
-                    <button
-                      onClick={() => handleGenerateCV(candidate.id)}
-                      className="flex flex-col items-center gap-1"
-                      title="Télécharger le CV"
-                    >
-                      <div className="w-16 h-16 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110">
-                        <FileText className="w-6 h-6 text-gray-700" />
-                      </div>
-                      <span className="text-white text-xs font-medium bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-sm">CV</span>
-                    </button>
                     
                     {/* View/Consume CV Button */}
                     <button
@@ -933,32 +959,6 @@ const CandidatsPage: React.FC = () => {
       </div>
 
       {/* Modals */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
-          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Confirmer</h2>
-            <p className="text-gray-600 mb-6">
-              Voulez-vous consulter ce CV vidéo ? Cette action consommera un crédit et est irréversible.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleConfirmConsume}
-                className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
-              >
-                Confirmer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsUpgradeModalOpen(false)}></div>
@@ -1162,18 +1162,8 @@ const CandidatsPage: React.FC = () => {
               {/* Footer Actions */}
               <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex gap-3">
                 <button
-                  onClick={() => handleGenerateCV(detailCandidate.id)}
-                  className="flex-1 px-6 py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
-                >
-                  <Download className="w-5 h-5" />
-                  Télécharger le CV
-                </button>
-                <button
-                  onClick={() => {
-                    closeDetailModal();
-                    handleConsumeClick(detailCandidate);
-                  }}
-                  className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  onClick={() => handleConsumeClick(detailCandidate)}
+                  className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
                   <Check className="w-5 h-5" />
                   Consulter ce profil

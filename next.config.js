@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    output: 'standalone',
+    // Only use standalone output in production
+    ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
     
     // Performance optimizations
     compiler: {
@@ -37,8 +38,6 @@ const nextConfig = {
     experimental: {
         optimizeCss: true,
         optimizePackageImports: ['lucide-react', 'framer-motion'],
-        // Improve HMR stability for problematic packages
-        serverComponentsExternalPackages: ['react-loader-spinner'],
     },
     
     // Headers for caching

@@ -276,7 +276,7 @@ const ConsumedCVs: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 border-b border-gray-200 text-center">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        {cv.postuler.nb_experiences} ans
+                        {cv.postuler.candidat.years_of_experience} ans
                       </span>
                     </td>
                     <td className="px-6 py-4 border-b border-gray-200 text-center text-gray-700">

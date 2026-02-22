@@ -7,7 +7,7 @@ type Props = {};
 export default function Category({}: Props) {
     return (
         <section className="w-full mx-auto mt-16 sm:mt-24 md:mt-36 pb-8 sm:pb-12 overflow-hidden" id={"section2"}>
-            <div className="container mx-auto px-4 sm:px-6">
+            <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
                 <div className="relative text-center font-default pb-10 sm:pb-14 overflow-hidden">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-3 sm:mb-4 px-4">
                         Explorez les emplois par <span className="text-primary">catégorie</span>
@@ -31,7 +31,7 @@ export default function Category({}: Props) {
                     transition={{duration: 1.5}}
                     whileInView={{y: 0}}
                     viewport={{once: true}}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 md:gap-12 mt-12 sm:mt-16 md:mt-20 max-w-6xl mx-auto font-default"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 md:gap-12 mt-12 sm:mt-16 md:mt-20 max-w-7xl mx-auto font-default"
                 >
                     <div className="relative group overflow-hidden">
                         <div

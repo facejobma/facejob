@@ -2,7 +2,7 @@
 
 import Head from "next/head";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./Logo";
@@ -11,11 +11,13 @@ import Cookies from "js-cookie";
 
 export default function NavBar() {
   const [open, setOpen] = React.useState(false);
+  const [hidden, setHidden] = React.useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
   const [userType, setUserType] = React.useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const { scrollY } = useScroll();
 
   React.useEffect(() => {
     setMounted(true);
@@ -26,11 +28,14 @@ export default function NavBar() {
     setUserType(role || null);
   }, []);
 
-  const isActive = (path: string) => {
-    if (!mounted) return false;
-    if (path === "/") return pathname === "/";
-    return pathname.startsWith(path);
-  };
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = scrollY.getPrevious();
+    if (latest > previous && latest > 150) {
+      setHidden(true);
+    } else {
+      setHidden(false);
+    }
+  });
 
   const getActiveClass = (path: string) => {
     if (!mounted) return "";
@@ -116,12 +121,15 @@ export default function NavBar() {
       </Head>
 
       <motion.nav
-        initial={{ y: -20 }}
-        transition={{ duration: 1 }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: true }}
+        variants={{
+          visible: { y: 0 },
+          hidden: { y: "-100%" },
+        }}
+        animate={hidden ? "hidden" : "visible"}
+        transition={{ duration: 0.35, ease: "easeInOut" }}
+        className="fixed top-0 left-0 right-0 z-50 bg-optional1"
       >
-        <div className="w-full px-6 md:px-10 mx-auto">
+        <div className="w-full px-6 md:px-10 mx-auto py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-7">
               <div>

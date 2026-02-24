@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { downloadResumePDF } from "@/components/ResumePDF";
+import { useUser } from "@/hooks/useUser";
 import { 
   MapPin, Briefcase, GraduationCap, Code, Building2, 
   Calendar, Download, Check, User, Filter, X, ChevronDown, Volume2, VolumeX, FileText, Eye
@@ -60,6 +61,7 @@ interface Payment {
 }
 
 const CandidatsPage: React.FC = () => {
+  const { user, isLoading: userLoading } = useUser();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -89,9 +91,6 @@ const CandidatsPage: React.FC = () => {
   const [minExperience, setMinExperience] = useState<string>("");
   const [maxExperience, setMaxExperience] = useState<string>("");
   const [cities, setCities] = useState<string[]>([]);
-
-  const company = typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
-  const companyId = company ? JSON.parse(company).id : null;
 
   useEffect(() => {
     if (selectedSector) {
@@ -130,9 +129,11 @@ const CandidatsPage: React.FC = () => {
   };
 
   const fetchLastPayment = async () => {
+    if (!user?.id) return;
+    
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${companyId}/last`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/last`,
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       if (response.ok) {
@@ -201,10 +202,12 @@ const CandidatsPage: React.FC = () => {
   }, [selectedSector, selectedJob, selectedCity, selectedGender, selectedEducation, minExperience, maxExperience]);
 
   useEffect(() => {
-    fetchSectors();
-    fetchDiplomes();
-    fetchLastPayment();
-  }, []);
+    if (user?.id) {
+      fetchSectors();
+      fetchDiplomes();
+      fetchLastPayment();
+    }
+  }, [user?.id]);
 
   // Infinite scroll
   useEffect(() => {
@@ -289,6 +292,11 @@ const CandidatsPage: React.FC = () => {
   const handleConfirmConsume = async () => {
     if (!selectedCandidate) return;
     
+    if (!user?.id) {
+      toast.error("Erreur: Utilisateur non identifié");
+      return;
+    }
+    
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
@@ -299,7 +307,7 @@ const CandidatsPage: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            entreprise_id: companyId,
+            entreprise_id: user.id,
             postuler_id: selectedCandidate.cv_id,
           }),
         },
@@ -358,6 +366,18 @@ const CandidatsPage: React.FC = () => {
   };
 
   const hasActiveFilters = selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || minExperience || maxExperience;
+
+  // Show loading state while user data is being fetched
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">

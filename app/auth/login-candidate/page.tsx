@@ -1,55 +1,37 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getAuthenticatedUser } from "@/lib/auth";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import ModernLoginForm from "../../../components/auth/login/ModernLoginForm";
 import ModernAuthLayout from "../../../components/auth/ModernAuthLayout";
 import AuthLoadingSpinner from "../../../components/auth/AuthLoadingSpinner";
 
 const LoginCandidatPage = () => {
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
+  const { isLoading, user } = useAuthGuard({});
 
+  // Redirect logged-in users to their dashboard
   useEffect(() => {
-    let isMounted = true;
-    
-    const checkAuth = async () => {
-      try {
-        const user = await getAuthenticatedUser();
-        
-        if (!isMounted) return;
-        
-        if (user) {
-          // User is already logged in, redirect to their dashboard
-          if (user.role === "candidat") {
-            router.push("/dashboard/candidat");
-          } else if (user.role === "entreprise") {
-            router.push("/dashboard/entreprise");
-          } else if (user.role === "admin") {
-            router.push("/dashboard/admin");
-          }
-        } else {
-          // No user, show login form
-          setIsChecking(false);
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-        if (isMounted) {
-          setIsChecking(false);
-        }
-      }
-    };
-
-    checkAuth();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router]);
+    if (!isLoading && user) {
+      const dashboardMap: Record<string, string> = {
+        candidat: '/dashboard/candidat',
+        entreprise: '/dashboard/entreprise',
+        admin: '/dashboard/admin',
+      };
+      const redirectPath = dashboardMap[user.role] || '/';
+      console.log('🔄 User already logged in, redirecting to:', redirectPath);
+      router.replace(redirectPath);
+    }
+  }, [isLoading, user, router]);
 
   // Show loading spinner while checking authentication
-  if (isChecking) {
+  if (isLoading) {
     return <AuthLoadingSpinner message="Vérification de votre session..." />;
+  }
+
+  // If user is logged in, show loading while redirecting
+  if (user) {
+    return <AuthLoadingSpinner message="Redirection..." />;
   }
 
   return (

@@ -19,7 +19,9 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
   }
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`, {
+    const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`;
+    
+    const response = await fetch(apiUrl, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -104,6 +106,10 @@ let authCheckPromise: Promise<AuthUser | null> | null = null;
 let lastAuthCheck: { timestamp: number; result: AuthUser | null } | null = null;
 const AUTH_CACHE_DURATION = 30000; // 30 secondes (augmenté de 5s à 30s)
 
+// Track redirect attempts to prevent loops
+let lastRedirectAttempt: { path: string; timestamp: number } | null = null;
+const REDIRECT_COOLDOWN = 2000; // 2 secondes entre redirections vers la même page
+
 // Check if user is authenticated and get their role
 export async function getAuthenticatedUser(): Promise<AuthUser | null> {
   // First check if we have a token
@@ -142,6 +148,25 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
     });
 
   return authCheckPromise;
+}
+
+// Safe redirect function that prevents loops
+function safeRedirect(path: string) {
+  const now = Date.now();
+  
+  // Check if we recently tried to redirect to the same path
+  if (lastRedirectAttempt && 
+      lastRedirectAttempt.path === path && 
+      now - lastRedirectAttempt.timestamp < REDIRECT_COOLDOWN) {
+    console.warn('🚫 Redirect loop detected! Skipping redirect to:', path);
+    return;
+  }
+  
+  // Record this redirect attempt
+  lastRedirectAttempt = { path, timestamp: now };
+  
+  // Perform the redirect
+  window.location.href = path;
 }
 
 // Redirect user to appropriate dashboard based on their role

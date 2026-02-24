@@ -11,6 +11,15 @@ const nextConfig = {
         } : false,
     },
     
+    // Development-specific settings
+    ...(process.env.NODE_ENV === 'development' && {
+        onDemandEntries: {
+            // Reduce cache time in development
+            maxInactiveAge: 25 * 1000,
+            pagesBufferLength: 2,
+        },
+    }),
+    
     // Image optimization
     images: {
         remotePatterns: [
@@ -30,8 +39,12 @@ const nextConfig = {
     
  
     
-    // Headers for caching
+    // Headers for caching (only in production)
     async headers() {
+        if (process.env.NODE_ENV === 'development') {
+            return [];
+        }
+        
         return [
             {
                 source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',

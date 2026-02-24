@@ -7,6 +7,7 @@ import { Send } from "lucide-react";
 import { fetchSectors, createOffer, fetchLastPayment } from "@/lib/api";
 import RichTextEditor from "@/components/RichTextEditor";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { useUser } from "@/hooks/useUser";
 
 interface Sector {
   id: number;
@@ -14,6 +15,7 @@ interface Sector {
 }
 
 export default function PublierPage() {
+  const { user, isLoading: userLoading } = useUser();
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading">("idle");
@@ -31,14 +33,14 @@ export default function PublierPage() {
     date_fin: "",
   });
 
-  const company = typeof window !== "undefined" ? sessionStorage.getItem("user") : null;
-  const companyId = company ? JSON.parse(company).id : null;
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   useEffect(() => {
-    fetchSectorsData();
-    checkPaymentStatus();
-  }, []);
+    if (user?.id) {
+      fetchSectorsData();
+      checkPaymentStatus();
+    }
+  }, [user?.id]);
 
   const fetchSectorsData = async () => {
     try {
@@ -52,10 +54,10 @@ export default function PublierPage() {
   };
 
   const checkPaymentStatus = async () => {
-    if (!companyId || !authToken) return;
+    if (!user?.id || !authToken) return;
 
     try {
-      await fetchLastPayment(companyId);
+      await fetchLastPayment(user.id.toString());
     } catch (error) {
       console.error("Error checking payment status:", error);
       setIsUpgradeModalOpen(true);
@@ -64,6 +66,11 @@ export default function PublierPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) {
+      toast.error("Erreur: Utilisateur non identifié");
+      return;
+    }
     
     if (!formData.titre || !formData.description || !formData.sector_id || !formData.date_debut || !formData.location) {
       toast.error("Veuillez remplir tous les champs obligatoires");
@@ -109,7 +116,7 @@ export default function PublierPage() {
       await createOffer({
         ...formData,
         description: sanitizedDescription,
-        entreprise_id: companyId,
+        entreprise_id: user.id,
       });
 
       setFormData({
@@ -149,6 +156,18 @@ export default function PublierPage() {
       [name]: value
     }));
   };
+
+  // Show loading state while user data is being fetched
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">

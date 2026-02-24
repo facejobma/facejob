@@ -14,9 +14,11 @@ import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaDownload, FaFileAlt, FaT
 import { HiOutlineUser, HiOutlineCollection, HiOutlineLightBulb } from "react-icons/hi";
 import { downloadFaceJobCV } from "@/components/FaceJobCV";
 import toast from "react-hot-toast";
+import { useUser } from "@/hooks/useUser";
 
 const Profile: React.FC = () => {
   const router = useRouter();
+  const { user, isLoading: userLoading } = useUser();
   const [userProfile, setUserProfile] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [downloadingCV, setDownloadingCV] = useState(false);
@@ -78,54 +80,94 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
-    const userData = typeof window !== "undefined"
+    if (!authToken) {
+      console.error("No auth token found");
+      setLoading(false);
+      return;
+    }
+
+    // Try to get user from sessionStorage first
+    let userData = typeof window !== "undefined"
       ? window.sessionStorage?.getItem("user")
       : null;
 
-    if (userData) {
-      const user = JSON.parse(userData);
-      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`;
+    let user = userData ? JSON.parse(userData) : null;
 
-      fetch(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
+    // If no user in sessionStorage, fetch from backend
+    const fetchProfile = async () => {
+      try {
+        // If we don't have user data, fetch it first
+        if (!user) {
+          console.log("📡 No user in sessionStorage, fetching from backend...");
+          const userResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+                "ngrok-skip-browser-warning": "true",
+              },
+            }
+          );
+
+          if (!userResponse.ok) {
             throw new Error("Failed to fetch user data");
           }
-          return response.json();
-        })
-        .then((userData) => {
-          const profileData = {
-            id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            tel: user.tel,
-            email: user.email,
-            image: user.image || "https://via.placeholder.com/150",
-            companyName: userData.companyName || "",
-            bio: userData.bio || "",
-            address: userData.address || "",
-            zip_code: user.zip_code || "",
-            job: userData.job || [],
-            experiences: userData.experiences || [],
-            skills: userData.skills || [],
-            projects: userData.projects || [],
-            education: userData.educations || [],
-          };
 
-          setUserProfile(profileData);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-          setLoading(false);
+          user = await userResponse.json();
+          
+          // Save to sessionStorage for future use
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem("user", JSON.stringify(user));
+          }
+          
+          console.log("✅ User data fetched and saved to sessionStorage");
+        }
+
+        // Now fetch the profile data
+        const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`;
+
+        const response = await fetch(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
         });
-    }
-  }, []);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile data");
+        }
+
+        const profileData = await response.json();
+
+        const completeProfile = {
+          id: user.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          tel: user.tel,
+          email: user.email,
+          image: user.image || "https://via.placeholder.com/150",
+          companyName: profileData.companyName || "",
+          bio: profileData.bio || "",
+          address: profileData.address || "",
+          zip_code: user.zip_code || "",
+          job: profileData.job || [],
+          experiences: profileData.experiences || [],
+          skills: profileData.skills || [],
+          projects: profileData.projects || [],
+          education: profileData.educations || [],
+        };
+
+        setUserProfile(completeProfile);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user, userLoading]);
 
   if (loading) {
     return (

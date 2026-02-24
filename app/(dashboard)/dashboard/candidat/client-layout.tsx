@@ -43,12 +43,8 @@ function DashboardLayoutContent({
     }
   }, [userData]);
 
-  // Fallback client-side check - server-side auth should handle most cases
-  useEffect(() => {
-    if (!userData) {
-      router.push(`/auth/login-candidate`);
-    }
-  }, [userData, router]);
+  // Note: Authentication is handled by the parent layout.tsx
+  // No need for client-side auth check here to avoid redirect loops
 
   const {
     shouldShowPrompt: shouldShowAutoPrompt,

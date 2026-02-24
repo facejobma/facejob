@@ -1,6 +1,6 @@
 import Providers from "@/components/layout/providers";
 // import { Toaster } from "@/components/ui/toaster";
-// import "@uploadthing/react/styles.css";
+import "@uploadthing/react/styles.css";
 import "./globals.css";
 // import "../styles/globals.css";
 // import React from "react";

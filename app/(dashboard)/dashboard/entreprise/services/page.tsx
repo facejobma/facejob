@@ -12,8 +12,10 @@ import {
 import Cookies from "js-cookie";
 import { fetchPlans } from "@/lib/api";
 import { toast } from "react-hot-toast";
+import { useUser } from "@/hooks/useUser";
 
 function ServicePlanPage() {
+  const { user, isLoading: userLoading } = useUser();
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,18 +27,14 @@ function ServicePlanPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-
-  const company =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user") || "{}"
-      : "{}";
-  const companyId = company ? JSON.parse(company).id : null;
   
   const fetchLastPayment = async () => {
+    if (!user?.id) return;
+    
     setIsLoadingPayment(true);
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/payments/${companyId}/last`,
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/payments/${user.id}/last`,
         {
           method: "GET",
           headers: {
@@ -105,9 +103,11 @@ function ServicePlanPage() {
   };
   
   useEffect(() => {
-    fetchLastPayment();
-    fetchPlansData();
-  }, []);
+    if (user?.id) {
+      fetchLastPayment();
+      fetchPlansData();
+    }
+  }, [user?.id]);
 
   const handleUpgradeClick = (plan: any) => {
     setSelectedPlan(plan);
@@ -314,6 +314,18 @@ function ServicePlanPage() {
       </div>
     );
   };
+
+  // Show loading state while user data is being fetched
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -1,10 +1,7 @@
-import dynamic from "next/dynamic";
+"use client";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
+import EntrepriseClientLayout from "./client-layout";
 import SimpleLoadingBar from "@/components/SimpleLoadingBar";
-
-// Dynamic import for client layout
-const EntrepriseClientLayout = dynamic(() => import("./client-layout"), {
-  loading: () => <SimpleLoadingBar />
-});
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,8 +9,19 @@ interface LayoutProps {
 }
 
 export default function EntrepriseLayout({ children, params }: LayoutProps) {
-  // Note: Removed ServerAuthGuard to prevent redirect loops
-  // Authentication is now handled client-side in the client-layout
+  const { isLoading, isAuthorized } = useAuthGuard({
+    requiredRole: 'entreprise',
+    redirectTo: '/auth/login-entreprise',
+  });
+
+  if (isLoading) {
+    return <SimpleLoadingBar />;
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
+
   return (
     <EntrepriseClientLayout params={params}>
       {children}

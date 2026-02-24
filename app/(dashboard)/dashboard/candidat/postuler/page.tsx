@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import "@uploadthing/react/styles.css";
 import { UploadDropzone } from "@/lib/uploadthing";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
@@ -10,6 +9,8 @@ import { fetchSectors, submitCandidateApplication } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { ButtonLoading, ProgressLoading } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
+import Select from "react-select";
+import { useUser } from "@/hooks/useUser";
 
 interface Job {
   id: number;
@@ -22,7 +23,8 @@ interface Sector {
   jobs: Job[];
 }
 
-const PublishVideo: React.FC = () => {
+export default function PublishVideo () {
+  const { user, isLoading: userLoading } = useUser();
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [experiences, setExperiences] = useState("");
   const [sectors, setSectors] = useState<Sector[]>([]);
@@ -32,12 +34,6 @@ const PublishVideo: React.FC = () => {
   const router = useRouter();
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const userData =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user")
-      : null;
-
-  const user = userData ? JSON.parse(userData) : null;
 
   useEffect(() => {
     const fetchSectorsData = async () => {
@@ -59,10 +55,56 @@ const PublishVideo: React.FC = () => {
     sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
     [];
 
+  // Options for react-select
+  const sectorOptions = sectors.map((sector) => ({
+    value: sector.id.toString(),
+    label: sector.name,
+  }));
+
+  const jobOptions = filteredJobs.map((job) => ({
+    value: job.id.toString(),
+    label: job.name,
+  }));
+
+  // Custom styles for react-select
+  const selectStyles = {
+    control: (base: any) => ({
+      ...base,
+      padding: "0.5rem",
+      borderColor: "#d1d5db",
+      borderRadius: "0.5rem",
+      "&:hover": {
+        borderColor: "#9ca3af",
+      },
+      "&:focus": {
+        borderColor: "var(--primary)",
+        boxShadow: "0 0 0 2px rgba(var(--primary-rgb), 0.2)",
+      },
+    }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "var(--primary)"
+        : state.isFocused
+        ? "#f3f4f6"
+        : "white",
+      color: state.isSelected ? "white" : "#111827",
+      "&:active": {
+        backgroundColor: "var(--primary)",
+      },
+    }),
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast.error("Erreur: Utilisateur non connecté");
+      return;
+    }
+    
     if (!videoUrl) {
-      toast.error("Please upload a video!");
+      toast.error("Veuillez télécharger une vidéo!");
       return;
     }
 
@@ -97,6 +139,18 @@ const PublishVideo: React.FC = () => {
       setUploadStatus("failed");
     }
   };
+
+  // Show loading while user data is being fetched
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -180,34 +234,66 @@ const PublishVideo: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Video Upload Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FaVideo className="text-primary text-sm" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <FaVideo className="text-primary text-sm" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Téléchargez votre CV vidéo</h3>
+                  <p className="text-sm text-gray-600">Format accepté: MP4, MOV, AVI • Taille max: 50MB</p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Téléchargez votre CV vidéo</h3>
             </div>
 
             {videoUrl ? (
-              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <div className="text-center">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border-2 border-gray-200">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                        <FaCheckCircle className="text-green-600 text-lg" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Vidéo téléchargée avec succès</p>
+                        <p className="text-sm text-gray-600">Votre CV vidéo est prêt à être publié</p>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <video
                     src={videoUrl}
                     controls
-                    className="w-full max-w-md mx-auto rounded-lg shadow-lg"
+                    className="w-full max-w-2xl mx-auto rounded-lg shadow-lg border-2 border-gray-300"
                   />
-                  <Button
-                    type="button"
-                    onClick={() => setVideoUrl(null)}
-                    variant="outline"
-                    className="mt-4 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                  >
-                    <FaTrash className="mr-2 text-sm" />
-                    Supprimer la vidéo
-                  </Button>
+                  
+                  <div className="flex justify-center">
+                    <Button
+                      type="button"
+                      onClick={() => setVideoUrl(null)}
+                      variant="outline"
+                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      <FaTrash className="mr-2 text-sm" />
+                      Supprimer et choisir une autre vidéo
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg hover:border-primary transition-colors">
+              <div className="relative">
+                <div className="absolute top-4 right-4 flex gap-2 z-10">
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                    MP4
+                  </span>
+                  <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                    MOV
+                  </span>
+                  <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                    AVI
+                  </span>
+                </div>
+                
                 <UploadDropzone
                   endpoint="videoUpload"
                   input={{
@@ -228,12 +314,17 @@ const PublishVideo: React.FC = () => {
                     console.log("CDN URL:", cdnUrl);
 
                     setVideoUrl(cdnUrl);
-                    toast.success("Upload Completed!");
+                    toast.success("Vidéo téléchargée avec succès !");
                   }}
                   onUploadError={(error: Error) => {
-                    toast.error(`Upload Error: ${error.message}`);
+                    toast.error(`Erreur de téléchargement: ${error.message}`);
                   }}
                   className="p-8"
+                  appearance={{
+                    button: "bg-primary hover:bg-primary-1 text-white font-semibold px-6 py-3 rounded-lg transition-colors ut-ready:bg-primary ut-uploading:bg-primary/50",
+                    container: "w-full",
+                    allowedContent: "text-gray-600 text-sm"
+                  }}
                 />
               </div>
             )}
@@ -259,40 +350,36 @@ const PublishVideo: React.FC = () => {
               <label className="block text-sm font-semibold text-gray-700">
                 Secteur d'activité
               </label>
-              <select
-                value={selectedSector}
-                onChange={(e) => {
-                  setSelectedSector(e.target.value);
+              <Select
+                value={sectorOptions.find((option) => option.value === selectedSector) || null}
+                onChange={(option) => {
+                  setSelectedSector(option?.value || "");
                   setSelectedJob("");
                 }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-              >
-                <option value="">Sélectionnez le secteur</option>
-                {sectors.map((sector) => (
-                  <option key={sector.id} value={sector.id}>
-                    {sector.name}
-                  </option>
-                ))}
-              </select>
+                options={sectorOptions}
+                styles={selectStyles}
+                placeholder="Sélectionnez le secteur"
+                isClearable
+                isSearchable
+                noOptionsMessage={() => "Aucun secteur trouvé"}
+              />
             </div>
 
             <div className="space-y-2 md:col-span-2">
               <label className="block text-sm font-semibold text-gray-700">
                 Poste recherché
               </label>
-              <select
-                value={selectedJob}
-                onChange={(e) => setSelectedJob(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                disabled={!selectedSector}
-              >
-                <option value="">Sélectionnez le métier</option>
-                {filteredJobs.map((job) => (
-                  <option key={job.id} value={job.id}>
-                    {job.name}
-                  </option>
-                ))}
-              </select>
+              <Select
+                value={jobOptions.find((option) => option.value === selectedJob) || null}
+                onChange={(option) => setSelectedJob(option?.value || "")}
+                options={jobOptions}
+                styles={selectStyles}
+                placeholder="Sélectionnez le métier"
+                isDisabled={!selectedSector}
+                isClearable
+                isSearchable
+                noOptionsMessage={() => "Aucun métier trouvé"}
+              />
             </div>
           </div>
 
@@ -326,4 +413,3 @@ const PublishVideo: React.FC = () => {
   );
 };
 
-export default PublishVideo;

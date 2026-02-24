@@ -8,18 +8,18 @@ import Cookies from "js-cookie";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { HiOutlineOfficeBuilding, HiOutlineCollection } from "react-icons/hi";
 import { FaBuilding, FaGlobe, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
+import { useUser } from "@/hooks/useUser";
 
 const CompanyProfile: React.FC = () => {
+  const { user, isLoading: userLoading } = useUser();
   const [companyProfile, setCompanyProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (userLoading || !user) return;
+
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-    const company =
-      typeof window !== "undefined"
-        ? window.sessionStorage?.getItem("user") || "{}"
-        : "{}";
-    const companyId = company ? JSON.parse(company).id : null;
+    const companyId = user.id;
 
     if (companyId) {
       const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/enterprise/${companyId}`;
@@ -61,9 +61,9 @@ const CompanyProfile: React.FC = () => {
           setLoading(false);
         });
     }
-  }, []);
+  }, [user, userLoading]);
 
-  if (loading) {
+  if (userLoading || loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] gap-6">
         <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>

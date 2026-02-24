@@ -18,28 +18,28 @@ export default function Hero({}: Props) {
 
   return (
     <>
-      <header className="relative w-full py-4 pb-12 sm:pb-16 md:pb-20 bg-optional1">
+      <header className="relative w-full py-4 pb-12 sm:pb-16 md:pb-20 bg-gradient-to-br from-optional1 via-optional1 to-primary-light/10">
         <NavBar />
         <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20 max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
-            <div className="order-2 md:order-1 animate-fade-in">
+            <div className="order-2 md:order-1 space-y-6 sm:space-y-8">
               {/* Main Heading - Proper H1 */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-secondary mb-4 sm:mb-6 leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-secondary mb-4 sm:mb-6 leading-tight animate-fade-in">
                 Trouvez votre emploi avec votre{" "}
-                <span className="text-primary">CV vidéo</span>
+                <span className="text-primary bg-gradient-to-r from-primary to-primary-1 bg-clip-text text-transparent">CV vidéo</span>
               </h1>
 
               {/* Value Proposition */}
-              <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl leading-relaxed animate-fade-in-delayed">
                 La première plateforme d'emploi au Maroc qui permet aux candidats de se démarquer 
                 avec leur CV vidéo et aux entreprises de découvrir les talents cachés
               </p>
 
               {/* Enhanced CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 animate-fade-in-delayed">
                 <Link
                   href="/auth/signup-candidate"
-                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white font-semibold text-base sm:text-lg rounded-lg hover:bg-primary-1 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 md:hover:-translate-y-1 min-h-[48px] touch-manipulation"
+                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-primary to-primary-1 text-white font-semibold text-base sm:text-lg rounded-lg hover:shadow-xl transition-all duration-300 shadow-lg active:scale-95 md:hover:-translate-y-1 min-h-[48px] touch-manipulation"
                   aria-label="Créer mon CV vidéo gratuit - Inscription en 2 minutes"
                 >
                   Créer mon CV vidéo gratuit
@@ -54,7 +54,7 @@ export default function Hero({}: Props) {
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-600 mb-6 sm:mb-8">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-600 animate-fade-in-delayed">
                 <div className="flex items-center gap-2">
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -76,7 +76,7 @@ export default function Hero({}: Props) {
               </div>
 
               {/* Scroll Indicator - Hidden on mobile */}
-              <div className="hidden sm:flex items-center gap-3 text-third hover:text-primary transition-colors cursor-pointer" onClick={handleScroll}>
+              <div className="hidden sm:flex items-center gap-3 text-third hover:text-primary transition-colors cursor-pointer animate-bounce-slow" onClick={handleScroll}>
                 <Image
                   src="/Arrow.png"
                   alt="Flèche vers le bas"
@@ -89,12 +89,12 @@ export default function Hero({}: Props) {
               </div>
             </div>
 
-            <div className="order-1 md:order-2 relative animate-fade-in-delayed">
-              <div className="relative max-w-md mx-auto md:max-w-none">
+            <div className="order-1 md:order-2 relative">
+              <div className="relative max-w-md mx-auto md:max-w-none animate-fade-in-delayed">
                 <Image
                   src="/img1.jpg"
                   alt="Jeune professionnelle marocaine enregistrant son CV vidéo sur FaceJob"
-                  className="rounded-2xl sm:rounded-3xl shadow-2xl w-full h-auto"
+                  className="rounded-2xl sm:rounded-3xl shadow-2xl w-full h-auto transform md:hover:scale-105 transition-transform duration-300"
                   width={600}
                   height={400}
                   priority
@@ -102,8 +102,8 @@ export default function Hero({}: Props) {
                   blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                 />
                 
-                {/* Floating elements for visual interest - Smaller on mobile */}
-                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-20 sm:h-20 bg-primary-light rounded-full opacity-20 animate-pulse"></div>
+                {/* Floating elements for visual interest */}
+                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-20 sm:h-20 bg-primary/20 rounded-full animate-pulse"></div>
                 <div className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 w-10 h-10 sm:w-16 sm:h-16 bg-primary rounded-full opacity-30 animate-bounce"></div>
               </div>
             </div>

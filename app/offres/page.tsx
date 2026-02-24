@@ -297,7 +297,7 @@ const PublicOffersPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 max-w-7xl">
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 Trouvez votre emploi idéal
@@ -323,7 +323,7 @@ const PublicOffersPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
           {/* Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <Card>

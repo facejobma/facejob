@@ -3,9 +3,9 @@
 import React, { useState, FormEvent } from "react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowLeft, Mail, User, MessageSquare, Send, CheckCircle } from "lucide-react";
+import { Mail, User, MessageSquare, Send, CheckCircle } from "lucide-react";
 import { apiRequest, handleApiError } from "@/lib/apiUtils";
+import NavBar from "@/components/NavBar";
 
 interface FormData {
   name: string;
@@ -144,20 +144,9 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with Back Button */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            href="/"
-            className="inline-flex items-center text-sm font-medium text-third hover:text-secondary transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour à l'accueil
-          </Link>
-        </div>
-      </div>
+      <NavBar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24">
         <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-start">
           {/* Left Side - Form */}
           <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-12">

@@ -24,7 +24,7 @@ type Props = {};
 export default function Testimonials({}: Props) {
   return (
     <section className="w-full px-4 sm:px-6 py-12 sm:py-16 mx-auto mb-12 sm:mb-20 bg-optional1">
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto max-w-7xl">
         <div className="relative flex flex-col lg:flex-row items-center justify-between w-full gap-8 sm:gap-12 lg:gap-20">
           <motion.div
             initial={{ x: -10, opacity: 0 }}

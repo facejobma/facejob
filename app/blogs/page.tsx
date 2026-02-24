@@ -53,7 +53,7 @@ const BlogPage: React.FC = () => {
             
             {/* Hero Section */}
             <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
-                <div className="container mx-auto px-6 text-center">
+                <div className="container mx-auto px-6 text-center max-w-7xl">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">
                         Recrutement au Maroc
                     </h1>
@@ -64,7 +64,7 @@ const BlogPage: React.FC = () => {
             </div>
 
             {/* Blog Articles */}
-            <div className="container mx-auto px-6 py-16">
+            <div className="container mx-auto px-6 py-16 max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {blogs.map((blog, index) => (
                         <article
@@ -118,7 +118,7 @@ const BlogPage: React.FC = () => {
 
             {/* Newsletter Section */}
             <div className="bg-gray-100 py-16">
-                <div className="container mx-auto px-6 text-center">
+                <div className="container mx-auto px-6 text-center max-w-7xl">
                     <h3 className="text-3xl font-bold mb-4 text-gray-800">
                         Restez informé des dernières actualités
                     </h3>

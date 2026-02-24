@@ -57,7 +57,7 @@ export default function Subscription({}: Props) {
   };
 
   return (
-    <section className="relative w-full pb-8 sm:pb-10 mx-auto my-8 sm:my-10 px-4 sm:px-6 md:w-10/12 lg:w-8/12">
+    <section className="relative w-full pb-8 sm:pb-10 mx-auto my-8 sm:my-10 px-4 sm:px-6 max-w-7xl">
       <div className="md:h-[70px] md:w-[70px] w-[50px] h-[50px] right-2 sm:right-4 bg-gradient-to-r rounded-full grid place-items-center absolute md:-right-5 -top-4 sm:-top-5 from-primary to-[#8ac36b] z-10 p-1">
         <Image
           src="/images/send.svg"

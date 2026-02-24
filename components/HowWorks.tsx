@@ -89,7 +89,7 @@ export default function HowWorks({}: Props) {
         </p>
       </div>
 
-      <div className="relative flex flex-col gap-12 sm:gap-16 md:gap-20 my-12 sm:my-16 md:my-24 lg:flex-row lg:gap-36 lg:justify-between max-w-6xl mx-auto">
+      <div className="relative flex flex-col gap-12 sm:gap-16 md:gap-20 my-12 sm:my-16 md:my-24 lg:flex-row lg:gap-36 lg:justify-between max-w-7xl mx-auto">
         <motion.div
           initial={{ x: -100 }}
           transition={{ duration: 1 }}

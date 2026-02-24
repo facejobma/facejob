@@ -537,6 +537,7 @@ const CandidatsPage: React.FC = () => {
                     loop
                     muted={isMuted}
                     playsInline
+                    controlsList="nodownload"
                   />
 
                   {/* Gradient Overlay */}

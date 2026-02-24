@@ -54,7 +54,9 @@ interface Payment {
 export const OfferCandidatActions: React.FC<{
   candidat: Candidat;
   postuler: Postuler;
-}> = ({ candidat, postuler }) => {
+  videoLink?: string;
+  onVideoClick?: () => void;
+}> = ({ candidat, postuler, videoLink, onVideoClick }) => {
   // const [loading, setLoading] = useState(false);
   const authToken = Cookies.get("authToken");
   const router = useRouter();
@@ -107,13 +109,49 @@ export const OfferCandidatActions: React.FC<{
     fetchLastPayment();
   }, [authToken, companyId]);
 
-  const handleConsumeClick = (postuler: Postuler) => {
-    if (lastPayment && lastPayment.cv_video_remaining > 0) {
-      // setCandidateToConsume(candidat);
-      setPostulerToConsume(postuler);
-      setIsModalOpen(true);
-    } else {
-      setIsUpgradeModalOpen(true);
+  const handleConsumeClick = async (postuler: Postuler) => {
+    // Call API directly without pre-checking payment
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            postuler_id: postuler.id,
+            entreprise_id: companyId,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        toast.success("CV consommé avec succès !");
+        fetchLastPayment();
+        // Refresh the page to update the list
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Handle specific errors
+        if (response.status === 402 && errorData.needs_upgrade) {
+          toast.error(errorData.message || "Vous avez atteint la limite de consultations de CV.", { duration: 5000 });
+          setTimeout(() => {
+            setIsUpgradeModalOpen(true);
+          }, 500);
+        } else if (response.status === 409) {
+          toast.error("Ce CV a déjà été consommé");
+        } else {
+          toast.error(errorData.message || "Erreur lors de la consommation du CV");
+        }
+      }
+    } catch (error) {
+      console.error("Error consuming CV:", error);
+      toast.error("Erreur réseau. Veuillez réessayer.");
     }
   };
   
@@ -197,48 +235,32 @@ export const OfferCandidatActions: React.FC<{
       /> */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
+          <Button variant="outline" className="w-full justify-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200">
             <MoreHorizontal className="h-4 w-4" />
+            <span>Actions</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
       
-            <DropdownMenuItem onClick={() => downloadResumePDF(candidat.id)}>
-  <View className="mr-2 h-4 w-4" />
-  Voir CV
-</DropdownMenuItem>
+          {videoLink && onVideoClick && (
+            <DropdownMenuItem onClick={onVideoClick}>
+              <View className="mr-2 h-4 w-4" />
+              Voir CV vidéo
+            </DropdownMenuItem>
+          )}
+
+          <DropdownMenuItem onClick={() => downloadResumePDF(candidat.id)}>
+            <View className="mr-2 h-4 w-4" />
+            Télécharger CV
+          </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
-            <CheckSquare className="mr-2 h-4 w-4" /> Consommer
+            <CheckSquare className="mr-2 h-4 w-4" /> 
+            Consommer
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="fixed inset-0 bg-black opacity-50"></div>
-          <div className="bg-white p-8 rounded-lg shadow-lg z-10">
-            <h2 className="text-xl font-semibold mb-8">
-              Êtes-vous sûr de vouloir consommer cette vidéo de CV ?
-            </h2>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={handleCancelConsume}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleConfirmConsume}
-                className="px-4 py-2 bg-primary text-white rounded-md"
-              >
-                Confirmer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>

@@ -512,21 +512,15 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 )}
 
                 {/* Actions */}
-                <div className="mt-auto pt-3 border-t border-gray-100 flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVideoLink(application.link);
-                      setShowModal(true);
-                    }}
-                    className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    <Play className="w-4 h-4" />
-                    Voir CV vidéo
-                  </button>
+                <div className="mt-auto pt-3 border-t border-gray-100">
                   <OfferCandidatActions
                     candidat={application.candidat}
                     postuler={application.postuler}
+                    videoLink={application.link}
+                    onVideoClick={() => {
+                      setVideoLink(application.link);
+                      setShowModal(true);
+                    }}
                   />
                 </div>
               </div>

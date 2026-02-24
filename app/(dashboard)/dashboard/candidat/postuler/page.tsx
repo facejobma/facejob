@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FaVideo, FaUpload } from "react-icons/fa";
 import { HiOutlineVideoCamera } from "react-icons/hi";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 interface Sector {

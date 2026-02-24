@@ -38,10 +38,11 @@ const PublishVideo: React.FC = () => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/sectors"
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors"
         );
         const data = await response.json();
-        setSectors(data);
+        // Handle both direct array and {success: true, data: []} formats
+        setSectors(data.data || data);
       } catch (error) {
         console.error("Error fetching sectors:", error);
         toast.error("Error fetching sectors!");
@@ -65,7 +66,7 @@ const PublishVideo: React.FC = () => {
 
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/candidate/postuler",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/candidate/postuler",
         {
           method: "POST",
           headers: {

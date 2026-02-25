@@ -172,6 +172,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
         setError(null);
 
         try {
+
+          
           // Fetch approved videos only - backend determines user from token
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video?status=Accepted`,
@@ -184,27 +186,36 @@ const OffreCard: React.FC<OffreCardProps> = ({
           );
 
           if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Error response:', errorText);
             throw new Error("Failed to fetch videos");
           }
 
           const data = await response.json();
+          console.log('✅ Videos received:', data);
+          console.log('📊 Number of videos:', Array.isArray(data) ? data.length : 'Not an array');
           
           setVideos(data);
           
           // Auto-select and auto-submit if only one video available
           if (data.length === 1) {
             const video = data[0];
+            console.log('✅ Auto-selecting single video:', video);
             setSelectedVideo(video.link);
             setSelectedVideoId(video.id);
             setIsButtonDisabled(false);
             // Auto-select the video but don't auto-submit
             // User must click "Valider ma candidature" button
           } else if (data.length === 0) {
+            console.warn('⚠️ No approved videos found');
             toast.error("Aucun CV vidéo approuvé disponible. Veuillez créer et faire approuver un CV vidéo.");
+          } else {
+            console.log(`✅ ${data.length} videos available for selection`);
           }
         } catch (error) {
           setError("Error fetching videos");
-          console.error("Error fetching videos:", error);
+          console.error("❌ Error fetching videos:", error);
+          toast.error("Erreur lors du chargement des CV vidéos");
         } finally {
           setLoading(false);
         }

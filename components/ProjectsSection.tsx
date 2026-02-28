@@ -16,9 +16,10 @@ interface Project {
 interface ProjectsSectionProps {
   id: number;
   projects: Project[];
+  onUpdate?: () => void;
 }
 
-const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
+const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdate }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   const [isEditing, setIsEditing] = useState(false);
@@ -111,6 +112,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
           );
           setEditedProjects(updatedProjects);
           toast.success("Projet mis à jour!");
+          onUpdate?.(); // Refresh profile completion
         } else {
           console.error("Failed to update project");
           toast.error("Erreur lors de la mise à jour");
@@ -144,6 +146,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
           const addedProject = await response.json();
           setEditedProjects((prevProjects) => [...prevProjects, addedProject]);
           toast.success("Projet ajouté!");
+          onUpdate?.(); // Refresh profile completion
         } else {
           console.error("Failed to add project");
           toast.error("Erreur lors de l'ajout");
@@ -184,6 +187,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects }) => {
         );
         setEditedProjects(updatedProjects);
         toast.success("Projet supprimé");
+        onUpdate?.(); // Refresh profile completion
       } else {
         console.error("Failed to remove project");
         toast.error("Erreur lors de la suppression");

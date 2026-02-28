@@ -18,11 +18,13 @@ interface Experience {
 interface ExperiencesSectionProps {
   id: string;
   experiences: Experience[];
+  onUpdate?: () => void;
 }
 
 const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   id,
   experiences,
+  onUpdate,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -201,6 +203,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               exp.id === selectedExperience.id ? result.data : exp,
             );
             setEditedExperiences(updatedExperiences);
+            onUpdate?.(); // Refresh profile completion
           } else {
             console.error("Failed to update experience:", result.message);
           }
@@ -242,6 +245,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               ...prevExperiences,
               result.data,
             ]);
+            onUpdate?.(); // Refresh profile completion
           } else {
             console.error("Failed to add experience:", result.message);
           }
@@ -302,6 +306,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           (exp) => exp.id !== experience.id,
         );
         setEditedExperiences(updatedExperienceList);
+        onUpdate?.(); // Refresh profile completion
       } else {
         console.error("Failed to delete experience");
       }

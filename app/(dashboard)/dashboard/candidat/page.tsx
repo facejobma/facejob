@@ -338,13 +338,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
-    if (allSectors.length > 0 || allJobs.length > 0) {
-      fetchData();
-    }
-  }, [selectedStatus, selectedSector, selectedJob]);
+  }, [selectedStatus, selectedSector, selectedJob, authToken, toastUI, buildFetchUrl, allSectors.length, allJobs.length]);
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedStatus(event.target.value);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import ProfileHeader from "@/components/ProfileHeader";
 import BioSection from "@/components/BioSection";
@@ -22,6 +22,49 @@ const Profile: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [downloadingCV, setDownloadingCV] = useState(false);
+
+  // Function to refresh profile data
+  const refreshProfile = useCallback(async () => {
+    const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+    if (!authToken) return;
+
+    try {
+      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`;
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) return;
+
+      const profileData = await response.json();
+      const user = JSON.parse(window.sessionStorage.getItem("user") || "{}");
+
+      const completeProfile = {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        tel: user.tel,
+        email: user.email,
+        image: user.image || "https://via.placeholder.com/150",
+        companyName: profileData.companyName || "",
+        bio: profileData.bio || "",
+        address: profileData.address || "",
+        zip_code: user.zip_code || "",
+        job: profileData.job || [],
+        experiences: profileData.experiences || [],
+        skills: profileData.skills || [],
+        projects: profileData.projects || [],
+        education: profileData.educations || [],
+      };
+
+      setUserProfile(completeProfile);
+    } catch (error) {
+      console.error("Error refreshing profile:", error);
+    }
+  }, []);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -393,7 +436,7 @@ const Profile: React.FC = () => {
               <span className="text-xs text-green-600 font-medium">✓ Complété</span>
             )}
           </div>
-          <BioSection id={userProfile.id} bio={userProfile.bio} />
+          <BioSection id={userProfile.id} bio={userProfile.bio} onUpdate={refreshProfile} />
         </div>
 
         {/* Skills Section */}
@@ -411,7 +454,7 @@ const Profile: React.FC = () => {
               </span>
             )}
           </div>
-          <SkillsSection id={userProfile.id} skills={userProfile.skills} />
+          <SkillsSection id={userProfile.id} skills={userProfile.skills} onUpdate={refreshProfile} />
         </div>
       </div>
 
@@ -433,6 +476,7 @@ const Profile: React.FC = () => {
         <ExperiencesSection
           id={userProfile.id}
           experiences={userProfile.experiences}
+          onUpdate={refreshProfile}
         />
       </div>
 
@@ -453,7 +497,7 @@ const Profile: React.FC = () => {
               </span>
             )}
           </div>
-          <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
+          <ProjectsSection id={userProfile.id} projects={userProfile.projects} onUpdate={refreshProfile} />
         </div>
 
         {/* Education Section */}
@@ -474,6 +518,7 @@ const Profile: React.FC = () => {
           <EducationSection
             id={userProfile.id}
             education={userProfile.education}
+            onUpdate={refreshProfile}
           />
         </div>
       </div>

@@ -77,6 +77,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const [localHasApplied, setLocalHasApplied] = useState(hasAlreadyApplied);
   const [localIsProfileComplete, setLocalIsProfileComplete] = useState(isProfileComplete);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [hasSkippedProfileCompletion, setHasSkippedProfileCompletion] = useState(false);
   
   const { showPrompt } = useExperiencePromptContext();
 
@@ -330,9 +331,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
           <button
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             onClick={() => {
-              if (!localIsProfileComplete) {
+              // Si le profil n'est pas complet ET que l'utilisateur n'a pas encore cliqué sur "Passer"
+              if (!localIsProfileComplete && !hasSkippedProfileCompletion) {
                 setShowProfileModal(true);
               } else {
+                // Sinon, ouvrir directement le modal de postulation
                 openModal();
               }
             }}
@@ -387,7 +390,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
       <ProfileCompletionModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
-        onSkip={() => setShowProfileModal(false)}
+        onSkip={() => {
+          setShowProfileModal(false);
+          setHasSkippedProfileCompletion(true); // Marquer que l'utilisateur a cliqué sur "Passer"
+          openModal(); // Ouvrir le modal de postulation
+        }}
         candidatId={userId}
         onProfileCompleted={() => {
           setLocalIsProfileComplete(true);

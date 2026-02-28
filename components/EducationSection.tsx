@@ -24,11 +24,13 @@ interface Degree {
 interface EducationSectionProps {
   id: number;
   education: Education[];
+  onUpdate?: () => void;
 }
 
 const EducationSection: React.FC<EducationSectionProps> = ({
   id,
   education,
+  onUpdate,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
@@ -182,6 +184,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
           );
           setEditedEducation(updatedEducationList);
           toast.success("Formation mise à jour!");
+          onUpdate?.(); // Refresh profile completion
         } else {
           console.error("Failed to update education");
           toast.error("Erreur lors de la mise à jour");
@@ -212,6 +215,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             addedEducation,
           ]);
           toast.success("Formation ajoutée!");
+          onUpdate?.(); // Refresh profile completion
         } else {
           console.error("Failed to add education");
           toast.error("Erreur lors de l'ajout");
@@ -259,6 +263,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
         );
         setEditedEducation(updatedEducationList);
         toast.success("Formation supprimée");
+        onUpdate?.(); // Refresh profile completion
       } else {
         console.error("Failed to delete education");
         toast.error("Erreur lors de la suppression");

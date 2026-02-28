@@ -10,9 +10,10 @@ import toast from "react-hot-toast";
 interface BioSectionProps {
   id: number;
   bio: string;
+  onUpdate?: () => void;
 }
 
-const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
+const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   const [isEditing, setIsEditing] = useState(false);
@@ -69,6 +70,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
         setCurrentBio(newBio);
         toast.success("Description mise à jour!");
         setIsEditing(false);
+        onUpdate?.(); // Refresh profile completion
       } else {
         console.error("Failed to update bio");
         toast.error("Erreur lors de la mise à jour");

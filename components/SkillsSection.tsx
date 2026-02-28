@@ -15,9 +15,10 @@ interface Skill {
 interface SkillsSectionProps {
   id: number;
   skills: Skill[];
+  onUpdate?: () => void;
 }
 
-const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
+const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills, onUpdate }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   const [isEditing, setIsEditing] = useState(false);
@@ -56,6 +57,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
         setEditedSkills(updatedSkills);
         toast.success("Compétences mises à jour!");
         setIsEditing(false); // Close modal on success
+        onUpdate?.(); // Refresh profile completion
       } else {
         console.error("Failed to update skills");
         toast.error("Erreur lors de la mise à jour");
@@ -88,6 +90,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
       if (response.ok) {
         setEditedSkills((prev) => prev.filter((sk) => sk.id !== skill.id));
         toast.success("Compétence supprimée");
+        onUpdate?.(); // Refresh profile completion
       } else {
         console.error("Failed to delete skill");
         toast.error("Erreur lors de la suppression");
@@ -126,6 +129,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills }) => {
         setEditedSkills((prev) => [...prev, addedSkill]); // Append new skill
         setNewSkill(""); // Clear input field
         toast.success("Compétence ajoutée!");
+        onUpdate?.(); // Refresh profile completion
       } else {
         console.error("Failed to add skill");
         toast.error("Erreur lors de l'ajout");

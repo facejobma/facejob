@@ -5,6 +5,7 @@ import { Edit } from "lucide-react";
 import { FaPlus } from "react-icons/fa";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
 
 interface BioSectionProps {
   id: number;
@@ -15,20 +16,36 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   const [isEditing, setIsEditing] = useState(false);
-  const [currentBio, setCurrentBio] = useState(bio); // State for current bio
-  const [newBio, setNewBio] = useState(bio); // State for editing
+  const [currentBio, setCurrentBio] = useState(bio);
+  const [newBio, setNewBio] = useState(bio);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEditClick = () => {
     setIsEditing(true);
   };
 
   const handleCloseModal = () => {
+    // Check if there's unsaved data
+    if (newBio !== currentBio) {
+      const confirmClose = window.confirm(
+        "Vous avez des modifications non enregistrées. Voulez-vous vraiment fermer?"
+      );
+      if (!confirmClose) return;
+    }
+    
     setIsEditing(false);
-    setNewBio(currentBio); // Reset newBio to the current bio
+    setNewBio(currentBio);
   };
 
   const handleBioUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!newBio.trim()) {
+      toast.error("La description ne peut pas être vide");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(
@@ -49,16 +66,18 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
         const updatedData = await response.json();
         console.log("Updated bio:", updatedData);
 
-        // Update the bio state to reflect changes
         setCurrentBio(newBio);
-
-        // Close modal
+        toast.success("Description mise à jour!");
         setIsEditing(false);
       } else {
         console.error("Failed to update bio");
+        toast.error("Erreur lors de la mise à jour");
       }
     } catch (error) {
       console.error("Error updating bio:", error);
+      toast.error("Erreur réseau");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -99,28 +118,52 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio }) => {
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title="Editer Description "
+        title="Editer Description"
         description="Mettre à jour votre description"
       >
-        <form onSubmit={handleBioUpdate}>
-          <label htmlFor="newBio" className="block mb-2 font-bold">
-            Votre Description
-          </label>
-          <textarea
-            id="newBio"
-            name="newBio"
-            value={newBio}
-            onChange={handleInputChange}
-            placeholder="Qu’est-ce qui vous caractérise ?"
-            className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-          />
+        <form onSubmit={handleBioUpdate} className="space-y-5">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200">
+            <label htmlFor="newBio" className="block text-sm font-semibold text-gray-700 mb-2">
+              Votre Description <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="newBio"
+              name="newBio"
+              value={newBio}
+              onChange={handleInputChange}
+              placeholder="Parlez de vous, votre parcours, vos objectifs professionnels..."
+              rows={8}
+              className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all resize-none"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              {newBio.length} caractères • Minimum 20 caractères recommandés
+            </p>
+          </div>
 
-          <button
-            type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
-          >
-            Enregistrer 
-          </button>
+          <div className="flex gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !newBio.trim()}
+              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Enregistrement...</span>
+                </>
+              ) : (
+                "Enregistrer"
+              )}
+            </button>
+          </div>
         </form>
       </Modal>
     </div>

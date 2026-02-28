@@ -110,33 +110,37 @@ export default function Sidebar() {
 
   return (
     <nav className={cn(
-      'fixed left-0 top-0 h-screen border-r pt-16 hidden md:block bg-white z-30 transition-all duration-300 overflow-hidden',
-      isOpen ? 'w-64' : 'w-0 border-r-0'
+      'fixed left-0 top-0 h-screen border-r pt-16 hidden md:block bg-gradient-to-b from-white to-gray-50 z-30 transition-all duration-300 shadow-sm',
+      isOpen ? 'w-64' : 'w-20'
     )}>
       <div className={cn(
-        "space-y-4 py-6 px-3 h-full flex flex-col transition-opacity duration-300",
-        isOpen ? "opacity-100" : "opacity-0"
+        "space-y-4 py-6 px-3 h-full flex flex-col transition-opacity duration-300"
       )}>
         {/* Navigation Section */}
         <div className="flex-1">
-          <div className="px-2">
-            <h2 className="mb-4 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
-              Navigation
-            </h2>
-            <DashboardNav items={navItems} />
+          <div className={cn("px-2", !isOpen && "px-1")}>
+            {isOpen && (
+              <div className="mb-4 px-3 flex items-center gap-2">
+                <div className="h-1 w-1 rounded-full bg-green-600"></div>
+                <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                  Navigation
+                </h2>
+              </div>
+            )}
+            <DashboardNav items={navItems} isOpen={isOpen} />
           </div>
         </div>
 
         {/* Bottom Section for Enterprise Plan */}
-        {userRole === 'entreprise' && (
-          <div className="mx-2 px-4 py-4 bg-gray-50 rounded-lg border border-gray-200">
+        {userRole === 'entreprise' && isOpen && (
+          <div className="mx-2 px-4 py-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-600 flex items-center justify-center flex-shrink-0">
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center flex-shrink-0 shadow-md">
                 <Crown className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{currentPlan}</p>
-                <p className="text-xs text-gray-600 whitespace-nowrap">Plan actuel</p>
+                <p className="text-sm font-bold text-gray-900 truncate">{currentPlan}</p>
+                <p className="text-xs text-green-700 font-medium whitespace-nowrap">Plan actuel</p>
               </div>
             </div>
           </div>

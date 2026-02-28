@@ -1,9 +1,11 @@
 "use client"
 
 import React, { useState, useEffect } from "react";
-import { Edit, PlusSquare, Trash } from "lucide-react";
+import { Edit, PlusSquare, Trash, X, Calendar } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
+import { FaGraduationCap } from "react-icons/fa";
 
 interface Education {
   id: string;
@@ -36,6 +38,9 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     null,
   );
   const [degrees, setDegrees] = useState<Degree[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [degreeSearchTerm, setDegreeSearchTerm] = useState("");
+  const [isDegreeDropdownOpen, setIsDegreeDropdownOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<Education>>({
     school_name: "",
     degree: "",
@@ -75,6 +80,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     if (selectedEducation) {
       // Populate form data with selected education when editing
       setFormData({ ...selectedEducation });
+      setDegreeSearchTerm(selectedEducation.degree || "");
     } else {
       // Reset form data when adding a new education entry
       setFormData({
@@ -83,6 +89,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
         title: "",
         graduation_date: "",
       });
+      setDegreeSearchTerm("");
     }
   }, [selectedEducation]);
 
@@ -92,12 +99,66 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   };
 
   const handleCloseModal = () => {
+    // Check if there's unsaved data
+    if (formData.title?.trim() || formData.school_name?.trim() || formData.degree || formData.graduation_date) {
+      const confirmClose = window.confirm(
+        "Vous avez des modifications non enregistrées. Voulez-vous vraiment fermer?"
+      );
+      if (!confirmClose) return;
+    }
+    
     setIsEditing(false);
     setSelectedEducation(null);
+    setDegreeSearchTerm("");
+    setIsDegreeDropdownOpen(false);
+    setFormData({
+      school_name: "",
+      degree: "",
+      title: "",
+      graduation_date: "",
+    });
+  };
+
+  // Filter degrees based on search term
+  const filteredDegrees = degrees.filter((degree) =>
+    degree.name.toLowerCase().includes(degreeSearchTerm.toLowerCase()) ||
+    (degree.level && degree.level.toLowerCase().includes(degreeSearchTerm.toLowerCase()))
+  );
+
+  const handleDegreeSelect = (degreeName: string) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      degree: degreeName,
+    }));
+    setDegreeSearchTerm(degreeName);
+    setIsDegreeDropdownOpen(false);
   };
 
   const handleEducationUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    if (!formData.title?.trim()) {
+      toast.error("Le titre de la formation est requis");
+      return;
+    }
+
+    if (!formData.degree?.trim()) {
+      toast.error("Le niveau de diplôme est requis");
+      return;
+    }
+
+    if (!formData.school_name?.trim()) {
+      toast.error("L'établissement est requis");
+      return;
+    }
+
+    if (!formData.graduation_date?.trim()) {
+      toast.error("La date d'obtention est requise");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     if (selectedEducation) {
       // Update existing education entry
@@ -120,11 +181,14 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             edu.id === selectedEducation.id ? updatedEducation : edu,
           );
           setEditedEducation(updatedEducationList);
+          toast.success("Formation mise à jour!");
         } else {
           console.error("Failed to update education");
+          toast.error("Erreur lors de la mise à jour");
         }
       } catch (error) {
         console.error("Error updating education:", error);
+        toast.error("Erreur réseau");
       }
     } else {
       // Add new education entry
@@ -147,14 +211,18 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             ...prevEducation,
             addedEducation,
           ]);
+          toast.success("Formation ajoutée!");
         } else {
           console.error("Failed to add education");
+          toast.error("Erreur lors de l'ajout");
         }
       } catch (error) {
         console.error("Error adding education:", error);
+        toast.error("Erreur réseau");
       }
     }
 
+    setIsSubmitting(false);
     setIsEditing(false);
     setSelectedEducation(null);
   };
@@ -167,6 +235,12 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   };
 
   const handleDeleteEducation = async (education: Education) => {
+    const confirmDelete = window.confirm(
+      `Êtes-vous sûr de vouloir supprimer "${education.title}" ?`
+    );
+    
+    if (!confirmDelete) return;
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/formation/delete/${education.id}`,
@@ -184,11 +258,14 @@ const EducationSection: React.FC<EducationSectionProps> = ({
           (edu) => edu.id !== education.id,
         );
         setEditedEducation(updatedEducationList);
+        toast.success("Formation supprimée");
       } else {
         console.error("Failed to delete education");
+        toast.error("Erreur lors de la suppression");
       }
     } catch (error) {
       console.error("Error deleting education:", error);
+      toast.error("Erreur réseau");
     }
   };
 
@@ -277,106 +354,184 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
-        title={selectedEducation ? "Modifier une Formation" : "Ajouter une Formation"}
+        title={selectedEducation ? "Modifier la Formation" : "Ajouter une Formation"}
         description={
           selectedEducation
             ? "Modifier un diplôme ou une certification"
-            : "Ajouter un diplôme ou une certification"
+            : "Ajouter un diplôme ou une certification à votre profil"
         }
       >
-        <form onSubmit={handleEducationUpdate} className="space-y-4">
-          {/* Title of Formation */}
-          <div>
-            <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
-              Titre de la Formation <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={formData.title || ""}
-              onChange={(e) => handleInputChange("title", e.target.value)}
-              placeholder="Ex: Ingénieur en Informatique, Master en Marketing..."
-              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">Le titre ou spécialité de votre formation</p>
-          </div>
+        <form onSubmit={handleEducationUpdate}>
+          <div className="space-y-6">
+            {/* Education Form Section */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                  <FaGraduationCap className="text-green-600 text-sm" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Informations de la formation</h3>
+              </div>
 
-          {/* Degree/Diploma Level */}
-          <div>
-            <label htmlFor="degree" className="block text-sm font-semibold text-gray-700 mb-2">
-              Niveau de Diplôme <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="degree"
-              value={formData.degree || ""}
-              onChange={(e) => handleInputChange("degree", e.target.value)}
-              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
-              required
-            >
-              <option value="">-- Sélectionnez un niveau --</option>
-              {degrees.map((degree) => (
-                <option key={degree.id} value={degree.name}>
-                  {degree.name} {degree.level && `(${degree.level})`}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-gray-500 mt-1">Le niveau ou équivalence de votre diplôme</p>
-          </div>
+              <div className="space-y-4">
+                {/* Title of Formation */}
+                <div>
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                    Titre de la Formation *
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    value={formData.title || ""}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    placeholder="Ex: Ingénieur en Informatique, Master en Marketing..."
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    required
+                    disabled={isSubmitting}
+                  />
+                  <p className="text-xs text-green-700 mt-1">
+                    💡 Le titre ou spécialité de votre formation
+                  </p>
+                </div>
 
-          {/* School/Institution */}
-          <div>
-            <label htmlFor="school_name" className="block text-sm font-semibold text-gray-700 mb-2">
-              Établissement <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="school_name"
-              value={formData.school_name || ""}
-              onChange={(e) => handleInputChange("school_name", e.target.value)}
-              placeholder="Ex: Université Mohammed V, ENSA Rabat, OFPPT..."
-              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">Le nom de l'école, université ou centre de formation</p>
-          </div>
+                {/* Degree/Diploma Level with Search */}
+                <div>
+                  <label htmlFor="degree" className="block text-sm font-medium text-gray-700 mb-2">
+                    Niveau de Diplôme *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="degree"
+                      value={degreeSearchTerm}
+                      onChange={(e) => {
+                        setDegreeSearchTerm(e.target.value);
+                        setIsDegreeDropdownOpen(true);
+                        // Clear the actual degree value if user is typing
+                        if (e.target.value !== formData.degree) {
+                          setFormData((prevData) => ({
+                            ...prevData,
+                            degree: "",
+                          }));
+                        }
+                      }}
+                      onFocus={() => setIsDegreeDropdownOpen(true)}
+                      placeholder="Rechercher un diplôme..."
+                      className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 pr-10 outline-none transition-all"
+                      required
+                      disabled={isSubmitting}
+                      autoComplete="off"
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    
+                    {/* Dropdown */}
+                    {isDegreeDropdownOpen && filteredDegrees.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border-2 border-green-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filteredDegrees.map((degree) => (
+                          <button
+                            key={degree.id}
+                            type="button"
+                            onClick={() => handleDegreeSelect(degree.name)}
+                            className="w-full text-left px-4 py-2.5 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="font-medium text-gray-900">{degree.name}</div>
+                            {degree.level && (
+                              <div className="text-xs text-gray-600 mt-0.5">({degree.level})</div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* No results message */}
+                    {isDegreeDropdownOpen && degreeSearchTerm && filteredDegrees.length === 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border-2 border-green-200 rounded-lg shadow-lg p-4 text-center text-gray-500 text-sm">
+                        Aucun diplôme trouvé pour "{degreeSearchTerm}"
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-green-700 mt-1">
+                    💡 Tapez pour rechercher parmi les diplômes disponibles
+                  </p>
+                </div>
 
-          {/* Graduation Date */}
-          <div>
-            <label htmlFor="graduation_date" className="block text-sm font-semibold text-gray-700 mb-2">
-              Date d'Obtention <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="graduation_date"
-              value={formData.graduation_date || ""}
-              onChange={(e) =>
-                handleInputChange("graduation_date", e.target.value)
-              }
-              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-3 px-4 transition-all"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">La date à laquelle vous avez obtenu ce diplôme</p>
-          </div>
+                {/* School/Institution */}
+                <div>
+                  <label htmlFor="school_name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Établissement *
+                  </label>
+                  <input
+                    type="text"
+                    id="school_name"
+                    value={formData.school_name || ""}
+                    onChange={(e) => handleInputChange("school_name", e.target.value)}
+                    placeholder="Ex: Université Mohammed V, ENSA Rabat, OFPPT..."
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    required
+                    disabled={isSubmitting}
+                  />
+                  <p className="text-xs text-green-700 mt-1">
+                    💡 Le nom de l'école, université ou centre de formation
+                  </p>
+                </div>
 
-          {/* Submit Button */}
-          <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              {selectedEducation ? (
-                <>
-                  <Edit width={18} height={18} />
-                  Enregistrer les modifications
-                </>
-              ) : (
-                <>
-                  <PlusSquare width={18} height={18} />
-                  Ajouter la formation
-                </>
-              )}
-            </button>
+                {/* Graduation Date */}
+                <div>
+                  <label htmlFor="graduation_date" className="block text-sm font-medium text-gray-700 mb-2">
+                    Date d'Obtention *
+                  </label>
+                  <input
+                    type="date"
+                    id="graduation_date"
+                    value={formData.graduation_date || ""}
+                    onChange={(e) =>
+                      handleInputChange("graduation_date", e.target.value)
+                    }
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    required
+                    disabled={isSubmitting}
+                  />
+                  <p className="text-xs text-green-700 mt-1">
+                    💡 La date à laquelle vous avez obtenu ce diplôme
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4 border-t">
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !formData.title?.trim() || !formData.degree || !formData.school_name?.trim() || !formData.graduation_date}
+                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                onClick={() => {
+                  // Close dropdown when submitting
+                  setIsDegreeDropdownOpen(false);
+                }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Enregistrement...</span>
+                  </>
+                ) : (
+                  <>
+                    {selectedEducation ? "Enregistrer les changements" : "Ajouter la formation"}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </Modal>

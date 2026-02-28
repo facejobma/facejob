@@ -31,7 +31,7 @@ function DashboardLayoutInner({ children, params }: LayoutProps) {
 
       <div className="flex flex-1 pt-16">
         <Sidebar />
-        <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
+        <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-20'}`}>
           <DashboardPageWrapper>
             {children}
           </DashboardPageWrapper>

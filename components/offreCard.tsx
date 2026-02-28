@@ -3,24 +3,20 @@ import Modal from "@/components/Modal";
 import Cookies from "js-cookie";
 import SafeHtmlDisplay from "@/components/SafeHtmlDisplay";
 import { useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
+import ProfileCompletionModal from "@/components/ProfileCompletionModal";
 import {
   MapPin,
   Building,
   Briefcase,
   Calendar,
-  FileText,
-  ReceiptText,
   ArrowRight,
   CheckCircle,
   ChevronDown,
-  ChevronUp,
-  Clock,
   Users,
   Eye,
-  Heart,
   Share2,
   Bookmark,
-  MoreHorizontal,
+  X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -37,6 +33,9 @@ interface OffreCardProps {
   description: string;
   applications_count?: number;
   views_count?: number;
+  isProfileComplete: boolean;
+  hasAlreadyApplied: boolean;
+  onApplicationSuccess?: () => void;
 }
 
 const OffreCard: React.FC<OffreCardProps> = ({
@@ -52,8 +51,12 @@ const OffreCard: React.FC<OffreCardProps> = ({
   date_fin,
   applications_count = 0,
   views_count = 0,
+  isProfileComplete,
+  hasAlreadyApplied,
+  onApplicationSuccess,
 }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalData, setModalData] = useState({
     titre: "",
@@ -70,10 +73,10 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
-  const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [hasAlreadyApplied, setHasAlreadyApplied] = useState(false);
-  const [checkingApplicationStatus, setCheckingApplicationStatus] = useState(false);
+  const [localHasApplied, setLocalHasApplied] = useState(hasAlreadyApplied);
+  const [localIsProfileComplete, setLocalIsProfileComplete] = useState(isProfileComplete);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   const { showPrompt } = useExperiencePromptContext();
 
@@ -90,79 +93,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
     // Use offer ID to generate a consistent "days ago" value
     return (offreId % 7) + 1;
   }, [offreId]);
-
-  const checkProfileCompletion = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-  
-      if (!response.ok) {
-        console.warn("Failed to fetch profile, assuming incomplete");
-        setIsProfileComplete(false);
-        return;
-      }
-  
-      const profileData = await response.json();
-  
-      console.log("profile Data of candidat: ", profileData);
-  
-      const requiredFields = [
-        "bio",
-        "projects",
-        "skills",
-        "experiences",
-      ];
-      const missingFields = requiredFields.filter(
-        (field) => !profileData[field] || profileData[field].length === 0
-      );
-  
-      setIsProfileComplete(missingFields.length === 0);
-    } catch (error) {
-      console.warn("Error fetching profile, assuming incomplete:", error);
-      setIsProfileComplete(false);
-    }
-  };
-
-  // Check profile completion on component mount
-  useEffect(() => {
-    if (userId) {
-      checkProfileCompletion();
-      checkApplicationStatus();
-    }
-  }, [userId]);
-
-  const checkApplicationStatus = async () => {
-    if (!authToken || !userId) return;
-    
-    setCheckingApplicationStatus(true);
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-application-status?offre_id=${offreId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setHasAlreadyApplied(data.has_applied);
-      }
-    } catch (error) {
-      console.error("Error checking application status:", error);
-    } finally {
-      setCheckingApplicationStatus(false);
-    }
-  };
 
   // Check if user already applied to this offer on component mount
   useEffect(() => {
@@ -226,7 +156,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   }, [modalIsOpen, userId]);
 
   const toggleDescription = () => {
-    setShowFullDescription(!showFullDescription);
+    setShowDescriptionModal(true);
   };
 
   const openModal = () => {
@@ -264,12 +194,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
       return;
     }
   
-    // 🔥 Vérification du profil avant postulation
-    if (!isProfileComplete) {
-      toast.error("Veuillez compléter votre profil avant de postuler.");
-      return;
-    }
-  
     try {
       setLoading(true);
       setIsButtonDisabled(true);
@@ -295,10 +219,22 @@ const OffreCard: React.FC<OffreCardProps> = ({
         setIsConfirmationVisible(true);
         setSelectedVideo("");
         setSelectedVideoId(null);
-        setHasAlreadyApplied(true); // Update the application status
+        setLocalHasApplied(true); // Update local state
+        toast.success("Candidature envoyée avec succès!");
+        
+        // Notify parent component to refresh the list
+        if (onApplicationSuccess) {
+          onApplicationSuccess();
+        }
       } else {
         const errorData = await response.json();
-        toast.error(errorData.message || "Échec de la candidature. Réessayez plus tard.");
+        // Si l'utilisateur a déjà postulé, mettre à jour l'état local
+        if (errorData.message && errorData.message.includes("déjà postulé")) {
+          setLocalHasApplied(true);
+          toast.error("Vous avez déjà postulé à cette offre.");
+        } else {
+          toast.error(errorData.message || "Échec de la candidature. Réessayez plus tard.");
+        }
       }
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -319,7 +255,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow flex flex-col h-full">
       {/* Header Section */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-start justify-between gap-4">
@@ -363,40 +299,29 @@ const OffreCard: React.FC<OffreCardProps> = ({
       </div>
 
       {/* Content Section */}
-      <div className="p-6">
+      <div className="p-6 flex-1 flex flex-col">
         {/* Description */}
-        <div className="mb-6">
+        <div className="mb-6 flex-1">
           <div className="relative">
             <SafeHtmlDisplay
               html={description || "Aucune description disponible."}
-              className={`text-gray-700 text-sm leading-relaxed ${
-                showFullDescription ? "" : "line-clamp-3"
-              }`}
+              className="text-gray-700 text-sm leading-relaxed line-clamp-1"
             />
           </div>
           
-          {(description?.length || 0) > 200 && (
+          {(description?.length || 0) > 100 && (
             <button
-              className="text-green-600 hover:text-green-700 font-medium text-sm mt-3 flex items-center gap-1 transition-colors"
+              className="text-green-600 hover:text-green-700 font-medium text-sm mt-2 flex items-center gap-1 transition-colors"
               onClick={toggleDescription}
             >
-              {showFullDescription ? (
-                <>
-                  <ChevronUp size={16} />
-                  Afficher moins
-                </>
-              ) : (
-                <>
-                  <ChevronDown size={16} />
-                  Voir plus
-                </>
-              )}
+              <ChevronDown size={16} />
+              Voir plus
             </button>
           )}
         </div>
 
         {/* Action Button */}
-        {hasAlreadyApplied ? (
+        {localHasApplied ? (
           <div className="w-full bg-green-50 border border-green-200 text-green-700 font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2">
             <CheckCircle size={20} />
             <span>Déjà postulé</span>
@@ -405,8 +330,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
           <button
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             onClick={() => {
-              if (!isProfileComplete) {
-                showPrompt();
+              if (!localIsProfileComplete) {
+                setShowProfileModal(true);
               } else {
                 openModal();
               }
@@ -418,8 +343,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
         )}
       </div>
 
-      {/* Footer Stats */}
-      <div className="px-6 py-3 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+      {/* Footer Stats - Always at bottom */}
+      <div className="px-6 py-3 border-t border-gray-100 bg-gray-50 rounded-b-xl mt-auto">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-4 text-gray-600">
             <div className="flex items-center gap-1.5">
@@ -457,6 +382,68 @@ const OffreCard: React.FC<OffreCardProps> = ({
         selectedVideoId={selectedVideoId}
         onVideoChange={handleVideoChange}
       />
+
+      {/* Profile Completion Modal */}
+      <ProfileCompletionModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onSkip={() => setShowProfileModal(false)}
+        candidatId={userId}
+        onProfileCompleted={() => {
+          setLocalIsProfileComplete(true);
+          setShowProfileModal(false);
+          // Open the application modal immediately after profile completion
+          openModal();
+        }}
+      />
+
+      {/* Description Modal */}
+      {showDescriptionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDescriptionModal(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b-2 border-green-200 p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{titre}</h3>
+                  <div className="flex items-center gap-2 text-gray-600 text-sm">
+                    <Building size={16} />
+                    <span className="font-medium">{entreprise_name}</span>
+                    <span className="text-gray-300">•</span>
+                    <MapPin size={14} />
+                    <span>{location}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowDescriptionModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white rounded-lg"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Description du poste</h4>
+              <SafeHtmlDisplay
+                html={description || "Aucune description disponible."}
+                className="text-gray-700 text-sm leading-relaxed prose prose-sm max-w-none"
+              />
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="border-t border-gray-200 p-4 bg-gray-50">
+              <button
+                onClick={() => setShowDescriptionModal(false)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Success Modal */}
       {isConfirmationVisible && (

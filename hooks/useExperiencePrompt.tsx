@@ -53,10 +53,18 @@ export function useExperiencePrompt(candidatId: number | null): UseExperiencePro
 
       if (response.ok) {
         const data = await response.json();
-        const hasExperiences = data.experiences && data.experiences.length > 0;
         
-        // Show prompt if user has no experiences and hasn't skipped recently
-        setShouldShowPrompt(!hasExperiences);
+        // Check if any profile section is missing
+        const hasBio = data.bio && data.bio.trim().length > 0;
+        const hasExperiences = data.experiences && data.experiences.length > 0;
+        const hasSkills = data.skills && data.skills.length > 0;
+        const hasProjects = data.projects && data.projects.length > 0;
+        const hasEducation = data.educations && data.educations.length > 0;
+        
+        // Don't show prompt automatically - only when manually triggered
+        // const hasAnySectionMissing = !hasBio || !hasExperiences || !hasSkills || !hasProjects || !hasEducation;
+        // setShouldShowPrompt(hasAnySectionMissing);
+        setShouldShowPrompt(false);
       }
     } catch (error) {
       console.error("Error checking experiences:", error);

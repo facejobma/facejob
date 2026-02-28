@@ -22,6 +22,12 @@ const OffresPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedApplicationStatus, setSelectedApplicationStatus] = useState<string>("");
+  const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalOffers, setTotalOffers] = useState<number>(0);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
 
   const sortedEntreprises = Array.isArray(entreprises) 
     ? [...entreprises].sort((a, b) => a.company_name.localeCompare(b.company_name))
@@ -99,47 +105,91 @@ const OffresPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const fetchSectorsData = async () => {
-    try {
-      const data = await fetchSectors();
-      // Ensure data is an array
-      setSectors(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error fetching sectors:", error);
-      toast.error("Error fetching sectors!");
-      setSectors([]); // Set empty array on error
-    }
-  };
-
-  const fetchEntreprisesData = async () => {
-    try {
-      const data = await fetchEnterprises();
-      // Ensure data is an array
-      setEntreprises(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error fetching entreprises:", error);
-      toast.error("Error fetching entreprises!");
-      setEntreprises([]); // Set empty array on error
-    }
-  };
-
   useEffect(() => {
-    const fetchOffresData = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       try {
-        const result = await fetchOffers();
-        const data = result.data || result; // Handle both old and new API response formats
-        setOffres(Array.isArray(data) ? data : []);
-        setLoading(false);
+        // Log authentication info
+        const user = typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
+        const userId = user ? JSON.parse(user).id : null;
+        console.log('🔐 Fetching offers with auth:', {
+          hasToken: !!authToken,
+          userId: userId,
+          tokenPreview: authToken ? `${authToken.substring(0, 20)}...` : 'none'
+        });
+
+        // Fetch all data in parallel including profile analysis
+        const [offersResult, sectorsData, entreprisesData, profileData] = await Promise.all([
+          fetchOffers(currentPage, 15), // Fetch with pagination and authentication
+          fetchSectors(),
+          fetchEnterprises(),
+          fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }).then(res => res.ok ? res.json() : null)
+        ]);
+
+        console.log('📊 Offers result:', {
+          totalOffers: offersResult.data?.length || 0,
+          sampleHasApplied: offersResult.data?.[0]?.has_applied,
+          pagination: offersResult.pagination
+        });
+
+        // Set offers with pagination info
+        const offersData = offersResult.data || [];
+        const pagination = offersResult.pagination || {};
+        
+        setOffres(Array.isArray(offersData) ? offersData : []);
+        setTotalPages(pagination.last_page || 1);
+        setTotalOffers(pagination.total || 0);
+
+        // Set sectors
+        setSectors(Array.isArray(sectorsData) ? sectorsData : []);
+
+        // Set entreprises
+        setEntreprises(Array.isArray(entreprisesData) ? entreprisesData : []);
+
+        // Check profile completion once for all cards
+        if (profileData) {
+          const requiredFields = ["bio", "projects", "skills", "experiences"];
+          const missingFields = requiredFields.filter(
+            (field) => !profileData[field] || profileData[field].length === 0
+          );
+          setIsProfileComplete(missingFields.length === 0);
+        } else {
+          setIsProfileComplete(false);
+        }
+
       } catch (error) {
-        console.error("Error fetching offers:", error);
+        console.error("Error fetching data:", error);
+        toast.error("Erreur lors du chargement des données");
+        // Set empty arrays on error
+        setOffres([]);
+        setSectors([]);
+        setEntreprises([]);
+        setIsProfileComplete(false);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchOffresData();
-    fetchSectorsData();
-    fetchEntreprisesData();
-  }, [authToken]);
+    if (authToken) {
+      fetchAllData();
+    }
+  }, [authToken, currentPage]);
+
+  // Function to refresh offers after application
+  const refreshOffers = async () => {
+    try {
+      const offersResult = await fetchOffers(currentPage, 15);
+      const offersData = offersResult.data || [];
+      setOffres(Array.isArray(offersData) ? offersData : []);
+    } catch (error) {
+      console.error("Error refreshing offers:", error);
+    }
+  };
 
   const filteredOffers = useMemo(() => {
     return offres.filter((offre) => {
@@ -156,14 +206,20 @@ const OffresPage: React.FC = () => {
       // City filter
       const matchesCity = !selectedCity || offre.location === selectedCity;
 
+      // Application status filter
+      const matchesApplicationStatus = 
+        !selectedApplicationStatus || 
+        (selectedApplicationStatus === "applied" && offre.has_applied) ||
+        (selectedApplicationStatus === "not_applied" && !offre.has_applied);
+
       // Other filters
       const matchesSector = !selectedSector || offre.sector_id === Number(selectedSector);
       const matchesJob = !selectedJob || offre.job_id === Number(selectedJob);
       const matchesEntreprise = !selectedEntreprise || offre.entreprise_id === Number(selectedEntreprise);
 
-      return matchesSearch && matchesCity && matchesSector && matchesJob && matchesEntreprise;
+      return matchesSearch && matchesCity && matchesApplicationStatus && matchesSector && matchesJob && matchesEntreprise;
     });
-  }, [offres, debouncedSearchQuery, selectedCity, selectedSector, selectedJob, selectedEntreprise]);
+  }, [offres, debouncedSearchQuery, selectedCity, selectedApplicationStatus, selectedSector, selectedJob, selectedEntreprise]);
 
   // Get unique cities from offers
   const availableCities = useMemo(() => {
@@ -177,9 +233,10 @@ const OffresPage: React.FC = () => {
     setSelectedEntreprise("");
     setSearchQuery("");
     setSelectedCity("");
+    setSelectedApplicationStatus("");
   };
 
-  const hasActiveFilters = selectedSector || selectedJob || selectedEntreprise || searchQuery || selectedCity;
+  const hasActiveFilters = selectedSector || selectedJob || selectedEntreprise || searchQuery || selectedCity || selectedApplicationStatus;
 
   if (loading) {
     return (
@@ -234,71 +291,110 @@ const OffresPage: React.FC = () => {
           )}
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Rechercher par titre, entreprise, description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+        {/* Search Bar and Status Filter - Same line */}
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-10 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+          
+          <div>
+            <Select
+              options={[
+                { value: "", label: "Toutes les offres" },
+                { value: "applied", label: "Déjà postulé" },
+                { value: "not_applied", label: "Non postulé" },
+              ]}
+              value={
+                selectedApplicationStatus === "applied"
+                  ? { value: "applied", label: "Déjà postulé" }
+                  : selectedApplicationStatus === "not_applied"
+                  ? { value: "not_applied", label: "Non postulé" }
+                  : { value: "", label: "Toutes les offres" }
+              }
+              onChange={(selected) => setSelectedApplicationStatus(selected?.value || "")}
+              placeholder="Toutes les offres"
+              isClearable
+              styles={customSelectStyles}
+              className="w-full"
+              noOptionsMessage={() => "Aucune option trouvée"}
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X size={20} />
-              </button>
-            )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Secteur Filter */}
+          {/* Secteur Filter with react-select */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Secteur d'activité
             </label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              value={selectedSector}
-              onChange={(e) => setSelectedSector(e.target.value)}
-            >
-              <option value="">Tous les secteurs</option>
-              {sectors.map((sector) => (
-                <option key={sector.id} value={sector.id}>
-                  {sector.name}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={[
+                { value: "", label: "Tous les secteurs" },
+                ...sectors.map((sector) => ({
+                  value: sector.id.toString(),
+                  label: sector.name,
+                }))
+              ]}
+              value={
+                selectedSector
+                  ? { value: selectedSector, label: sectors.find((s) => s.id.toString() === selectedSector)?.name || "" }
+                  : { value: "", label: "Tous les secteurs" }
+              }
+              onChange={(selected) => setSelectedSector(selected?.value || "")}
+              placeholder="Tous les secteurs"
+              isClearable
+              styles={customSelectStyles}
+              className="w-full"
+              noOptionsMessage={() => "Aucun secteur trouvé"}
+            />
           </div>
 
-          {/* Poste Filter */}
+          {/* Poste Filter with react-select */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Type de poste
             </label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-              value={selectedJob}
-              onChange={(e) => setSelectedJob(e.target.value)}
-              disabled={!selectedSector}
-            >
-              <option value="">
-                {selectedSector ? "Tous les postes" : "Sélectionnez d'abord un secteur"}
-              </option>
-              {filteredJobs.map((job) => (
-                <option key={job.id} value={job.id}>
-                  {job.name}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={[
+                { value: "", label: selectedSector ? "Tous les postes" : "Sélectionnez d'abord un secteur" },
+                ...filteredJobs.map((job) => ({
+                  value: job.id.toString(),
+                  label: job.name,
+                }))
+              ]}
+              value={
+                selectedJob
+                  ? { value: selectedJob, label: filteredJobs.find((j) => j.id.toString() === selectedJob)?.name || "" }
+                  : { value: "", label: selectedSector ? "Tous les postes" : "Sélectionnez d'abord un secteur" }
+              }
+              onChange={(selected) => setSelectedJob(selected?.value || "")}
+              placeholder={selectedSector ? "Tous les postes" : "Sélectionnez d'abord un secteur"}
+              isClearable
+              isDisabled={!selectedSector}
+              styles={customSelectStyles}
+              className="w-full"
+              noOptionsMessage={() => "Aucun poste trouvé"}
+            />
           </div>
 
-          {/* Entreprise Filter */}
+          {/* Entreprise Filter - Already using react-select */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Entreprise
@@ -315,23 +411,31 @@ const OffresPage: React.FC = () => {
             />
           </div>
 
-          {/* City Filter */}
+          {/* City Filter with react-select */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Ville
             </label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-            >
-              <option value="">Toutes les villes</option>
-              {availableCities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={[
+                { value: "", label: "Toutes les villes" },
+                ...availableCities.map((city) => ({
+                  value: city,
+                  label: city,
+                }))
+              ]}
+              value={
+                selectedCity
+                  ? { value: selectedCity, label: selectedCity }
+                  : { value: "", label: "Toutes les villes" }
+              }
+              onChange={(selected) => setSelectedCity(selected?.value || "")}
+              placeholder="Toutes les villes"
+              isClearable
+              styles={customSelectStyles}
+              className="w-full"
+              noOptionsMessage={() => "Aucune ville trouvée"}
+            />
           </div>
         </div>
 
@@ -395,6 +499,17 @@ const OffresPage: React.FC = () => {
                   </button>
                 </span>
               )}
+              {selectedApplicationStatus && (
+                <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
+                  {selectedApplicationStatus === "applied" ? "Déjà postulé" : "Non postulé"}
+                  <button
+                    onClick={() => setSelectedApplicationStatus("")}
+                    className="hover:bg-orange-200 rounded-full p-0.5"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -409,25 +524,80 @@ const OffresPage: React.FC = () => {
 
       {/* Job Offers List */}
       {filteredOffers.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filteredOffers.map((offre) => (
-            <OffreCard
-              key={offre.id}
-              offreId={offre.id}
-              titre={offre.titre}
-              entreprise_name={offre.company_name}
-              sector_name={offre.sector_name}
-              job_name={offre.job_name}
-              location={offre.location}
-              contract_type={offre.contractType}
-              date_debut={offre.date_debut}
-              date_fin={offre.date_fin}
-              description={offre.description}
-              applications_count={offre.applications_count}
-              views_count={offre.views_count}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredOffers.map((offre) => (
+              <OffreCard
+                key={offre.id}
+                offreId={offre.id}
+                titre={offre.titre}
+                entreprise_name={offre.company_name}
+                sector_name={offre.sector_name}
+                job_name={offre.job_name}
+                location={offre.location}
+                contract_type={offre.contractType}
+                date_debut={offre.date_debut}
+                date_fin={offre.date_fin}
+                description={offre.description}
+                applications_count={offre.applications_count}
+                views_count={offre.views_count}
+                isProfileComplete={isProfileComplete}
+                hasAlreadyApplied={offre.has_applied || false}
+                onApplicationSuccess={refreshOffers}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Précédent
+              </button>
+              
+              <div className="flex items-center gap-2">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`px-4 py-2 rounded-lg transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-green-600 text-white'
+                          : 'border border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Suivant
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

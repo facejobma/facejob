@@ -270,12 +270,13 @@ export async function fetchSpecialties() {
   throw new Error(`Failed to fetch specialties: ${response.status}`);
 }
 
-export async function fetchOffers() {
-  const response = await publicApiCall('/offres');
+export async function fetchOffers(page: number = 1, perPage: number = 15) {
+  // Use authenticated call to include the Bearer token
+  const response = await authenticatedApiCall(`/offres?page=${page}&per_page=${perPage}`);
   if (response.ok) {
     const result = await response.json();
-    // Handle both paginated response and direct array
-    return result.data || result;
+    // Return the full response with pagination info
+    return result;
   }
   throw new Error(`Failed to fetch offers: ${response.status}`);
 }

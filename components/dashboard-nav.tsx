@@ -13,9 +13,10 @@ interface DashboardNavProps {
   items: NavItem[];
   setOpen?: Dispatch<SetStateAction<boolean>>;
   closeOnClick?: boolean;
+  isOpen?: boolean;
 }
 
-export function DashboardNav({ items, setOpen, closeOnClick = true }: DashboardNavProps) {
+export function DashboardNav({ items, setOpen, closeOnClick = true, isOpen = true }: DashboardNavProps) {
   const path = usePathname();
 
   const userRole =
@@ -39,7 +40,7 @@ export function DashboardNav({ items, setOpen, closeOnClick = true }: DashboardN
   }
 
   return (
-    <nav className="grid items-start gap-1">
+    <nav className={cn("grid items-start gap-1.5", !isOpen && "px-1")}>
       {items.map((item, index) => {
         const Icon = Icons[item.icon || "arrowRight"];
         
@@ -71,16 +72,37 @@ export function DashboardNav({ items, setOpen, closeOnClick = true }: DashboardN
             key={index}
             href={item.disabled ? "/" : (item.href || "/")}
             onClick={() => handleItemClick(item)}
+            title={!isOpen ? item.title : undefined}
             className={cn(
-              "flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              "group flex items-center rounded-lg text-sm font-medium transition-all duration-200 relative",
+              isOpen ? "px-3 py-2" : "px-2 py-2 justify-center",
               isActive
-                ? "bg-green-600 text-white"
-                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-200"
+                : "text-gray-700 hover:bg-green-50 hover:text-green-700 hover:shadow-sm",
               item.disabled && "cursor-not-allowed opacity-50",
             )}
           >
-            <Icon className="h-5 w-5 mr-3" />
-            <span>{item.title}</span>
+            <div className={cn(
+              "h-8 w-8 rounded-lg flex items-center justify-center transition-all duration-200",
+              isOpen && "mr-2.5",
+              isActive 
+                ? "bg-white/20" 
+                : "bg-gray-100 group-hover:bg-green-100"
+            )}>
+              <Icon className={cn(
+                "h-4 w-4 transition-all duration-200",
+                isActive ? "text-white" : "text-gray-600 group-hover:text-green-600"
+              )} />
+            </div>
+            {isOpen && <span className="font-semibold">{item.title}</span>}
+            
+            {/* Tooltip for collapsed state */}
+            {!isOpen && (
+              <div className="absolute left-full ml-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap min-w-max z-50 pointer-events-none">
+                {item.title}
+                <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
+              </div>
+            )}
           </Link>
         );
       })}

@@ -282,7 +282,7 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar with Missing Items */}
       {completionPercentage < 100 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -294,15 +294,58 @@ const Profile: React.FC = () => {
                 <h3 className="font-semibold text-amber-800 text-sm">Complétez votre profil</h3>
                 <span className="text-sm font-bold text-amber-800">{completionPercentage}%</span>
               </div>
-              <div className="w-full bg-amber-200 rounded-full h-2 mb-2">
+              <div className="w-full bg-amber-200 rounded-full h-2 mb-3">
                 <div
                   className="bg-amber-600 rounded-full h-2 transition-all duration-500"
                   style={{ width: `${completionPercentage}%` }}
                 ></div>
               </div>
-              <p className="text-xs text-amber-700">
-                Complétez toutes les sections pour augmenter vos chances
-              </p>
+              
+              {/* Missing Items List */}
+              <div className="space-y-1.5">
+                {(!userProfile?.bio || userProfile.bio.trim().length === 0) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <FaFileAlt className="text-amber-600 flex-shrink-0" />
+                    <span>Ajoutez une description "À propos de moi"</span>
+                  </div>
+                )}
+                {(!userProfile?.experiences || userProfile.experiences.length === 0) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <FaBriefcase className="text-amber-600 flex-shrink-0" />
+                    <span>Ajoutez vos expériences professionnelles</span>
+                  </div>
+                )}
+                {(!userProfile?.skills || userProfile.skills.length === 0) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <FaCog className="text-amber-600 flex-shrink-0" />
+                    <span>Ajoutez vos compétences</span>
+                  </div>
+                )}
+                {(!userProfile?.projects || userProfile.projects.length === 0) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <HiOutlineCollection className="text-amber-600 flex-shrink-0" />
+                    <span>Ajoutez vos projets</span>
+                  </div>
+                )}
+                {(!userProfile?.education || userProfile.education.length === 0) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <FaGraduationCap className="text-amber-600 flex-shrink-0" />
+                    <span>Ajoutez votre formation</span>
+                  </div>
+                )}
+                {(!userProfile?.image || userProfile?.image === "https://via.placeholder.com/150") && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <FaUser className="text-amber-600 flex-shrink-0" />
+                    <span>Ajoutez une photo de profil</span>
+                  </div>
+                )}
+                {(!userProfile?.first_name || !userProfile?.last_name || !userProfile?.tel || !userProfile?.email) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <FaUser className="text-amber-600 flex-shrink-0" />
+                    <span>Complétez vos informations personnelles</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -335,20 +378,41 @@ const Profile: React.FC = () => {
         />
       </div>
 
-      {/* Bio Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-              <FaFileAlt className="text-green-600 text-sm" />
+      {/* Two Column Layout for Desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bio Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                <FaFileAlt className="text-green-600 text-sm" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">À propos de moi</h2>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">À propos de moi</h2>
+            {(userProfile?.bio && userProfile.bio.trim().length > 0) && (
+              <span className="text-xs text-green-600 font-medium">✓ Complété</span>
+            )}
           </div>
-          {(userProfile?.bio && userProfile.bio.trim().length > 0) && (
-            <span className="text-xs text-green-600 font-medium">✓ Complété</span>
-          )}
+          <BioSection id={userProfile.id} bio={userProfile.bio} />
         </div>
-        <BioSection id={userProfile.id} bio={userProfile.bio} />
+
+        {/* Skills Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                <FaCog className="text-purple-600 text-sm" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Compétences</h2>
+            </div>
+            {(userProfile?.skills && userProfile.skills.length > 0) && (
+              <span className="text-xs text-green-600 font-medium">
+                {userProfile.skills.length} compétence{userProfile.skills.length > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+          <SkillsSection id={userProfile.id} skills={userProfile.skills} />
+        </div>
       </div>
 
       {/* Experience Section */}
@@ -372,61 +436,46 @@ const Profile: React.FC = () => {
         />
       </div>
 
-      {/* Skills Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
-              <FaCog className="text-purple-600 text-sm" />
+      {/* Two Column Layout for Projects and Education */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Projects Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                <HiOutlineCollection className="text-orange-600 text-sm" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Projets</h2>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Compétences</h2>
+            {(userProfile?.projects && userProfile.projects.length > 0) && (
+              <span className="text-xs text-green-600 font-medium">
+                {userProfile.projects.length} projet{userProfile.projects.length > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
-          {(userProfile?.skills && userProfile.skills.length > 0) && (
-            <span className="text-xs text-green-600 font-medium">
-              {userProfile.skills.length} compétence{userProfile.skills.length > 1 ? 's' : ''}
-            </span>
-          )}
+          <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
         </div>
-        <SkillsSection id={userProfile.id} skills={userProfile.skills} />
-      </div>
 
-      {/* Projects Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
-              <HiOutlineCollection className="text-orange-600 text-sm" />
+        {/* Education Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                <FaGraduationCap className="text-indigo-600 text-sm" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Formation</h2>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Projets</h2>
+            {(userProfile?.education && userProfile.education.length > 0) && (
+              <span className="text-xs text-green-600 font-medium">
+                {userProfile.education.length} formation{userProfile.education.length > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
-          {(userProfile?.projects && userProfile.projects.length > 0) && (
-            <span className="text-xs text-green-600 font-medium">
-              {userProfile.projects.length} projet{userProfile.projects.length > 1 ? 's' : ''}
-            </span>
-          )}
+          <EducationSection
+            id={userProfile.id}
+            education={userProfile.education}
+          />
         </div>
-        <ProjectsSection id={userProfile.id} projects={userProfile.projects} />
-      </div>
-
-      {/* Education Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-              <FaGraduationCap className="text-indigo-600 text-sm" />
-            </div>
-            <h2 className="text-lg font-semibold text-gray-900">Formation</h2>
-          </div>
-          {(userProfile?.education && userProfile.education.length > 0) && (
-            <span className="text-xs text-green-600 font-medium">
-              {userProfile.education.length} formation{userProfile.education.length > 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-        <EducationSection
-          id={userProfile.id}
-          education={userProfile.education}
-        />
       </div>
 
       {/* Delete Account Section */}

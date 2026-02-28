@@ -54,14 +54,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const [selectedJob, setSelectedJob] = useState("");
 
   const [formData, setFormData] = useState({
-    newFirstName: first_name || "",
-    newLastName: last_name || "",
-    newHeadline: headline || "",
-    newAddress: address || "",
-    newCompanyName: companyName || "",
-    newTel: tel || "",
-    newEmail: email || "",
-    newImage: image || "", // Initialize with the existing image or empty string
+    newFirstName: first_name ?? "",
+    newLastName: last_name ?? "",
+    newHeadline: headline ?? "",
+    newAddress: address ?? "",
+    newCompanyName: companyName ?? "",
+    newTel: tel ?? "",
+    newEmail: email ?? "",
+    newImage: image ?? "",
   });
 
   const handleEditClick = () => {
@@ -303,170 +303,222 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         isOpen={isEditing}
         onClose={handleCloseModal}
         title="Modifier le Profil"
-        description="Mettre à jour vos informations"
+        description="Mettre à jour vos informations personnelles"
       >
         <form onSubmit={handleProfileUpdate}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="w-full">
-              <label htmlFor="newFirstName" className="block mb-2 font-bold">
-                Prénom
-              </label>
-              <input
-                type="text"
-                id="newFirstName"
-                name="newFirstName"
-                value={formData.newFirstName}
-                onChange={handleInputChange}
-                placeholder="Entrez votre prénom"
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              />
-
-              <label htmlFor="newEmail" className="block mb-2 font-bold">
-                Email
-              </label>
-              <input
-                type="email"
-                id="newEmail"
-                name="newEmail"
-                value={formData.newEmail}
-                onChange={handleInputChange}
-                placeholder="Entrez votre email"
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              />
-
-              <label className="block mb-2 font-bold" htmlFor="secteur">
-                Secteur
-              </label>
-              <select
-                id="secteur"
-                value={selectedSector}
-                onChange={(e) => {
-                  setSelectedSector(e.target.value);
-                  setSelectedJob(""); // Reset job selection when sector changes
-                }}
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              >
-                <option value="">Sélectionnez le secteur</option>
-                {sectors.map((sector) => (
-                  <option key={sector.id} value={sector.id}>
-                    {sector.name}
-                  </option>
-                ))}
-              </select>
-
-              <label htmlFor="newAddress" className="block mb-2 font-bold">
-                Adresse
-              </label>
-              <input
-                type="text"
-                id="newAddress"
-                name="newAddress"
-                value={formData.newAddress}
-                onChange={handleInputChange}
-                placeholder="Entrez votre adresse"
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              />
-            </div>
-
-            <div className="w-full">
-              <label htmlFor="newLastName" className="block mb-2 font-bold">
-                Nom
-              </label>
-              <input
-                type="text"
-                id="newLastName"
-                name="newLastName"
-                value={formData.newLastName}
-                onChange={handleInputChange}
-                placeholder="Entrez votre nom"
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              />
-
-              <label htmlFor="newTel" className="block mb-2 font-bold">
-                Téléphone
-              </label>
-              <input
-                type="text"
-                id="newTel"
-                name="newTel"
-                value={formData.newTel}
-                onChange={handleInputChange}
-                placeholder="Entrez votre téléphone"
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-              />
-
-              <label className="block mb-2 font-bold" htmlFor="metier">
-                Métier
-              </label>
-              <select
-                id="metier"
-                value={selectedJob}
-                onChange={(e) => setSelectedJob(e.target.value)}
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-                disabled={!selectedSector}
-              >
-                <option value="">Sélectionnez le métier</option>
-                {filteredJobs.map((job) => (
-                  <option key={job.id} value={job.id}>
-                    {job.name}
-                  </option>
-                ))}
-              </select>
-
-              <label className="block mb-2 font-bold">Photo de profil</label>
-              {formData.newImage ? (
-                <div className="mb-4">
-                  <img
-                    src={formData.newImage}
-                    alt="Profile Preview"
-                    className="w-24 h-24 rounded-full border-2 border-gray-300 mb-2 object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="flex items-center text-red-600 hover:text-red-800 text-sm"
-                  >
-                    <FaTrash className="mr-2" />
-                    Supprimer
-                  </button>
+          <div className="space-y-6">
+            {/* Profile Information Section */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                  <FaUser className="text-green-600 text-sm" />
                 </div>
-              ) : (
-                <div className="mb-4">
-                  <label 
-                    htmlFor="image-upload" 
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 transition-colors"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <FaUpload className="w-8 h-8 mb-2 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Cliquez pour télécharger</span>
-                      </p>
-                      <p className="text-xs text-gray-500">PNG, JPG (MAX. 4MB)</p>
-                    </div>
-                    <input
-                      id="image-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUploadComplete}
-                      disabled={isUploading}
-                      className="hidden"
-                    />
+                <h3 className="font-semibold text-gray-900">Informations personnelles</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* First Name */}
+                <div>
+                  <label htmlFor="newFirstName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Prénom *
                   </label>
-                  {isUploading && (
-                    <p className="text-sm text-gray-600 mt-2">Téléchargement en cours...</p>
+                  <input
+                    type="text"
+                    id="newFirstName"
+                    name="newFirstName"
+                    value={formData.newFirstName}
+                    onChange={handleInputChange}
+                    placeholder="Entrez votre prénom"
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    required
+                  />
+                </div>
+
+                {/* Last Name */}
+                <div>
+                  <label htmlFor="newLastName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Nom *
+                  </label>
+                  <input
+                    type="text"
+                    id="newLastName"
+                    name="newLastName"
+                    value={formData.newLastName}
+                    onChange={handleInputChange}
+                    placeholder="Entrez votre nom"
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label htmlFor="newEmail" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    id="newEmail"
+                    name="newEmail"
+                    value={formData.newEmail}
+                    onChange={handleInputChange}
+                    placeholder="Entrez votre email"
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    required
+                  />
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label htmlFor="newTel" className="block text-sm font-medium text-gray-700 mb-2">
+                    Téléphone *
+                  </label>
+                  <input
+                    type="text"
+                    id="newTel"
+                    name="newTel"
+                    value={formData.newTel}
+                    onChange={handleInputChange}
+                    placeholder="Entrez votre téléphone"
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    required
+                  />
+                </div>
+
+                {/* Sector */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="secteur">
+                    Secteur
+                  </label>
+                  <select
+                    id="secteur"
+                    value={selectedSector}
+                    onChange={(e) => {
+                      setSelectedSector(e.target.value);
+                      setSelectedJob("");
+                    }}
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                  >
+                    <option value="">Sélectionnez le secteur</option>
+                    {sectors.map((sector) => (
+                      <option key={sector.id} value={sector.id}>
+                        {sector.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Job */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="metier">
+                    Métier
+                  </label>
+                  <select
+                    id="metier"
+                    value={selectedJob}
+                    onChange={(e) => setSelectedJob(e.target.value)}
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!selectedSector}
+                  >
+                    <option value="">Sélectionnez le métier</option>
+                    {filteredJobs.map((job) => (
+                      <option key={job.id} value={job.id}>
+                        {job.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!selectedSector && (
+                    <p className="text-xs text-green-700 mt-1">
+                      💡 Sélectionnez d'abord un secteur
+                    </p>
                   )}
                 </div>
-              )}
-            </div>
-          </div>
 
-          <div className="mt-6 text-center">
-            <button
-              type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
-            >
-              Sauvegarder
-            </button>
+                {/* Address - Full Width */}
+                <div className="md:col-span-2">
+                  <label htmlFor="newAddress" className="block text-sm font-medium text-gray-700 mb-2">
+                    Adresse
+                  </label>
+                  <input
+                    type="text"
+                    id="newAddress"
+                    name="newAddress"
+                    value={formData.newAddress}
+                    onChange={handleInputChange}
+                    placeholder="Entrez votre adresse"
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                  />
+                </div>
+
+                {/* Profile Picture - Full Width */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Photo de profil</label>
+                  {formData.newImage ? (
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={formData.newImage}
+                        alt="Profile Preview"
+                        className="w-20 h-20 rounded-full border-2 border-green-300 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <FaTrash className="text-sm" />
+                        Supprimer
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <label 
+                        htmlFor="image-upload" 
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <FaUpload className="w-8 h-8 mb-2 text-green-600" />
+                          <p className="mb-2 text-sm text-gray-700">
+                            <span className="font-semibold">Cliquez pour télécharger</span>
+                          </p>
+                          <p className="text-xs text-gray-600">PNG, JPG (MAX. 4MB)</p>
+                        </div>
+                        <input
+                          id="image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUploadComplete}
+                          disabled={isUploading}
+                          className="hidden"
+                        />
+                      </label>
+                      {isUploading && (
+                        <div className="flex items-center gap-2 mt-2 text-sm text-green-700">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                          <span>Téléchargement en cours...</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4 border-t">
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium shadow-sm"
+              >
+                Sauvegarder
+              </button>
+            </div>
           </div>
         </form>
       </Modal>

@@ -34,6 +34,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   const [editedExperiences, setEditedExperiences] = useState([...experiences]);
   const [isCurrentJob, setIsCurrentJob] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<Partial<Experience>>({
     poste: "",
     organisme: "",
@@ -104,8 +105,58 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   };
 
   const handleCloseModal = () => {
+    // Check if there are unsaved changes
+    const hasChanges = 
+      formData.poste || 
+      formData.organisme || 
+      formData.description || 
+      formData.location || 
+      formData.date_debut || 
+      formData.date_fin;
+
+    if (hasChanges && !selectedExperience) {
+      const confirmClose = window.confirm(
+        "Vous avez des modifications non enregistrées. Voulez-vous vraiment fermer ?"
+      );
+      if (!confirmClose) return;
+    }
+
     setIsEditing(false);
     setSelectedExperience(null);
+    setFormErrors({});
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.poste?.trim()) {
+      errors.poste = "Le poste est obligatoire";
+    }
+
+    if (!formData.organisme?.trim()) {
+      errors.organisme = "L'entreprise est obligatoire";
+    }
+
+    if (!formData.date_debut) {
+      errors.date_debut = "La date de début est obligatoire";
+    }
+
+    if (!isCurrentJob && !formData.date_fin) {
+      errors.date_fin = "La date de fin est obligatoire (ou cochez 'Poste actuel')";
+    }
+
+    if (formData.date_debut && formData.date_fin && formData.date_debut > formData.date_fin) {
+      errors.date_fin = "La date de fin doit être après la date de début";
+    }
+
+    if (!formData.description?.trim()) {
+      errors.description = "La description est obligatoire";
+    } else if (formData.description.trim().length < 20) {
+      errors.description = "La description doit contenir au moins 20 caractères";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleExperienceUpdate = async (
@@ -113,6 +164,12 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   ) => {
     e.preventDefault();
     if (isSubmitting) return;
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     if (selectedExperience) {
       // Update existing experience
@@ -208,6 +265,14 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       ...prevData,
       [key]: value,
     }));
+    // Clear error for this field when user starts typing
+    if (formErrors[key]) {
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[key];
+        return newErrors;
+      });
+    }
   };
 
   const formatDate = (date: string | Date | undefined) => {
@@ -359,6 +424,32 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         }
       >
         <form onSubmit={handleExperienceUpdate} className="space-y-5">
+          {/* Show missing fields summary */}
+          {Object.keys(formErrors).length > 0 && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-red-800 mb-1">
+                    Veuillez corriger les erreurs suivantes :
+                  </h3>
+                  <ul className="text-sm text-red-700 space-y-1">
+                    {Object.entries(formErrors).map(([field, error]) => (
+                      <li key={field} className="flex items-start gap-2">
+                        <span className="text-red-500 mt-0.5">•</span>
+                        <span>{error}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Poste */}
           <div>
             <label htmlFor="poste" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -367,12 +458,16 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             <input
               type="text"
               id="poste"
-              required
               value={formData.poste}
               onChange={(e) => handleInputChange("poste", e.target.value)}
-              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none"
+              className={`w-full border ${formErrors.poste ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none`}
               placeholder="Ex: Développeur Full Stack"
             />
+            {formErrors.poste && (
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <span>⚠️</span> {formErrors.poste}
+              </p>
+            )}
           </div>
 
           {/* Entreprise */}
@@ -383,12 +478,16 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             <input
               type="text"
               id="organisme"
-              required
               value={formData.organisme}
               onChange={(e) => handleInputChange("organisme", e.target.value)}
-              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none"
+              className={`w-full border ${formErrors.organisme ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none`}
               placeholder="Ex: Google, Microsoft, etc."
             />
+            {formErrors.organisme && (
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <span>⚠️</span> {formErrors.organisme}
+              </p>
+            )}
           </div>
 
           {/* Lieu */}
@@ -418,11 +517,15 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               <input
                 type="date"
                 id="date_debut"
-                required
                 value={formData.date_debut || ""}
                 onChange={(e) => handleInputChange("date_debut", e.target.value)}
-                className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none"
+                className={`w-full border ${formErrors.date_debut ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none`}
               />
+              {formErrors.date_debut && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <span>⚠️</span> {formErrors.date_debut}
+                </p>
+              )}
             </div>
 
             <div>
@@ -432,14 +535,18 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               <input
                 type="date"
                 id="date_fin"
-                required={!isCurrentJob}
                 disabled={isCurrentJob}
                 value={formData.date_fin || ""}
                 onChange={(e) => handleInputChange("date_fin", e.target.value)}
-                className={`w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none ${
+                className={`w-full border ${formErrors.date_fin ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none ${
                   isCurrentJob ? 'bg-gray-100 cursor-not-allowed' : ''
                 }`}
               />
+              {formErrors.date_fin && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <span>⚠️</span> {formErrors.date_fin}
+                </p>
+              )}
             </div>
           </div>
 
@@ -464,16 +571,21 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
             </label>
             <textarea
               id="description"
-              required
               rows={4}
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
-              className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 transition-all outline-none resize-none"
+              className={`w-full border ${formErrors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none resize-none`}
               placeholder="Décrivez vos responsabilités, réalisations et compétences développées..."
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Minimum 50 caractères recommandés
-            </p>
+            {formErrors.description ? (
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <span>⚠️</span> {formErrors.description}
+              </p>
+            ) : (
+              <p className="text-xs text-gray-500 mt-1">
+                Minimum 20 caractères requis • {formData.description?.length || 0} caractères
+              </p>
+            )}
           </div>
 
           {/* Buttons */}
@@ -491,7 +603,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
                 isSubmitting 
                   ? "bg-gray-400 cursor-not-allowed text-white" 
-                  : "bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md"
+                  : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-md hover:shadow-lg"
               }`}
             >
               {isSubmitting ? (

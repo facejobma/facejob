@@ -120,7 +120,7 @@ export const navItemsCandidat: NavItem[] = [
   },
 
   {
-    title: "Historique des candidatures",
+    title: "Mes candidatures",
     href: "/dashboard/candidat/historique",
     icon: "history",
     label: "historique",

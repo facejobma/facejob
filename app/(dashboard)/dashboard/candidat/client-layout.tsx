@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/sidebar";
 import HeaderCandidat from "@/components/layout/header-candidat";
-import ExperiencePromptModal from "@/components/ExperiencePromptModal";
+import ProfileCompletionModal from "@/components/ProfileCompletionModal";
 import { useExperiencePrompt } from "@/hooks/useExperiencePrompt";
 import { ExperiencePromptProvider, useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
@@ -69,16 +69,16 @@ function DashboardLayoutContent({
 
       <div className="flex flex-1 pt-16">
         <Sidebar />
-        <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-0'}`}>
+        <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-20'}`}>
           <DashboardPageWrapper>
             {children}
           </DashboardPageWrapper>
         </main>
       </div>
 
-      {/* Experience Prompt Modal */}
+      {/* Profile Completion Modal */}
       {!isLoading && candidatId && (
-        <ExperiencePromptModal
+        <ProfileCompletionModal
           isOpen={shouldShowAutoPrompt || isManualPromptVisible}
           onClose={handleClosePrompt}
           onSkip={handleSkipPrompt}

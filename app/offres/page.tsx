@@ -498,62 +498,76 @@ const PublicOffersPage: React.FC = () => {
           {!loading && (
             <>
               {paginatedOffers.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                   {paginatedOffers.map((offer) => (
-                    <Card key={offer.id} className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-primary group bg-white h-full flex flex-col">
-                      <CardHeader className="pb-3 flex-shrink-0">
-                        <div className="flex justify-between items-start">
+                    <Card key={offer.id} className="group relative overflow-hidden bg-white hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-green-300">
+                      {/* Accent bar */}
+                      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-green-500 to-green-600"></div>
+                      
+                      <CardHeader className="pb-4 pl-6">
+                        <div className="flex justify-between items-start gap-3">
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                            <CardTitle className="text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors leading-tight">
                               {offer.titre}
                             </CardTitle>
-                            <div className="flex items-center text-sm text-gray-600 mb-2">
-                              <Building className="h-4 w-4 mr-1 text-primary flex-shrink-0" />
-                              <span className="font-medium truncate">{offer.company_name}</span>
+                            <div className="flex items-center text-xs text-gray-700 font-medium">
+                              <div className="h-6 w-6 rounded-lg bg-green-50 flex items-center justify-center mr-1.5 flex-shrink-0">
+                                <Building className="h-3 w-3 text-green-600" />
+                              </div>
+                              <span className="truncate">{offer.company_name}</span>
                             </div>
                           </div>
-                          <Badge variant="secondary" className="ml-2 bg-primary/10 text-primary border-primary/20 flex-shrink-0">
+                          <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50 flex-shrink-0 text-xs px-2 py-0.5">
                             {getDaysAgo(offer.id)}j
                           </Badge>
                         </div>
                       </CardHeader>
                       
-                      <CardContent className="pt-0 flex-1 flex flex-col">
-                        <div className="space-y-3 flex-1">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Briefcase className="h-4 w-4 mr-2 text-primary-1 flex-shrink-0" />
+                      <CardContent className="pt-0 pl-6 space-y-2.5">
+                        {/* Job details */}
+                        <div className="space-y-1.5">
+                          <div className="flex items-center text-xs text-gray-600">
+                            <div className="h-5 w-5 rounded-md bg-blue-50 flex items-center justify-center mr-1.5 flex-shrink-0">
+                              <Briefcase className="h-2.5 w-2.5 text-blue-600" />
+                            </div>
                             <span className="truncate">{offer.sector_name} • {offer.job_name}</span>
                           </div>
                           
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="h-4 w-4 mr-2 text-primary-2 flex-shrink-0" />
+                          <div className="flex items-center text-xs text-gray-600">
+                            <div className="h-5 w-5 rounded-md bg-purple-50 flex items-center justify-center mr-1.5 flex-shrink-0">
+                              <MapPin className="h-2.5 w-2.5 text-purple-600" />
+                            </div>
                             <span className="truncate">{offer.location}</span>
                           </div>
                           
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Calendar className="h-4 w-4 mr-2 text-primary-3 flex-shrink-0" />
+                          <div className="flex items-center text-xs text-gray-600">
+                            <div className="h-5 w-5 rounded-md bg-orange-50 flex items-center justify-center mr-1.5 flex-shrink-0">
+                              <Calendar className="h-2.5 w-2.5 text-orange-600" />
+                            </div>
                             <span className="truncate">{offer.contractType}</span>
-                          </div>
-
-                          <div className="flex-1">
-                            <p className="text-sm text-gray-700 line-clamp-3">
-                              {stripHtmlTags(offer.description)}
-                            </p>
                           </div>
                         </div>
 
-                        <div className="pt-4 space-y-2 mt-auto">
+                        {/* Description */}
+                        <div className="pt-1">
+                          <p className="text-xs text-gray-600 line-clamp-1 leading-relaxed">
+                            {stripHtmlTags(offer.description)}
+                          </p>
+                        </div>
+
+                        {/* CTA Buttons */}
+                        <div className="pt-2 space-y-2">
                           <Button 
                             onClick={() => router.push(`/offres/${offer.id}`)}
                             variant="outline"
-                            className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                            className="w-full border-green-600 text-green-600 hover:bg-green-50 transition-colors text-sm py-2"
                           >
                             Voir les détails
-                            <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight className="h-3.5 w-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
                           </Button>
                           <Button 
                             onClick={() => handleApply(offer.id)}
-                            className="w-full bg-primary hover:bg-primary-1 text-white transition-colors"
+                            className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold shadow-sm hover:shadow-md transition-all text-sm py-2"
                           >
                             Postuler maintenant
                           </Button>

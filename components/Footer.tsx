@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   FaFacebook,
@@ -14,13 +13,7 @@ type Props = {};
 export default function Footer({}: Props) {
   return (
     <footer className="w-full bg-optional1 p-10 pt-20 pb-10 mx-auto mt-10 md:w-full md:px-32 md:p-10 md:mx-auto">
-      <motion.div
-        initial={{ y: 100 }}
-        transition={{ duration: 1.2 }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: true }}
-        className="flex flex-wrap justify-center gap-20"
-      >
+      <div className="flex flex-wrap justify-center gap-20">
         <div className="md:max-w-[14rem] text-center md:text-start">
           <h2 className="text-5xl font-default text-secondary">
             <Image
@@ -132,7 +125,7 @@ export default function Footer({}: Props) {
             Tous droits réservés facejob.ma
           </p>
         </div>
-      </motion.div>
+      </div>
     </footer>
   );
 }

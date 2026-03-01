@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 export default function NavBar() {
   const [open, setOpen] = React.useState(false);
   const [hidden, setHidden] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
@@ -35,6 +36,8 @@ export default function NavBar() {
     } else {
       setHidden(false);
     }
+    // Set scrolled state for styling
+    setScrolled(latest > 20);
   });
 
   const getActiveClass = (path: string) => {
@@ -127,7 +130,11 @@ export default function NavBar() {
         }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.35, ease: "easeInOut" }}
-        className="fixed top-0 left-0 right-0 z-50 bg-optional1"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled 
+            ? "bg-white shadow-md backdrop-blur-sm" 
+            : "bg-transparent"
+        }`}
       >
         <div className="w-full px-6 md:px-10 mx-auto py-2">
           <div className="flex items-center justify-between">

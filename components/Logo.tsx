@@ -8,9 +8,9 @@ export function Logo() {
       <Image
         src="/images/favicon.png"
         alt="Logo"
-        className="w-full mr-2"
-        width={100}
-        height={100}
+        className="h-8 w-auto md:h-10 mr-2"
+        width={150}
+        height={150}
       />
     </Link>
   );

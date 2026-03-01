@@ -4,8 +4,8 @@ export function Logo() {
   return (
     <Image
       src={"/facejobLogo.png"}
-      width={80}
-      height={80}
+      width={120}
+      height={120}
       alt={"face job logo"}
     />
   );

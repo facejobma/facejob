@@ -217,10 +217,10 @@ const OfferDetailPage: React.FC = () => {
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pt-20">
         {/* Header */}
         <div className="bg-white border-b">
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
             <div className="flex items-center justify-between mb-4">
               <Button
                 variant="ghost"
@@ -255,7 +255,7 @@ const OfferDetailPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">

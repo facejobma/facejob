@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { FullPageLoading } from "@/components/ui/loading";
@@ -13,11 +14,15 @@ import {
   FaTimesCircle,
   FaPlay,
   FaBriefcase,
-  FaFileVideo
+  FaFileVideo,
+  FaTimes,
+  FaSearch,
+  FaCheckCircle
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 interface Application {
   id: number;
@@ -35,6 +40,10 @@ interface Application {
   job_name?: string;
   sector_name?: string;
   experiences?: number;
+  location?: string;
+  contractType?: string;
+  date_debut?: string;
+  date_fin?: string;
 }
 
 interface Statistics {
@@ -48,6 +57,7 @@ interface Statistics {
 }
 
 const ApplicationHistory: React.FC = () => {
+  const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
@@ -61,6 +71,14 @@ const ApplicationHistory: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
@@ -70,7 +88,7 @@ const ApplicationHistory: React.FC = () => {
 
   useEffect(() => {
     filterApplications();
-  }, [applications, statusFilter]);
+  }, [applications, statusFilter, dateFilter, searchQuery]);
 
   const fetchApplicationHistory = async () => {
     try {
@@ -103,8 +121,43 @@ const ApplicationHistory: React.FC = () => {
   const filterApplications = () => {
     let filtered = applications;
 
+    // Filter by status
     if (statusFilter !== "all") {
       filtered = filtered.filter(app => app.status === statusFilter);
+    }
+
+    // Filter by date range
+    if (dateFilter !== "all") {
+      const now = new Date();
+      filtered = filtered.filter(app => {
+        const appliedDate = new Date(app.applied_at);
+        const diffDays = Math.floor((now.getTime() - appliedDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        switch (dateFilter) {
+          case "today":
+            return diffDays === 0;
+          case "week":
+            return diffDays <= 7;
+          case "month":
+            return diffDays <= 30;
+          case "3months":
+            return diffDays <= 90;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(app => 
+        app.title.toLowerCase().includes(query) ||
+        app.company.toLowerCase().includes(query) ||
+        app.description?.toLowerCase().includes(query) ||
+        app.job_name?.toLowerCase().includes(query) ||
+        app.sector_name?.toLowerCase().includes(query)
+      );
     }
 
     setFilteredApplications(filtered);
@@ -119,11 +172,25 @@ const ApplicationHistory: React.FC = () => {
             Vue
           </Badge>
         );
+      case 'accepted':
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">
+            <FaCheckCircle className="w-3 h-3 mr-1" />
+            Acceptée
+          </Badge>
+        );
+      case 'rejected':
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100 border-red-200">
+            <FaTimesCircle className="w-3 h-3 mr-1" />
+            Refusée
+          </Badge>
+        );
       default: // not_viewed
         return (
           <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100 border-gray-200">
             <FaClock className="w-3 h-3 mr-1" />
-            Pas vue
+            En attente
           </Badge>
         );
     }
@@ -154,10 +221,26 @@ const ApplicationHistory: React.FC = () => {
   };
 
   const handleVideoPreview = (videoUrl: string) => {
-    if (videoUrl) {
-      window.open(videoUrl, '_blank');
+    setSelectedVideo(videoUrl);
+  };
+
+  const handleOfferView = (application: Application) => {
+    if (application.offre_id) {
+      router.push(`/dashboard/candidat/offres/${application.offre_id}`);
     }
   };
+
+  const closeVideoModal = () => {
+    setSelectedVideo(null);
+  };
+
+  const clearFilters = () => {
+    setStatusFilter("all");
+    setDateFilter("all");
+    setSearchQuery("");
+  };
+
+  const hasActiveFilters = statusFilter !== "all" || dateFilter !== "all" || searchQuery.trim() !== "";
 
   if (loading) {
     return (
@@ -228,90 +311,187 @@ const ApplicationHistory: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <div className="flex items-center gap-2">
-          <FaFilter className="h-4 w-4 text-gray-500" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrer par statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les statuts</SelectItem>
-              <SelectItem value="not_viewed">Non vues</SelectItem>
-              <SelectItem value="viewed">Vues par recruteur</SelectItem>
-              <SelectItem value="pending">En attente</SelectItem>
-              <SelectItem value="rejected">Refusées</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <FaFilter className="h-5 w-5 text-green-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Filtres</h2>
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="ml-auto text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <FaTimes className="h-3 w-3 mr-1" />
+              Réinitialiser
+            </Button>
+          )}
         </div>
+
+        {/* Search Bar */}
+        <div className="mb-4">
+          <div className="relative">
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Rechercher par titre, entreprise, secteur..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Status Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Statut
+            </label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Tous les statuts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="not_viewed">
+                  <div className="flex items-center gap-2">
+                    <FaClock className="h-3 w-3 text-gray-600" />
+                    <span>Non vues</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="viewed">
+                  <div className="flex items-center gap-2">
+                    <FaEye className="h-3 w-3 text-blue-600" />
+                    <span>Vues</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="accepted">
+                  <div className="flex items-center gap-2">
+                    <FaCheckCircle className="h-3 w-3 text-green-600" />
+                    <span>Acceptées</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="rejected">
+                  <div className="flex items-center gap-2">
+                    <FaTimesCircle className="h-3 w-3 text-red-600" />
+                    <span>Refusées</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Date Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Période
+            </label>
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Toutes les périodes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les périodes</SelectItem>
+                <SelectItem value="today">Aujourd'hui</SelectItem>
+                <SelectItem value="week">Cette semaine</SelectItem>
+                <SelectItem value="month">Ce mois-ci</SelectItem>
+                <SelectItem value="3months">3 derniers mois</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        {hasActiveFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              <span className="font-semibold text-green-600">{filteredApplications.length}</span> candidature(s) trouvée(s)
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Applications List */}
       {filteredApplications.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <FaBriefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Aucune candidature trouvée
-          </h3>
-          <p className="text-gray-600">
-            {applications.length === 0 
-              ? "Vous n'avez pas encore postulé à des offres."
-              : "Aucune candidature ne correspond aux filtres sélectionnés."
-            }
-          </p>
+          <div className="max-w-md mx-auto">
+            <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+              <FaBriefcase className="h-10 w-10 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              {applications.length === 0 ? "Aucune candidature" : "Aucun résultat"}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {applications.length === 0 
+                ? "Vous n'avez pas encore postulé à des offres. Commencez à explorer les opportunités disponibles!"
+                : "Aucune candidature ne correspond aux filtres sélectionnés. Essayez de modifier vos critères de recherche."
+              }
+            </p>
+            {hasActiveFilters && (
+              <Button onClick={clearFilters} className="bg-green-600 hover:bg-green-700">
+                Réinitialiser les filtres
+              </Button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredApplications.map((application) => (
-            <div key={`${application.type}-${application.id}`} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-sm transition-shadow">
+            <div 
+              key={`${application.type}-${application.id}`} 
+              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md hover:border-green-200 transition-all duration-200"
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-3 mb-3 flex-wrap">
+                    {getTypeBadge(application.type)}
                     <h3 className="text-lg font-semibold text-gray-900">
                       {application.title}
                     </h3>
                     {getStatusBadge(application.status)}
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                    <div className="flex items-center gap-1">
-                      <FaBuilding className="h-4 w-4" />
-                      <span>{application.company}</span>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <FaBuilding className="h-4 w-4 text-green-600" />
+                      <span className="font-medium">{application.company}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <FaCalendarAlt className="h-4 w-4" />
+                    <div className="flex items-center gap-1.5">
+                      <FaCalendarAlt className="h-4 w-4 text-blue-600" />
                       <span>{formatDate(application.applied_at)}</span>
                     </div>
                   </div>
 
                   <div 
-                    className="text-gray-700 mb-3 line-clamp-2"
+                    className="text-gray-700 mb-3 line-clamp-2 text-sm leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: application.description || "Aucune description disponible." }}
                   />
 
                   {(application.job_name || application.sector_name) && (
                     <div className="flex flex-wrap gap-2">
                       {application.job_name && (
-                        <Badge variant="outline" className="text-xs">
-                          Poste: {application.job_name}
+                        <Badge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+                          <FaBriefcase className="h-3 w-3 mr-1" />
+                          {application.job_name}
                         </Badge>
                       )}
                       {application.sector_name && (
-                        <Badge variant="outline" className="text-xs">
-                          Secteur: {application.sector_name}
+                        <Badge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
+                          {application.sector_name}
                         </Badge>
                       )}
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 flex-shrink-0">
                   {application.video_link && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleVideoPreview(application.video_link!)}
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
                     >
                       <FaPlay className="h-3 w-3" />
                       <span>Voir vidéo</span>
@@ -322,8 +502,8 @@ const ApplicationHistory: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(`/offres/${application.offre_id}`, '_blank')}
-                      className="flex items-center gap-1"
+                      onClick={() => handleOfferView(application)}
+                      className="flex items-center gap-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
                     >
                       <FaEye className="h-3 w-3" />
                       <span>Voir offre</span>
@@ -334,6 +514,34 @@ const ApplicationHistory: React.FC = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Video Modal */}
+      {selectedVideo && mounted && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-xl max-w-4xl w-full shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-green-50 to-emerald-50">
+              <h3 className="text-lg font-semibold text-gray-900">Votre CV Vidéo</h3>
+              <button
+                onClick={closeVideoModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FaTimes className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <video
+                src={selectedVideo}
+                controls
+                className="w-full rounded-lg"
+                autoPlay
+              >
+                Votre navigateur ne supporte pas la lecture de vidéos.
+              </video>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

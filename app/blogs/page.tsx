@@ -48,7 +48,7 @@ const blogs = [
 
 const BlogPage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pt-20">
             <NavBar/>
             
             {/* Hero Section */}

@@ -106,6 +106,8 @@ const ConsumedCVs: React.FC = () => {
 
   const handleDownloadCV = async (candidateData: any) => {
     try {
+      // The candidateData from consumed-cvs already has all the information we need
+      // No need to fetch again - just use it directly
       await downloadConsumedResumePDF(candidateData);
       // Toast is already shown in downloadConsumedResumePDF function
     } catch (error) {

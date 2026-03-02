@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import ResumePDF, { downloadResumePDF } from "@/components/ResumePDF";
+import ResumePDF, { downloadResumePDF, downloadConsumedResumePDF } from "@/components/ResumePDF";
 import { toast } from "react-hot-toast";
 
 interface Candidat {
@@ -68,6 +68,7 @@ export const OfferCandidatActions: React.FC<{
   const [postulerToConsume, setPostulerToConsume] = useState<any | null>(
     null,
   );
+  const [isConsumed, setIsConsumed] = useState(false);
 
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const company =
@@ -75,6 +76,30 @@ export const OfferCandidatActions: React.FC<{
       ? window.sessionStorage?.getItem("user") || "{}"
       : "{}";
   const companyId = company ? JSON.parse(company).id : null;
+
+  const checkIfConsumed = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            candidat_id: candidat.id,
+            entreprise_id: companyId,
+          }),
+        },
+      );
+
+      const data = await response.json();
+      setIsConsumed(data.consumed || false);
+    } catch (error) {
+      console.error("Error checking consumption status:", error);
+    }
+  };
 
   const fetchLastPayment = async () => {
     try {
@@ -105,8 +130,50 @@ export const OfferCandidatActions: React.FC<{
     }
   };
 
+  const handleDownloadCV = async () => {
+    try {
+      if (isConsumed) {
+        // If consumed, fetch from consumed-cvs endpoint which has complete data
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumed-cvs`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des CVs consommés');
+        }
+        
+        const consumedCVs = await response.json();
+        
+        // Find the specific candidate in consumed CVs
+        const consumedCV = consumedCVs.find((cv: any) => 
+          cv.postuler?.candidat?.id === candidat.id
+        );
+        
+        if (consumedCV && consumedCV.postuler?.candidat) {
+          await downloadConsumedResumePDF(consumedCV.postuler.candidat);
+        } else {
+          // Fallback to regular download if not found in consumed list
+          await downloadResumePDF(candidat.id);
+        }
+      } else {
+        // If not consumed, use regular download (will be anonymized by backend)
+        await downloadResumePDF(candidat.id);
+      }
+    } catch (error) {
+      console.error("Error downloading CV:", error);
+      toast.error("Erreur lors du téléchargement du CV");
+    }
+  };
+
   useEffect(() => {
     fetchLastPayment();
+    checkIfConsumed();
   }, [authToken, companyId]);
 
   const handleConsumeClick = async (postuler: Postuler) => {
@@ -250,7 +317,7 @@ export const OfferCandidatActions: React.FC<{
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuItem onClick={() => downloadResumePDF(candidat.id)}>
+          <DropdownMenuItem onClick={handleDownloadCV}>
             <View className="mr-2 h-4 w-4" />
             Télécharger CV
           </DropdownMenuItem>

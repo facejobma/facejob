@@ -15,8 +15,8 @@ const CompanyProfile: React.FC = () => {
   const [companyProfile, setCompanyProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (userLoading || !user) return;
+  const fetchCompanyData = async () => {
+    if (!user) return;
 
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
     const companyId = user.id;
@@ -24,43 +24,47 @@ const CompanyProfile: React.FC = () => {
     if (companyId) {
       const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/enterprise/${companyId}`;
 
-      fetch(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch company data");
-          }
-          return response.json();
-        })
-        .then((companyData) => {
-          const profileData = {
-            id: companyData.id,
-            company_name: companyData.company_name,
-            sector_name: companyData.sector?.name,
-            site_web: companyData.site_web,
-            linkedin: companyData.linkedin,
-            phone: companyData.phone,
-            email: companyData.email,
-            email_verified_at: companyData.email_verified_at,
-            is_verified: companyData.is_verified,
-            creationDate: companyData.created_at.split("T")[0],
-            adresse: companyData.adresse,
-            description: companyData.description || "",
-            image: companyData.image || "https://via.placeholder.com/150",
-            logo: companyData.logo || "https://via.placeholder.com/150",
-          };
-          setCompanyProfile(profileData);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching company data:", error);
-          setLoading(false);
+      try {
+        const response = await fetch(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
         });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch company data");
+        }
+
+        const companyData = await response.json();
+        const profileData = {
+          id: companyData.id,
+          company_name: companyData.company_name,
+          sector_name: companyData.sector?.name,
+          site_web: companyData.site_web,
+          linkedin: companyData.linkedin,
+          phone: companyData.phone,
+          email: companyData.email,
+          email_verified_at: companyData.email_verified_at,
+          is_verified: companyData.is_verified,
+          creationDate: companyData.created_at.split("T")[0],
+          adresse: companyData.adresse,
+          description: companyData.description || "",
+          image: companyData.image || "https://via.placeholder.com/150",
+          logo: companyData.logo || "https://via.placeholder.com/150",
+        };
+        setCompanyProfile(profileData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching company data:", error);
+        setLoading(false);
+      }
     }
+  };
+
+  useEffect(() => {
+    if (userLoading || !user) return;
+    fetchCompanyData();
   }, [user, userLoading]);
 
   if (userLoading || loading) {
@@ -226,6 +230,7 @@ const CompanyProfile: React.FC = () => {
                 creationDate={companyProfile.creationDate}
                 siegeSocial={companyProfile.adresse}
                 image={companyProfile.image}
+                onProfileUpdate={fetchCompanyData}
               />
             </div>
             

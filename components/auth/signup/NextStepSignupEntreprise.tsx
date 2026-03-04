@@ -129,7 +129,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = ({
             );
 
             if (result.success) {
-                toast.success("Votre compte s'est terminé avec succès!");
+                toast.success("Votre profil a été complété avec succès!");
                 router.push("/auth/login-enterprise");
                 sessionStorage.clear();
             } else {

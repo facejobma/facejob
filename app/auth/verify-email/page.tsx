@@ -57,24 +57,30 @@ const VerifyEmailContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      <div className="container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-md mx-auto">
-          <Card className="shadow-lg">
+          <Card className="shadow-xl border-gray-200">
             <CardHeader className="text-center">
               <div className="mx-auto mb-4">
                 {status === 'loading' && (
-                  <Loader2 className="h-16 w-16 text-primary animate-spin" />
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                    <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                  </div>
                 )}
                 {status === 'success' && (
-                  <CheckCircle className="h-16 w-16 text-green-500" />
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
                 )}
                 {status === 'error' && (
-                  <XCircle className="h-16 w-16 text-red-500" />
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                    <XCircle className="h-8 w-8 text-red-600" />
+                  </div>
                 )}
               </div>
               
-              <CardTitle className="text-2xl font-bold">
+              <CardTitle className="text-2xl font-bold text-secondary">
                 {status === 'loading' && 'Vérification en cours...'}
                 {status === 'success' && 'Email vérifié !'}
                 {status === 'error' && 'Erreur de vérification'}
@@ -99,7 +105,7 @@ const VerifyEmailContent: React.FC = () => {
                   </p>
                   <Button 
                     onClick={handleContinue}
-                    className="w-full bg-primary hover:bg-primary-1"
+                    className="w-full bg-primary hover:bg-primary-1 text-white"
                   >
                     Se connecter
                   </Button>
@@ -119,7 +125,7 @@ const VerifyEmailContent: React.FC = () => {
                   <Button 
                     onClick={() => router.push('/')}
                     variant="ghost"
-                    className="w-full"
+                    className="w-full hover:bg-gray-100"
                   >
                     Retour à l'accueil
                   </Button>
@@ -141,20 +147,24 @@ const VerifyEmailContent: React.FC = () => {
 
 const VerifyEmailPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <>
       <NavBar />
       
       <Suspense fallback={
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Vérification en cours...</p>
+        <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+          <div className="container mx-auto px-4 pt-24 pb-16">
+            <div className="max-w-md mx-auto text-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+              <p className="mt-4 text-gray-600">Vérification en cours...</p>
+            </div>
           </div>
         </div>
       }>
         <VerifyEmailContent />
       </Suspense>
-    </div>
+    </>
   );
 };
 

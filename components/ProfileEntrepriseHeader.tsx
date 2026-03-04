@@ -18,6 +18,7 @@ interface ProfileEntrepHeaderProps {
   companyLogoUrl?: string;
   website?: string;
   creationDate: string;
+  onProfileUpdate?: () => void; // Callback to refresh parent data
 }
 
 interface SecteurOptions {
@@ -35,6 +36,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   companyLogoUrl,
   website,
   creationDate,
+  onProfileUpdate,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const router = useRouter(); // Using useRouter from next/router
@@ -93,6 +95,17 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       const creationDate = new Date(formData.newCreationDate);
       const formattedCreationDate = creationDate.toISOString().split("T")[0];
 
+      const updateData = {
+        company_name: formData.newCompanyName,
+        sector_id: secteur ? secteur : "",
+        adresse: formData.newSiegeSocial,
+        site_web: formData.newWebsite,
+        created_at: formattedCreationDate,
+        logo: formData.newImage || localImage || "",
+      };
+
+      console.log("Sending update data:", updateData);
+
       const response = await fetch(
         process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/enterprise/updateId/${id}`,
         {
@@ -101,34 +114,39 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            company_name: formData.newCompanyName,
-            sector_id: secteur ? secteur : "",
-            adresse: formData.newSiegeSocial,
-            site_web: formData.newWebsite,
-              created_at: formattedCreationDate,
-              image: formData.newImage || localImage || "",
-          }),
+          body: JSON.stringify(updateData),
         },
       );
 
         if (response.ok) {
           const updatedData = await response.json();
+          console.log("Update response:", updatedData);
+          
+          toast.success("Profil mis à jour avec succès!");
+          
           // Update local states with the new data
           setLocalCompanyName(formData.newCompanyName);
           const selectedSector = secteurOptions.find(opt => opt.id === Number(secteur));
-           setLocalSectorName(selectedSector?.name || "");
-            setLocalSiegeSocial(formData.newSiegeSocial);
-            setLocalWebsite(formData.newWebsite);
-            setLocalCreationDate(formattedCreationDate);
-          setLocalImage(formData.newImage);
+          setLocalSectorName(selectedSector?.name || "");
+          setLocalSiegeSocial(formData.newSiegeSocial);
+          setLocalWebsite(formData.newWebsite);
+          setLocalCreationDate(formattedCreationDate);
+          setLocalImage(formData.newImage || localImage);
 
-            setIsEditing(false);
+          setIsEditing(false);
+          
+          // Call parent callback to refresh data if provided
+          if (onProfileUpdate) {
+            onProfileUpdate();
+          }
         } else {
-            console.error("Failed to update profile data");
+            const errorData = await response.json();
+            console.error("Failed to update profile data:", errorData);
+            toast.error("Erreur lors de la mise à jour du profil");
         }
     } catch (error) {
       console.error("Error updating profile data:", error);
+      toast.error("Erreur lors de la mise à jour du profil");
     }
   };
 
@@ -182,22 +200,31 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   const handleRemoveImage = () => {
     setFormData((prevData) => ({ ...prevData, newImage: "" }));
   };
+  
+  const handleUploadBegin = () => {
+    setIsUploading(true);
+    toast.loading("Upload du logo en cours...", { id: "logo-upload" });
+  };
+  
   const handleImageUploadComplete = (res: any) => {
-     
-    if (res && res[0] && res[0].fileUrl) {
+    setIsUploading(false);
+    toast.dismiss("logo-upload");
+    
+    if (res && res[0] && res[0].url) {
       setFormData((prevData) => ({
         ...prevData,
-        newImage: res[0].fileUrl,
+        newImage: res[0].url,
       }));
-      toast.success("Image uploaded successfully!");
-      setIsUploading(false);
+      toast.success("Logo uploadé avec succès!");
+    } else {
+      toast.error("Erreur: URL du logo non trouvée");
     }
-    
   };
 
   const handleImageUploadError = (error: Error) => {
     setIsUploading(false);
-    toast.error(`Image upload error: ${error.message}`);
+    toast.dismiss("logo-upload");
+    toast.error(`Erreur d'upload: ${error.message}`);
   };
 
   return (
@@ -351,32 +378,36 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
           </div>
 
           <div className="space-y-4 border-t pt-6">
-            <label className="block text-sm font-semibold text-gray-700">Image de Profil</label>
+            <label className="block text-sm font-semibold text-gray-700">Logo de l'Entreprise</label>
               {formData.newImage ? (
-                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                   <img
                     src={formData.newImage}
-                    alt="Profile Preview"
-                    className="w-20 h-20 rounded-full border-2 border-gray-300 object-cover"
+                    alt="Logo Preview"
+                    className="w-24 h-24 rounded-lg border-2 border-green-200 object-contain bg-white p-2"
                   />
                   <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-2">Image sélectionnée</p>
+                    <p className="text-sm font-medium text-gray-900 mb-1">Logo sélectionné</p>
+                    <p className="text-xs text-gray-500 mb-3">Le logo sera visible sur votre profil public</p>
                   <button
                     type="button"
                     disabled={isUploading}
                     onClick={handleRemoveImage}
-                    className="flex items-center text-red-600 hover:text-red-800 text-sm font-medium transition-colors duration-200"
+                    className="flex items-center text-red-600 hover:text-red-700 text-sm font-medium transition-colors duration-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg"
                   >
                     <FaTrash className="mr-2" />
-                    Supprimer
+                    Supprimer le logo
                   </button>
              
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors duration-200">
-                <p className="text-secondary mb-4 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-400 transition-colors duration-200 bg-gray-50">
+                <p className="text-gray-600 mb-4 text-center font-medium">
                             {isUploading ? "Upload en cours..." : "Glissez et déposez le logo de votre entreprise"}
+                        </p>
+                        <p className="text-xs text-gray-500 text-center mb-4">
+                          Format recommandé: PNG ou JPG, taille maximale: 2MB
                         </p>
                         {!isUploading ? (
                 <UploadDropzone
@@ -387,17 +418,18 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
                                                 }}
                                                 onClientUploadComplete={handleImageUploadComplete}
                                                 onUploadError={handleImageUploadError}
-                                                className="border-2 border-dashed rounded-md p-3 text-center cursor-pointer transition-colors border-gray-300 hover:border-primary"
+                                                onUploadBegin={handleUploadBegin}
+                                                className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors border-gray-300 hover:border-green-500"
                                                 appearance={{
-                                                    button: "bg-primary hover:bg-primary-dark",
-                                                    allowedContent: "text-gray-600",
+                                                    button: "bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded-lg",
+                                                    allowedContent: "text-gray-600 text-sm",
                                                 }}
                                             />) : (
                             <div className="flex flex-col items-center justify-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-                                <p className="text-primary text-sm">Upload en cours...</p>
-                                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div className="bg-primary h-2 rounded-full animate-pulse w-3/4"></div>
+                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mb-4"></div>
+                                <p className="text-green-600 text-sm font-medium">Upload en cours...</p>
+                                <div className="w-full max-w-xs bg-gray-200 rounded-full h-2 mt-3">
+                                    <div className="bg-green-600 h-2 rounded-full animate-pulse w-3/4"></div>
                                 </div>
                             </div>
                         )}

@@ -147,6 +147,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
           const userData = responseData.data;
           
           sessionStorage.setItem("userId", userData.user_id);
+          sessionStorage.setItem("userEmail", formData.email); // Store email for verification modal
           
           // Store the authentication token
           if (userData.token) {

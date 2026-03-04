@@ -32,6 +32,8 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
   const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showUploadZone, setShowUploadZone] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
   const maxLength = 250;
 
   const router = useRouter();
@@ -134,9 +136,18 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
       );
 
       if (result.success) {
-        toast.success("Votre compte s'est terminé avec succès !");
-        router.push("/auth/login-candidate");
-        sessionStorage.clear();
+        // Get user email from session or result
+        const email = typeof window !== "undefined"
+          ? window.sessionStorage?.getItem("userEmail") || ""
+          : "";
+        
+        setUserEmail(email);
+        setShowVerificationModal(true);
+        
+        // Clear session after showing modal
+        setTimeout(() => {
+          sessionStorage.clear();
+        }, 500);
       } else {
         // Backend will return appropriate error message
         handleApiError(result, toast);
@@ -425,6 +436,81 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
           </div>
         </div>
       </div>
+
+      {/* Email Verification Modal */}
+      {showVerificationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-6 md:p-8 relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            {/* Success Icon */}
+            <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-center text-gray-900 mb-2 sm:mb-3">
+              Vérifiez votre email
+            </h2>
+
+            {/* Message */}
+            <div className="text-center mb-4 sm:mb-5 md:mb-6">
+              <p className="text-sm sm:text-base text-gray-600 mb-1 ">
+                Votre compte a été créé avec succès ! 🎉
+              </p>
+              <p className="text-sm sm:text-base text-gray-700 font-medium mb-1 ">
+                Un email de vérification a été envoyé à :
+              </p>
+              <p className="text-sm sm:text-base md:text-lg text-green-600 font-semibold mb-2 sm:mb-3 md:mb-4 break-words">
+                {userEmail}
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 sm:p-3 md:p-4 text-left">
+                <p className="text-xs sm:text-sm text-blue-900 font-medium mb-1.5 sm:mb-2">
+                  Pour activer votre compte :
+                </p>
+                <ol className="text-xs sm:text-sm text-blue-800 space-y-0.5 sm:space-y-1 list-decimal list-inside">
+                  <li>Ouvrez votre boîte email</li>
+                  <li>Trouvez l'email de FaceJob (vérifiez aussi les spams)</li>
+                  <li>Cliquez sur le bouton de validation</li>
+                </ol>
+              </div>
+            </div>
+
+            {/* Warning */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-2.5 md:p-3 mb-3 sm:mb-4 md:mb-6">
+              <p className="text-xs text-yellow-800 text-center">
+                ⚠️ Vous ne pourrez pas vous connecter tant que votre email n'est pas vérifié
+              </p>
+            </div>
+
+            {/* Action Button */}
+            <button
+              onClick={() => {
+                setShowVerificationModal(false);
+                router.push("/auth/login-candidate");
+              }}
+              className="w-full py-2.5 sm:py-3 px-4 sm:px-6 bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              J'ai compris, aller à la connexion
+            </button>
+
+            {/* Resend Link */}
+            <div className="mt-3 sm:mt-4 text-center">
+              <p className="text-xs sm:text-sm text-gray-600">
+                Vous n'avez pas reçu l'email ?{" "}
+                <a
+                  href="/auth/resend-verification"
+                  className="text-green-600 hover:text-green-700 font-medium hover:underline"
+                >
+                  Renvoyer
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

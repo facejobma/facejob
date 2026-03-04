@@ -46,15 +46,17 @@ const ResendVerificationPage: React.FC = () => {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
         <NavBar />
         
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 pt-24 pb-16">
           <div className="max-w-md mx-auto">
-            <Card className="shadow-xl">
+            <Card className="shadow-xl border-gray-200">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4">
-                  <Mail className="h-16 w-16 text-green-500" />
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                    <Mail className="h-8 w-8 text-green-600" />
+                  </div>
                 </div>
                 
                 <CardTitle className="text-2xl font-bold text-green-600">
@@ -86,7 +88,7 @@ const ResendVerificationPage: React.FC = () => {
                       setEmail('');
                     }}
                     variant="outline"
-                    className="w-full"
+                    className="w-full border-gray-300 hover:bg-gray-50"
                   >
                     Renvoyer à une autre adresse
                   </Button>
@@ -94,7 +96,7 @@ const ResendVerificationPage: React.FC = () => {
                   <Button 
                     onClick={() => router.push('/')}
                     variant="ghost"
-                    className="w-full"
+                    className="w-full hover:bg-gray-100"
                   >
                     Retour à l'accueil
                   </Button>
@@ -108,26 +110,28 @@ const ResendVerificationPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <NavBar />
       
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-md mx-auto">
-          <Card className="shadow-xl">
-            <CardHeader className="text-center">
+          <Card className="shadow-xl border-gray-200">
+            <CardHeader className="text-center relative">
               <Button
                 onClick={() => router.back()}
                 variant="ghost"
-                className="absolute top-4 left-4 p-2"
+                className="absolute top-4 left-4 p-2 hover:bg-gray-100"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               
               <div className="mx-auto mb-4">
-                <Mail className="h-16 w-16 text-primary" />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                  <Mail className="h-8 w-8 text-primary" />
+                </div>
               </div>
               
-              <CardTitle className="text-2xl font-bold">
+              <CardTitle className="text-2xl font-bold text-secondary">
                 Renvoyer l'email de vérification
               </CardTitle>
               
@@ -139,7 +143,7 @@ const ResendVerificationPage: React.FC = () => {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="userType" className="block text-sm font-medium text-secondary mb-2">
                     Type de compte
                   </label>
                   <div className="grid grid-cols-2 gap-4">
@@ -176,7 +180,7 @@ const ResendVerificationPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-secondary mb-2">
                     Adresse email
                   </label>
                   <Input
@@ -185,7 +189,7 @@ const ResendVerificationPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="votre@email.com"
-                    className="w-full"
+                    className="w-full border-gray-300 focus:ring-primary focus:border-primary"
                     required
                   />
                 </div>
@@ -193,10 +197,10 @@ const ResendVerificationPage: React.FC = () => {
                 <Button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary-1"
+                  className="w-full bg-primary hover:bg-primary-1 text-white"
                 >
                   {isLoading ? (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Envoi en cours...
                     </div>
@@ -214,7 +218,7 @@ const ResendVerificationPage: React.FC = () => {
                   Vous vous souvenez de votre mot de passe ?{' '}
                   <button
                     onClick={() => router.push('/auth/login')}
-                    className="text-primary hover:text-primary-1 font-medium"
+                    className="text-primary hover:text-primary-1 font-medium hover:underline"
                   >
                     Se connecter
                   </button>

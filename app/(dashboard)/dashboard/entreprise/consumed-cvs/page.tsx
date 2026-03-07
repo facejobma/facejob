@@ -138,56 +138,56 @@ const ConsumedCVs: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Simple Header */}
-      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <Eye className="text-green-600 w-5 h-5" />
+      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-4 md:p-6">
+        <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+          <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+            <Eye className="text-green-600 w-4 h-4 md:w-5 md:h-5" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">CVs Consommés</h1>
-            <p className="text-gray-600">Consultez la liste des CVs vidéos que vous avez consommés</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-gray-900">CVs Consommés</h1>
+            <p className="text-xs md:text-base text-gray-600">Consultez la liste des CVs vidéos que vous avez consommés</p>
           </div>
         </div>
         
         {/* Statistics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <svg className="text-green-600 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <svg className="text-green-600 w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{consumedCVs.length}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{consumedCVs.length}</p>
                 <p className="text-xs text-gray-600">CVs consommés</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <span className="text-green-600 font-bold">✓</span>
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <span className="text-green-600 font-bold text-base md:text-lg">✓</span>
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{consumedCVs.filter(cv => cv.postuler.candidat.is_completed === 1).length}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{consumedCVs.filter(cv => cv.postuler.candidat.is_completed === 1).length}</p>
                 <p className="text-xs text-gray-600">Profils complets</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <svg className="text-green-600 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <svg className="text-green-600 w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">
                   {(() => {
                     const validExperiences = consumedCVs.filter(cv => 
                       cv.postuler.candidat.years_of_experience != null
@@ -205,15 +205,15 @@ const ConsumedCVs: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <svg className="text-green-600 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <svg className="text-green-600 w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a2 2 0 012-2h4a2 2 0 012 2v1M8 7h8m-9 4v10a2 2 0 002 2h8a2 2 0 002-2V11a2 2 0 00-2-2H9a2 2 0 00-2 2z" />
                 </svg>
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{new Set(consumedCVs.map(cv => cv.postuler.sector_id)).size}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{new Set(consumedCVs.map(cv => cv.postuler.sector_id)).size}</p>
                 <p className="text-xs text-gray-600">Secteurs</p>
               </div>
             </div>
@@ -223,99 +223,160 @@ const ConsumedCVs: React.FC = () => {
 
       {/* Content */}
       {consumedCVs.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <div className="flex flex-col items-center justify-center gap-4 text-gray-500">
-            <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center">
-              <svg className="text-gray-400 w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white rounded-lg border border-gray-200 p-8 md:p-12 text-center">
+          <div className="flex flex-col items-center justify-center gap-3 md:gap-4 text-gray-500">
+            <div className="h-12 w-12 md:h-16 md:w-16 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg className="text-gray-400 w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </div>
             <div className="text-center">
-              <p className="text-lg font-semibold text-gray-900 mb-2">Aucun CV consommé</p>
-              <p className="text-sm text-gray-600 max-w-md">
+              <p className="text-base md:text-lg font-semibold text-gray-900 mb-2">Aucun CV consommé</p>
+              <p className="text-xs md:text-sm text-gray-600 max-w-md">
                 Vous n'avez pas encore consommé de CV vidéo. Commencez par explorer les candidats disponibles.
               </p>
             </div>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
-                    Vidéo
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
-                    Nom du Candidat
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
-                    Expérience
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
-                    Date de Consommation
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {consumedCVs.map((cv, index) => (
-                  <tr 
-                    key={cv.id} 
-                    className={`${
-                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                    } hover:bg-green-50 transition-colors`}
-                  >
-                    <td className="px-6 py-4 border-b border-gray-200 text-center">
-                      <div className="flex justify-center">
-                        <video
-                          src={cv.postuler.link}
-                          className="w-40 h-28 object-cover rounded-lg shadow-sm"
-                          controls
-                          controlsList="nodownload"
-                        >
-                          Votre navigateur ne supporte pas la vidéo.
-                        </video>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-center">
-                      <div className="font-medium text-gray-900">
-                        {cv.postuler.candidat.first_name} {cv.postuler.candidat.last_name}
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">
-                        {cv.postuler.candidat.email}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-center">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        {cv.postuler.candidat.years_of_experience ?? 0} ans
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-center text-gray-700">
-                      {new Date(cv.created_at).toLocaleDateString("fr-FR", {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })}
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-center">
-                      <button
-                        onClick={() => handleDownloadCV(cv.postuler.candidat)}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
-                      >
-                        <Download className="h-4 w-4" />
-                        Télécharger CV
-                      </button>
-                    </td>
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
+                      Vidéo
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
+                      Nom du Candidat
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
+                      Expérience
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
+                      Date de Consommation
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {consumedCVs.map((cv, index) => (
+                    <tr 
+                      key={cv.id} 
+                      className={`${
+                        index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                      } hover:bg-green-50 transition-colors`}
+                    >
+                      <td className="px-6 py-4 border-b border-gray-200 text-center">
+                        <div className="flex justify-center">
+                          <video
+                            src={cv.postuler.link}
+                            className="w-40 h-28 object-cover rounded-lg shadow-sm"
+                            controls
+                            controlsList="nodownload"
+                          >
+                            Votre navigateur ne supporte pas la vidéo.
+                          </video>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 border-b border-gray-200 text-center">
+                        <div className="font-medium text-gray-900">
+                          {cv.postuler.candidat.first_name} {cv.postuler.candidat.last_name}
+                        </div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          {cv.postuler.candidat.email}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 border-b border-gray-200 text-center">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                          {cv.postuler.candidat.years_of_experience ?? 0} ans
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 border-b border-gray-200 text-center text-gray-700">
+                        {new Date(cv.created_at).toLocaleDateString("fr-FR", {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </td>
+                      <td className="px-6 py-4 border-b border-gray-200 text-center">
+                        <button
+                          onClick={() => handleDownloadCV(cv.postuler.candidat)}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                        >
+                          <Download className="h-4 w-4" />
+                          Télécharger CV
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden grid grid-cols-1 gap-4">
+            {consumedCVs.map((cv) => (
+              <div
+                key={cv.id}
+                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-green-300 hover:shadow-lg transition-all"
+              >
+                {/* Video */}
+                <div className="relative h-48 bg-black">
+                  <video
+                    src={cv.postuler.link}
+                    className="w-full h-full object-cover"
+                    controls
+                    controlsList="nodownload"
+                  >
+                    Votre navigateur ne supporte pas la vidéo.
+                  </video>
+                </div>
+
+                {/* Content */}
+                <div className="p-4">
+                  <div className="space-y-3">
+                    {/* Name and Email */}
+                    <div>
+                      <h3 className="font-bold text-base text-gray-900">
+                        {cv.postuler.candidat.first_name} {cv.postuler.candidat.last_name}
+                      </h3>
+                      <p className="text-xs text-gray-600 mt-0.5">{cv.postuler.candidat.email}</p>
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {cv.postuler.candidat.years_of_experience ?? 0} ans d'exp.
+                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        {new Date(cv.created_at).toLocaleDateString("fr-FR", {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+
+                    {/* Action Button */}
+                    <button
+                      onClick={() => handleDownloadCV(cv.postuler.candidat)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm"
+                    >
+                      <Download className="h-4 w-4" />
+                      Télécharger CV
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

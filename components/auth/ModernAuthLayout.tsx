@@ -23,9 +23,9 @@ const ModernAuthLayout: React.FC<ModernAuthLayoutProps> = ({
 }) => {
   return (
     <AuthErrorBoundary>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50 lg:flex">
         {/* Left Side - Form */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 min-h-screen lg:h-screen lg:overflow-y-auto">
           <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 lg:px-16 xl:px-20 py-6">
             {/* Back Button */}
             {showBackButton && (
@@ -61,7 +61,7 @@ const ModernAuthLayout: React.FC<ModernAuthLayoutProps> = ({
         </div>
 
         {/* Right Side - Image */}
-        <div className="hidden lg:block relative w-0 flex-1 sticky top-0 h-screen">
+        <div className="hidden lg:block relative w-0 flex-1 lg:sticky top-0 h-screen">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-green-600/20">
             <Image
               src={backgroundImage}

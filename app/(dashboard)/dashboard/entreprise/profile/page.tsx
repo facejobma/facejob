@@ -95,18 +95,18 @@ const CompanyProfile: React.FC = () => {
   const completionPercentage = Math.round((profileStats.completed / profileStats.total) * 100);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Verification Status Banner */}
       {companyProfile && (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {/* Email Verification Status */}
           {!companyProfile.email_verified_at && (
-            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-              <div className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-yellow-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <div className="bg-yellow-50 border border-yellow-200 p-3 md:p-4 rounded-lg">
+              <div className="flex items-center gap-2 md:gap-3">
+                <svg className="h-4 w-4 md:h-5 md:w-5 text-yellow-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                <p className="text-sm text-yellow-800">
+                <p className="text-xs md:text-sm text-yellow-800">
                   <span className="font-medium">Email non vérifié.</span> Veuillez vérifier votre email pour activer toutes les fonctionnalités.
                 </p>
               </div>
@@ -115,12 +115,12 @@ const CompanyProfile: React.FC = () => {
           
           {/* Company Verification Status */}
           {companyProfile.email_verified_at && !companyProfile.is_verified && (
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-              <div className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-blue-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <div className="bg-blue-50 border border-blue-200 p-3 md:p-4 rounded-lg">
+              <div className="flex items-center gap-2 md:gap-3">
+                <svg className="h-4 w-4 md:h-5 md:w-5 text-blue-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
-                <p className="text-sm text-blue-800">
+                <p className="text-xs md:text-sm text-blue-800">
                   <span className="font-medium">Compte en attente de vérification.</span> Notre équipe examine votre profil entreprise.
                 </p>
               </div>
@@ -129,12 +129,12 @@ const CompanyProfile: React.FC = () => {
           
           {/* Verified Status */}
           {companyProfile.email_verified_at && companyProfile.is_verified && (
-            <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-              <div className="flex items-center gap-3">
-                <svg className="h-5 w-5 text-green-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <div className="bg-green-50 border border-green-200 p-3 md:p-4 rounded-lg">
+              <div className="flex items-center gap-2 md:gap-3">
+                <svg className="h-4 w-4 md:h-5 md:w-5 text-green-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <p className="text-sm text-green-800">
+                <p className="text-xs md:text-sm text-green-800">
                   <span className="font-medium">Compte vérifié.</span> Votre entreprise est vérifiée et vous avez accès à toutes les fonctionnalités.
                 </p>
               </div>
@@ -144,62 +144,62 @@ const CompanyProfile: React.FC = () => {
       )}
       
       {/* Header with simple design */}
-      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <HiOutlineOfficeBuilding className="text-green-600 text-xl" />
+      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-4 md:p-6">
+        <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+          <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+            <HiOutlineOfficeBuilding className="text-green-600 text-lg md:text-xl" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Profil Entreprise</h1>
-            <p className="text-gray-600">Gérez les informations de votre entreprise</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-gray-900">Profil Entreprise</h1>
+            <p className="text-xs md:text-base text-gray-600">Gérez les informations de votre entreprise</p>
           </div>
         </div>
         
         {/* Profile Statistics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <FaBuilding className="text-green-600" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <FaBuilding className="text-green-600 text-sm md:text-base" />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{completionPercentage}%</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{completionPercentage}%</p>
                 <p className="text-xs text-gray-600">Complété</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <FaGlobe className="text-green-600" />
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <FaGlobe className="text-green-600 text-sm md:text-base" />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{companyProfile?.sector_name ? 1 : 0}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{companyProfile?.sector_name ? 1 : 0}</p>
                 <p className="text-xs text-gray-600">Secteur</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <FaCalendarAlt className="text-green-600" />
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <FaCalendarAlt className="text-green-600 text-sm md:text-base" />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{new Date().getFullYear() - new Date(companyProfile?.creationDate).getFullYear()}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{new Date().getFullYear() - new Date(companyProfile?.creationDate).getFullYear()}</p>
                 <p className="text-xs text-gray-600">Années</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <FaMapMarkerAlt className="text-green-600" />
+          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <FaMapMarkerAlt className="text-green-600 text-sm md:text-base" />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{companyProfile?.adresse ? 1 : 0}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{companyProfile?.adresse ? 1 : 0}</p>
                 <p className="text-xs text-gray-600">Localisation</p>
               </div>
             </div>
@@ -208,19 +208,19 @@ const CompanyProfile: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Company Information - Combined Section */}
         <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                <FaBuilding className="text-green-600 text-sm" />
+          <div className="p-4 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+              <div className="h-6 w-6 md:h-8 md:w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <FaBuilding className="text-green-600 text-xs md:text-sm" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">Informations de l'entreprise</h2>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900">Informations de l'entreprise</h2>
             </div>
             
             {/* Company Header */}
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <ProfileEntrepHeader
                 id={companyProfile.id}
                 company_name={companyProfile.company_name}
@@ -235,10 +235,10 @@ const CompanyProfile: React.FC = () => {
             </div>
             
             {/* Divider */}
-            <div className="my-6 border-t border-gray-200"></div>
+            <div className="my-4 md:my-6 border-t border-gray-200"></div>
             
             {/* Two Column Layout for Description and Contact */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               {/* Description Section */}
               <div>
                 <BioEntrepSection

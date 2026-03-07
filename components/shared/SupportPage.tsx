@@ -115,16 +115,16 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
   const faqItems = getFAQItems();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Simple Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-            <FiHeadphones className={`${theme.iconColor} text-xl`} />
+      <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+        <div className="flex items-start md:items-center gap-3 mb-4 md:mb-6">
+          <div className={`h-8 w-8 md:h-10 md:w-10 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+            <FiHeadphones className={`${theme.iconColor} text-lg md:text-xl`} />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Support & Contact</h1>
-            <p className="text-gray-600">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-gray-900">Support & Contact</h1>
+            <p className="text-xs md:text-base text-gray-600 mt-0.5">
               {userType === 'candidat' 
                 ? "Nous sommes là pour vous accompagner dans votre recherche d'emploi"
                 : "Nous sommes là pour vous aider avec toutes vos questions de recrutement"
@@ -134,50 +134,50 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
         </div>
         
         {/* Statistics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-                <FiPhone className={`${theme.iconColor}`} />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-3 md:p-4`}>
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className={`h-8 w-8 md:h-10 md:w-10 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+                <FiPhone className={`${theme.iconColor} text-sm md:text-base`} />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">24/7</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">24/7</p>
                 <p className="text-xs text-gray-600">Support</p>
               </div>
             </div>
           </div>
           
-          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-                <FiMail className={`${theme.iconColor}`} />
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-3 md:p-4`}>
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className={`h-8 w-8 md:h-10 md:w-10 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+                <FiMail className={`${theme.iconColor} text-sm md:text-base`} />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">Email</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">Email</p>
                 <p className="text-xs text-gray-600">Rapide</p>
               </div>
             </div>
           </div>
           
-          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-                <FiUsers className={`${theme.iconColor}`} />
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-3 md:p-4`}>
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className={`h-8 w-8 md:h-10 md:w-10 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+                <FiUsers className={`${theme.iconColor} text-sm md:text-base`} />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">1000+</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">1000+</p>
                 <p className="text-xs text-gray-600">Utilisateurs</p>
               </div>
             </div>
           </div>
           
-          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4`}>
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-                <FiCheckCircle className={`${theme.iconColor}`} />
+          <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-3 md:p-4`}>
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className={`h-8 w-8 md:h-10 md:w-10 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+                <FiCheckCircle className={`${theme.iconColor} text-sm md:text-base`} />
               </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">98%</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">98%</p>
                 <p className="text-xs text-gray-600">Satisfaction</p>
               </div>
             </div>
@@ -185,20 +185,20 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 items-start">
         {/* Contact Form */}
         <Card className="border border-gray-200 bg-white rounded-lg h-full">
-          <CardHeader className={`${theme.cardAccent} rounded-t-lg border-b border-gray-200`}>
-            <CardTitle className="flex items-center gap-2 text-gray-800">
-              <FiMessageCircle className="text-xl" />
+          <CardHeader className={`${theme.cardAccent} rounded-t-lg border-b border-gray-200 p-4 md:p-6`}>
+            <CardTitle className="flex items-center gap-2 text-gray-800 text-base md:text-lg">
+              <FiMessageCircle className="text-lg md:text-xl flex-shrink-0" />
               Contactez-nous
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                     Nom complet
                   </label>
                   <Input
@@ -207,12 +207,12 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Votre nom"
-                    className="w-full"
+                    className="w-full text-sm md:text-base"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                     Email
                   </label>
                   <Input
@@ -221,14 +221,14 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="votre@email.com"
-                    className="w-full"
+                    className="w-full text-sm md:text-base"
                     required
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                   Sujet
                 </label>
                 <Input
@@ -237,13 +237,13 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                   value={formData.subject}
                   onChange={handleInputChange}
                   placeholder="Sujet de votre message"
-                  className="w-full"
+                  className="w-full text-sm md:text-base"
                   required
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
                   Message
                 </label>
                 <Textarea
@@ -252,16 +252,16 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                   onChange={handleInputChange}
                   placeholder="Décrivez votre question ou problème..."
                   rows={5}
-                  className="w-full"
+                  className="w-full text-sm md:text-base"
                   required
                 />
               </div>
               
               <Button 
                 type="submit" 
-                className={`w-full ${theme.buttonColor} text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2`}
+                className={`w-full ${theme.buttonColor} text-white font-semibold py-2.5 md:py-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm md:text-base`}
               >
-                <FiSend className="text-lg" />
+                <FiSend className="text-base md:text-lg" />
                 Envoyer le message
               </Button>
             </form>
@@ -270,41 +270,41 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
 
         {/* Contact Information */}
         <Card className="border border-gray-200 bg-white rounded-lg h-full">
-          <CardHeader className={`${theme.cardAccent} rounded-t-lg border-b border-gray-200`}>
-            <CardTitle className="flex items-center gap-2 text-gray-800">
-              <FiPhone className="text-xl" />
+          <CardHeader className={`${theme.cardAccent} rounded-t-lg border-b border-gray-200 p-4 md:p-6`}>
+            <CardTitle className="flex items-center gap-2 text-gray-800 text-base md:text-lg">
+              <FiPhone className="text-lg md:text-xl flex-shrink-0" />
               Informations de contact
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className={`h-12 w-12 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-                <FiPhone className={`${theme.iconColor} text-xl`} />
+          <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
+            <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className={`h-10 w-10 md:h-12 md:w-12 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+                <FiPhone className={`${theme.iconColor} text-lg md:text-xl`} />
               </div>
-              <div>
-                <p className="font-semibold text-gray-800">Téléphone</p>
-                <p className="text-gray-600">+212 8 08588918</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className={`h-12 w-12 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-                <FiMail className={`${theme.iconColor} text-xl`} />
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800">Email</p>
-                <p className="text-gray-600">contact@facejob.ma</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-800 text-sm md:text-base">Téléphone</p>
+                <p className="text-gray-600 text-xs md:text-base">+212 8 08588918</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className={`h-12 w-12 rounded-lg ${theme.iconBg} flex items-center justify-center`}>
-                <FiClock className={`${theme.iconColor} text-xl`} />
+            <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className={`h-10 w-10 md:h-12 md:w-12 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+                <FiMail className={`${theme.iconColor} text-lg md:text-xl`} />
               </div>
-              <div>
-                <p className="font-semibold text-gray-800">Horaires</p>
-                <p className="text-gray-600">Lun-Ven: 9h-18h</p>
-                <p className="text-gray-600">Sam: 10h-16h</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-800 text-sm md:text-base">Email</p>
+                <p className="text-gray-600 text-xs md:text-base break-all">contact@facejob.ma</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className={`h-10 w-10 md:h-12 md:w-12 rounded-lg ${theme.iconBg} flex items-center justify-center flex-shrink-0`}>
+                <FiClock className={`${theme.iconColor} text-lg md:text-xl`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-800 text-sm md:text-base">Horaires</p>
+                <p className="text-gray-600 text-xs md:text-base">Lun-Ven: 9h-18h</p>
+                <p className="text-gray-600 text-xs md:text-base">Sam: 10h-16h</p>
               </div>
             </div>
           </CardContent>
@@ -313,21 +313,21 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
 
       {/* FAQ Section */}
       <Card className="border border-gray-200 bg-white rounded-lg">
-        <CardHeader className={`${theme.cardAccent} rounded-t-lg border-b border-gray-200`}>
-          <CardTitle className="flex items-center gap-2 text-gray-800">
-            <FiHelpCircle className="text-xl" />
+        <CardHeader className={`${theme.cardAccent} rounded-t-lg border-b border-gray-200 p-4 md:p-6`}>
+          <CardTitle className="flex items-center gap-2 text-gray-800 text-base md:text-lg">
+            <FiHelpCircle className="text-lg md:text-xl flex-shrink-0" />
             Questions fréquemment posées
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-4">
+        <CardContent className="p-4 md:p-6">
+          <div className="space-y-3 md:space-y-4">
             {faqItems.map((item, index) => (
-              <div key={index} className="border-b border-gray-200 pb-4 last:border-b-0">
-                <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                  <FiFileText className={`${theme.iconColor}`} />
-                  {item.question}
+              <div key={index} className="border-b border-gray-200 pb-3 md:pb-4 last:border-b-0">
+                <h3 className="font-semibold text-gray-800 mb-2 flex items-start gap-2 text-sm md:text-base">
+                  <FiFileText className={`${theme.iconColor} flex-shrink-0 mt-0.5`} />
+                  <span className="flex-1">{item.question}</span>
                 </h3>
-                <p className="text-gray-600 ml-6">{item.answer}</p>
+                <p className="text-gray-600 ml-6 text-xs md:text-base">{item.answer}</p>
               </div>
             ))}
           </div>
@@ -335,32 +335,32 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
       </Card>
 
       {/* Call to Action */}
-      <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-6 text-center`}>
-        <div className={`inline-flex h-12 w-12 rounded-lg ${theme.iconBg} items-center justify-center mb-4`}>
-          <FiHeadphones className={`${theme.iconColor} text-xl`} />
+      <div className={`${theme.cardAccent} border-2 border-green-200 rounded-lg p-4 md:p-6 text-center`}>
+        <div className={`inline-flex h-10 w-10 md:h-12 md:w-12 rounded-lg ${theme.iconBg} items-center justify-center mb-3 md:mb-4`}>
+          <FiHeadphones className={`${theme.iconColor} text-lg md:text-xl`} />
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">
+        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
           {userType === 'candidat' 
             ? "Besoin d'aide pour votre recherche d'emploi ?"
             : "Besoin d'aide pour vos recrutements ?"
           }
         </h2>
-        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+        <p className="text-xs md:text-base text-gray-600 mb-4 md:mb-6 max-w-2xl mx-auto">
           {userType === 'candidat'
             ? "Notre équipe d'experts est là pour vous accompagner dans chaque étape de votre parcours professionnel."
             : "Notre équipe d'experts est là pour vous accompagner dans vos processus de recrutement et vous aider à trouver les meilleurs talents."
           }
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
           <Button 
-            className={`${theme.buttonColor} text-white font-semibold px-8 py-3 rounded-lg transition-colors`}
+            className={`${theme.buttonColor} text-white font-semibold px-6 md:px-8 py-2.5 md:py-3 rounded-lg transition-colors text-sm md:text-base`}
             onClick={() => window.location.href = 'tel:+212808588918'}
           >
             <FiPhone className="mr-2" />
             Nous appeler
           </Button>
           <Button 
-            className="bg-white text-gray-700 hover:bg-gray-50 font-semibold px-8 py-3 rounded-lg transition-colors border-2 border-gray-300"
+            className="bg-white text-gray-700 hover:bg-gray-50 font-semibold px-6 md:px-8 py-2.5 md:py-3 rounded-lg transition-colors border-2 border-gray-300 text-sm md:text-base"
             onClick={() => window.location.href = 'mailto:contact@facejob.ma'}
           >
             <FiMail className="mr-2" />

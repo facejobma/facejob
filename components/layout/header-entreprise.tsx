@@ -14,8 +14,15 @@ export default function HeaderEntreprise() {
 
   return (
     <div className="fixed top-0 left-0 right-0 border-b bg-white z-40 shadow-sm">
-      <nav className="h-16 flex items-center justify-between px-6">
-        <div className="flex items-center gap-6">
+      <nav className="h-16 flex items-center justify-between px-4 md:px-6">
+        <div className="flex items-center gap-2 md:gap-6">
+          {/* Mobile Sidebar - Left on mobile */}
+          <div className="block md:hidden">
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+              <MobileSidebar />
+            </div>
+          </div>
+
           {/* Toggle Sidebar Button - Desktop */}
           <button
             onClick={toggle}
@@ -28,26 +35,25 @@ export default function HeaderEntreprise() {
           <div className="hidden md:block">
             <Logo />
           </div>
+          
+          {/* Publish Offer Button - Responsive */}
           <button
-            className="flex items-center gap-2 px-5 py-2.5 text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg transition-colors text-sm md:text-base whitespace-nowrap"
             onClick={() => router.push("/dashboard/entreprise/publier")}
           >
-            <Plus className="w-4 h-4" />
-            <span>Publier une offre</span>
+            <Plus className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Publier une offre</span>
+            <span className="sm:hidden">Publier</span>
           </button>
         </div>
         
-        <div className={cn("block md:!hidden")}>
-          <MobileSidebar />
-        </div>
-        
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <button
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-gray-900 font-medium border border-gray-300 hover:border-gray-400 rounded-lg transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-gray-700 hover:text-gray-900 font-medium border border-gray-300 hover:border-gray-400 rounded-lg transition-colors whitespace-nowrap"
             onClick={() => router.push("/dashboard/entreprise/services")}
           >
-            <Star className="w-4 h-4" />
-            Mise à niveau
+            <Star className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+            <span>Mise à niveau</span>
           </button>
           <Notification />
         </div>

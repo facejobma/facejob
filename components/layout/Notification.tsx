@@ -312,7 +312,7 @@ const Notification: React.FC = () => {
       </button>
 
       {isVisible && (
-        <div className="fixed top-20 right-4 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div className="fixed top-20 right-4 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-[60] overflow-hidden">
           {/* En-tête */}
           <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
             <h3 className="text-base font-semibold text-gray-900">

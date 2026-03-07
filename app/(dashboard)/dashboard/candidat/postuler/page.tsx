@@ -153,52 +153,52 @@ export default function PublishVideo () {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Page Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <FaVideo className="text-2xl text-primary" />
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <FaVideo className="text-lg md:text-2xl text-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Créer mon CV vidéo</h1>
-            <p className="text-gray-600 mt-1">Publiez votre CV vidéo et mettez en valeur vos compétences</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-gray-900">Créer mon CV vidéo</h1>
+            <p className="text-xs md:text-base text-gray-600 mt-0.5 md:mt-1">Publiez votre CV vidéo et mettez en valeur vos compétences</p>
           </div>
         </div>
 
         {/* Process Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FaCloudUploadAlt className="text-primary text-lg" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mt-4 md:mt-6">
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <FaCloudUploadAlt className="text-primary text-sm md:text-lg" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Étape 1</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-gray-900">Étape 1</p>
                 <p className="text-xs text-gray-600">Téléchargez votre vidéo</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FaEdit className="text-primary text-lg" />
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <FaEdit className="text-primary text-sm md:text-lg" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Étape 2</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-gray-900">Étape 2</p>
                 <p className="text-xs text-gray-600">Remplissez les informations</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FaCheckCircle className="text-primary text-lg" />
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <FaCheckCircle className="text-primary text-sm md:text-lg" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Étape 3</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-gray-900">Étape 3</p>
                 <p className="text-xs text-gray-600">Publiez votre CV</p>
               </div>
             </div>
@@ -207,22 +207,22 @@ export default function PublishVideo () {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
         {/* Warning Notice */}
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-amber-600 text-lg">💡</span>
+        <div className="mb-4 md:mb-6 p-3 md:p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-start gap-2 md:gap-3">
+            <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <span className="text-base md:text-lg">💡</span>
             </div>
-            <div>
-              <h3 className="font-semibold text-amber-800 mb-1 text-sm">Conseil pour optimiser votre vidéo</h3>
-              <p className="text-sm text-amber-700 leading-relaxed">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-amber-800 mb-1 text-xs md:text-sm">Conseil pour optimiser votre vidéo</h3>
+              <p className="text-xs md:text-sm text-amber-700 leading-relaxed">
                 Avant de déposer votre CV vidéo, nous vous recommandons de le compresser pour réduire sa taille et améliorer le temps de chargement.
                 <a
                   href="https://clideo.com/fr/compress-video"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-amber-800 hover:text-amber-900 underline ml-1"
+                  className="font-semibold text-amber-800 hover:text-amber-900 underline ml-1 inline-block mt-1 md:mt-0"
                 >
                   Utilisez ce compresseur gratuit →
                 </a>
@@ -231,33 +231,31 @@ export default function PublishVideo () {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           {/* Video Upload Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <FaVideo className="text-primary text-sm" />
+          <div className="space-y-3 md:space-y-4">
+            <div className="flex items-start md:items-center justify-between gap-3">
+              <div className="flex items-start md:items-center gap-2 md:gap-3 flex-1 min-w-0">
+                <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <FaVideo className="text-primary text-xs md:text-sm" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Téléchargez votre CV vidéo</h3>
-                  <p className="text-sm text-gray-600">Format accepté: MP4, MOV, AVI • Taille max: 50MB</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base md:text-lg font-semibold text-gray-900">Téléchargez votre CV vidéo</h3>
+                  <p className="text-xs md:text-sm text-gray-600">Format accepté: MP4, MOV, AVI • Taille max: 50MB</p>
                 </div>
               </div>
             </div>
 
             {videoUrl ? (
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border-2 border-gray-200">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                        <FaCheckCircle className="text-green-600 text-lg" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">Vidéo téléchargée avec succès</p>
-                        <p className="text-sm text-gray-600">Votre CV vidéo est prêt à être publié</p>
-                      </div>
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 md:p-6 border-2 border-gray-200">
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex items-start md:items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <FaCheckCircle className="text-green-600 text-sm md:text-lg" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm md:text-base">Vidéo téléchargée avec succès</p>
+                      <p className="text-xs md:text-sm text-gray-600">Votre CV vidéo est prêt à être publié</p>
                     </div>
                   </div>
                   
@@ -272,9 +270,9 @@ export default function PublishVideo () {
                       type="button"
                       onClick={() => setVideoUrl(null)}
                       variant="outline"
-                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 text-xs md:text-sm"
                     >
-                      <FaTrash className="mr-2 text-sm" />
+                      <FaTrash className="mr-2 text-xs md:text-sm" />
                       Supprimer et choisir une autre vidéo
                     </Button>
                   </div>
@@ -282,14 +280,14 @@ export default function PublishVideo () {
               </div>
             ) : (
               <div className="relative">
-                <div className="absolute top-4 right-4 flex gap-2 z-10">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                <div className="absolute top-2 md:top-4 right-2 md:right-4 flex flex-wrap gap-1 md:gap-2 z-10">
+                  <span className="px-2 md:px-3 py-0.5 md:py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                     MP4
                   </span>
-                  <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                  <span className="px-2 md:px-3 py-0.5 md:py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
                     MOV
                   </span>
-                  <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                  <span className="px-2 md:px-3 py-0.5 md:py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                     AVI
                   </span>
                 </div>
@@ -319,11 +317,11 @@ export default function PublishVideo () {
                   onUploadError={(error: Error) => {
                     toast.error(`Erreur de téléchargement: ${error.message}`);
                   }}
-                  className="p-8"
+                  className="p-4 md:p-8"
                   appearance={{
-                    button: "bg-primary hover:bg-primary-1 text-white font-semibold px-6 py-3 rounded-lg transition-colors ut-ready:bg-primary ut-uploading:bg-primary/50",
+                    button: "bg-primary hover:bg-primary-1 text-white font-semibold px-4 md:px-6 py-2 md:py-3 rounded-lg transition-colors ut-ready:bg-primary ut-uploading:bg-primary/50 text-sm md:text-base",
                     container: "w-full",
-                    allowedContent: "text-gray-600 text-sm"
+                    allowedContent: "text-gray-600 text-xs md:text-sm"
                   }}
                 />
               </div>
@@ -331,23 +329,23 @@ export default function PublishVideo () {
           </div>
 
           {/* Form Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-xs md:text-sm font-semibold text-gray-700">
                 Années d'expérience
               </label>
               <input
                 type="number"
                 value={experiences}
                 onChange={(e) => setExperiences(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 placeholder="Ex: 3"
                 min="0"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-xs md:text-sm font-semibold text-gray-700">
                 Secteur d'activité
               </label>
               <Select
@@ -366,7 +364,7 @@ export default function PublishVideo () {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700">
+              <label className="block text-xs md:text-sm font-semibold text-gray-700">
                 Poste recherché
               </label>
               <Select
@@ -384,10 +382,10 @@ export default function PublishVideo () {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end pt-4 border-t border-gray-200">
+          <div className="flex justify-end pt-3 md:pt-4 border-t border-gray-200">
             <Button
               type="submit"
-              className={`bg-primary hover:bg-primary-1 text-white font-semibold py-3 px-6 rounded-lg shadow-sm transition-all duration-300 ${
+              className={`bg-primary hover:bg-primary-1 text-white font-semibold py-2.5 md:py-3 px-4 md:px-6 rounded-lg shadow-sm transition-all duration-300 text-sm md:text-base w-full md:w-auto ${
                 uploadStatus === "uploading"
                   ? "opacity-50 cursor-not-allowed"
                   : ""
@@ -396,7 +394,7 @@ export default function PublishVideo () {
             >
               {uploadStatus === "uploading" ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 md:h-5 md:w-5 border-b-2 border-white mr-2 md:mr-3"></div>
                   Publication en cours...
                 </>
               ) : (

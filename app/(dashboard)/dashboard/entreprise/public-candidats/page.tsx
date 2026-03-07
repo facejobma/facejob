@@ -508,24 +508,24 @@ const CandidatsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 relative" style={{ zIndex: 0 }}>
       {/* Header Simple */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <User className="text-white text-xl" />
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md p-4 md:p-6 relative" style={{ zIndex: 0 }}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+              <User className="text-white text-lg md:text-xl" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Candidats</h1>
-              <p className="text-green-50 text-sm">Découvrez les profils disponibles</p>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold text-white">Candidats</h1>
+              <p className="text-green-50 text-xs md:text-sm">Découvrez les profils disponibles</p>
             </div>
           </div>
           
           {lastPayment && lastPayment.status === "completed" && (
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/30">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 md:px-4 py-2 border border-white/30 self-start sm:self-auto">
               <p className="text-green-50 text-xs font-medium">Crédits restants</p>
-              <p className="text-2xl font-bold text-white">{lastPayment.cv_video_remaining}</p>
+              <p className="text-xl md:text-2xl font-bold text-white">{lastPayment.cv_video_remaining}</p>
             </div>
           )}
         </div>
@@ -534,9 +534,9 @@ const CandidatsPage: React.FC = () => {
       {/* Floating Filter Button */}
       <button
         onClick={() => setShowFilters(!showFilters)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow-lg transition-colors"
+        className="fixed bottom-6 right-4 md:right-6 z-40 flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow-lg transition-colors text-sm md:text-base"
       >
-        <Filter className="w-5 h-5" />
+        <Filter className="w-4 h-4 md:w-5 md:h-5" />
         <span>Filtres</span>
         {hasActiveFilters && (
           <span className="w-2 h-2 bg-white rounded-full"></span>
@@ -553,25 +553,25 @@ const CandidatsPage: React.FC = () => {
           ></div>
           
           {/* Filters Panel */}
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Filtres de recherche</h2>
-                <p className="text-sm text-gray-500">Les résultats se mettent à jour automatiquement</p>
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-xl md:rounded-2xl shadow-2xl w-[calc(100%-2rem)] md:w-full max-w-4xl max-h-[85vh] md:max-h-[80vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between rounded-t-xl md:rounded-t-2xl z-10">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base md:text-lg font-bold text-gray-900">Filtres de recherche</h2>
+                <p className="text-xs md:text-sm text-gray-500">Les résultats se mettent à jour automatiquement</p>
               </div>
               <button
                 onClick={() => setShowFilters(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0 ml-2"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
             
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="p-4 md:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {/* Secteur */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Secteur</label>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Secteur</label>
                   <Select
                     value={selectedSector}
                     onChange={setSelectedSector}
@@ -585,7 +585,7 @@ const CandidatsPage: React.FC = () => {
 
                 {/* Poste */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Poste</label>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Poste</label>
                   <Select
                     value={selectedJob}
                     onChange={setSelectedJob}
@@ -600,7 +600,7 @@ const CandidatsPage: React.FC = () => {
 
                 {/* Ville */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ville</label>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Ville</label>
                   <Select
                     value={selectedCity}
                     onChange={setSelectedCity}
@@ -614,7 +614,7 @@ const CandidatsPage: React.FC = () => {
 
                 {/* Niveau d'études */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Niveau d'études</label>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Niveau d'études</label>
                   <Select
                     value={selectedEducation}
                     onChange={setSelectedEducation}
@@ -628,7 +628,7 @@ const CandidatsPage: React.FC = () => {
 
                 {/* Expérience minimum */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Expérience minimum</label>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Expérience minimum</label>
                   <Select
                     value={minExperience}
                     onChange={setMinExperience}
@@ -641,7 +641,7 @@ const CandidatsPage: React.FC = () => {
 
                 {/* Expérience maximum */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Expérience maximum</label>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Expérience maximum</label>
                   <Select
                     value={maxExperience}
                     onChange={setMaxExperience}
@@ -654,7 +654,7 @@ const CandidatsPage: React.FC = () => {
 
                 {/* Genre */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Genre</label>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Genre</label>
                   <Select
                     value={selectedGender}
                     onChange={setSelectedGender}
@@ -670,10 +670,10 @@ const CandidatsPage: React.FC = () => {
               </div>
 
               {hasActiveFilters && (
-                <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-200">
                   <button
                     onClick={clearFilters}
-                    className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
                   >
                     <X className="w-4 h-4" />
                     Réinitialiser tous les filtres
@@ -716,22 +716,25 @@ const CandidatsPage: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Desktop Grid View */}
-            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* Grid View - Desktop and Mobile */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative" style={{ zIndex: 0 }}>
               {candidates.map((candidate) => (
                 <div
                   key={candidate.cv_id}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-green-300 hover:shadow-lg transition-all flex flex-col"
+                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-green-300 hover:shadow-lg transition-all flex flex-col relative"
+                  style={{ zIndex: 0 }}
                 >
                   {/* Video Preview */}
                   <div 
                     className="relative h-48 bg-black overflow-hidden cursor-pointer group"
                     onClick={() => handleVideoClick(candidate)}
+                    style={{ zIndex: 0 }}
                   >
                     <video
                       ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
                       src={candidate.link.startsWith('http') ? candidate.link : `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${candidate.link}`}
                       className="w-full h-full object-cover"
+                      style={{ zIndex: 0, position: 'relative' }}
                       loop
                       muted
                       playsInline
@@ -761,7 +764,6 @@ const CandidatsPage: React.FC = () => {
                               alt={candidate.full_name || 'Candidat'}
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                // En cas d'erreur de chargement, afficher l'avatar par défaut
                                 e.currentTarget.style.display = 'none';
                                 if (e.currentTarget.nextElementSibling) {
                                   (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
@@ -821,175 +823,6 @@ const CandidatsPage: React.FC = () => {
               ))}
             </div>
 
-            {/* Mobile TikTok View */}
-            <div className="md:hidden">
-              {candidates.map((candidate) => (
-              <div
-                key={candidate.cv_id}
-                className="min-h-screen snap-start relative flex items-center justify-center"
-              >
-                {/* Video Container - Full responsive */}
-                <div className="relative w-full h-full flex items-center justify-center">
-                  {/* Video Background */}
-                  <video
-                    ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
-                    src={candidate.link.startsWith('http') ? candidate.link : `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${candidate.link}`}
-                    className="w-full h-full object-contain bg-black"
-                    loop
-                    muted={isMuted}
-                    playsInline
-                    controlsList="nodownload"
-                  />
-
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
-
-                  {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 pb-20 pointer-events-none">
-                    {/* Profile Info */}
-                    <div className="space-y-3 pointer-events-auto">
-                    {/* Name and Job */}
-                    <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
-                        {candidate.image ? (
-                          <img 
-                            src={getImageUrl(candidate.image)}
-                            alt={candidate.full_name || 'Candidat'}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              // En cas d'erreur de chargement, afficher l'avatar par défaut
-                              e.currentTarget.style.display = 'none';
-                              if (e.currentTarget.nextElementSibling) {
-                                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
-                              }
-                            }}
-                          />
-                        ) : null}
-                        <div 
-                          className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xl font-bold"
-                          style={{ display: candidate.image ? 'none' : 'flex' }}
-                        >
-                          {candidate.full_name?.[0] || 'C'}
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <h2 className="text-white font-bold text-2xl mb-1">{candidate.full_name || 'Candidat'}</h2>
-                        <p className="text-white/90 font-medium flex items-center gap-2">
-                          <Briefcase className="w-4 h-4" />
-                          {candidate.job?.name || 'Non spécifié'}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="flex flex-wrap gap-2">
-                      {candidate.city && (
-                        <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-sm flex items-center gap-2">
-                          <MapPin className="w-3 h-3" />
-                          {candidate.city}
-                        </div>
-                      )}
-                      <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white text-sm flex items-center gap-2">
-                        <Calendar className="w-3 h-3" />
-                        {candidate.years_of_experience} ans d'exp.
-                      </div>
-                    </div>
-
-                    {/* Bio */}
-                    {candidate.bio && (
-                      <p className="text-white/90 text-sm line-clamp-3 bg-black/30 backdrop-blur-sm rounded-lg p-3">
-                        {candidate.bio}
-                      </p>
-                    )}
-
-                    {/* Education */}
-                    {candidate.formations && candidate.formations.length > 0 && (
-                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
-                        <h3 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
-                          <GraduationCap className="w-4 h-4" />
-                          Formation
-                        </h3>
-                        <div className="space-y-1">
-                          {candidate.formations.slice(0, 2).map((f) => (
-                            <div key={f.id} className="text-white/80 text-xs">
-                              <p className="font-medium">{f.diplome} - {f.field_of_study}</p>
-                              <p className="text-white/60">{f.school}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Experience */}
-                    {candidate.experiences && candidate.experiences.length > 0 && (
-                      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
-                        <h3 className="text-white font-semibold text-sm mb-2 flex items-center gap-2">
-                          <Building2 className="w-4 h-4" />
-                          Expérience
-                        </h3>
-                        <div className="space-y-1">
-                          {candidate.experiences.slice(0, 2).map((e) => (
-                            <div key={e.id} className="text-white/80 text-xs">
-                              <p className="font-medium">{e.title}</p>
-                              <p className="text-white/60">{e.company}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                  </div>
-                  </div>
-
-                  {/* Action Buttons (Right Side) - Inside video container */}
-                  <div className="absolute right-2 bottom-24 flex flex-col gap-3 pointer-events-auto">
-                    {/* Mute/Unmute Button */}
-                    <button
-                      onClick={toggleMute}
-                      className="w-16 h-16 bg-gray-800/90 hover:bg-gray-700 rounded-full flex flex-col items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm"
-                      title={isMuted ? "Activer le son" : "Désactiver le son"}
-                    >
-                      {isMuted ? (
-                        <VolumeX className="w-6 h-6 text-white" />
-                      ) : (
-                        <Volume2 className="w-6 h-6 text-white" />
-                      )}
-                    </button>
-
-                    {/* Download CV Button */}
-                    <button
-                      onClick={() => handleGenerateCV(candidate.id)}
-                      className="flex flex-col items-center gap-1"
-                      title="Télécharger le CV"
-                    >
-                      <div className="w-16 h-16 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110">
-                        <FileText className="w-6 h-6 text-gray-700" />
-                      </div>
-                      <span className="text-white text-xs font-medium bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-sm">CV</span>
-                    </button>
-                    
-                    {/* View/Consume CV Button */}
-                    <button
-                      onClick={() => handleViewClick(candidate)}
-                      className="flex flex-col items-center gap-1"
-                      title="Consulter le CV complet"
-                    >
-                      <div className="w-16 h-16 bg-green-500/90 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 backdrop-blur-sm">
-                        <Eye className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-white text-xs font-medium bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-sm">Voir</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Scroll Indicator */}
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce">
-                  <ChevronDown className="w-8 h-8 text-white/50" />
-                </div>
-              </div>
-            ))}
-            </div>
-
             {/* Loading More Indicator */}
             {loadingMore && (
               <div className="h-32 flex items-center justify-center mt-6">
@@ -1002,9 +835,9 @@ const CandidatsPage: React.FC = () => {
 
       {/* Modals */}
       {isUpgradeModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsUpgradeModalOpen(false)}></div>
-          <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-200">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl relative z-[70] max-w-md w-full border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Limite atteinte</h2>
             <p className="text-gray-600 mb-6">
               Vous avez atteint votre limite de consultations. Mettez à niveau votre forfait pour consulter plus de CVs.
@@ -1029,7 +862,7 @@ const CandidatsPage: React.FC = () => {
 
       {/* Detail Modal - Large Popup with Video and All Info */}
       {isDetailModalOpen && detailCandidate && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
+        <div className="fixed inset-0 z-[60] overflow-hidden">
           {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
@@ -1037,7 +870,7 @@ const CandidatsPage: React.FC = () => {
           ></div>
           
           {/* Modal Content */}
-          <div className="fixed inset-4 md:inset-8 lg:inset-12 z-10 flex items-center justify-center">
+          <div className="fixed inset-4 md:inset-8 lg:inset-12 z-[70] flex items-center justify-center">
             <div className="bg-white rounded-2xl shadow-2xl w-full h-full max-w-7xl overflow-hidden flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-600 to-emerald-600">

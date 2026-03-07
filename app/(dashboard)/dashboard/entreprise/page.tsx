@@ -196,48 +196,56 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Statistics Cards - Plus sobres */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-              <FaBriefcase className="text-green-600 text-lg" />
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <FaBriefcase className="text-green-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.totalOffres}</p>
+              <p className="text-xs md:text-sm text-gray-600">Offres publiées</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.totalOffres}</p>
-          <p className="text-sm text-gray-600 mt-1">Offres publiées</p>
         </div>
         
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-              <FaUsers className="text-blue-600 text-lg" />
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <FaUsers className="text-blue-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.totalCandidatures}</p>
+              <p className="text-xs md:text-sm text-gray-600">Candidatures reçues</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.totalCandidatures}</p>
-          <p className="text-sm text-gray-600 mt-1">Candidatures reçues</p>
         </div>
         
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
-              <FaChartBar className="text-purple-600 text-lg" />
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+              <FaChartBar className="text-purple-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.candidaturesByOffre.length}</p>
+              <p className="text-xs md:text-sm text-gray-600">Offres actives</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.candidaturesByOffre.length}</p>
-          <p className="text-sm text-gray-600 mt-1">Offres actives</p>
         </div>
         
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center">
-              <FaEye className="text-amber-600 text-lg" />
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <FaEye className="text-amber-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">
+                {stats.totalCandidatures > 0 ? Math.round(stats.totalCandidatures / Math.max(stats.totalOffres, 1)) : 0}
+              </p>
+              <p className="text-xs md:text-sm text-gray-600">Moyenne par offre</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">
-            {stats.totalCandidatures > 0 ? Math.round(stats.totalCandidatures / Math.max(stats.totalOffres, 1)) : 0}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Moyenne par offre</p>
         </div>
       </div>
 

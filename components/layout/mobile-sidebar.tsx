@@ -34,10 +34,10 @@ export function MobileSidebar({ className }: SidebarProps) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <MenuIcon className="h-6 w-6 text-gray-700" />
+            <MenuIcon className="h-7 w-7 text-gray-700" />
           </button>
         </SheetTrigger>
-        <SheetContent side="left" className="!px-0 w-80">
+        <SheetContent side="left" className="!px-0 w-80 [&>button]:hidden">
           <div className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
           </div>
@@ -49,11 +49,9 @@ export function MobileSidebar({ className }: SidebarProps) {
                 onClick={() => setOpen(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-7 w-7 text-gray-700" />
               </button>
             </div>
-
-
 
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto py-4">

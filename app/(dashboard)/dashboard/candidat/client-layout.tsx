@@ -67,7 +67,7 @@ function DashboardLayoutContent({
     <div className="dashboard-layout min-h-screen font-sans bg-gray-50 flex flex-col">
       <HeaderCandidat />
 
-      <div className="flex flex-1 pt-16">
+      <div className="flex flex-1 mt-16">
         <Sidebar />
         <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-20'}`}>
           <DashboardPageWrapper>

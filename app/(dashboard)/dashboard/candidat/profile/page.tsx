@@ -248,16 +248,16 @@ const Profile: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Mon Profil</h1>
-            <p className="text-gray-600 mt-1">Gérez vos informations professionnelles</p>
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Mon Profil</h1>
+            <p className="text-sm md:text-base text-gray-600 mt-0.5 md:mt-1">Gérez vos informations professionnelles</p>
           </div>
           <button
             onClick={handleDownloadCV}
             disabled={downloadingCV}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base font-medium whitespace-nowrap w-full sm:w-auto"
           >
             {downloadingCV ? (
               <>
@@ -266,7 +266,7 @@ const Profile: React.FC = () => {
               </>
             ) : (
               <>
-                <FaDownload className="h-4 w-4" />
+                <FaDownload className="h-4 w-4 flex-shrink-0" />
                 <span>Télécharger CV</span>
               </>
             )}
@@ -395,16 +395,19 @@ const Profile: React.FC = () => {
       )}
 
       {/* Profile Header Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
               <FaUser className="text-green-600 text-sm" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Informations personnelles</h2>
+            <h2 className="text-base md:text-lg font-semibold text-gray-900">Informations personnelles</h2>
           </div>
           {(userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email) && (
-            <span className="text-xs text-green-600 font-medium">✓ Complété</span>
+            <span className="text-xs text-green-600 font-medium whitespace-nowrap flex items-center gap-1">
+              <span>✓</span>
+              <span>Complété</span>
+            </span>
           )}
         </div>
         <ProfileHeader
@@ -422,34 +425,37 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Two Column Layout for Desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Bio Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
                 <FaFileAlt className="text-green-600 text-sm" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">À propos de moi</h2>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900">À propos de moi</h2>
             </div>
             {(userProfile?.bio && userProfile.bio.trim().length > 0) && (
-              <span className="text-xs text-green-600 font-medium">✓ Complété</span>
+              <span className="text-xs text-green-600 font-medium whitespace-nowrap flex items-center gap-1">
+                <span>✓</span>
+                <span>Complété</span>
+              </span>
             )}
           </div>
           <BioSection id={userProfile.id} bio={userProfile.bio} onUpdate={refreshProfile} />
         </div>
 
         {/* Skills Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
                 <FaCog className="text-purple-600 text-sm" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">Compétences</h2>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900">Compétences</h2>
             </div>
             {(userProfile?.skills && userProfile.skills.length > 0) && (
-              <span className="text-xs text-green-600 font-medium">
+              <span className="text-xs text-green-600 font-medium whitespace-nowrap">
                 {userProfile.skills.length} compétence{userProfile.skills.length > 1 ? 's' : ''}
               </span>
             )}
@@ -459,16 +465,16 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Experience Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
               <FaBriefcase className="text-blue-600 text-sm" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">Expériences professionnelles</h2>
+            <h2 className="text-base md:text-lg font-semibold text-gray-900">Expériences professionnelles</h2>
           </div>
           {(userProfile?.experiences && userProfile.experiences.length > 0) && (
-            <span className="text-xs text-green-600 font-medium">
+            <span className="text-xs text-green-600 font-medium whitespace-nowrap">
               {userProfile.experiences.length} expérience{userProfile.experiences.length > 1 ? 's' : ''}
             </span>
           )}
@@ -481,18 +487,18 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Two Column Layout for Projects and Education */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Projects Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
                 <HiOutlineCollection className="text-orange-600 text-sm" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">Projets</h2>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900">Projets</h2>
             </div>
             {(userProfile?.projects && userProfile.projects.length > 0) && (
-              <span className="text-xs text-green-600 font-medium">
+              <span className="text-xs text-green-600 font-medium whitespace-nowrap">
                 {userProfile.projects.length} projet{userProfile.projects.length > 1 ? 's' : ''}
               </span>
             )}
@@ -501,16 +507,16 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Education Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
                 <FaGraduationCap className="text-indigo-600 text-sm" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">Formation</h2>
+              <h2 className="text-base md:text-lg font-semibold text-gray-900">Formation</h2>
             </div>
             {(userProfile?.education && userProfile.education.length > 0) && (
-              <span className="text-xs text-green-600 font-medium">
+              <span className="text-xs text-green-600 font-medium whitespace-nowrap">
                 {userProfile.education.length} formation{userProfile.education.length > 1 ? 's' : ''}
               </span>
             )}

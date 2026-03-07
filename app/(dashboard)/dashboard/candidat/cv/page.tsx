@@ -88,39 +88,39 @@ export default function CVPage() {
       </div>
 
       {/* Statistics Cards - Contenu original */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Total CV Vidéos</p>
-              <p className="text-3xl font-bold text-gray-900">3</p>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+          <div className="flex flex-col md:flex-row items-center md:justify-between gap-3">
+            <div className="text-center md:text-left">
+              <p className="text-xs md:text-sm text-gray-600 mb-1">Total CV Vidéos</p>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900">3</p>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-              <FaVideo className="text-2xl text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Vues Totales</p>
-              <p className="text-3xl font-bold text-gray-900">127</p>
-            </div>
-            <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-              <FaEye className="text-2xl text-green-600" />
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <FaVideo className="text-lg md:text-2xl text-blue-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Téléchargements</p>
-              <p className="text-3xl font-bold text-gray-900">45</p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+          <div className="flex flex-col md:flex-row items-center md:justify-between gap-3">
+            <div className="text-center md:text-left">
+              <p className="text-xs md:text-sm text-gray-600 mb-1">Vues Totales</p>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900">127</p>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
-              <FaDownload className="text-2xl text-purple-600" />
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <FaEye className="text-lg md:text-2xl text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 col-span-2 md:col-span-1">
+          <div className="flex flex-col md:flex-row items-center md:justify-between gap-3">
+            <div className="text-center md:text-left">
+              <p className="text-xs md:text-sm text-gray-600 mb-1">Téléchargements</p>
+              <p className="text-2xl md:text-3xl font-bold text-gray-900">45</p>
+            </div>
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+              <FaDownload className="text-lg md:text-2xl text-purple-600" />
             </div>
           </div>
         </div>

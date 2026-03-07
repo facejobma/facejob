@@ -389,52 +389,64 @@ export default function UsersPage() {
             <HiOutlineCollection className="text-white text-xl" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Mes CV vidéos</h1>
+            <h1 className="text-2xl font-bold text-white">MesCV vidéos</h1>
             <p className="text-green-50 text-sm">Gérez vos candidatures vidéo</p>
           </div>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
-              <FaVideo className="text-green-600 text-lg" />
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {/* Total Card */}
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <FaVideo className="text-green-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.total}</p>
+              <p className="text-xs md:text-sm text-gray-600">Total</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
-          <p className="text-sm text-gray-600 mt-1">Total</p>
         </div>
         
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-emerald-100 flex items-center justify-center">
-              <FaCheckCircle className="text-emerald-600 text-lg" />
+        {/* Accepted Card */}
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <FaCheckCircle className="text-emerald-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.accepted}</p>
+              <p className="text-xs md:text-sm text-gray-600">Acceptés</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.accepted}</p>
-          <p className="text-sm text-gray-600 mt-1">Acceptés</p>
         </div>
         
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center">
-              <FaClock className="text-amber-600 text-lg" />
+        {/* Pending Card */}
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <FaClock className="text-amber-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.pending}</p>
+              <p className="text-xs md:text-sm text-gray-600">En attente</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.pending}</p>
-          <p className="text-sm text-gray-600 mt-1">En attente</p>
         </div>
         
-        <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
-              <FaTimesCircle className="text-red-600 text-lg" />
+        {/* Declined Card */}
+        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+              <FaTimesCircle className="text-red-600 text-base md:text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.declined}</p>
+              <p className="text-xs md:text-sm text-gray-600">Refusés</p>
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{stats.declined}</p>
-          <p className="text-sm text-gray-600 mt-1">Refusés</p>
         </div>
       </div>
 

@@ -22,7 +22,6 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
     password: "",
     passwordConfirm: "",
     acceptTerms: false,
-    hasAdhered: null as boolean | null, // null = not answered, true = yes, false = no
   });
   
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +29,6 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
-  const [showAdhesionIframe, setShowAdhesionIframe] = useState(false);
 
   const updateFormData = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -88,18 +86,7 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
   };
 
   const validateFields = () => {
-    const { companyName, tel, email, password, passwordConfirm, acceptTerms, hasAdhered } = formData;
-    
-    if (hasAdhered === null) {
-      toast.error("Veuillez indiquer si vous avez adhéré à l'association TICO.");
-      return false;
-    }
-    
-    if (hasAdhered === false) {
-      toast.error("Vous devez adhérer à l'association TICO pour continuer l'inscription.");
-      setShowAdhesionIframe(true);
-      return false;
-    }
+    const { companyName, tel, email, password, passwordConfirm, acceptTerms } = formData;
     
     if (!companyName.trim()) {
       toast.error("Veuillez entrer le nom de l'entreprise.");
@@ -292,88 +279,6 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
 
       {/* Signup Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Association TICO Adhesion Question */}
-        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-          <label className="block text-sm font-semibold text-gray-900 mb-3">
-            Avez-vous adhéré à l'association TICO ? *
-          </label>
-          <div className="flex gap-4 mb-3">
-            <button
-              type="button"
-              onClick={() => {
-                updateFormData("hasAdhered", true);
-                setShowAdhesionIframe(false);
-              }}
-              className={`flex-1 py-2 px-4 rounded-lg border-2 font-medium transition-all ${
-                formData.hasAdhered === true
-                  ? "border-green-600 bg-green-600 text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-green-300"
-              }`}
-              disabled={isLoading}
-            >
-              Oui
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                updateFormData("hasAdhered", false);
-                setShowAdhesionIframe(true);
-              }}
-              className={`flex-1 py-2 px-4 rounded-lg border-2 font-medium transition-all ${
-                formData.hasAdhered === false
-                  ? "border-red-600 bg-red-600 text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-red-300"
-              }`}
-              disabled={isLoading}
-            >
-              Non
-            </button>
-          </div>
-          
-          {/* Show iframe if user selected "Non" */}
-          {showAdhesionIframe && formData.hasAdhered === false && (
-            <div className="mt-4 space-y-3">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <p className="text-sm text-yellow-800 font-medium">
-                  Vous devez adhérer à l'association TICO pour continuer votre inscription.
-                </p>
-              </div>
-              <div className="bg-white rounded-lg border-2 border-green-300 p-4">
-                <p className="text-sm text-gray-700 mb-3 font-medium">
-                  Adhérez maintenant à l'association TICO :
-                </p>
-                <iframe 
-                  id="haWidget" 
-                  allowTransparency={true}
-                  src="https://www.helloasso.com/associations/tico-transparence-information-consommateur/adhesions/adhesion-tico/widget-bouton" 
-                  style={{ width: '100%', height: '70px', border: 'none' }}
-                  onLoad={(e) => {
-                    window.addEventListener('message', function(event) {
-                      const dataHeight = event.data.height;
-                      const haWidgetElement = document.getElementById('haWidget');
-                      if (haWidgetElement && dataHeight) {
-                        (haWidgetElement as HTMLIFrameElement).style.height = dataHeight + 'px';
-                      }
-                    });
-                  }}
-                />
-                <p className="text-xs text-gray-500 mt-3">
-                  Après avoir adhéré, revenez sur cette page et sélectionnez "Oui" pour continuer.
-                </p>
-              </div>
-            </div>
-          )}
-          
-          {formData.hasAdhered === true && (
-            <div className="bg-green-100 border border-green-300 rounded-lg p-3 flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-              <p className="text-sm text-green-800 font-medium">
-                Merci d'avoir adhéré à l'association TICO !
-              </p>
-            </div>
-          )}
-        </div>
-
         {/* Company Name Field */}
         <div>
           <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">

@@ -381,7 +381,7 @@ const ResumePDFDocument: React.FC<{
   );
 };
 
-// Fonction pour télécharger le PDF depuis les CVs consommés (avec données complètes)
+// Fonction pour télécharger le PDF depuis les CV débloqués (avec données complètes)
 export const downloadConsumedResumePDF = async (candidateData: any) => {
   // Show loading toast
   const loadingToast = toast.loading("Préparation du CV en cours...");

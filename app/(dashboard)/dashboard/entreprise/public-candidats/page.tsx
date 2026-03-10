@@ -57,7 +57,8 @@ interface Candidate {
 
 interface Payment {
   id: number;
-  cv_video_remaining: number;
+  cv_video_remaining?: number;
+  contact_access_remaining?: number | string;
   status: string;
 }
 
@@ -76,10 +77,32 @@ const CandidatsPage: React.FC = () => {
   const [currentVideoId, setCurrentVideoId] = useState<number | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [detailCandidate, setDetailCandidate] = useState<Candidate | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [candidateToConsume, setCandidateToConsume] = useState<Candidate | null>(null);
   const detailVideoRef = useRef<HTMLVideoElement | null>(null);
   
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Helper function to get remaining credits
+  const getRemainingCredits = (): number => {
+    if (!lastPayment) return 0;
+    
+    // Check for contact_access_remaining first (new API format)
+    if (lastPayment.contact_access_remaining !== undefined) {
+      if (lastPayment.contact_access_remaining === 'unlimited') return 999;
+      return typeof lastPayment.contact_access_remaining === 'number' 
+        ? lastPayment.contact_access_remaining 
+        : parseInt(lastPayment.contact_access_remaining) || 0;
+    }
+    
+    // Fallback to cv_video_remaining (old format)
+    if (lastPayment.cv_video_remaining !== undefined) {
+      return lastPayment.cv_video_remaining;
+    }
+    
+    return 0;
+  };
 
   // Fonction pour corriger les URLs avec des backslashes échappés
   const fixImageUrl = (url: string | null): string => {
@@ -361,12 +384,21 @@ const CandidatsPage: React.FC = () => {
       return;
     }
     
-    if (!lastPayment || lastPayment.status === "pending" || lastPayment.cv_video_remaining <= 0) {
+    if (!lastPayment || lastPayment.status === "pending" || getRemainingCredits() <= 0) {
       setIsUpgradeModalOpen(true);
       return;
     }
 
-    // Directly consume without confirmation
+    // Show confirmation modal
+    setCandidateToConsume(candidate);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmConsume = async () => {
+    if (!candidateToConsume || !user?.id) return;
+
+    setIsConfirmModalOpen(false);
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
@@ -378,21 +410,30 @@ const CandidatsPage: React.FC = () => {
           },
           body: JSON.stringify({
             entreprise_id: user.id,
-            postuler_id: candidate.cv_id,
+            postuler_id: candidateToConsume.cv_id,
           }),
         },
       );
 
       if (response.ok) {
         // Remove from list
-        setCandidates(prev => prev.filter(c => c.cv_id !== candidate.cv_id));
+        setCandidates(prev => prev.filter(c => c.cv_id !== candidateToConsume.cv_id));
+        
+        // Update credits
+        if (lastPayment) {
+          const currentCredits = getRemainingCredits();
+          setLastPayment({
+            ...lastPayment,
+            contact_access_remaining: currentCredits - 1
+          });
+        }
         
         // Show a toast with button to navigate to consumed CVs
         setTimeout(() => {
           toast.success(
             (t) => (
               <div className="flex flex-col gap-2">
-                <span>CV ajouté à vos consommations</span>
+                <span>CV ajouté à vos CV débloqués</span>
                 <button
                   onClick={() => {
                     toast.dismiss(t.id);
@@ -400,7 +441,7 @@ const CandidatsPage: React.FC = () => {
                   }}
                   className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
                 >
-                  Voir mes consommations
+                  Voir mes CV débloqués
                 </button>
               </div>
             ),
@@ -412,14 +453,14 @@ const CandidatsPage: React.FC = () => {
         
         // Handle already consumed - show the candidate info directly
         if (response.status === 409 && errorData.error === "Video already consumed") {
-          setCandidates(prev => prev.filter(c => c.cv_id !== candidate.cv_id));
+          setCandidates(prev => prev.filter(c => c.cv_id !== candidateToConsume.cv_id));
           
           // Show a toast with button to navigate to consumed CVs
           setTimeout(() => {
             toast.success(
               (t) => (
                 <div className="flex flex-col gap-2">
-                  <span>Retrouvez ce CV dans vos consommations</span>
+                  <span>Retrouvez ce CV dans vos CV débloqués</span>
                   <button
                     onClick={() => {
                       toast.dismiss(t.id);
@@ -427,7 +468,7 @@ const CandidatsPage: React.FC = () => {
                     }}
                     className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
                   >
-                    Voir mes consommations
+                    Voir mes CV débloqués
                   </button>
                 </div>
               ),
@@ -440,12 +481,14 @@ const CandidatsPage: React.FC = () => {
             setIsUpgradeModalOpen(true);
           }, 500);
         } else {
-          toast.error(errorData.message || "Erreur lors de la consommation du CV");
+          toast.error(errorData.message || "Erreur lors du déblocage du CV");
         }
       }
     } catch (error) {
       console.error("Error consuming CV:", error);
       toast.error("Erreur réseau. Veuillez réessayer.");
+    } finally {
+      setCandidateToConsume(null);
     }
   };
 
@@ -525,7 +568,9 @@ const CandidatsPage: React.FC = () => {
           {lastPayment && lastPayment.status === "completed" && (
             <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 md:px-4 py-2 border border-white/30 self-start sm:self-auto">
               <p className="text-green-50 text-xs font-medium">Crédits restants</p>
-              <p className="text-xl md:text-2xl font-bold text-white">{lastPayment.cv_video_remaining}</p>
+              <p className="text-xl md:text-2xl font-bold text-white">
+                {getRemainingCredits() === 999 ? '∞' : getRemainingCredits()}
+              </p>
             </div>
           )}
         </div>
@@ -803,19 +848,21 @@ const CandidatsPage: React.FC = () => {
                     <div className="flex gap-2 pt-3 mt-auto border-t border-gray-100">
                       <button
                         onClick={() => handleGenerateCV(candidate.id)}
-                        className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
-                        title="Télécharger le CV"
+                        className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-[10px] font-medium flex items-center justify-center gap-1.5 transition-colors"
+                        title="Télécharger le CV anonyme gratuitement"
                       >
                         <FileText className="w-4 h-4" />
-                        CV
+                        <span className="hidden sm:inline">CV anonyme (gratuit)</span>
+                        <span className="sm:hidden">CV anonyme</span>
                       </button>
                       <button
-                        onClick={() => handleViewClick(candidate)}
-                        className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
-                        title="Consulter"
+                        onClick={() => handleConsumeClick(candidate)}
+                        className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[10px] font-medium flex items-center justify-center gap-1.5 transition-colors"
+                        title="Débloquer les coordonnées du candidat"
                       >
                         <Eye className="w-4 h-4" />
-                        Voir
+                        <span className="hidden sm:inline">Débloquer (1 crédit)</span>
+                        <span className="sm:hidden">Débloquer</span>
                       </button>
                     </div>
                   </div>
@@ -862,20 +909,20 @@ const CandidatsPage: React.FC = () => {
 
       {/* Detail Modal - Large Popup with Video and All Info */}
       {isDetailModalOpen && detailCandidate && (
-        <div className="fixed inset-0 z-[60] overflow-hidden">
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
           {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
             onClick={closeDetailModal}
           ></div>
           
-          {/* Modal Content */}
-          <div className="fixed inset-4 md:inset-8 lg:inset-12 z-[70] flex items-center justify-center">
-            <div className="bg-white rounded-2xl shadow-2xl w-full h-full max-w-7xl overflow-hidden flex flex-col">
+          {/* Modal Content - Centered and Responsive */}
+          <div className="relative z-[70] min-h-screen flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col my-4">
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-600 to-emerald-600">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white">
+              <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-gray-200 bg-gradient-to-r from-green-600 to-emerald-600 flex-shrink-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white flex-shrink-0">
                     {detailCandidate.image ? (
                       <img 
                         src={getImageUrl(detailCandidate.image)}
@@ -890,30 +937,30 @@ const CandidatsPage: React.FC = () => {
                       />
                     ) : null}
                     <div 
-                      className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-lg font-bold"
+                      className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-sm md:text-base font-bold"
                       style={{ display: detailCandidate.image ? 'none' : 'flex' }}
                     >
                       {detailCandidate.full_name?.[0] || 'C'}
                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-white">{detailCandidate.full_name || 'Candidat'}</h2>
-                    <p className="text-green-50 text-sm">{detailCandidate.job?.name || 'Non spécifié'}</p>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-sm md:text-lg font-bold text-white truncate">{detailCandidate.full_name || 'Candidat'}</h2>
+                    <p className="text-green-50 text-xs truncate">{detailCandidate.job?.name || 'Non spécifié'}</p>
                   </div>
                 </div>
                 <button
                   onClick={closeDetailModal}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  className="p-1 md:p-1.5 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0 ml-2"
                 >
-                  <X className="w-6 h-6 text-white" />
+                  <X className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </button>
               </div>
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 p-3 md:p-4">
                   {/* Left Column - Video */}
-                  <div className="space-y-4">
+                  <div className="space-y-2 md:space-y-3">
                     <div className="relative bg-black rounded-xl overflow-hidden aspect-video">
                       <video
                         ref={detailVideoRef}
@@ -927,51 +974,51 @@ const CandidatsPage: React.FC = () => {
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-600 mb-1">
-                          <MapPin className="w-4 h-4" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                        <div className="flex items-center gap-1.5 text-gray-600 mb-0.5">
+                          <MapPin className="w-3 h-3" />
                           <span className="text-xs font-medium">Localisation</span>
                         </div>
-                        <p className="text-gray-900 font-semibold">{detailCandidate.city || 'Non spécifié'}</p>
+                        <p className="text-xs md:text-sm text-gray-900 font-semibold truncate">{detailCandidate.city || 'Non spécifié'}</p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-600 mb-1">
-                          <Calendar className="w-4 h-4" />
+                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                        <div className="flex items-center gap-1.5 text-gray-600 mb-0.5">
+                          <Calendar className="w-3 h-3" />
                           <span className="text-xs font-medium">Expérience</span>
                         </div>
-                        <p className="text-gray-900 font-semibold">{detailCandidate.years_of_experience} ans</p>
+                        <p className="text-xs md:text-sm text-gray-900 font-semibold">{detailCandidate.years_of_experience} ans</p>
                       </div>
                     </div>
 
                     {/* Bio */}
                     {detailCandidate.bio && (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <User className="w-4 h-4" />
+                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                        <h3 className="font-semibold text-gray-900 mb-1.5 flex items-center gap-1.5 text-xs md:text-sm">
+                          <User className="w-3 h-3 md:w-4 md:h-4" />
                           À propos
                         </h3>
-                        <p className="text-gray-700 text-sm leading-relaxed">{detailCandidate.bio}</p>
+                        <p className="text-gray-700 text-xs leading-relaxed">{detailCandidate.bio}</p>
                       </div>
                     )}
                   </div>
 
                   {/* Right Column - Details */}
-                  <div className="space-y-4">
+                  <div className="space-y-2 md:space-y-3">
                     {/* Formations */}
                     {detailCandidate.formations && detailCandidate.formations.length > 0 && (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <GraduationCap className="w-5 h-5 text-green-600" />
+                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                        <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-1.5 text-xs md:text-sm">
+                          <GraduationCap className="w-3 h-3 md:w-4 md:h-4 text-green-600" />
                           Formation
                         </h3>
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           {detailCandidate.formations.map((formation) => (
-                            <div key={formation.id} className="border-l-2 border-green-500 pl-3">
-                              <p className="font-medium text-gray-900">{formation.diplome}</p>
-                              <p className="text-sm text-gray-700">{formation.field_of_study}</p>
-                              <p className="text-sm text-gray-600">{formation.school}</p>
-                              <p className="text-xs text-gray-500 mt-1">
+                            <div key={formation.id} className="border-l-2 border-green-500 pl-2">
+                              <p className="font-medium text-gray-900 text-xs md:text-sm">{formation.diplome}</p>
+                              <p className="text-xs text-gray-700">{formation.field_of_study}</p>
+                              <p className="text-xs text-gray-600">{formation.school}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">
                                 {new Date(formation.start_date).getFullYear()} - {new Date(formation.end_date).getFullYear()}
                               </p>
                             </div>
@@ -982,23 +1029,23 @@ const CandidatsPage: React.FC = () => {
 
                     {/* Expériences */}
                     {detailCandidate.experiences && detailCandidate.experiences.length > 0 && (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <Building2 className="w-5 h-5 text-green-600" />
+                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                        <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-1.5 text-xs md:text-sm">
+                          <Building2 className="w-3 h-3 md:w-4 md:h-4 text-green-600" />
                           Expérience professionnelle
                         </h3>
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           {detailCandidate.experiences.map((experience) => (
-                            <div key={experience.id} className="border-l-2 border-green-500 pl-3">
-                              <p className="font-medium text-gray-900">{experience.title}</p>
-                              <p className="text-sm text-gray-700">{experience.company}</p>
+                            <div key={experience.id} className="border-l-2 border-green-500 pl-2">
+                              <p className="font-medium text-gray-900 text-xs md:text-sm">{experience.title}</p>
+                              <p className="text-xs text-gray-700">{experience.company}</p>
                               {experience.location && (
-                                <p className="text-sm text-gray-600 flex items-center gap-1">
+                                <p className="text-xs text-gray-600 flex items-center gap-1">
                                   <MapPin className="w-3 h-3" />
                                   {experience.location}
                                 </p>
                               )}
-                              <p className="text-xs text-gray-500 mt-1">
+                              <p className="text-xs text-gray-500 mt-0.5">
                                 {new Date(experience.start_date).getFullYear()} - {experience.is_current ? 'Présent' : new Date(experience.end_date).getFullYear()}
                               </p>
                             </div>
@@ -1009,25 +1056,25 @@ const CandidatsPage: React.FC = () => {
 
                     {/* Compétences */}
                     {detailCandidate.skills && detailCandidate.skills.length > 0 && (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <Code className="w-5 h-5 text-green-600" />
+                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                        <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-1.5 text-xs md:text-sm">
+                          <Code className="w-3 h-3 md:w-4 md:h-4 text-green-600" />
                           Compétences
                         </h3>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                           {detailCandidate.skills
                             .filter(skill => skill.name && skill.name.trim() !== '')
                             .map((skill) => (
                               <span
                                 key={skill.id}
-                                className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium"
+                                className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium"
                               >
                                 {skill.name}
                               </span>
                             ))}
                         </div>
                         {detailCandidate.skills.filter(skill => skill.name && skill.name.trim() !== '').length === 0 && (
-                          <p className="text-gray-500 text-sm italic">Aucune compétence renseignée</p>
+                          <p className="text-gray-500 text-xs italic">Aucune compétence renseignée</p>
                         )}
                       </div>
                     )}
@@ -1036,20 +1083,73 @@ const CandidatsPage: React.FC = () => {
               </div>
 
               {/* Footer Actions */}
-              <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex gap-3">
+              <div className="border-t border-gray-200 px-3 md:px-4 py-2 md:py-3 bg-gray-50 flex flex-col sm:flex-row gap-2 flex-shrink-0">
                 <button
                   onClick={() => handleGenerateCV(detailCandidate.id)}
-                  className="flex-1 px-6 py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 text-xs md:text-sm"
                 >
-                  <FileText className="w-5 h-5" />
-                  Télécharger le CV
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">CV anonyme (gratuit)</span>
+                  <span className="sm:hidden">CV anonyme</span>
                 </button>
                 <button
                   onClick={() => handleConsumeClick(detailCandidate)}
-                  className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 text-xs md:text-sm"
+                >
+                  <Check className="w-4 h-4" />
+                  <span className="hidden sm:inline">Débloquer (1 crédit)</span>
+                  <span className="sm:hidden">Débloquer</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {isConfirmModalOpen && candidateToConsume && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 p-6">
+              <h3 className="text-2xl font-bold text-white">Confirmer le déblocage</h3>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                  <Eye className="w-6 h-6 text-orange-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-gray-700 mb-3">
+                    Vous êtes sur le point de débloquer les coordonnées de ce candidat.
+                  </p>
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-orange-900 mb-1">
+                      Cette action débloquera 1 crédit
+                    </p>
+                    <p className="text-xs text-orange-700">
+                      Crédits restants après déblocage : {getRemainingCredits() - 1}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setIsConfirmModalOpen(false);
+                    setCandidateToConsume(null);
+                  }}
+                  className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmConsume}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
                   <Check className="w-5 h-5" />
-                  Consulter ce profil
+                  Confirmer
                 </button>
               </div>
             </div>

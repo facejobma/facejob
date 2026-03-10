@@ -531,23 +531,23 @@ const Profile: React.FC = () => {
 
       {/* Delete Account Section */}
       <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">
-        <div className="flex items-start gap-4">
-          <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-            <FaExclamationTriangle className="text-red-600 text-lg" />
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+              <FaExclamationTriangle className="text-red-600 text-lg" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-red-900">Supprimer mon compte</h2>
+              <p className="text-sm text-red-700">Cette action est irréversible</p>
+            </div>
           </div>
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-red-900 mb-2">Zone dangereuse</h2>
-            <p className="text-sm text-red-700 mb-4">
-              La suppression de votre compte est irréversible. Toutes vos données, CV vidéos, candidatures et informations seront définitivement supprimées.
-            </p>
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm"
-            >
-              <FaTrash className="text-sm" />
-              Supprimer mon compte
-            </button>
-          </div>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm whitespace-nowrap"
+          >
+            <FaTrash className="text-sm" />
+            Supprimer
+          </button>
         </div>
       </div>
 

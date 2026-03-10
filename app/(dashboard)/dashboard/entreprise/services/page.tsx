@@ -400,7 +400,12 @@ function ServicePlanPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-base md:text-xl font-bold text-gray-900 truncate">
-                      {isLoadingPayment ? "..." : (lastPayment ? lastPayment?.payment_period : hasNoPayment ? "Aucune" : "-")}
+                      {isLoadingPayment ? "..." : (lastPayment ? (
+                        lastPayment.payment_period === 'monthly' ? 'Mensuel' :
+                        lastPayment.payment_period === 'quarterly' ? 'Trimestriel' :
+                        lastPayment.payment_period === 'annual' ? 'Annuel' :
+                        lastPayment.payment_period
+                      ) : hasNoPayment ? "Aucune" : "-")}
                     </p>
                     <p className="text-xs text-gray-600">Période</p>
                   </div>
@@ -535,12 +540,17 @@ function ServicePlanPage() {
                     <CardHeader className="flex flex-col items-center space-y-2 pb-2">
                       <ClockIcon className="h-8 w-8 text-green-500" />
                       <CardTitle className="text-sm font-medium text-center">
-                        Période actuelle
+                        Périodicité du plan
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-700 text-center">
-                        {lastPayment ? lastPayment?.payment_period : "-"}
+                        {lastPayment ? (
+                          lastPayment.payment_period === 'monthly' ? 'Mensuel' :
+                          lastPayment.payment_period === 'quarterly' ? 'Trimestriel' :
+                          lastPayment.payment_period === 'annual' ? 'Annuel' :
+                          lastPayment.payment_period
+                        ) : "-"}
                       </p>
                     </CardContent>
                   </Card>
@@ -549,26 +559,26 @@ function ServicePlanPage() {
                     <CardHeader className="flex flex-col items-center space-y-2 pb-2">
                       <VideoCameraIcon className="h-8 w-8 text-green-500" />
                       <CardTitle className="text-sm font-medium text-center">
-                        CV vidéos consommés
+                        Consommation CV vidéos
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-700 text-center">
-                        {lastPayment ? lastPayment.cv_video_consumed : "-"}
-                      </p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="border border-gray-200 rounded-lg">
-                    <CardHeader className="flex flex-col items-center space-y-2 pb-2">
-                      <VideoCameraIcon className="h-8 w-8 text-green-500" />
-                      <CardTitle className="text-sm font-medium text-center">
-                        CV vidéos restants
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-700 text-center">
-                        {lastPayment ? lastPayment.cv_video_remaining : "-"}
+                      <p className="text-gray-700 text-center font-bold text-lg">
+                        {lastPayment ? (
+                          <>
+                            <span className="text-green-600">{lastPayment.contact_access_consumed || 0}</span>
+                            {' sur '}
+                            <span className="text-gray-900">
+                              {lastPayment.contact_access_remaining === 'unlimited' 
+                                ? '∞' 
+                                : (typeof lastPayment.contact_access_remaining === 'number' 
+                                    ? lastPayment.contact_access_remaining + (lastPayment.contact_access_consumed || 0)
+                                    : parseInt(lastPayment.contact_access_remaining || '0') + (lastPayment.contact_access_consumed || 0)
+                                  )
+                              }
+                            </span>
+                          </>
+                        ) : "-"}
                       </p>
                     </CardContent>
                   </Card>

@@ -63,6 +63,20 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  icons: {
+    icon: [
+      { url: '/images/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/favicon.png', sizes: '16x16', type: 'image/png' },
+    ],
+    shortcut: '/images/favicon.png',
+    apple: '/images/favicon.png',
+    other: [
+      {
+        rel: 'apple-touch-icon-precomposed',
+        url: '/images/favicon.png',
+      },
+    ],
+  },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://facejob.ma'),
   alternates: {
     canonical: '/',

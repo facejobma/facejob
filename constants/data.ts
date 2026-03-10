@@ -190,13 +190,13 @@ export const navItemsEntreprise: NavItem[] = [
     label: "mesOffres",
   },
   {
-    title: "Mes consommations",
+    title: "Profils débloqués",
     href:"/dashboard/entreprise/consumed-cvs",
     icon: "consumedCvs",
     label: "consumedCvs",
   },
   {
-    title: "Mon panel",
+    title: "Mon plan",
     href: "/dashboard/entreprise/services",
     icon: "services",
     label: "services",

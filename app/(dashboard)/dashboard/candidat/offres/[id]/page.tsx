@@ -24,6 +24,7 @@ interface OfferDetail {
   titre: string;
   description: string;
   company_name: string;
+  company_logo?: string;
   sector_name: string;
   job_name: string;
   location: string;
@@ -191,11 +192,42 @@ const CandidatOfferDetailPage: React.FC = () => {
         </Button>
 
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">{offer.titre}</h1>
-            <div className="flex items-center gap-2 text-lg text-gray-700 mb-4">
-              <FaBuilding className="h-5 w-5 text-green-600" />
-              <span className="font-semibold">{offer.company_name}</span>
+          <div className="flex items-start gap-4 flex-1">
+            {/* Company Logo */}
+            <div className="flex-shrink-0">
+              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 bg-white flex items-center justify-center shadow-sm">
+                {offer.company_logo ? (
+                  <>
+                    <img 
+                      src={offer.company_logo.startsWith('http') ? offer.company_logo : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${offer.company_logo}`}
+                      alt={offer.company_name}
+                      className="w-full h-full object-contain p-2"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) {
+                          fallback.style.display = 'flex';
+                        }
+                      }}
+                    />
+                    <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold" style={{ display: 'none' }}>
+                      {offer.company_name?.[0]?.toUpperCase() || 'E'}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold">
+                    {offer.company_name?.[0]?.toUpperCase() || 'E'}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">{offer.titre}</h1>
+              <div className="flex items-center gap-2 text-lg text-gray-700 mb-4">
+                <FaBuilding className="h-5 w-5 text-green-600" />
+                <span className="font-semibold">{offer.company_name}</span>
+              </div>
             </div>
           </div>
           {getStatusBadge()}
@@ -320,8 +352,30 @@ const CandidatOfferDetailPage: React.FC = () => {
         <h2 className="text-xl font-bold text-gray-900 mb-4">À propos de l'entreprise</h2>
         
         <div className="flex items-center gap-4 mb-4">
-          <div className="h-16 w-16 rounded-lg bg-green-100 flex items-center justify-center">
-            <FaBuilding className="h-8 w-8 text-green-600" />
+          <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-gray-200 bg-white flex items-center justify-center shadow-sm flex-shrink-0">
+            {offer.company_logo ? (
+              <>
+                <img 
+                  src={offer.company_logo.startsWith('http') ? offer.company_logo : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${offer.company_logo}`}
+                  alt={offer.company_name}
+                  className="w-full h-full object-contain p-1.5"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) {
+                      fallback.style.display = 'flex';
+                    }
+                  }}
+                />
+                <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xl font-bold" style={{ display: 'none' }}>
+                  {offer.company_name?.[0]?.toUpperCase() || 'E'}
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xl font-bold">
+                {offer.company_name?.[0]?.toUpperCase() || 'E'}
+              </div>
+            )}
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{offer.company_name}</h3>

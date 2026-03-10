@@ -532,6 +532,7 @@ const OffresPage: React.FC = () => {
                 offreId={offre.id}
                 titre={offre.titre}
                 entreprise_name={offre.company_name}
+                entreprise_logo={offre.company_logo}
                 sector_name={offre.sector_name}
                 job_name={offre.job_name}
                 location={offre.location}

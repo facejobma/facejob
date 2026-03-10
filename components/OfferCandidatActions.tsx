@@ -145,7 +145,7 @@ export const OfferCandidatActions: React.FC<{
         );
         
         if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des CVs consommés');
+          throw new Error('Erreur lors de la récupération des CV débloqués');
         }
         
         const consumedCVs = await response.json();
@@ -195,7 +195,7 @@ export const OfferCandidatActions: React.FC<{
       );
 
       if (response.ok) {
-        toast.success("CV consommé avec succès !");
+        toast.success("CV débloqué avec succès !");
         fetchLastPayment();
         // Refresh the page to update the list
         setTimeout(() => {
@@ -211,9 +211,9 @@ export const OfferCandidatActions: React.FC<{
             setIsUpgradeModalOpen(true);
           }, 500);
         } else if (response.status === 409) {
-          toast.error("Ce CV a déjà été consommé");
+          toast.error("Ce CV a déjà été débloqué");
         } else {
-          toast.error(errorData.message || "Erreur lors de la consommation du CV");
+          toast.error(errorData.message || "Erreur lors du déblocage du CV");
         }
       }
     } catch (error) {
@@ -245,7 +245,7 @@ export const OfferCandidatActions: React.FC<{
         const checkData = await checkResponse.json();
 
         if (checkData.consumed) {
-          toast.error("La vidéo de CV a déjà été consommée.");
+          toast.error("La vidéo de CV a déjà été débloquée.");
           setIsModalOpen(false);
           setCandidateToConsume(null);
           return;
@@ -268,14 +268,14 @@ export const OfferCandidatActions: React.FC<{
         );
 
         if (response.ok) {
-          toast.success("Vidéo consommée !");
+          toast.success("Vidéo débloquée !");
           fetchLastPayment();
         } else {
-          toast.error("Échec de la consommation de la vidéo.");
+          toast.error("Échec du déblocage de la vidéo.");
         }
       } catch (error) {
         console.error("Error consuming video:", error);
-        toast.error("Erreur lors de la consommation de la vidéo !");
+        toast.error("Erreur lors du déblocage de la vidéo !");
       }
     }
 
@@ -324,7 +324,7 @@ export const OfferCandidatActions: React.FC<{
 
           <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
             <CheckSquare className="mr-2 h-4 w-4" /> 
-            Consommer
+            Débloquer
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

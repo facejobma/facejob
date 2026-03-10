@@ -57,7 +57,7 @@ export const columns: ColumnDef<Entreprise>[] = [
   },
   {
     accessorKey: "plan",
-    header: "Pannel",
+    header: "Plan",
     enableColumnFilter: true,
     enableSorting: true,
     enableHiding: true

@@ -66,6 +66,7 @@ const ConsumedCVs: React.FC = () => {
   const [consumedCVs, setConsumedCVs] = useState<ConsumedCV[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastPayment, setLastPayment] = useState<any>(null);
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const company = typeof window !== "undefined"
     ? window.sessionStorage?.getItem("user")
@@ -92,15 +93,42 @@ const ConsumedCVs: React.FC = () => {
         setConsumedCVs(data);
       } catch (error: any) {
         console.error("Error fetching consumed CVs:", error);
-        toast.error("Erreur lors du chargement des CVs consommés!");
+        toast.error("Erreur lors du chargement des CV débloqués!");
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
+    const fetchLastPayment = async () => {
+      if (!entrepriseId) return;
+      
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${entrepriseId}/last`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          setLastPayment(data);
+        } else if (response.status === 404) {
+          setLastPayment(null);
+        }
+      } catch (error) {
+        console.error("Error fetching payment data:", error);
+      }
+    };
+
     if (entrepriseId && authToken) {
       fetchConsumedCVs();
+      fetchLastPayment();
     }
   }, [authToken, entrepriseId]);
 
@@ -146,8 +174,8 @@ const ConsumedCVs: React.FC = () => {
             <Eye className="text-green-600 w-4 h-4 md:w-5 md:h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold text-gray-900">CVs Consommés</h1>
-            <p className="text-xs md:text-base text-gray-600">Consultez la liste des CVs vidéos que vous avez consommés</p>
+            <h1 className="text-lg md:text-2xl font-bold text-gray-900">CV Débloqués</h1>
+            <p className="text-xs md:text-base text-gray-600">Consultez la liste des CV vidéos que vous avez débloqués</p>
           </div>
         </div>
         
@@ -161,8 +189,22 @@ const ConsumedCVs: React.FC = () => {
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-base md:text-xl font-bold text-gray-900">{consumedCVs.length}</p>
-                <p className="text-xs text-gray-600">CVs consommés</p>
+                <p className="text-base md:text-xl font-bold text-gray-900">
+                  {lastPayment ? (
+                    <>
+                      <span className="text-green-600">{consumedCVs.length}</span>
+                      {" sur "}
+                      {lastPayment.contact_access_consumed != null && lastPayment.contact_access_remaining != null
+                        ? lastPayment.contact_access_consumed + lastPayment.contact_access_remaining === 999999
+                          ? "∞"
+                          : lastPayment.contact_access_consumed + lastPayment.contact_access_remaining
+                        : consumedCVs.length}
+                    </>
+                  ) : (
+                    consumedCVs.length
+                  )}
+                </p>
+                <p className="text-xs text-gray-600">CV débloqués</p>
               </div>
             </div>
           </div>
@@ -231,9 +273,9 @@ const ConsumedCVs: React.FC = () => {
               </svg>
             </div>
             <div className="text-center">
-              <p className="text-base md:text-lg font-semibold text-gray-900 mb-2">Aucun CV consommé</p>
+              <p className="text-base md:text-lg font-semibold text-gray-900 mb-2">Aucun CV débloqué</p>
               <p className="text-xs md:text-sm text-gray-600 max-w-md">
-                Vous n'avez pas encore consommé de CV vidéo. Commencez par explorer les candidats disponibles.
+                Vous n'avez pas encore débloqué de CV vidéo. Commencez par explorer les candidats disponibles.
               </p>
             </div>
           </div>
@@ -256,7 +298,7 @@ const ConsumedCVs: React.FC = () => {
                       Expérience
                     </th>
                     <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
-                      Date de Consommation
+                      Date de Déblocage
                     </th>
                     <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
                       Actions

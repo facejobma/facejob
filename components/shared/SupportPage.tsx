@@ -101,8 +101,8 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
           answer: "Dans 'Mes Offres d'emploi', vous pouvez voir toutes vos offres actives, les modifier, les désactiver ou voir les statistiques de candidatures."
         },
         {
-          question: "Qu'est-ce que la consommation de CV ?",
-          answer: "Chaque fois que vous consultez le profil complet d'un candidat, cela compte comme une consommation de CV. Vous pouvez voir votre historique dans 'CV Consultés'."
+          question: "Qu'est-ce que le déblocage de CV ?",
+          answer: "Chaque fois que vous consultez le profil complet d'un candidat, cela compte comme un déblocage de CV. Vous pouvez voir votre historique dans 'CV Débloqués'."
         },
         {
           question: "Comment mettre à niveau mon plan ?",

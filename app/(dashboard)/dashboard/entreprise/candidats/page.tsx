@@ -314,7 +314,7 @@ const CandidatsPage: React.FC = () => {
       );
 
       if (response.ok) {
-        toast.success("CV consommé avec succès !");
+        toast.success("CV débloqué avec succès !");
         setIsModalOpen(false);
         setCandidates(prev => prev.filter(c => c.cv_id !== selectedCandidate.cv_id));
         // Refresh payment info to update remaining consultations
@@ -331,7 +331,7 @@ const CandidatsPage: React.FC = () => {
             setIsUpgradeModalOpen(true);
           }, 500);
         } else {
-          toast.error(errorData.message || "Erreur lors de la consommation du CV");
+          toast.error(errorData.message || "Erreur lors du déblocage du CV");
         }
       }
     } catch (error) {
@@ -735,7 +735,7 @@ const CandidatsPage: React.FC = () => {
           <div className="bg-white p-8 rounded-2xl shadow-2xl z-10 max-w-md w-full border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Confirmer</h2>
             <p className="text-gray-600 mb-6">
-              Voulez-vous consulter ce CV vidéo ? Cette action consommera un crédit et est irréversible.
+              Voulez-vous consulter ce CV vidéo ? Cette action débloquera un crédit et est irréversible.
             </p>
             <div className="flex gap-3">
               <button

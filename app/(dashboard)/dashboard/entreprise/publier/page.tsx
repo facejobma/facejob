@@ -21,6 +21,13 @@ export default function PublierPage() {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading">("idle");
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isLimitReachedModalOpen, setIsLimitReachedModalOpen] = useState(false);
+  const [planInfo, setPlanInfo] = useState<{
+    jobLimit: number;
+    jobPosted: number;
+    jobRemaining: number;
+    planName: string;
+  } | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -57,7 +64,50 @@ export default function PublierPage() {
     if (!user?.id || !authToken) return;
 
     try {
-      await fetchLastPayment(user.id.toString());
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/last`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+      
+      if (response.ok) {
+        const payment = await response.json();
+        
+        // Use backend data directly - it already calculates job_remaining correctly
+        const jobPosted = payment.job_posted || 0;
+        const jobRemaining = payment.job_remaining === 'unlimited' || payment.job_remaining === -1 
+          ? -1 
+          : parseInt(payment.job_remaining || '0');
+        
+        // Calculate total limit
+        const jobLimit = jobRemaining === -1 
+          ? -1 
+          : jobPosted + jobRemaining;
+        
+        setPlanInfo({
+          jobLimit,
+          jobPosted,
+          jobRemaining,
+          planName: payment.plan_name || 'Plan Standard'
+        });
+        
+        // If limit reached, show modal immediately
+        if (jobRemaining !== -1 && jobRemaining <= 0) {
+          setIsLimitReachedModalOpen(true);
+        }
+      } else if (response.status === 404) {
+        console.error("No active payment found");
+        setIsUpgradeModalOpen(true);
+      } else {
+        console.error("Failed to fetch payment status");
+        setIsUpgradeModalOpen(true);
+      }
     } catch (error) {
       console.error("Error checking payment status:", error);
       setIsUpgradeModalOpen(true);
@@ -69,6 +119,12 @@ export default function PublierPage() {
     
     if (!user?.id) {
       toast.error("Erreur: Utilisateur non identifié");
+      return;
+    }
+    
+    // Check if job limit is reached BEFORE validation
+    if (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0) {
+      setIsLimitReachedModalOpen(true);
       return;
     }
     
@@ -173,16 +229,59 @@ export default function PublierPage() {
     <div className="max-w-4xl mx-auto">
       {/* Header Simple */}
       <div className="bg-green-50 rounded-lg border-2 border-green-200 p-6 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <Send className="text-green-600 w-5 h-5" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+              <Send className="text-green-600 w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Publier une offre d'emploi</h1>
+              <p className="text-gray-600">Remplissez les informations de votre offre</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Publier une offre d'emploi</h1>
-            <p className="text-gray-600">Remplissez les informations de votre offre</p>
-          </div>
+          
+          {/* Job Limit Indicator */}
+          {planInfo && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border-2 border-green-300 shadow-sm">
+              <div className="text-right">
+                <p className="text-xs text-gray-600 font-medium">Offres restantes</p>
+                <p className={`text-lg font-bold ${
+                  planInfo.jobRemaining === -1 
+                    ? 'text-green-600' 
+                    : planInfo.jobRemaining === 0 
+                    ? 'text-red-600' 
+                    : planInfo.jobRemaining <= 2 
+                    ? 'text-amber-600' 
+                    : 'text-green-600'
+                }`}>
+                  {planInfo.jobRemaining === -1 ? '∞' : planInfo.jobRemaining}
+                  {planInfo.jobLimit !== -1 && ` / ${planInfo.jobLimit}`}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Warning Alert if low on jobs */}
+      {planInfo && planInfo.jobRemaining !== -1 && planInfo.jobRemaining <= 2 && planInfo.jobRemaining > 0 && (
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <svg className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <h3 className="text-sm font-semibold text-amber-900 mb-1">
+                Attention: Il vous reste seulement {planInfo.jobRemaining} offre{planInfo.jobRemaining > 1 ? 's' : ''} à publier
+              </h3>
+              <p className="text-sm text-amber-800">
+                Vous avez utilisé {planInfo.jobPosted} sur {planInfo.jobLimit} offres de votre plan {planInfo.planName}. 
+                Pensez à mettre à niveau votre plan pour publier plus d'offres.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Form Card */}
       <div className="bg-white rounded-lg border border-gray-200">
@@ -329,9 +428,9 @@ export default function PublierPage() {
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0)}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 font-medium rounded-lg transition-colors ${
-                isLoading
+                isLoading || (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0)
                   ? "bg-gray-400 text-white cursor-not-allowed"
                   : "bg-green-600 text-white hover:bg-green-700"
               }`}
@@ -340,6 +439,13 @@ export default function PublierPage() {
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Publication en cours...</span>
+                </>
+              ) : planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0 ? (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>Limite atteinte</span>
                 </>
               ) : (
                 <>
@@ -355,33 +461,32 @@ export default function PublierPage() {
       {/* Success Modal */}
       {isSuccessModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setIsSuccessModalOpen(false)}></div>
+          <div className="fixed inset-0 bg-black/50" onClick={() => window.location.reload()}></div>
           <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
             <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Offre publiée avec succès!
+                Offre soumise avec succès!
               </h2>
               <p className="text-gray-600">
-                Votre offre d'emploi a été publiée et est maintenant visible par les candidats.
+                Votre offre d'emploi a été soumise et est en attente de validation par notre équipe. Vous serez notifié une fois qu'elle sera approuvée et publiée.
               </p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  setIsSuccessModalOpen(false);
-                  window.location.href = "/dashboard/entreprise/offres";
+                  window.location.href = "/dashboard/entreprise/mes-offres";
                 }}
                 className="flex-1 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Voir mes offres
               </button>
               <button
-                onClick={() => setIsSuccessModalOpen(false)}
+                onClick={() => window.location.reload()}
                 className="flex-1 px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
               >
                 Créer une autre
@@ -419,6 +524,60 @@ export default function PublierPage() {
               <button
                 onClick={() => window.location.href = "/dashboard/entreprise/services"}
                 className="flex-1 px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Mettre à niveau
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Job Limit Reached Modal */}
+      {isLimitReachedModalOpen && planInfo && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setIsLimitReachedModalOpen(false)}></div>
+          <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                Limite d'offres atteinte
+              </h2>
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">Plan actuel:</span>
+                  <span className="text-sm font-semibold text-gray-900">{planInfo.planName}</span>
+                </div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">Offres publiées:</span>
+                  <span className="text-sm font-semibold text-gray-900">{planInfo.jobPosted} / {planInfo.jobLimit}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Offres restantes:</span>
+                  <span className="text-sm font-bold text-red-600">{planInfo.jobRemaining}</span>
+                </div>
+              </div>
+              <p className="text-gray-600">
+                Vous avez atteint la limite de publication d'offres pour votre plan actuel. 
+                Pour continuer à publier des offres, veuillez mettre à niveau votre abonnement.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setIsLimitReachedModalOpen(false);
+                  window.history.back();
+                }}
+                className="flex-1 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Retour
+              </button>
+              <button
+                onClick={() => window.location.href = "/dashboard/entreprise/services"}
+                className="flex-1 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-colors shadow-sm"
               >
                 Mettre à niveau
               </button>

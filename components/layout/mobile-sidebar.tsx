@@ -26,6 +26,12 @@ export function MobileSidebar({ className }: SidebarProps) {
   
   const user = userData ? JSON.parse(userData) : null;
 
+  // Debug logging
+  if (typeof window !== "undefined") {
+    console.log("🔍 MobileSidebar - userRole:", userRole);
+    console.log("🔍 MobileSidebar - user data:", user);
+  }
+
   const navItems =
     userRole === "entreprise" ? navItemsEntreprise : navItemsCandidat;
 

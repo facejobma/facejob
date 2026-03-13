@@ -21,31 +21,42 @@ export default function Sidebar() {
     
     // Try to get userRole from sessionStorage first
     let role = window.sessionStorage?.getItem("userRole");
+    console.log("🔍 Sidebar - Initial userRole from sessionStorage:", role);
 
     // Fallback: try to get user data and determine role from it
     if (!role) {
       const userData = window.sessionStorage?.getItem("user");
+      console.log("🔍 Sidebar - No userRole found, checking user data");
       if (userData) {
         try {
           const parsedUser = JSON.parse(userData);
+          console.log("🔍 Sidebar - Parsed user data:", parsedUser);
+          
           // Check if user object has role property
           if (parsedUser.role) {
             role = parsedUser.role;
+            console.log("✅ Sidebar - Found role in user data:", role);
             // Store it for next time
             window.sessionStorage.setItem("userRole", parsedUser.role);
           }
           // Fallback: detect from user data structure
           else if (parsedUser.company_name || parsedUser.sector_id) {
             role = "entreprise";
+            console.log("✅ Sidebar - Detected entreprise from user structure");
             window.sessionStorage.setItem("userRole", "entreprise");
           } else if (parsedUser.first_name || parsedUser.last_name || parsedUser.job_id !== undefined) {
             role = "candidat";
+            console.log("✅ Sidebar - Detected candidat from user structure");
             window.sessionStorage.setItem("userRole", "candidat");
+          } else {
+            console.warn("⚠️ Sidebar - Could not determine role from user data");
           }
           setUser(parsedUser);
         } catch (e) {
-          console.error("Error parsing user data:", e);
+          console.error("❌ Sidebar - Error parsing user data:", e);
         }
+      } else {
+        console.warn("⚠️ Sidebar - No user data found in sessionStorage");
       }
     } else {
       // If we have role, also get user data
@@ -54,11 +65,12 @@ export default function Sidebar() {
         try {
           setUser(JSON.parse(userData));
         } catch (e) {
-          console.error("Error parsing user data:", e);
+          console.error("❌ Sidebar - Error parsing user data:", e);
         }
       }
     }
 
+    console.log("🎯 Sidebar - Final determined role:", role);
     setUserRole(role);
   }, []);
 

@@ -262,7 +262,23 @@ const Profile: React.FC = () => {
       <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Mon Profil</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Mon Profil</h1>
+              {availabilityStatus && (
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs md:text-sm font-medium ${
+                  availabilityStatus === 'available' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-amber-100 text-amber-800'
+                }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${
+                    availabilityStatus === 'available' 
+                      ? 'bg-green-600' 
+                      : 'bg-amber-600'
+                  }`}></span>
+                  {availabilityStatus === 'available' ? 'Actif' : 'Suspendu'}
+                </span>
+              )}
+            </div>
             <p className="text-sm md:text-base text-gray-600 mt-0.5 md:mt-1">Gérez vos informations professionnelles</p>
           </div>
           <button

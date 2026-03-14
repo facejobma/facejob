@@ -24,7 +24,23 @@ export default function NavBar() {
     setMounted(true);
     // Check authentication status from cookies (primary) or localStorage (fallback)
     const token = Cookies.get('authToken') || localStorage.getItem('access_token');
-    const role = Cookies.get('userRole') || localStorage.getItem('user_type');
+    
+    // Check user role from multiple sources
+    let role = sessionStorage.getItem('userRole') || Cookies.get('userRole') || localStorage.getItem('user_type');
+    
+    // If still not found, try to detect from user object in sessionStorage
+    if (!role) {
+      const userStr = sessionStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          role = user.role || null;
+        } catch (e) {
+          console.error('Failed to parse user from sessionStorage');
+        }
+      }
+    }
+    
     setIsAuthenticated(!!token);
     setUserType(role || null);
   }, []);

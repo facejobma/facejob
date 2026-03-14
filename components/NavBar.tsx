@@ -86,8 +86,10 @@ export default function NavBar() {
   };
 
   const getDashboardLink = () => {
-    if (userType === 'candidat') return '/dashboard/candidat';
-    if (userType === 'entreprise') return '/dashboard/entreprise';
+    // Check state first, then fallback to direct sessionStorage check
+    const role = userType || sessionStorage.getItem('userRole');
+    if (role === 'candidat') return '/dashboard/candidat';
+    if (role === 'entreprise') return '/dashboard/entreprise';
     return '/';
   };
   return (

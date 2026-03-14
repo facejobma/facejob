@@ -114,7 +114,7 @@ const AvailabilityConfirmContent: React.FC = () => {
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <Link href="/auth/login-candidate">
               <Button className="w-full text-white">
                 Accéder à mon tableau de bord

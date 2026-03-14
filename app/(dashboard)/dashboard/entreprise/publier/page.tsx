@@ -428,7 +428,7 @@ export default function PublierPage() {
             </button>
             <button
               type="submit"
-              disabled={isLoading || (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0)}
+              disabled={isLoading || !!(planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0)}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 font-medium rounded-lg transition-colors ${
                 isLoading || (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0)
                   ? "bg-gray-400 text-white cursor-not-allowed"

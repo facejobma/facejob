@@ -336,6 +336,14 @@ export async function updateAvailabilityStatus(status: 'available' | 'unavailabl
   throw new Error(`Failed to update availability status: ${response.status}`);
 }
 
+export async function reactivateProfile() {
+  const response = await authenticatedApiCall('/availability/reactivate', {
+    method: 'POST',
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to reactivate profile: ${response.status}`);
+}
+
 export async function fetchPostuleAll() {
   const response = await authenticatedApiCall('/postule/all');
   if (response.ok) return response.json();

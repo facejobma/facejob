@@ -3,7 +3,9 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/layout/sidebar";
 import HeaderCandidat from "@/components/layout/header-candidat";
 import ProfileCompletionModal from "@/components/ProfileCompletionModal";
+import SuspendedAccountModal from "@/components/SuspendedAccountModal";
 import { useExperiencePrompt } from "@/hooks/useExperiencePrompt";
+import { fetchAvailabilityStatus } from "@/lib/api";
 import { ExperiencePromptProvider, useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import { useEffect, useState } from "react";
@@ -21,6 +23,7 @@ function DashboardLayoutContent({
   const router = useRouter();
   const { isOpen } = useSidebar();
   const [candidatId, setCandidatId] = useState<number | null>(null);
+  const [isSuspended, setIsSuspended] = useState(false);
   const { showPrompt: showManualPrompt, hidePrompt: hideManualPrompt, isPromptVisible: isManualPromptVisible } = useExperiencePromptContext();
 
   const userDataString =
@@ -42,6 +45,19 @@ function DashboardLayoutContent({
       setCandidatId(userData.id);
     }
   }, [userData]);
+
+  useEffect(() => {
+    if (!candidatId) return;
+    fetchAvailabilityStatus()
+      .then((data) => {
+        if (data?.availability_status === 'unavailable') {
+          setIsSuspended(true);
+        }
+      })
+      .catch(() => {
+        // Silently ignore — don't block the dashboard on status fetch failure
+      });
+  }, [candidatId]);
 
   // Note: Authentication is handled by the parent layout.tsx
   // No need for client-side auth check here to avoid redirect loops
@@ -85,6 +101,12 @@ function DashboardLayoutContent({
           candidatId={candidatId}
         />
       )}
+
+      {/* Suspended Account Modal */}
+      <SuspendedAccountModal
+        isOpen={isSuspended}
+        onReactivated={() => setIsSuspended(false)}
+      />
     </div>
   );
 }

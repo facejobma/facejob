@@ -15,6 +15,8 @@ import { HiOutlineUser, HiOutlineCollection, HiOutlineLightBulb } from "react-ic
 import { downloadFaceJobCV } from "@/components/FaceJobCV";
 import toast from "react-hot-toast";
 import { useUser } from "@/hooks/useUser";
+import ProfileReactivationButton from "@/components/ProfileReactivationButton";
+import { fetchAvailabilityStatus } from "@/lib/api";
 
 const Profile: React.FC = () => {
   const router = useRouter();
@@ -22,6 +24,7 @@ const Profile: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [downloadingCV, setDownloadingCV] = useState(false);
+  const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'unavailable' | null>(null);
 
   // Function to refresh profile data
   const refreshProfile = useCallback(async () => {
@@ -203,6 +206,14 @@ const Profile: React.FC = () => {
 
         setUserProfile(completeProfile);
         setLoading(false);
+
+        // Fetch availability status separately (non-blocking)
+        try {
+          const avail = await fetchAvailabilityStatus();
+          setAvailabilityStatus(avail.availability_status ?? null);
+        } catch {
+          // Non-critical — silently ignore
+        }
       } catch (error) {
         console.error("Error fetching profile data:", error);
         setLoading(false);
@@ -528,6 +539,13 @@ const Profile: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Profile Reactivation Banner (shown only when suspended) */}
+      {availabilityStatus === 'unavailable' && (
+        <ProfileReactivationButton
+          onReactivated={() => setAvailabilityStatus('available')}
+        />
+      )}
 
       {/* Delete Account Section */}
       <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">

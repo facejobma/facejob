@@ -53,6 +53,7 @@ interface Candidate {
   formations: Formation[];
   experiences: Experience[];
   skills: Skill[];
+  created_at: string;
 }
 
 interface Payment {
@@ -842,6 +843,14 @@ const CandidatsPage: React.FC = () => {
                           {candidate.years_of_experience} ans
                         </span>
                       </div>
+
+                      {/* CV Upload Date */}
+                      {candidate.created_at && (
+                        <p className="text-xs text-gray-400 flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          CV mis en ligne le {new Date(candidate.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </p>
+                      )}
                     </div>
 
                     {/* Action Buttons */}
@@ -861,8 +870,7 @@ const CandidatsPage: React.FC = () => {
                         title="Débloquer les coordonnées du candidat"
                       >
                         <Eye className="w-4 h-4" />
-                        <span className="hidden sm:inline">Débloquer (1 crédit)</span>
-                        <span className="sm:hidden">Débloquer</span>
+                        <span className="leading-tight text-center">Débloquer<br/><span className="text-[9px] opacity-80">(1 crédit)</span></span>
                       </button>
                     </div>
                   </div>
@@ -991,6 +999,19 @@ const CandidatsPage: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* CV Upload Date */}
+                    {detailCandidate.created_at && (
+                      <div className="bg-gray-50 rounded-lg p-2 md:p-3 flex items-center gap-2">
+                        <Calendar className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                        <span className="text-xs text-gray-500">
+                          CV mis en ligne le{' '}
+                          <span className="font-medium text-gray-700">
+                            {new Date(detailCandidate.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+
                     {/* Bio */}
                     {detailCandidate.bio && (
                       <div className="bg-gray-50 rounded-lg p-2 md:p-3">
@@ -1097,8 +1118,7 @@ const CandidatsPage: React.FC = () => {
                   className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 text-xs md:text-sm"
                 >
                   <Check className="w-4 h-4" />
-                  <span className="hidden sm:inline">Débloquer (1 crédit)</span>
-                  <span className="sm:hidden">Débloquer</span>
+                  <span className="leading-tight text-center">Débloquer<br/><span className="text-[11px] opacity-80">(1 crédit)</span></span>
                 </button>
               </div>
             </div>

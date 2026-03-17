@@ -298,6 +298,9 @@ const ConsumedCVs: React.FC = () => {
                       Expérience
                     </th>
                     <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
+                      CV mis en ligne
+                    </th>
+                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
                       Date de Déblocage
                     </th>
                     <th className="px-6 py-3 text-center text-sm font-semibold text-gray-900 border-b border-gray-200">
@@ -337,6 +340,13 @@ const ConsumedCVs: React.FC = () => {
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                           {cv.postuler.candidat.years_of_experience ?? 0} ans
                         </span>
+                      </td>
+                      <td className="px-6 py-4 border-b border-gray-200 text-center text-gray-700">
+                        {new Date(cv.postuler.created_at).toLocaleDateString("fr-FR", {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
                       </td>
                       <td className="px-6 py-4 border-b border-gray-200 text-center text-gray-700">
                         {new Date(cv.created_at).toLocaleDateString("fr-FR", {
@@ -396,12 +406,11 @@ const ConsumedCVs: React.FC = () => {
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         {cv.postuler.candidat.years_of_experience ?? 0} ans d'exp.
                       </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        CV mis en ligne le {new Date(cv.postuler.created_at).toLocaleDateString("fr-FR", { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
                       <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                        {new Date(cv.created_at).toLocaleDateString("fr-FR", {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })}
+                        Débloqué le {new Date(cv.created_at).toLocaleDateString("fr-FR", { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </div>
 

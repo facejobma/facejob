@@ -129,6 +129,7 @@ const CandidatsPage: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<any>(null);
   const [selectedGender, setSelectedGender] = useState<any>(null);
   const [selectedEducation, setSelectedEducation] = useState<any>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<any>(null);
   const [minExperience, setMinExperience] = useState<any>(null);
   const [maxExperience, setMaxExperience] = useState<any>(null);
   const [cities, setCities] = useState<string[]>([]);
@@ -153,8 +154,12 @@ const CandidatsPage: React.FC = () => {
       backgroundColor: 'white',
       borderRadius: '0.75rem',
       fontSize: '0.875rem',
-      zIndex: 50,
+      zIndex: 9999,
       boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+    }),
+    menuPortal: (base: any) => ({
+      ...base,
+      zIndex: 9999,
     }),
     option: (base: any, state: any) => ({
       ...base,
@@ -246,6 +251,7 @@ const CandidatsPage: React.FC = () => {
       if (selectedCity) params.append('city', selectedCity.value);
       if (selectedGender) params.append('gender', selectedGender.value);
       if (selectedEducation) params.append('education_level', selectedEducation.value);
+      if (selectedLanguage) params.append('language', selectedLanguage.value);
       if (minExperience) params.append('min_experience', minExperience.value);
       if (maxExperience) params.append('max_experience', maxExperience.value);
       
@@ -286,7 +292,7 @@ const CandidatsPage: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
     fetchCandidates(1, false);
-  }, [selectedSector, selectedJob, selectedCity, selectedGender, selectedEducation, minExperience, maxExperience]);
+  }, [selectedSector, selectedJob, selectedCity, selectedGender, selectedEducation, selectedLanguage, minExperience, maxExperience]);
 
   useEffect(() => {
     if (user?.id) {
@@ -499,6 +505,7 @@ const CandidatsPage: React.FC = () => {
     setSelectedCity(null);
     setSelectedGender(null);
     setSelectedEducation(null);
+    setSelectedLanguage(null);
     setMinExperience(null);
     setMaxExperience(null);
   };
@@ -537,7 +544,7 @@ const CandidatsPage: React.FC = () => {
     setDetailCandidate(null);
   };
 
-  const hasActiveFilters = selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || minExperience || maxExperience;
+  const hasActiveFilters = selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || selectedLanguage || minExperience || maxExperience;
 
   // Show loading state while user data is being fetched
   if (userLoading) {
@@ -626,6 +633,8 @@ const CandidatsPage: React.FC = () => {
                     placeholder="Tous les secteurs..."
                     isClearable
                     isSearchable
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
                   />
                 </div>
 
@@ -641,6 +650,8 @@ const CandidatsPage: React.FC = () => {
                     isClearable
                     isSearchable
                     isDisabled={!selectedSector}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
                   />
                 </div>
 
@@ -655,6 +666,8 @@ const CandidatsPage: React.FC = () => {
                     placeholder="Toutes les villes..."
                     isClearable
                     isSearchable
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
                   />
                 </div>
 
@@ -669,6 +682,28 @@ const CandidatsPage: React.FC = () => {
                     placeholder="Tous les niveaux..."
                     isClearable
                     isSearchable
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
+                  />
+                </div>
+
+                {/* Langue */}
+                <div>
+                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Langue</label>
+                  <Select
+                    value={selectedLanguage}
+                    onChange={setSelectedLanguage}
+                    options={[
+                      "Arabe", "Français", "Anglais", "Espagnol", "Allemand",
+                      "Italien", "Portugais", "Chinois", "Japonais", "Russe",
+                      "Néerlandais", "Turc", "Persan", "Coréen", "Hindi",
+                    ].map(l => ({ value: l, label: l }))}
+                    styles={selectStyles}
+                    placeholder="Toutes les langues..."
+                    isClearable
+                    isSearchable
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
                   />
                 </div>
 
@@ -682,6 +717,8 @@ const CandidatsPage: React.FC = () => {
                     styles={selectStyles}
                     placeholder="Minimum..."
                     isClearable
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
                   />
                 </div>
 
@@ -695,6 +732,8 @@ const CandidatsPage: React.FC = () => {
                     styles={selectStyles}
                     placeholder="Maximum..."
                     isClearable
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
                   />
                 </div>
 
@@ -711,6 +750,8 @@ const CandidatsPage: React.FC = () => {
                     styles={selectStyles}
                     placeholder="Tous les genres..."
                     isClearable
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    menuPosition="fixed"
                   />
                 </div>
               </div>

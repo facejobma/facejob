@@ -205,6 +205,7 @@ interface UserProfile {
   bio?: string;
   job?: { name: string };
   skills?: Array<{ title: string }>;
+  languages?: string[];
   projects?: Array<{ title: string; description: string }>;
   experiences?: Array<{
     poste: string;
@@ -306,6 +307,19 @@ const ResumePDFDocument: React.FC<{
                 <View key={index} style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 6 }}>
                   <Text style={styles.skillBullet}>▪</Text>
                   <Text style={styles.skillItem}>{skill.title}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Languages */}
+          {userProfile.languages && userProfile.languages.length > 0 && (
+            <View style={styles.sidebarSection}>
+              <Text style={styles.sidebarSectionTitle}>LANGUES</Text>
+              {userProfile.languages.map((lang: string, index: number) => (
+                <View key={index} style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 6 }}>
+                  <Text style={styles.skillBullet}>▪</Text>
+                  <Text style={styles.skillItem}>{lang}</Text>
                 </View>
               ))}
             </View>
@@ -454,6 +468,7 @@ export const downloadConsumedResumePDF = async (candidateData: any) => {
       image: imageBase64,
       job: candidateData.job,
       skills: candidateData.skills || [],
+      languages: candidateData.languages || [],
       projects: candidateData.projects || [],
       experiences: candidateData.experiences || [],
       educations: candidateData.formations || [],

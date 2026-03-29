@@ -7,10 +7,12 @@ import BioSection from "@/components/BioSection";
 import ExperiencesSection from "@/components/ExperiencesSection";
 import SkillsSection from "@/components/SkillsSection";
 import ProjectsSection from "@/components/ProjectsSection";
+import LanguagesSection from "@/components/LanguagesSection";
 import EducationSection from "@/components/EducationSection";
 import Cookies from "js-cookie";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaDownload, FaFileAlt, FaTrash, FaExclamationTriangle } from "react-icons/fa";
+import { Globe } from "lucide-react";
 import { HiOutlineUser, HiOutlineCollection, HiOutlineLightBulb } from "react-icons/hi";
 import { downloadFaceJobCV } from "@/components/FaceJobCV";
 import toast from "react-hot-toast";
@@ -61,6 +63,7 @@ const Profile: React.FC = () => {
         skills: profileData.skills || [],
         projects: profileData.projects || [],
         education: profileData.educations || [],
+        languages: profileData.languages || [],
       };
 
       setUserProfile(completeProfile);
@@ -202,6 +205,7 @@ const Profile: React.FC = () => {
           skills: profileData.skills || [],
           projects: profileData.projects || [],
           education: profileData.educations || [],
+          languages: profileData.languages || [],
         };
 
         setUserProfile(completeProfile);
@@ -242,7 +246,7 @@ const Profile: React.FC = () => {
 
   // Calculate profile completion stats with more detailed tracking
   const profileStats = {
-    total: 7,
+    total: 8,
     completed: [
       userProfile?.bio && userProfile.bio.trim().length > 0,
       userProfile?.experiences?.length > 0,
@@ -250,7 +254,8 @@ const Profile: React.FC = () => {
       userProfile?.projects?.length > 0,
       userProfile?.education?.length > 0,
       userProfile?.image && userProfile?.image !== "https://via.placeholder.com/150",
-      userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email
+      userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email,
+      userProfile?.languages?.length > 0,
     ].filter(Boolean).length
   };
 
@@ -391,6 +396,12 @@ const Profile: React.FC = () => {
                     <span>Ajoutez vos compétences</span>
                   </div>
                 )}
+                {(!userProfile?.languages || userProfile.languages.length === 0) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <Globe className="text-amber-600 flex-shrink-0 w-3 h-3" />
+                    <span>Ajoutez les langues que vous parlez</span>
+                  </div>
+                )}
                 {(!userProfile?.projects || userProfile.projects.length === 0) && (
                   <div className="flex items-center gap-2 text-xs text-amber-700">
                     <HiOutlineCollection className="text-amber-600 flex-shrink-0" />
@@ -488,6 +499,9 @@ const Profile: React.FC = () => {
             )}
           </div>
           <SkillsSection id={userProfile.id} skills={userProfile.skills} onUpdate={refreshProfile} />
+          <div className="mt-6">
+            <LanguagesSection languages={userProfile.languages || []} onUpdate={refreshProfile} />
+          </div>
         </div>
       </div>
 

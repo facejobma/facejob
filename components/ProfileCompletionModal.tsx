@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus, X, Briefcase, Clock, GraduationCap, Lightbulb, FolderOpen, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { CalendarIcon, Plus, X, Briefcase, Clock, GraduationCap, Lightbulb, FolderOpen, FileText, CheckCircle, AlertCircle, Globe } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import toast from "react-hot-toast";
@@ -57,6 +57,8 @@ export default function ProfileCompletionModal({
   const [bioData, setBioData] = useState("");
   const [skillsData, setSkillsData] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
+  const [languagesData, setLanguagesData] = useState<string[]>([]);
+  const [newLanguage, setNewLanguage] = useState("");
   const [projectData, setProjectData] = useState({
     title: "",
     description: "",
@@ -116,6 +118,10 @@ export default function ProfileCompletionModal({
 
           if (!profileData.educations || profileData.educations.length === 0) {
             missing.push("education");
+          }
+
+          if (!profileData.languages || profileData.languages.length === 0) {
+            missing.push("languages");
           }
 
           setMissingSections(missing);
@@ -201,6 +207,8 @@ export default function ProfileCompletionModal({
       return handleSubmitProject();
     } else if (currentSection === "education") {
       return handleSubmitEducation();
+    } else if (currentSection === "languages") {
+      return handleSubmitLanguages();
     } else {
       return handleSubmitExperiences();
     }
@@ -431,6 +439,35 @@ export default function ProfileCompletionModal({
     }
   };
 
+  const handleSubmitLanguages = async () => {
+    if (languagesData.length === 0) {
+      toast.error("Veuillez ajouter au moins une langue");
+      return;
+    }
+    setIsSubmitting(true);
+    const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/languages`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ languages: languagesData }),
+        }
+      );
+      if (response.ok) {
+        toast.success("Langues ajoutées avec succès!");
+        moveToNextSection();
+      } else {
+        toast.error("Erreur lors de l'enregistrement");
+      }
+    } catch {
+      toast.error("Erreur réseau");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const moveToNextSection = () => {
     const currentIndex = missingSections.indexOf(currentSection);
     if (currentIndex < missingSections.length - 1) {
@@ -439,6 +476,8 @@ export default function ProfileCompletionModal({
       setBioData("");
       setSkillsData([]);
       setNewSkill("");
+      setLanguagesData([]);
+      setNewLanguage("");
       setProjectData({ title: "", description: "", link: "" });
       setEducationData({
         titre: "",
@@ -489,6 +528,8 @@ export default function ProfileCompletionModal({
         return "Projets";
       case "education":
         return "Formation";
+      case "languages":
+        return "Langues parlées";
       default:
         return "Expériences professionnelles";
     }
@@ -504,6 +545,8 @@ export default function ProfileCompletionModal({
         return <FolderOpen className="h-6 w-6 text-blue-600" />;
       case "education":
         return <GraduationCap className="h-6 w-6 text-blue-600" />;
+      case "languages":
+        return <Globe className="h-6 w-6 text-blue-600" />;
       default:
         return <Briefcase className="h-6 w-6 text-blue-600" />;
     }
@@ -595,6 +638,12 @@ export default function ProfileCompletionModal({
                     <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
                       <GraduationCap className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       <span className="font-medium">Formation</span>
+                    </div>
+                  )}
+                  {missingSections.includes("languages") && (
+                    <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
+                      <Globe className="h-5 w-5 text-amber-600 flex-shrink-0" />
+                      <span className="font-medium">Langues parlées</span>
                     </div>
                   )}
                 </div>
@@ -892,6 +941,69 @@ export default function ProfileCompletionModal({
                   className="mt-2"
                 />
               </div>
+            </div>
+          ) : currentSection === "languages" ? (
+            // Languages Form
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200 space-y-4">
+              <div>
+                <Label className="text-sm font-semibold text-gray-700">
+                  Ajouter une langue <span className="text-red-500">*</span>
+                </Label>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    value={newLanguage}
+                    onChange={(e) => setNewLanguage(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const trimmed = newLanguage.trim();
+                        if (trimmed && !languagesData.includes(trimmed)) {
+                          setLanguagesData([...languagesData, trimmed]);
+                          setNewLanguage("");
+                        }
+                      }
+                    }}
+                    placeholder="Ex: Français, Anglais, Arabe..."
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      const trimmed = newLanguage.trim();
+                      if (trimmed && !languagesData.includes(trimmed)) {
+                        setLanguagesData([...languagesData, trimmed]);
+                        setNewLanguage("");
+                      }
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Ajouter
+                  </Button>
+                </div>
+              </div>
+              {/* Quick add */}
+              <div className="flex flex-wrap gap-1.5">
+                {["Arabe", "Français", "Anglais", "Espagnol", "Allemand", "Italien"].filter(l => !languagesData.includes(l)).map((lang) => (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => setLanguagesData([...languagesData, lang])}
+                    className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-green-50 hover:border-green-300 text-gray-600 rounded-full text-xs transition-colors"
+                  >
+                    + {lang}
+                  </button>
+                ))}
+              </div>
+              {languagesData.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {languagesData.map((lang) => (
+                    <div key={lang} className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1.5 rounded-lg text-sm">
+                      <span>{lang}</span>
+                      <button type="button" onClick={() => setLanguagesData(languagesData.filter(l => l !== lang))} className="text-blue-600 hover:text-blue-800 font-bold">×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             // Experiences Form (default)

@@ -273,16 +273,16 @@ const Profile: React.FC = () => {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">Mon Profil</h1>
               {availabilityStatus && (
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs md:text-sm font-medium ${
-                  availabilityStatus === 'available' 
+                  availabilityStatus === 'disponible' 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-amber-100 text-amber-800'
                 }`}>
                   <span className={`h-1.5 w-1.5 rounded-full ${
-                    availabilityStatus === 'available' 
+                    availabilityStatus === 'disponible' 
                       ? 'bg-green-600' 
                       : 'bg-amber-600'
                   }`}></span>
-                  {availabilityStatus === 'available' ? 'Actif' : 'Suspendu'}
+                  {availabilityStatus === 'disponible' ? 'Actif' : 'Suspendu'}
                 </span>
               )}
             </div>

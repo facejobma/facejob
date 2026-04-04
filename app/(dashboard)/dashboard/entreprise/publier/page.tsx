@@ -40,6 +40,30 @@ export default function PublierPage() {
     date_fin: "",
   });
 
+  const [requiredLanguages, setRequiredLanguages] = useState<string[]>([]);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
+
+  const AVAILABLE_LANGUAGES = ["Arabe", "Français", "Anglais", "Espagnol", "Allemand", "Italien", "Portugais"];
+
+  const toggleLanguage = (lang: string) => {
+    setRequiredLanguages(prev =>
+      prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]
+    );
+  };
+
+  const addSkill = () => {
+    const trimmed = skillInput.trim();
+    if (trimmed && !requiredSkills.includes(trimmed)) {
+      setRequiredSkills(prev => [...prev, trimmed]);
+    }
+    setSkillInput("");
+  };
+
+  const removeSkill = (skill: string) => {
+    setRequiredSkills(prev => prev.filter(s => s !== skill));
+  };
+
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   useEffect(() => {
@@ -173,6 +197,8 @@ export default function PublierPage() {
         ...formData,
         description: sanitizedDescription,
         entreprise_id: user.id,
+        required_languages: requiredLanguages,
+        required_skills: requiredSkills,
       });
 
       setFormData({
@@ -184,6 +210,8 @@ export default function PublierPage() {
         date_debut: "",
         date_fin: "",
       });
+      setRequiredLanguages([]);
+      setRequiredSkills([]);
 
       setIsSuccessModalOpen(true);
     } catch (error: any) {
@@ -366,6 +394,59 @@ export default function PublierPage() {
               placeholder="Ex: Casablanca, Maroc"
               required
             />
+          </div>
+
+          {/* Langues requises */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Langues requises</label>
+            <div className="flex flex-wrap gap-2">
+              {AVAILABLE_LANGUAGES.map(lang => (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => toggleLanguage(lang)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    requiredLanguages.includes(lang)
+                      ? "bg-green-600 text-white border-green-600"
+                      : "bg-white text-gray-700 border-gray-300 hover:border-green-400"
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Compétences requises */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Compétences requises</label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={skillInput}
+                onChange={e => setSkillInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
+                className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                placeholder="Ex: React.js, Python, SQL..."
+              />
+              <button
+                type="button"
+                onClick={addSkill}
+                className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+              >
+                Ajouter
+              </button>
+            </div>
+            {requiredSkills.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {requiredSkills.map(skill => (
+                  <span key={skill} className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-sm font-medium">
+                    {skill}
+                    <button type="button" onClick={() => removeSkill(skill)} className="ml-1 text-emerald-500 hover:text-red-500 transition-colors">×</button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

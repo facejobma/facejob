@@ -72,6 +72,12 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
           setUser(cachedUser);
           setIsAuthorized(true);
           setIsLoading(false);
+
+          // Persist user and role in sessionStorage so sidebar/header can read them
+          if (typeof window !== 'undefined') {
+            window.sessionStorage.setItem('user', JSON.stringify(cachedUser));
+            window.sessionStorage.setItem('userRole', cachedUser.role);
+          }
           return;
         }
 
@@ -142,6 +148,12 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
       setUser(result);
       setIsAuthorized(true);
       setIsLoading(false);
+
+      // Persist user and role in sessionStorage so sidebar/header can read them
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem('user', JSON.stringify(result));
+        window.sessionStorage.setItem('userRole', result.role);
+      }
     };
 
     checkAuth();

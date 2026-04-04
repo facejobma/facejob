@@ -1,39 +1,49 @@
 "use client";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { navItemsCandidat } from "@/constants/data";
-import { navItemsEntreprise } from "@/constants/data";
+import { navItemsCandidat, navItemsEntreprise } from "@/constants/data";
 import { MenuIcon, X } from "lucide-react";
-import { useState } from "react";
-
-// import { Playlist } from "../data/playlists";
+import { useState, useEffect } from "react";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  // playlists: Playlist[];
+  role?: "candidat" | "entreprise";
 }
 
-export function MobileSidebar({ className }: SidebarProps) {
+export function MobileSidebar({ className, role }: SidebarProps) {
   const [open, setOpen] = useState(false);
-  const userRole =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("userRole")
-      : null;
+  const [detectedRole, setDetectedRole] = useState<string | null>(role ?? null);
 
-  const userData = 
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user")
-      : null;
-  
-  const user = userData ? JSON.parse(userData) : null;
+  useEffect(() => {
+    // If role is passed as prop, use it directly (most reliable)
+    if (role) {
+      setDetectedRole(role);
+      return;
+    }
 
-  // Debug logging
-  if (typeof window !== "undefined") {
-    console.log("🔍 MobileSidebar - userRole:", userRole);
-    console.log("🔍 MobileSidebar - user data:", user);
-  }
+    let storedRole = window.sessionStorage?.getItem("userRole");
+
+    if (!storedRole) {
+      const userData = window.sessionStorage?.getItem("user");
+      if (userData) {
+        try {
+          const parsed = JSON.parse(userData);
+          if (parsed.role) {
+            storedRole = parsed.role;
+          } else if (parsed.company_name || parsed.sector_id) {
+            storedRole = "entreprise";
+          } else {
+            storedRole = "candidat";
+          }
+          if (storedRole) window.sessionStorage.setItem("userRole", storedRole);
+        } catch {}
+      }
+    }
+
+    setDetectedRole(storedRole);
+  }, [role]);
 
   const navItems =
-    userRole === "entreprise" ? navItemsEntreprise : navItemsCandidat;
+    detectedRole === "entreprise" ? navItemsEntreprise : navItemsCandidat;
 
   return (
     <>

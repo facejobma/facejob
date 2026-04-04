@@ -42,7 +42,8 @@ import {
   BriefcaseBusiness, 
   SquareKanban,
   FileVideo2,
-  History
+  History,
+  Sparkles
 } from "lucide-react";
 import { MdSupport } from "react-icons/md";
 
@@ -93,5 +94,6 @@ export const Icons = {
   mesOffres: BriefcaseBusiness,
   services: SquareKanban,
   consumedCvs: FileVideo2,
-  history: History
+  history: History,
+  matching: Sparkles
 };

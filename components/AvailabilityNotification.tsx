@@ -9,7 +9,7 @@ import { Clock, AlertTriangle, CheckCircle, XCircle, ChevronDown } from "lucide-
 import { authenticatedApiCall } from "@/lib/api";
 
 interface AvailabilityData {
-  availability_status: 'available' | 'unavailable' | 'pending';
+  availability_status: 'disponible' | 'indisponible' | 'pending';
   last_confirmation: string | null;
   needs_confirmation: boolean;
   days_since_confirmation: number | null;
@@ -58,7 +58,7 @@ const AvailabilityNotification: React.FC = () => {
     }
   };
 
-  const updateAvailabilityStatus = async (status: 'available' | 'unavailable') => {
+  const updateAvailabilityStatus = async (status: 'disponible' | 'indisponible') => {
     setUpdating(true);
     try {
       const response = await authenticatedApiCall('/api/availability/update', {
@@ -67,7 +67,7 @@ const AvailabilityNotification: React.FC = () => {
       });
 
       if (response.ok) {
-        const message = status === 'available' ? "Disponibilité confirmée !" : "Statut mis à jour !";
+        const message = status === 'disponible' ? "Disponibilité confirmée !" : "Statut mis à jour !";
         toast.success(message);
         fetchAvailabilityStatus();
         setIsOpen(false);
@@ -83,9 +83,9 @@ const AvailabilityNotification: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'available':
+      case 'disponible':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'unavailable':
+      case 'indisponible':
         return <XCircle className="w-4 h-4 text-red-600" />;
       default:
         return <Clock className="w-4 h-4 text-yellow-600" />;
@@ -94,9 +94,9 @@ const AvailabilityNotification: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'available':
+      case 'disponible':
         return "Disponible";
-      case 'unavailable':
+      case 'indisponible':
         return "Non disponible";
       default:
         return "En attente";
@@ -105,9 +105,9 @@ const AvailabilityNotification: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'available':
+      case 'disponible':
         return "text-green-700 bg-green-50 border-green-200";
-      case 'unavailable':
+      case 'indisponible':
         return "text-red-700 bg-red-50 border-red-200";
       default:
         return "text-yellow-700 bg-yellow-50 border-yellow-200";
@@ -191,7 +191,7 @@ const AvailabilityNotification: React.FC = () => {
 
             <div className="flex gap-2">
               <Button
-                onClick={() => updateAvailabilityStatus('available')}
+                onClick={() => updateAvailabilityStatus('disponible')}
                 disabled={updating}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 size="sm"
@@ -205,7 +205,7 @@ const AvailabilityNotification: React.FC = () => {
               </Button>
               
               <Button
-                onClick={() => updateAvailabilityStatus('unavailable')}
+                onClick={() => updateAvailabilityStatus('indisponible')}
                 disabled={updating}
                 variant="outline"
                 className="flex-1 border-red-200 text-red-600 hover:bg-red-50"

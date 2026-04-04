@@ -389,7 +389,7 @@ export default function UsersPage() {
             <HiOutlineCollection className="text-white text-xl" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">MesCV vidéos</h1>
+            <h1 className="text-2xl font-bold text-white">Mes CV vidéos</h1>
             <p className="text-green-50 text-sm">Gérez vos candidatures vidéo</p>
           </div>
         </div>

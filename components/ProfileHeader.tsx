@@ -17,6 +17,9 @@ interface ProfileHeaderProps {
   image?: string;
   address?: string;
   companyName?: string;
+  currentJobId?: number;
+  currentSectorId?: number;
+  preferredLocation?: string;
 }
 
 interface Job {
@@ -41,6 +44,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   zip_code,
   address,
   companyName,
+  currentJobId,
+  currentSectorId,
+  preferredLocation,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const router = useRouter();
@@ -50,14 +56,25 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [selectedSector, setSelectedSector] = useState("");
-  const [selectedJob, setSelectedJob] = useState("");
+  const [selectedSector, setSelectedSector] = useState(currentSectorId ? String(currentSectorId) : "");
+  const [selectedJob, setSelectedJob] = useState(currentJobId ? String(currentJobId) : "");
+
+  // Sync sector/job when sectors are loaded (async)
+  useEffect(() => {
+    if (sectors.length > 0 && currentSectorId) {
+      setSelectedSector(String(currentSectorId));
+    }
+    if (currentJobId) {
+      setSelectedJob(String(currentJobId));
+    }
+  }, [sectors, currentSectorId, currentJobId]);
 
   const [formData, setFormData] = useState({
     newFirstName: first_name ?? "",
     newLastName: last_name ?? "",
     newHeadline: headline ?? "",
     newAddress: address ?? "",
+    newPreferredLocation: preferredLocation ?? "",
     newCompanyName: companyName ?? "",
     newTel: tel ?? "",
     newEmail: email ?? "",
@@ -155,8 +172,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           body: JSON.stringify({
             first_name: formData.newFirstName,
             last_name: formData.newLastName,
-            headline: selectedJob,
+            job_id: selectedJob || undefined,
             address: formData.newAddress,
+            preferred_location: formData.newPreferredLocation || undefined,
             company: formData.newCompanyName,
             tel: formData.newTel,
             email: formData.newEmail,
@@ -278,7 +296,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             {formData.newFirstName} {formData.newLastName}
           </h2>
           <p className="text-gray-600 text-sm mb-3">
-            {formData.newHeadline || "Poste non renseigné"}
+            {formData.newHeadline || <span className="text-amber-500 italic">Poste non renseigné — important pour le matching</span>}
           </p>
 
           <div className="space-y-2 text-sm">
@@ -292,7 +310,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </div>
             <div className="flex items-center gap-2 text-gray-700">
               <FaMapPin className="text-green-600 w-4 h-4" />
-              <span>{formData.newAddress || "Adresse non renseignée"}</span>
+              {formData.newPreferredLocation
+                ? <span>{formData.newPreferredLocation}</span>
+                : <span className="text-amber-500 italic text-xs">Ville préférée non renseignée — important pour le matching</span>
+              }
             </div>
           </div>
         </div>
@@ -388,7 +409,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 {/* Sector */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="secteur">
-                    Secteur
+                    Secteur d'activité préféré
+                    <span className="ml-1 text-xs text-green-600 font-normal">(utilisé pour le matching)</span>
                   </label>
                   <select
                     id="secteur"
@@ -411,7 +433,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 {/* Job */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="metier">
-                    Métier
+                    Poste recherché
+                    <span className="ml-1 text-xs text-green-600 font-normal">(utilisé pour le matching)</span>
                   </label>
                   <select
                     id="metier"
@@ -437,7 +460,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 {/* Address - Full Width */}
                 <div className="md:col-span-2">
                   <label htmlFor="newAddress" className="block text-sm font-medium text-gray-700 mb-2">
-                    Adresse
+                    Adresse personnelle
                   </label>
                   <input
                     type="text"
@@ -445,7 +468,24 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     name="newAddress"
                     value={formData.newAddress}
                     onChange={handleInputChange}
-                    placeholder="Entrez votre adresse"
+                    placeholder="Ex: 12 Rue Hassan II, Casablanca"
+                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                  />
+                </div>
+
+                {/* Preferred Location - Full Width */}
+                <div className="md:col-span-2">
+                  <label htmlFor="newPreferredLocation" className="block text-sm font-medium text-gray-700 mb-2">
+                    Ville de travail préférée
+                    <span className="ml-1 text-xs text-green-600 font-normal">✦ utilisé pour le matching d'offres</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="newPreferredLocation"
+                    name="newPreferredLocation"
+                    value={formData.newPreferredLocation}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Casablanca, Rabat, Tanger..."
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                   />
                 </div>

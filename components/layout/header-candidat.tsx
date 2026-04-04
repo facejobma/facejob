@@ -18,7 +18,7 @@ export default function HeaderCandidat() {
           {/* Mobile Sidebar - Left on mobile */}
           <div className="block md:hidden">
             <div className="bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-              <MobileSidebar />
+              <MobileSidebar role="candidat" />
             </div>
           </div>
 

@@ -50,7 +50,7 @@ function DashboardLayoutContent({
     if (!candidatId) return;
     fetchAvailabilityStatus()
       .then((data) => {
-        if (data?.availability_status === 'unavailable') {
+        if (data?.availability_status === 'indisponible') {
           setIsSuspended(true);
         }
       })

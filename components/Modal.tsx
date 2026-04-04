@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { X, Video, Building, Briefcase, Grid3x3, AlertCircle } from 'lucide-react';
 
 interface ModalProps {
@@ -34,7 +35,7 @@ const Modal: React.FC<ModalProps> = ({
 
   const isButtonDisabled = selectedVideo === '';
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
@@ -168,6 +169,9 @@ const Modal: React.FC<ModalProps> = ({
       </div>
     </div>
   );
+
+  if (typeof window === 'undefined') return null;
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default Modal;

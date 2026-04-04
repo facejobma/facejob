@@ -18,6 +18,8 @@ import {
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Modal from "@/components/Modal";
+import ProfileCompletionModal from "@/components/ProfileCompletionModal";
 
 interface OfferDetail {
   id: number;
@@ -59,6 +61,16 @@ const CandidatOfferDetailPage: React.FC = () => {
   const [offer, setOffer] = useState<OfferDetail | null>(null);
   const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [videos, setVideos] = useState<{ id: string; link: string; job_name: string; secteur_name: string }[]>([]);
+  const [selectedVideoId, setSelectedVideoId] = useState<number | string | null>(null);
+  const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localHasApplied, setLocalHasApplied] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [hasSkippedProfileCompletion, setHasSkippedProfileCompletion] = useState(false);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const offerId = params.id as string;
@@ -66,6 +78,30 @@ const CandidatOfferDetailPage: React.FC = () => {
   useEffect(() => {
     fetchOfferDetail();
   }, [offerId]);
+
+  useEffect(() => {
+    if (applicationStatus?.has_applied) setLocalHasApplied(true);
+  }, [applicationStatus]);
+
+  useEffect(() => {
+    const checkProfile = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
+          { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
+        );
+        if (res.ok) {
+          const profile = await res.json();
+          const requiredFields = ["bio", "projects", "skills", "experiences"];
+          const missing = requiredFields.filter(f => !profile[f] || profile[f].length === 0);
+          setIsProfileComplete(missing.length === 0);
+        }
+      } catch {}
+    };
+    if (authToken) checkProfile();
+  }, [authToken]);
+
+
 
   const fetchOfferDetail = async () => {
     try {
@@ -112,6 +148,81 @@ const CandidatOfferDetailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleApply = async () => {
+    if (!selectedVideo) return;
+    const userStr = typeof window !== "undefined" ? window.sessionStorage.getItem("user") : null;
+    const userId = userStr ? JSON.parse(userStr)?.id : null;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postuler-offre`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ video_url: selectedVideo, candidat_id: userId, offre_id: offerId, postuler_id: selectedVideoId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setIsConfirmationVisible(true);
+        setLocalHasApplied(true);
+        toast.success("Candidature envoyée avec succès!");
+      } else if (data?.message?.toLowerCase().includes("déjà") || data?.message?.toLowerCase().includes("already")) {
+        setLocalHasApplied(true);
+        setModalIsOpen(false);
+        toast.error(data.message || "Vous avez déjà postulé à cette offre.");
+      } else {
+        toast.error(data?.message || "Une erreur est survenue.");
+      }
+    } catch {
+      toast.error("Une erreur est survenue lors de l'envoi.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setIsConfirmationVisible(false);
+    setSelectedVideo("");
+    setSelectedVideoId(null);
+  };
+
+  const openModal = async () => {
+    setModalIsOpen(true);
+    setSelectedVideo("");
+    setSelectedVideoId(null);
+    setVideos([]);
+    // Fetch videos directly here to avoid closure/timing issues
+    try {
+      const token = Cookies.get("authToken")?.replace(/["']/g, "");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video?status=Accepted`,
+        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = Array.isArray(data) ? data.map((v: any) => ({ ...v, id: String(v.id) })) : [];
+        setVideos(mapped);
+        // Auto-select if only one video (same behavior as OffreCard)
+        if (mapped.length === 1) {
+          setSelectedVideo(mapped[0].link);
+          setSelectedVideoId(mapped[0].id);
+        }
+      }
+    } catch {
+      setVideos([]);
+    }
+  };
+
+  const handleVideoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!event.target.value) {
+      setSelectedVideo("");
+      setSelectedVideoId(null);
+      return;
+    }
+    const data = JSON.parse(event.target.value);
+    setSelectedVideo(data.link);
+    setSelectedVideoId(data.id);
   };
 
   const formatDate = (dateString: string) => {
@@ -179,6 +290,7 @@ const CandidatOfferDetailPage: React.FC = () => {
   }
 
   return (
+    <>
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -230,7 +342,7 @@ const CandidatOfferDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
-          {getStatusBadge()}
+        {getStatusBadge()}
         </div>
 
         {/* Quick Info Grid */}
@@ -265,6 +377,29 @@ const CandidatOfferDetailPage: React.FC = () => {
               <p className="font-semibold text-gray-900">{offer.contractType}</p>
             </div>
           </div>
+        </div>
+
+        {/* Apply Button */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          {localHasApplied ? (
+            <div className="flex items-center gap-2 px-6 py-3 bg-green-50 border-2 border-green-300 text-green-700 font-bold rounded-xl">
+              <FaCheckCircle className="w-5 h-5" />
+              <span>Vous avez déjà postulé à cette offre</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                if (!isProfileComplete && !hasSkippedProfileCompletion) {
+                  setShowProfileModal(true);
+                } else {
+                  openModal();
+                }
+              }}
+              className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg"
+            >
+              <span>Postuler maintenant</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -420,8 +555,59 @@ const CandidatOfferDetailPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Apply Modal */}
+      <Modal
+        offreId={Number(offerId)}
+        userId={0}
+        isOpen={modalIsOpen}
+        onClose={closeModal}
+        onValidate={handleApply}
+        titre={offer?.titre ?? ""}
+        job_name={offer?.job_name ?? ""}
+        entreprise_name={offer?.company_name ?? ""}
+        sector_name={offer?.sector_name ?? ""}
+        videos={videos}
+        selectedVideo={selectedVideo}
+        selectedVideoId={selectedVideoId as number | null}
+        onVideoChange={handleVideoChange}
+      />
+
+      {/* Success Modal */}
+      {isConfirmationVisible && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md text-center">
+            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <FaCheckCircle className="text-green-600 w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Candidature envoyée !</h2>
+            <p className="text-gray-600 mb-6">Votre candidature a été soumise avec succès. L'entreprise examinera votre profil prochainement.</p>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-8 py-3 font-semibold transition-colors"
+              onClick={closeModal}
+            >
+              Parfait !
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  );
+    <ProfileCompletionModal
+      isOpen={showProfileModal}
+      onClose={() => setShowProfileModal(false)}
+      onSkip={() => {
+        setShowProfileModal(false);
+        setHasSkippedProfileCompletion(true);
+        openModal();
+      }}
+      candidatId={typeof window !== "undefined" ? JSON.parse(window.sessionStorage?.getItem("user") || "{}").id ?? 0 : 0}
+      onProfileCompleted={() => {
+        setIsProfileComplete(true);
+        setShowProfileModal(false);
+        openModal();
+      }}
+    />
+    </>  );
 };
 
 export default CandidatOfferDetailPage;

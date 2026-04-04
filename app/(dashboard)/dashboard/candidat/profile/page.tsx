@@ -26,7 +26,7 @@ const Profile: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [downloadingCV, setDownloadingCV] = useState(false);
-  const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'unavailable' | null>(null);
+  const [availabilityStatus, setAvailabilityStatus] = useState<'disponible' | 'indisponible' | null>(null);
 
   // Function to refresh profile data
   const refreshProfile = useCallback(async () => {
@@ -57,6 +57,7 @@ const Profile: React.FC = () => {
         companyName: profileData.companyName || "",
         bio: profileData.bio || "",
         address: profileData.address || "",
+        preferred_location: profileData.preferred_location || "",
         zip_code: user.zip_code || "",
         job: profileData.job || [],
         experiences: profileData.experiences || [],
@@ -199,6 +200,7 @@ const Profile: React.FC = () => {
           companyName: profileData.companyName || "",
           bio: profileData.bio || "",
           address: profileData.address || "",
+          preferred_location: profileData.preferred_location || "",
           zip_code: user.zip_code || "",
           job: profileData.job || [],
           experiences: profileData.experiences || [],
@@ -455,10 +457,13 @@ const Profile: React.FC = () => {
           email={userProfile.email}
           zip_code={userProfile.zip_code}
           last_name={userProfile.last_name}
-          headline={userProfile.job.name}
+          headline={userProfile.job?.name}
           image={userProfile.image}
           address={userProfile.address}
           companyName={userProfile.companyName}
+          currentJobId={userProfile.job?.id}
+          currentSectorId={userProfile.job?.sector_id}
+          preferredLocation={userProfile.preferred_location}
         />
       </div>
 
@@ -571,9 +576,9 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Profile Reactivation Banner (shown only when suspended) */}
-      {availabilityStatus === 'unavailable' && (
+      {availabilityStatus === 'indisponible' && (
         <ProfileReactivationButton
-          onReactivated={() => setAvailabilityStatus('available')}
+          onReactivated={() => setAvailabilityStatus('disponible')}
         />
       )}
 

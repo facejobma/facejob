@@ -58,6 +58,7 @@ interface JobData {
   titre: string;
   description: string;
   date_debut: string;
+  date_fin?: string;
   company_name: string;
   sector_id: number;
   job_id: number;
@@ -65,6 +66,11 @@ interface JobData {
   contractType: string;
   is_verified: string;
   entreprise_id: number;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  currency?: string;
+  required_languages?: string[];
+  required_skills?: string[];
   applications: {
     candidat: Candidat;
     link: string;
@@ -90,7 +96,23 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
   
   // Local state for updated data
   const [currentData, setCurrentData] = useState(initialData);
-  
+
+  // Languages & skills state
+  const AVAILABLE_LANGUAGES = ["Arabe", "Français", "Anglais", "Espagnol", "Allemand", "Italien", "Portugais"];
+  const [requiredLanguages, setRequiredLanguages] = useState<string[]>(initialData.required_languages ?? []);
+  const [requiredSkills, setRequiredSkills] = useState<string[]>(initialData.required_skills ?? []);
+  const [skillInput, setSkillInput] = useState("");
+
+  const toggleLanguage = (lang: string) => {
+    setRequiredLanguages(prev => prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]);
+  };
+  const addSkill = () => {
+    const t = skillInput.trim();
+    if (t && !requiredSkills.includes(t)) setRequiredSkills(prev => [...prev, t]);
+    setSkillInput("");
+  };
+  const removeSkill = (s: string) => setRequiredSkills(prev => prev.filter(x => x !== s));
+
   // Form state
   const [formData, setFormData] = useState({
     titre: initialData.titre,
@@ -141,7 +163,11 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${initialData.id}`,
         {
           method: 'PUT',
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            required_languages: requiredLanguages,
+            required_skills: requiredSkills,
+          }),
         }
       );
       
@@ -205,12 +231,13 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
         );
         
         if (result.success) {
-          console.log("sectors data : ", result.data);
-          const data = result.data || result;
+          const raw = result.data;
+          // API returns { success: true, data: [...] }
+          const data = raw?.data ?? raw;
           setSectors(Array.isArray(data) ? data : []);
         } else {
           console.error("Error fetching sectors:", result.error);
-          setSectors([]); // Set empty array on error
+          setSectors([]);
         }
       } catch (error) {
         console.error("Error fetching sectors:", error);
@@ -228,7 +255,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
     if (initialData.job_id) {
       setSelectedJob(initialData.job_id.toString());
     }
-  }, [initialData.sector_id, initialData.job_id]);
+  }, [sectors]); // re-run when sectors load so the select can display the right option
 
   const getSectorName = (sectorId: number) => {
     const sector = sectors.find((s) => s.id === sectorId);
@@ -377,6 +404,73 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 minHeight="300px"
               />
             </div>
+
+            {/* Secteur + Métier */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Secteur d'activité</label>
+                <select
+                  value={selectedSector}
+                  onChange={(e) => { setSelectedSector(e.target.value); setSelectedJob(""); setFormData(prev => ({ ...prev, sector_id: Number(e.target.value), job_id: 0 })); }}
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                >
+                  <option value="">Sélectionner un secteur</option>
+                  {sectors.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Poste / Métier</label>
+                <select
+                  value={selectedJob}
+                  onChange={(e) => { setSelectedJob(e.target.value); setFormData(prev => ({ ...prev, job_id: Number(e.target.value) })); }}
+                  disabled={!selectedSector}
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 disabled:opacity-50"
+                >
+                  <option value="">Sélectionner un métier</option>
+                  {(sectors.find(s => s.id === Number(selectedSector))?.jobs ?? []).map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Langues requises */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Langues requises</label>
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_LANGUAGES.map(lang => (
+                  <button key={lang} type="button" onClick={() => toggleLanguage(lang)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                      requiredLanguages.includes(lang) ? "bg-green-600 text-white border-green-600" : "bg-white text-gray-700 border-gray-300 hover:border-green-400"
+                    }`}>
+                    {lang}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Compétences requises */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Compétences requises</label>
+              <div className="flex gap-2 mb-2">
+                <input type="text" value={skillInput} onChange={e => setSkillInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
+                  placeholder="Ex: React.js, Python, SQL..."
+                  className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900" />
+                <button type="button" onClick={addSkill}
+                  className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                  Ajouter
+                </button>
+              </div>
+              {requiredSkills.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {requiredSkills.map(skill => (
+                    <span key={skill} className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-sm font-medium">
+                      {skill}
+                      <button type="button" onClick={() => removeSkill(skill)} className="ml-1 text-emerald-500 hover:text-red-500 transition-colors">×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <>
@@ -438,6 +532,32 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
           </div>
           <div className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: currentData.description }}></div>
         </div>
+
+        {/* Languages + Skills */}
+        {((currentData.required_languages?.length ?? 0) > 0 || (currentData.required_skills?.length ?? 0) > 0) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(currentData.required_languages?.length ?? 0) > 0 && (
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1.5">Langues requises</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentData.required_languages!.map(l => (
+                    <span key={l} className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-xs font-medium">{l}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {(currentData.required_skills?.length ?? 0) > 0 && (
+              <div className="p-3 bg-gray-50 rounded-lg md:col-span-2">
+                <p className="text-xs text-gray-500 mb-1.5">Compétences requises</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentData.required_skills!.map(s => (
+                    <span key={s} className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-xs font-medium">{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
           </>
         )}
 
@@ -553,6 +673,8 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                   job_id: initialData.job_id,
                   entreprise_id: initialData.entreprise_id,
                 });
+                setRequiredLanguages(initialData.required_languages ?? []);
+                setRequiredSkills(initialData.required_skills ?? []);
               }}
               className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
               disabled={isSubmitting}

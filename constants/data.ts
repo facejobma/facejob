@@ -1,4 +1,4 @@
-import { NavItem } from "@/types";
+﻿import { NavItem } from "@/types";
 
 export type User = {
   id: number;
@@ -132,6 +132,12 @@ export const navItemsCandidat: NavItem[] = [
     icon: "offres",
     label: "offres",
   },
+  {
+    title: "Offres pour moi",
+    href: "/dashboard/candidat/offres-matching",
+    icon: "matching",
+    label: "offres-matching",
+  },
   // {
   //   title: "Entreprises",
   //   href: "/dashboard/candidat/entreprises",
@@ -188,6 +194,12 @@ export const navItemsEntreprise: NavItem[] = [
     href: "/dashboard/entreprise/mes-offres",
     icon: "mesOffres",
     label: "mesOffres",
+  },
+  {
+    title: "Candidats matchés",
+    href: "/dashboard/entreprise/matching-candidates",
+    icon: "matching",
+    label: "matching-candidates",
   },
   {
     title: "Profils débloqués",

@@ -5,6 +5,7 @@ import { Bar } from "react-chartjs-2";
 import Cookies from "js-cookie";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from "chart.js";
 import { FaBriefcase, FaUsers, FaChartBar, FaEye } from "react-icons/fa";
+import MatchingCandidates from "@/components/MatchingCandidates";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
@@ -26,6 +27,11 @@ interface Stats {
   totalOffres: number;
 }
 
+interface ActiveOffer {
+  id: number;
+  titre: string;
+}
+
 const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<Stats>({
     offres: [],
@@ -34,6 +40,7 @@ const Dashboard: React.FC = () => {
     totalCandidatures: 0,
     totalOffres: 0
   });
+  const [activeOffers, setActiveOffers] = useState<ActiveOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const authToken = Cookies.get("authToken");
@@ -75,6 +82,41 @@ const Dashboard: React.FC = () => {
           totalCandidatures: result.totalCandidatures || 0,
           totalOffres: result.totalOffres || 0
         });
+
+        // Fetch user info to get entreprise ID, then fetch active offers
+        const userRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
+        );
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          const entrepriseId = userData?.id ?? userData?.user?.id;
+          if (entrepriseId) {
+            const offresRes = await fetch(
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/${entrepriseId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json",
+                  "ngrok-skip-browser-warning": "true",
+                },
+              }
+            );
+            if (offresRes.ok) {
+              const offresData = await offresRes.json();
+              const offers: ActiveOffer[] = (offresData?.data ?? offresData ?? [])
+                .slice(0, 3)
+                .map((o: any) => ({ id: o.id, titre: o.titre }));
+              setActiveOffers(offers);
+            }
+          }
+        }
       } catch (error: any) {
         toast({
           title: "Whoops!",
@@ -287,6 +329,23 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Matching Candidates Section */}
+      {activeOffers.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <FaUsers className="text-emerald-600 text-sm" />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900">Candidats correspondants à vos offres</h2>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+            {activeOffers.map((offre) => (
+              <MatchingCandidates key={offre.id} offreId={offre.id} offreTitre={offre.titre} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -39,6 +39,7 @@ interface JobData {
   titre: string;
   description: string;
   date_debut: string;
+  date_fin?: string;
   company_name: string;
   sector_id: number;
   job_id: number;
@@ -46,6 +47,11 @@ interface JobData {
   contractType: string;
   is_verified: string;
   entreprise_id: number;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  currency?: string;
+  required_languages?: string[];
+  required_skills?: string[];
   applications: {
     candidat: Candidat;
     link: string;

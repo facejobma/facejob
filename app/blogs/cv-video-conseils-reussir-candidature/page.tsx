@@ -29,7 +29,6 @@ const Blog3Page: React.FC = () => {
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
-      <div className="bg-gradient-to-r from-primary-2 to-primary-3 text-white py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-4">

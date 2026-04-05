@@ -104,6 +104,24 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       return;
     }
 
+    // Delete old image from server if it's stored in our storage
+    if (formData.newImage && formData.newImage.includes('/storage/profiles/')) {
+      try {
+        await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/candidate/profile-image',
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        );
+      } catch {
+        // Silent fail
+      }
+    }
+
     // Store file for upload on save, show local preview
     setSelectedImageFile(file);
     const previewUrl = URL.createObjectURL(file);
@@ -116,8 +134,30 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     setIsUploading(false);
   };
 
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
+    const currentImage = formData.newImage;
+
+    // Clear local state immediately
     setFormData((prevData) => ({ ...prevData, newImage: "" }));
+    setSelectedImageFile(null);
+
+    // If image is stored in our backend, delete it from server
+    if (currentImage && currentImage.includes('/storage/profiles/')) {
+      try {
+        await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/candidate/profile-image',
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        );
+      } catch {
+        // Silent fail — image already removed from UI
+      }
+    }
   };
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {

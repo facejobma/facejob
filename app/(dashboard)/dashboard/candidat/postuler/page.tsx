@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import Select from "react-select";
 import { useUser } from "@/hooks/useUser";
 import VideoRecorder, { type VideoRecorderHandle } from "@/components/VideoRecorder";
+import { useVideoCompressor } from "@/hooks/useVideoCompressor";
 
 interface Job { id: number; name: string; }
 interface Sector { id: number; name: string; jobs: Job[]; }
@@ -25,8 +26,14 @@ export default function PublishVideo() {
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [videoTab, setVideoTab] = useState<"upload" | "record">("upload");
   const [isUploadingRecording, setIsUploadingRecording] = useState(false);
+  const [showDurationModal, setShowDurationModal] = useState(false);
+  const [videoDuration, setVideoDuration] = useState(0);
   const recorderRef = useRef<VideoRecorderHandle>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const MAX_DURATION = 75;
+  const { compressIfNeeded, isCompressing, progress } = useVideoCompressor();
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const { startUpload } = useUploadThing("videoUpload", {
@@ -70,18 +77,73 @@ export default function PublishVideo() {
 
   const handleRecordedVideo = async (file: File) => {
     setIsUploadingRecording(true);
-    toast.loading("Upload de la vidéo enregistrée...", { id: "rec-upload" });
+    toast.loading("Upload de la video...", { id: "rec-upload" });
+    console.log("[RecUpload] Starting upload, file size:", (file.size / 1024 / 1024).toFixed(1), "MB, type:", file.type);
     try {
       const res = await startUpload([file], { candidateId: undefined, jobId: undefined });
+      console.log("[RecUpload] Response:", res);
       if (res && res[0]) {
         const url = res[0].ufsUrl || res[0].url || `https://utfs.io/f/${res[0].key}`;
         setVideoUrl(url);
-        toast.success("Vidéo uploadée avec succès !", { id: "rec-upload" });
+        toast.success("Video uploadee avec succes !", { id: "rec-upload" });
+      } else {
+        toast.error("Erreur: pas de reponse du serveur", { id: "rec-upload" });
       }
-    } catch {
-      toast.error("Erreur lors de l'upload de la vidéo", { id: "rec-upload" });
+    } catch (err) {
+      console.error("[RecUpload] Error:", err);
+      toast.error("Erreur lors de l'upload", { id: "rec-upload" });
     } finally {
       setIsUploadingRecording(false);
+    }
+  };
+
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve) => {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        resolve(video.duration);
+      };
+      video.onerror = () => resolve(0);
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const duration = await getVideoDuration(file);
+    if (duration > MAX_DURATION) {
+      setVideoDuration(Math.round(duration));
+      setShowDurationModal(true);
+      e.target.value = "";
+      return;
+    }
+
+    setIsUploadingRecording(true);
+    try {
+      // Compress if > 32MB
+      const fileToUpload = await compressIfNeeded(file);
+      const sizeMB = (fileToUpload.size / (1024 * 1024)).toFixed(1);
+      if (fileToUpload !== file) {
+        toast.success(`Vidéo compressée : ${sizeMB} Mo`);
+      }
+
+      console.log(`[Upload] Sending file: ${fileToUpload.name}, size: ${sizeMB}MB, type: ${fileToUpload.type}`);
+      toast.loading("Upload de la vidéo...", { id: "file-upload" });
+      const res = await startUpload([fileToUpload], { candidateId: undefined, jobId: undefined });
+      console.log("[Upload] Response:", res);
+      if (res && res[0]) {
+        const url = res[0].ufsUrl || res[0].url || `https://utfs.io/f/${res[0].key}`;
+        setVideoUrl(url);
+        toast.success("Vidéo téléchargée avec succès !", { id: "file-upload" });
+      }
+    } catch {
+      toast.error("Erreur lors de l'upload", { id: "file-upload" });
+    } finally {
+      setIsUploadingRecording(false);
+      e.target.value = "";
     }
   };
 
@@ -161,27 +223,6 @@ export default function PublishVideo() {
 
       {/* Main Content */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
-        {/* Warning Notice — only for upload tab */}
-        {videoTab === "upload" && !videoUrl && (
-          <div className="mb-4 md:mb-6 p-3 md:p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex items-start gap-2 md:gap-3">
-              <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-base md:text-lg">💡</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-amber-800 mb-1 text-xs md:text-sm">Conseil pour optimiser votre vidéo</h3>
-                <p className="text-xs md:text-sm text-amber-700 leading-relaxed">
-                  Avant de déposer votre CV vidéo, nous vous recommandons de le compresser pour réduire sa taille.
-                  <a href="https://clideo.com/fr/compress-video" target="_blank" rel="noopener noreferrer"
-                    className="font-semibold text-amber-800 hover:text-amber-900 underline ml-1">
-                    Utilisez ce compresseur gratuit →
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           {/* Video Section */}
           <div className="space-y-3 md:space-y-4">
@@ -253,25 +294,46 @@ export default function PublishVideo() {
                     <span key={f} className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">{f}</span>
                   ))}
                 </div>
-                <UploadDropzone
-                  endpoint="videoUpload"
-                  input={{ candidateId: undefined, jobId: undefined }}
-                  onClientUploadComplete={(res) => {
-                    const uploadedFile = res[0];
-                    const cdnUrl = uploadedFile.ufsUrl || uploadedFile.url || `https://utfs.io/f/${uploadedFile.key}`;
-                    setVideoUrl(cdnUrl);
-                    toast.success("Vidéo téléchargée avec succès !");
-                  }}
-                  onUploadError={(error: Error) => {
-                    toast.error(`Erreur de téléchargement: ${error.message}`);
-                  }}
-                  className="p-4 md:p-8"
-                  appearance={{
-                    button: "bg-primary hover:bg-primary-1 text-white font-semibold px-4 md:px-6 py-2 md:py-3 rounded-lg transition-colors ut-ready:bg-primary ut-uploading:bg-primary/50 text-sm md:text-base",
-                    container: "w-full",
-                    allowedContent: "text-gray-600 text-xs md:text-sm"
-                  }}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="video/mp4,video/mov,video/avi,video/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
                 />
+
+                {isCompressing ? (
+                  <div className="flex flex-col items-center justify-center gap-3 p-8 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-sm text-gray-600 font-medium">
+                      {progress >= 85 ? "Finalisation..." : `Compression en cours... ${progress}%`}
+                    </p>
+                    <div className="w-full max-w-xs bg-gray-200 rounded-full h-2">
+                      <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                    </div>
+                  </div>
+                ) : isUploadingRecording ? (
+                  <div className="flex flex-col items-center justify-center gap-3 p-8 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-sm text-gray-600 font-medium">Upload en cours...</p>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full border-2 border-dashed border-gray-300 rounded-xl p-8 md:p-12 flex flex-col items-center gap-4 hover:border-primary hover:bg-green-50 transition-colors"
+                  >
+                    <FaCloudUploadAlt className="w-12 h-12 text-gray-400" />
+                    <div className="text-center">
+                      <p className="text-base font-semibold text-gray-700">Cliquez pour choisir une vidéo</p>
+                      <p className="text-sm text-gray-400 mt-1">MP4, MOV, AVI — max 1 min 3 sec</p>
+                    </div>
+                    <span className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg">
+                      Choisir un fichier
+                    </span>
+                  </button>
+                )}
               </div>
 
             ) : (
@@ -357,6 +419,30 @@ export default function PublishVideo() {
           </div>
         </form>
       </div>
+
+      {/* Duration warning modal */}
+      {showDurationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FaVideo className="w-7 h-7 text-red-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Vidéo trop longue</h3>
+            <p className="text-gray-600 text-sm mb-1">
+              Votre vidéo dure <span className="font-semibold text-red-600">{Math.floor(videoDuration / 60)}m {videoDuration % 60}s</span>.
+            </p>
+            <p className="text-gray-600 text-sm mb-6">
+              La durée maximale autorisée est de <span className="font-semibold">1 min 3 sec</span>. Veuillez raccourcir votre vidéo avant de la télécharger.
+            </p>
+            <button
+              onClick={() => setShowDurationModal(false)}
+              className="w-full py-2.5 bg-primary hover:bg-primary-1 text-white font-semibold rounded-xl transition-colors text-sm"
+            >
+              J'ai compris
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

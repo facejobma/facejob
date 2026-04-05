@@ -1,7 +1,6 @@
-"use client";
+﻿"use client";
 
-import React, { useRef, useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
-import { toast } from "react-hot-toast";
+import { useRef, useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import { FaVideo, FaStop, FaRedo, FaCheckCircle } from "react-icons/fa";
 
 interface VideoRecorderProps {
@@ -12,7 +11,7 @@ export interface VideoRecorderHandle {
   stopCamera: () => void;
 }
 
-const MAX_DURATION = 180;
+const MAX_DURATION = 90;
 
 const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
   ({ onVideoReady }, ref) => {
@@ -46,7 +45,6 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       setRecording(false);
     }, []);
 
-    // Expose stopCamera to parent
     useImperativeHandle(ref, () => ({ stopCamera: killStream }), [killStream]);
 
     const startCamera = useCallback(async () => {
@@ -61,13 +59,21 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
           videoRef.current.play().catch(() => {});
         }
       } catch {
-        setError("Impossible d'accéder à la caméra. Vérifiez les permissions.");
+        setError("Impossible d'acceder a la camera. Verifiez les permissions.");
       }
     }, []);
 
     useEffect(() => {
       startCamera();
       return () => { killStream(); };
+    }, []);
+
+    const stopRecording = useCallback(() => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      setRecording(false);
     }, []);
 
     const startRecording = () => {
@@ -93,18 +99,11 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       setElapsed(0);
       timerRef.current = setInterval(() => {
         setElapsed((prev) => {
-          if (prev + 1 >= MAX_DURATION) stopRecording();
-          return prev + 1;
+          const next = prev + 1;
+          if (next >= MAX_DURATION) stopRecording();
+          return next;
         });
       }, 1000);
-    };
-
-    const stopRecording = () => {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-        mediaRecorderRef.current.stop();
-      }
-      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-      setRecording(false);
     };
 
     const reset = () => {
@@ -123,7 +122,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
         <div className="flex flex-col items-center justify-center gap-4 p-8 bg-red-50 border border-red-200 rounded-xl text-center">
           <p className="text-red-600 font-medium">{error}</p>
           <button onClick={startCamera} className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">
-            Réessayer
+            Reessayer
           </button>
         </div>
       );
@@ -134,7 +133,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-green-600 font-semibold text-sm">
             <FaCheckCircle />
-            <span>Vidéo enregistrée — durée: {formatTime(elapsed)}</span>
+            <span>Video enregistree — duree: {formatTime(elapsed)}</span>
           </div>
           <video src={previewUrl} controls className="w-full rounded-xl border-2 border-gray-200 shadow" />
           <button
@@ -142,8 +141,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
             onClick={reset}
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
           >
-            <FaRedo className="text-xs" />
-            Recommencer
+            <FaRedo className="text-xs" /> Recommencer
           </button>
         </div>
       );
@@ -174,8 +172,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
               disabled={!cameraReady}
               className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
             >
-              <FaVideo />
-              Démarrer l'enregistrement
+              <FaVideo /> Demarrer
             </button>
           ) : (
             <button
@@ -183,14 +180,13 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
               onClick={stopRecording}
               className="flex items-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-xl transition-colors"
             >
-              <FaStop />
-              Arrêter l'enregistrement
+              <FaStop /> Arreter
             </button>
           )}
         </div>
 
         <p className="text-xs text-gray-500 text-center">
-          Durée maximale: 3 minutes • La vidéo sera uploadée automatiquement après l'enregistrement
+          Duree maximale: 1 min 30 sec
         </p>
       </div>
     );

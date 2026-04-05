@@ -1,10 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
-import { Edit, Key } from "lucide-react";
-import { UploadDropzone } from "@/lib/uploadthing";
+import { Edit, Key, Upload, Camera } from "lucide-react";
 import { FaTrash } from "react-icons/fa";
 import toast from "react-hot-toast";
 
@@ -46,6 +45,8 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   const [logoUrl, setLogoUrl] = useState<string>("");
 
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     newCompanyName: company_name,
     newSector: "",
@@ -95,28 +96,48 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
       const creationDate = new Date(formData.newCreationDate);
       const formattedCreationDate = creationDate.toISOString().split("T")[0];
 
-      const updateData = {
-        company_name: formData.newCompanyName,
-        sector_id: secteur ? secteur : "",
-        adresse: formData.newSiegeSocial,
-        site_web: formData.newWebsite,
-        created_at: formattedCreationDate,
-        logo: formData.newImage || localImage || "",
-      };
+      let response: Response;
 
-      console.log("Sending update data:", updateData);
+      if (selectedLogoFile) {
+        const data = new FormData();
+        data.append("company_name", formData.newCompanyName);
+        data.append("sector_id", secteur || "");
+        data.append("adresse", formData.newSiegeSocial);
+        data.append("site_web", formData.newWebsite);
+        data.append("created_at", formattedCreationDate);
+        data.append("logo", selectedLogoFile);
 
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/enterprise/updateId/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updateData),
-        },
-      );
+        response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/enterprise/updateId/${id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: data,
+          }
+        );
+      } else {
+        response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/enterprise/updateId/${id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              company_name: formData.newCompanyName,
+              sector_id: secteur || "",
+              adresse: formData.newSiegeSocial,
+              site_web: formData.newWebsite,
+              created_at: formattedCreationDate,
+              logo: formData.newImage || localImage || "",
+            }),
+          }
+        );
+      }
 
         if (response.ok) {
           const updatedData = await response.json();
@@ -197,34 +218,46 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
   const handlePasswordChangeClick = () => {
     router.push("/dashboard/entreprise/change-password"); // Adjust the route according to your project structure
   };
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
+    const currentImage = formData.newImage;
     setFormData((prevData) => ({ ...prevData, newImage: "" }));
-  };
-  
-  const handleUploadBegin = () => {
-    setIsUploading(true);
-    toast.loading("Upload du logo en cours...", { id: "logo-upload" });
-  };
-  
-  const handleImageUploadComplete = (res: any) => {
-    setIsUploading(false);
-    toast.dismiss("logo-upload");
-    
-    if (res && res[0] && res[0].url) {
-      setFormData((prevData) => ({
-        ...prevData,
-        newImage: res[0].url,
-      }));
-      toast.success("Logo uploadé avec succès!");
-    } else {
-      toast.error("Erreur: URL du logo non trouvée");
+    setSelectedLogoFile(null);
+
+    if (currentImage && currentImage.includes('/storage/profiles/')) {
+      try {
+        await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/enterprise/profile-image',
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              'ngrok-skip-browser-warning': 'true',
+            },
+          }
+        );
+      } catch {
+        // Silent fail
+      }
     }
   };
 
-  const handleImageUploadError = (error: Error) => {
-    setIsUploading(false);
-    toast.dismiss("logo-upload");
-    toast.error(`Erreur d'upload: ${error.message}`);
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error("Veuillez sélectionner une image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("L'image ne doit pas dépasser 5 Mo"); return; }
+
+    // Delete old image from server if stored locally
+    if (formData.newImage && formData.newImage.includes('/storage/profiles/')) {
+      fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/enterprise/profile-image', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${authToken}`, 'ngrok-skip-browser-warning': 'true' },
+      }).catch(() => {});
+    }
+
+    setSelectedLogoFile(file);
+    setFormData((prevData) => ({ ...prevData, newImage: URL.createObjectURL(file) }));
+    toast.success("Logo sélectionné");
   };
 
   return (
@@ -379,6 +412,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
 
           <div className="space-y-4 border-t pt-6">
             <label className="block text-sm font-semibold text-gray-700">Logo de l'Entreprise</label>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
               {formData.newImage ? (
                 <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                   <img
@@ -389,51 +423,27 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900 mb-1">Logo sélectionné</p>
                     <p className="text-xs text-gray-500 mb-3">Le logo sera visible sur votre profil public</p>
-                  <button
-                    type="button"
-                    disabled={isUploading}
-                    onClick={handleRemoveImage}
-                    className="flex items-center text-red-600 hover:text-red-700 text-sm font-medium transition-colors duration-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg"
-                  >
-                    <FaTrash className="mr-2" />
-                    Supprimer le logo
-                  </button>
-             
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center text-green-600 hover:text-green-700 text-sm font-medium bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <Camera className="w-4 h-4 mr-1" /> Changer le logo
+                    </button>
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-400 transition-colors duration-200 bg-gray-50">
-                <p className="text-gray-600 mb-4 text-center font-medium">
-                            {isUploading ? "Upload en cours..." : "Glissez et déposez le logo de votre entreprise"}
-                        </p>
-                        <p className="text-xs text-gray-500 text-center mb-4">
-                          Format recommandé: PNG ou JPG, taille maximale: 2MB
-                        </p>
-                        {!isUploading ? (
-                <UploadDropzone
-                                                endpoint="imageUpload"
-                                                input={{
-                                                    profileUpdate: false,
-                                                    companyLogo: true
-                                                }}
-                                                onClientUploadComplete={handleImageUploadComplete}
-                                                onUploadError={handleImageUploadError}
-                                                onUploadBegin={handleUploadBegin}
-                                                className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors border-gray-300 hover:border-green-500"
-                                                appearance={{
-                                                    button: "bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2 rounded-lg",
-                                                    allowedContent: "text-gray-600 text-sm",
-                                                }}
-                                            />) : (
-                            <div className="flex flex-col items-center justify-center py-8">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mb-4"></div>
-                                <p className="text-green-600 text-sm font-medium">Upload en cours...</p>
-                                <div className="w-full max-w-xs bg-gray-200 rounded-full h-2 mt-3">
-                                    <div className="bg-green-600 h-2 rounded-full animate-pulse w-3/4"></div>
-                                </div>
-                            </div>
-                        )}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center gap-3 hover:border-green-500 hover:bg-green-50 transition-colors"
+                >
+                  <Upload className="w-8 h-8 text-gray-400" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-700">Cliquez pour choisir un logo</p>
+                    <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP — max 5 Mo</p>
+                  </div>
+                </button>
               )}
           </div>
 

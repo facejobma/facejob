@@ -55,6 +55,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
   const [selectedSector, setSelectedSector] = useState(currentSectorId ? String(currentSectorId) : "");
   const [selectedJob, setSelectedJob] = useState(currentJobId ? String(currentJobId) : "");
@@ -93,59 +94,21 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error("Veuillez sélectionner une image");
       return;
     }
 
-    // Validate file size (max 4MB)
     if (file.size > 4 * 1024 * 1024) {
       toast.error("L'image ne doit pas dépasser 4MB");
       return;
     }
 
-    setIsUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/uploadthing', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const imageUrl = data.url || URL.createObjectURL(file);
-        
-        setFormData((prevData) => ({
-          ...prevData,
-          newImage: imageUrl,
-        }));
-        toast.success("Image téléchargée avec succès!");
-      } else {
-        // Fallback to local preview
-        const imageUrl = URL.createObjectURL(file);
-        setFormData((prevData) => ({
-          ...prevData,
-          newImage: imageUrl,
-        }));
-        toast.success("Image sélectionnée");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      // Fallback to local preview
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prevData) => ({
-        ...prevData,
-        newImage: imageUrl,
-      }));
-      toast.success("Image sélectionnée");
-    } finally {
-      setIsUploading(false);
-    }
+    // Store file for upload on save, show local preview
+    setSelectedImageFile(file);
+    const previewUrl = URL.createObjectURL(file);
+    setFormData((prevData) => ({ ...prevData, newImage: previewUrl }));
+    toast.success("Image sélectionnée");
   };
 
   const handleImageUploadError = (error: Error) => {
@@ -161,27 +124,55 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/update-profile`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            first_name: formData.newFirstName,
-            last_name: formData.newLastName,
-            job_id: selectedJob || undefined,
-            address: formData.newAddress,
-            preferred_location: formData.newPreferredLocation || undefined,
-            company: formData.newCompanyName,
-            tel: formData.newTel,
-            email: formData.newEmail,
-            image: formData.newImage,
-          }),
-        },
-      );
+      let response: Response;
+
+      if (selectedImageFile) {
+        // Send as FormData to upload image to Laravel storage
+        const data = new FormData();
+        data.append("first_name", formData.newFirstName);
+        data.append("last_name", formData.newLastName);
+        data.append("job_id", selectedJob || "");
+        data.append("address", formData.newAddress);
+        data.append("preferred_location", formData.newPreferredLocation || "");
+        data.append("company", formData.newCompanyName);
+        data.append("tel", formData.newTel);
+        data.append("email", formData.newEmail);
+        data.append("image", selectedImageFile);
+
+        response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/update-profile`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: data,
+          }
+        );
+      } else {
+        response = await fetch(
+          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/update-profile`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              first_name: formData.newFirstName,
+              last_name: formData.newLastName,
+              job_id: selectedJob || undefined,
+              address: formData.newAddress,
+              preferred_location: formData.newPreferredLocation || undefined,
+              company: formData.newCompanyName,
+              tel: formData.newTel,
+              email: formData.newEmail,
+              image: formData.newImage,
+            }),
+          }
+        );
+      }
 
       if (response.ok) {
         const updatedData = await response.json();

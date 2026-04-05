@@ -78,18 +78,18 @@ export default function HowWorks({}: Props) {
   }, []);
 
   return (
-    <section className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 mt-12 sm:mt-20 md:mt-32 mb-12 sm:mb-16 font-default">
-      <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16">
-        <p className="text-primary font-semibold text-base sm:text-lg mb-3 sm:mb-4">Facile et rapide</p>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 sm:mb-6 px-4">
-          Comment créer votre CV vidéo en 3 étapes simples
-        </h2>
-        <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-          Rejoignez les 783+ candidats qui ont déjà trouvé leur emploi de rêve grâce à FaceJob
-        </p>
-      </div>
-
-      <div className="relative flex flex-col gap-12 sm:gap-16 md:gap-20 my-12 sm:my-16 md:my-24 lg:flex-row lg:gap-36 lg:justify-between max-w-7xl mx-auto">
+    <section id="how-it-works" className="w-full py-12 sm:py-16 mt-12 sm:mt-20 md:mt-32 mb-12 sm:mb-16 font-default">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
+        <div className="text-center mb-12 sm:mb-16">
+          <p className="text-primary font-semibold text-base sm:text-lg mb-3 sm:mb-4">Facile et rapide</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 sm:mb-6">
+            Comment créer votre CV vidéo en 3 étapes simples
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            Rejoignez les 783+ candidats qui ont déjà trouvé leur emploi de rêve grâce à FaceJob
+          </p>
+        </div>
+        <div className="relative flex flex-col gap-12 sm:gap-16 md:gap-20 my-12 sm:my-16 md:my-24 lg:flex-row lg:gap-16 lg:justify-between">
         <motion.div
           initial={{ x: -100 }}
           transition={{ duration: 1 }}
@@ -220,6 +220,7 @@ export default function HowWorks({}: Props) {
             </div>
           </div>
         </motion.div>
+        </div>
       </div>
     </section>
   );

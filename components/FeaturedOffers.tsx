@@ -167,7 +167,7 @@ const FeaturedOffers: React.FC = () => {
           </p>
           
           {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto mb-6 sm:mb-8">
+          {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto mb-6 sm:mb-8">
             <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
               <div className="flex items-center justify-center gap-2">
                 <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
@@ -197,87 +197,81 @@ const FeaturedOffers: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Featured Offers Grid */}
         {offers.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8 sm:mb-12">
               {offers.map((offer) => (
-                <Card key={offer.id} className="group relative overflow-hidden bg-white hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-green-300">
-                  {/* Accent bar */}
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-green-500 to-green-600"></div>
-                  
-                  <CardHeader className="pb-4 pl-6">
-                    <div className="flex justify-between items-start gap-3">
+                <div
+                  key={offer.id}
+                  className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                  onClick={() => router.push(`/offres/${offer.id}`)}
+                >
+                  {/* Top color band */}
+
+                  <div className="p-5 flex flex-col flex-1 gap-4">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3">
+                      {/* Company avatar */}
+                      <div className="h-11 w-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0 border border-green-100">
+                        <Building className="h-5 w-5 text-green-600" />
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors leading-tight">
+                        <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors leading-snug mb-0.5">
                           {offer.titre}
-                        </CardTitle>
-                        <div className="flex items-center text-xs text-gray-700 font-medium">
-                          <div className="h-6 w-6 rounded-lg bg-green-50 flex items-center justify-center mr-1.5 flex-shrink-0">
-                            <Building className="h-3 w-3 text-green-600" />
-                          </div>
-                          <span className="truncate">{offer.company_name}</span>
-                        </div>
+                        </h3>
+                        <p className="text-xs text-gray-500 truncate">{offer.company_name}</p>
                       </div>
-                      <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50 flex-shrink-0 text-xs px-2 py-0.5">
-                        <Clock className="h-2.5 w-2.5 mr-0.5" />
+                      <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
                         {getDaysAgo(offer.created_at)}j
-                      </Badge>
+                      </span>
                     </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0 pl-6 space-y-2.5">
-                    {/* Job details */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center text-xs text-gray-600">
-                        <div className="h-5 w-5 rounded-md bg-blue-50 flex items-center justify-center mr-1.5 flex-shrink-0">
-                          <Briefcase className="h-2.5 w-2.5 text-blue-600" />
-                        </div>
-                        <span className="truncate">{offer.sector_name} • {offer.job_name}</span>
-                      </div>
-                      
-                      <div className="flex items-center text-xs text-gray-600">
-                        <div className="h-5 w-5 rounded-md bg-purple-50 flex items-center justify-center mr-1.5 flex-shrink-0">
-                          <MapPin className="h-2.5 w-2.5 text-purple-600" />
-                        </div>
-                        <span className="truncate">{offer.location}</span>
-                      </div>
-                      
-                      <div className="flex items-center text-xs text-gray-600">
-                        <div className="h-5 w-5 rounded-md bg-orange-50 flex items-center justify-center mr-1.5 flex-shrink-0">
-                          <Calendar className="h-2.5 w-2.5 text-orange-600" />
-                        </div>
-                        <span className="truncate">{offer.contractType}</span>
-                      </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2">
+                      {offer.location && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full font-medium">
+                          <MapPin className="h-3 w-3" />
+                          {offer.location}
+                        </span>
+                      )}
+                      {offer.contractType && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full font-medium">
+                          <Calendar className="h-3 w-3" />
+                          {offer.contractType}
+                        </span>
+                      )}
+                      {offer.sector_name && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">
+                          <Briefcase className="h-3 w-3" />
+                          {offer.sector_name}
+                        </span>
+                      )}
                     </div>
 
                     {/* Description */}
-                    <div className="pt-1">
-                      <p className="text-xs text-gray-600 line-clamp-1 leading-relaxed">
-                        {stripHtmlTags(offer.description)}
-                      </p>
-                    </div>
+                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed flex-1">
+                      {stripHtmlTags(offer.description)}
+                    </p>
 
-                    {/* CTA Button */}
-                    <div className="pt-2">
-                      <Button 
-                        onClick={() => handleApply(offer.id)}
-                        className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold shadow-sm hover:shadow-md transition-all text-sm py-2"
-                      >
-                        Postuler maintenant
-                        <ArrowRight className="h-3.5 w-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                    {/* CTA */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleApply(offer.id); }}
+                      className="w-full flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200"
+                    >
+                      Postuler
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
 
             {/* Call to Action */}
-            <div className="text-center px-4">
+            <div className="text-center">
               <div className="bg-gradient-to-r from-primary to-primary-1 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white">
                 <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
                   Plus de {stats.totalOffers} offres vous attendent !

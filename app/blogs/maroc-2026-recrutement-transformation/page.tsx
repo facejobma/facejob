@@ -67,6 +67,9 @@ const Blog1Page: React.FC = () => {
       <BlogStructuredData />
       <NavBar />
       
+      {/* White space for transparent navbar */}
+      <div className="h-20 bg-white" />
+
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
         <div className="container mx-auto px-6">
@@ -121,7 +124,7 @@ const Blog1Page: React.FC = () => {
                 Aujourd'hui, un talent à Fès peut travailler pour une startup à Casablanca, et un ingénieur de Marrakech peut piloter des projets à Tanger. Le télétravail est désormais officiellement encadré par le Code du Travail marocain, ouvrant la voie à une mobilité nationale digitale.
               </p>
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-800 font-semibold mb-2">💡 L'impact FaceJob :</p>
+                <p className="text-green-800 font-semibold mb-2"> L'impact FaceJob :</p>
                 <p className="text-green-700">
                   Le CV Vidéo permet de casser la distance. Un recruteur à Casa peut "rencontrer" virtuellement un candidat de Ouarzazate en 60 secondes, sans que personne n'ait à prendre le train.
                 </p>

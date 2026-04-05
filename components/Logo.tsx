@@ -4,13 +4,13 @@ import React from "react";
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center px-2 md:px-10 py-4">
+    <Link href="/" className="flex items-center pb-2">
       <Image
-        src="/images/favicon.png"
-        alt="Logo"
-        className="h-8 w-auto md:h-10 mr-2"
-        width={150}
-        height={150}
+        src="/images/favicon2.png"
+        alt="FaceJob Logo"
+        className="h-10 w-auto sm:h-12"
+        width={64}
+        height={64}
       />
     </Link>
   );

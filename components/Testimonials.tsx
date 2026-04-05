@@ -1,204 +1,197 @@
-import React from "react";
-import dynamic from "next/dynamic";
+"use client";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-// Lazy load Swiper to reduce initial bundle size
-const Swiper = dynamic(() => import("swiper/react").then(mod => ({ default: mod.Swiper })), {
-  ssr: false
-});
-const SwiperSlide = dynamic(() => import("swiper/react").then(mod => ({ default: mod.SwiperSlide })), {
-  ssr: false
-});
+const testimonials = [
+  {
+    name: "Sohaib MANAH",
+    role: "Ingénieur Logiciel • Casablanca",
+    tag: "Recruté en 3 semaines",
+    initials: "SM",
+    color: "bg-green-600",
+    image: "/images/Sohaib MANAH.png",
+    quote: "À l'ère où tout devient digitalisé et en tant qu'ingénieur logiciel junior, FaceJob était la solution la plus adéquate et la plus simple pour moi pour pénétrer le marché du travail. Mon CV vidéo m'a permis de me démarquer !",
+  },
+  {
+    name: "Mariam BEN DAOUED",
+    role: "Marketing Digital • Rabat",
+    tag: "Recrutée en 1 semaine",
+    initials: "MB",
+    color: "bg-pink-500",
+    image: "/images/Mariam BEN DAOUED.jpg",
+    quote: "J'ai été attirée par le côté innovateur de l'idée. J'ai enregistré mon CV vidéo et quelques jours après, mon téléphone a commencé à sonner ! J'ai réussi à décrocher mon premier entretien grâce à FaceJob.",
+  },
+  {
+    name: "Ahmed KHALIL",
+    role: "RH Manager • Tanger",
+    tag: "Utilisateur entreprise",
+    initials: "AK",
+    color: "bg-primary",
+    quote: "En tant que recruteur, FaceJob m'a fait gagner un temps précieux. Je peux maintenant évaluer la personnalité et les compétences linguistiques des candidats avant même de les rencontrer.",
+  },
+  {
+    name: "Youssef BENHADDOU",
+    role: "Développeur Web • Casablanca",
+    tag: "Recruté en 10 jours",
+    initials: "YB",
+    color: "bg-green-700",
+    quote: "Je cherchais un emploi depuis 4 mois sans succès. Après avoir créé mon CV vidéo sur FaceJob, j'ai reçu 3 propositions en moins de 10 jours. La différence est incroyable !",
+  },
+  {
+    name: "Sara ALAOUI",
+    role: "Chargée de communication • Marrakech",
+    tag: "Recrutée en 2 semaines",
+    initials: "SA",
+    color: "bg-purple-600",
+    quote: "FaceJob m'a permis de montrer ma vraie personnalité aux recruteurs. Mon CV papier ne reflétait pas qui j'étais vraiment. Aujourd'hui je travaille dans l'entreprise de mes rêves !",
+  },
+  {
+    name: "Karim MOUSSAOUI",
+    role: "Directeur RH • Casablanca",
+    tag: "Utilisateur entreprise",
+    initials: "KM",
+    color: "bg-blue-600",
+    quote: "En tant que DRH, FaceJob a révolutionné notre processus de recrutement. Nous réduisons de 60% le temps passé en entretiens préliminaires. Je recommande à toutes les entreprises.",
+  },
+  {
+    name: "Nadia EL FASSI",
+    role: "Comptable • Fès",
+    tag: "Recrutée en 5 jours",
+    initials: "NE",
+    color: "bg-orange-500",
+    quote: "Simple, rapide et efficace. J'ai enregistré ma vidéo en 15 minutes et le lendemain j'avais déjà un message d'un recruteur. FaceJob c'est vraiment la plateforme qu'il manquait au Maroc.",
+  },
+];
 
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/effect-cards";
-import "swiper/css/scrollbar";
-
-// import required modules
-import { EffectCards, Scrollbar } from "swiper/modules";
-
-type Props = {};
-
-export default function Testimonials({}: Props) {
+function Stars() {
   return (
-    <section className="w-full px-4 sm:px-6 py-12 sm:py-16 mx-auto mb-12 sm:mb-20 bg-optional1">
-      <div className="container mx-auto max-w-7xl">
-        <div className="relative flex flex-col lg:flex-row items-center justify-between w-full gap-8 sm:gap-12 lg:gap-20">
+    <div className="flex text-yellow-400 gap-0.5">
+      {[...Array(5)].map((_, i) => (
+        <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+export default function Testimonials() {
+  const [active, setActive] = useState(0);
+  const current = testimonials[active];
+
+  return (
+    <section className="w-full px-4 sm:px-6 py-12 sm:py-16 bg-optional1">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
+        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+
+          {/* Left */}
           <motion.div
-            initial={{ x: -10, opacity: 0 }}
-            transition={{ duration: 1 }}
+            initial={{ x: -20, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
             className="flex-1 text-center lg:text-left"
           >
-            <div className="mb-6 sm:mb-8">
-              <p className="text-primary font-semibold text-base sm:text-lg mb-3 sm:mb-4">Ce qu'ils disent de nous</p>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 sm:mb-6 font-default">
-                Témoignages de nos utilisateurs
-              </h2>
-              <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-lg mx-auto lg:mx-0">
-                Découvrez comment FaceJob a aidé des centaines de candidats à trouver leur emploi idéal au Maroc
-              </p>
-            </div>
-            
-            <div className="relative w-full max-w-sm sm:max-w-md mx-auto lg:mx-0">
+            <p className="text-primary font-semibold text-base mb-3">Ce qu'ils disent de nous</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 font-default">
+              Témoignages de nos utilisateurs
+            </h2>
+            <p className="text-base text-gray-600 max-w-md mx-auto lg:mx-0 mb-8">
+              Découvrez comment FaceJob a aidé des centaines de candidats à trouver leur emploi idéal au Maroc.
+            </p>
+
+            <div className="relative max-w-sm mx-auto lg:mx-0">
               <Image
                 src="/img3.jpg"
-                className="rounded-2xl sm:rounded-3xl shadow-2xl w-full h-auto"
+                className="rounded-2xl shadow-xl w-full h-auto"
                 alt="Candidate enregistrant son CV vidéo sur FaceJob"
                 width={400}
                 height={300}
-                priority={false}
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
               />
-              
-              {/* Floating testimonial preview */}
-              <div className="absolute -bottom-4 sm:-bottom-6 -right-4 sm:-right-6 bg-white p-3 sm:p-4 rounded-lg shadow-lg max-w-[200px] sm:max-w-xs">
-                <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="text-xs sm:text-sm text-gray-600">5.0/5</span>
+              <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-xl shadow-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <Stars />
+                  <span className="text-xs text-gray-500">5.0/5</span>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-700 font-medium">
+                <p className="text-xs text-gray-700 font-medium max-w-[160px]">
                   "Grâce à FaceJob, j'ai trouvé mon emploi en 2 semaines !"
                 </p>
               </div>
             </div>
           </motion.div>
 
+          {/* Right — testimonial card */}
           <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            transition={{ duration: 1 }}
+            initial={{ x: 20, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             viewport={{ once: true }}
-            className="flex-1 max-w-sm sm:max-w-md mx-auto lg:mx-0 w-full"
+            transition={{ duration: 0.6 }}
+            className="flex-1 w-full max-w-md mx-auto lg:mx-0"
           >
-            <Swiper
-              scrollbar={{
-                hide: true,
-              }}
-              effect={"cards"}
-              grabCursor={true}
-              modules={[EffectCards, Scrollbar]}
-              className="mySwiper h-80 sm:h-96"
-            >
-              <SwiperSlide>
-                <div className="relative flex flex-col h-full p-8 font-poppins bg-white rounded-2xl shadow-xl text-[#5E6282]">
+            {/* Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-6">
+              <div className="flex items-center gap-4 mb-4">
+                {current.image ? (
                   <Image
-                    src="/images/Sohaib MANAH.png"
-                    alt="Photo de profil de Sohaib MANAH"
-                    className="absolute object-cover rounded-full w-16 h-16 -left-8 -top-8 border-4 border-white shadow-lg"
-                    width={64}
-                    height={64}
+                    src={current.image}
+                    alt={current.name}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-gray-100"
+                    width={56}
+                    height={56}
                   />
-                  
-                  <div className="flex text-yellow-400 mb-4 mt-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                      </svg>
-                    ))}
+                ) : (
+                  <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ${current.color}`}>
+                    {current.initials}
                   </div>
-                  
-                  <blockquote className="flex-1 text-base leading-relaxed mb-6">
-                    "À l'ère où tout devient digitalisé et en tant qu'ingénieur logiciel junior, 
-                    FaceJob était la solution la plus adéquate et la plus simple pour moi pour 
-                    pénétrer le marché du travail. Mon CV vidéo m'a permis de me démarquer !"
-                  </blockquote>
-                  
-                  <div className="mt-auto">
-                    <p className="font-semibold text-secondary text-lg">Sohaib MANAH</p>
-                    <p className="text-sm text-gray-500">Ingénieur Logiciel • Casablanca</p>
-                    <p className="text-xs text-primary font-medium mt-1">Recruté en 3 semaines</p>
-                  </div>
+                )}
+                <div>
+                  <p className="font-semibold text-secondary">{current.name}</p>
+                  <p className="text-xs text-gray-500">{current.role}</p>
+                  <span className="text-xs text-primary font-medium">{current.tag}</span>
                 </div>
-              </SwiperSlide>
-              
-              <SwiperSlide>
-                <div className="relative flex flex-col h-full p-8 font-poppins bg-white rounded-2xl shadow-xl text-[#5E6282]">
-                  <Image
-                    src="/images/Mariam BEN DAOUED.jpg"
-                    alt="Photo de profil de Mariam BEN DAOUED"
-                    className="absolute object-cover rounded-full w-16 h-16 -left-8 -top-8 border-4 border-white shadow-lg"
-                    width={64}
-                    height={64}
-                  />
-                  
-                  <div className="flex text-yellow-400 mb-4 mt-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                      </svg>
-                    ))}
-                  </div>
-                  
-                  <blockquote className="flex-1 text-base leading-relaxed mb-6">
-                    "J'ai été attirée par le côté innovateur de l'idée. J'ai enregistré mon CV vidéo 
-                    et quelques jours après, mon téléphone a commencé à sonner ! J'ai réussi à 
-                    décrocher mon premier entretien grâce à FaceJob."
-                  </blockquote>
-                  
-                  <div className="mt-auto">
-                    <p className="font-semibold text-secondary text-lg">Mariam BEN DAOUED</p>
-                    <p className="text-sm text-gray-500">Marketing Digital • Rabat</p>
-                    <p className="text-xs text-primary font-medium mt-1">Recrutée en 1 semaine</p>
-                  </div>
-                </div>
-              </SwiperSlide>
-              
-              <SwiperSlide>
-                <div className="relative flex flex-col h-full p-8 font-poppins bg-white rounded-2xl shadow-xl text-[#5E6282]">
-                  <div className="absolute w-16 h-16 -left-8 -top-8 bg-primary rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                    <span className="text-white font-bold text-lg">A.K</span>
-                  </div>
-                  
-                  <div className="flex text-yellow-400 mb-4 mt-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                      </svg>
-                    ))}
-                  </div>
-                  
-                  <blockquote className="flex-1 text-base leading-relaxed mb-6">
-                    "En tant que recruteur, FaceJob m'a fait gagner un temps précieux. 
-                    Je peux maintenant évaluer la personnalité et les compétences 
-                    linguistiques des candidats avant même de les rencontrer."
-                  </blockquote>
-                  
-                  <div className="mt-auto">
-                    <p className="font-semibold text-secondary text-lg">Ahmed KHALIL</p>
-                    <p className="text-sm text-gray-500">RH Manager • Tanger</p>
-                    <p className="text-xs text-primary font-medium mt-1">Utilisateur entreprise</p>
-                  </div>
-                </div>
-              </SwiperSlide>
-            </Swiper>
+              </div>
+              <Stars />
+              <blockquote className="mt-4 text-gray-600 text-sm leading-relaxed">
+                "{current.quote}"
+              </blockquote>
+            </div>
+
+            {/* Navigation dots */}
+            <div className="flex items-center justify-center gap-2">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActive(i)}
+                  className={`rounded-full transition-all duration-200 ${
+                    i === active ? "w-6 h-2.5 bg-primary" : "w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400"
+                  }`}
+                  aria-label={`Témoignage ${i + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Prev / Next */}
+            <div className="flex justify-center gap-3 mt-4">
+              <button
+                onClick={() => setActive((active - 1 + testimonials.length) % testimonials.length)}
+                className="w-9 h-9 rounded-full border border-gray-200 bg-white hover:border-primary hover:text-primary flex items-center justify-center transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setActive((active + 1) % testimonials.length)}
+                className="w-9 h-9 rounded-full border border-gray-200 bg-white hover:border-primary hover:text-primary flex items-center justify-center transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </motion.div>
-        </div>
-        
-        {/* Statistics Section */}
-        <div className="mt-12 sm:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 text-center">
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-            <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">783+</div>
-            <div className="text-gray-600 text-sm sm:text-base">Candidats recrutés</div>
-          </div>
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-            <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">95%</div>
-            <div className="text-gray-600 text-sm sm:text-base">Taux de satisfaction</div>
-          </div>
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-            <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">2 min</div>
-            <div className="text-gray-600 text-sm sm:text-base">Temps d'inscription</div>
-          </div>
+
         </div>
       </div>
     </section>

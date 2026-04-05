@@ -98,17 +98,6 @@ export default function Footer({}: Props) {
             </li>
             <li>
               <Link
-                href="https://twitter.com/facejob_/facejob.ma/"
-                className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
-                aria-label="Twitter icon"
-                target={"_blank"}
-                rel="noopener noreferrer"
-              >
-                <FaTwitter />
-              </Link>
-            </li>
-            <li>
-              <Link
                 href="https://www.linkedin.com/company/facejob-ma/"
                 className="grid w-10 h-10 bg-white rounded-full md:w-8 md:h-8 drop-shadow-2xl place-items-center"
                 aria-label="Linked icon"

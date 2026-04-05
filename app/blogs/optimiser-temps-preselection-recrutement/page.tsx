@@ -24,6 +24,9 @@ const Blog2Page: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <NavBar />
       
+      {/* White space for transparent navbar */}
+      <div className="h-20 bg-white" />
+
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
         <div className="container mx-auto px-6">

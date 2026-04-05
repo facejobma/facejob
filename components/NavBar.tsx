@@ -154,52 +154,40 @@ export default function NavBar() {
             : "bg-transparent"
         }`}
       >
-        <div className={`w-full px-4 md:px-10 mx-auto transition-all ${
-          open ? "py-3 pb-0 md:py-2" : "py-3 md:py-2"
+        <div className={`w-full px-4 lg:px-8 mx-auto transition-all ${
+          open ? "py-3 pb-0" : "py-3"
         }`}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-7">
-              <div>
-                <Logo />
-              </div>
-              <ul className="hidden md:flex gap-10 text-base font-medium text-secondary font-poppins">
-                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="/">
-                    <span className={getActiveClass("/")}>
-                      Accueil
-                    </span>
-                  </Link>
+            <div className="flex items-center gap-4 xl:gap-6">
+              <Logo />
+              <ul className="hidden lg:flex gap-4 xl:gap-6 text-xs xl:text-sm font-medium text-secondary font-poppins">
+                <li className="transition-all duration-300 ease-in-out hover:text-primary whitespace-nowrap">
+                  <Link href="/"><span className={getActiveClass("/")}>Accueil</span></Link>
                 </li>
-                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="/offres">
-                    <span className={getActiveClass("/offres")}>
-                      Offres d'emploi
-                    </span>
-                  </Link>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary whitespace-nowrap">
+                  <Link href="/offres"><span className={getActiveClass("/offres")}>Offres d'emploi</span></Link>
                 </li>
-                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="/contact">
-                    <span className={getActiveClass("/contact")}>
-                      Contact
-                    </span>
-                  </Link>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary whitespace-nowrap">
+                  <Link href="/blogs"><span className={getActiveClass("/blogs")}>Blogs</span></Link>
                 </li>
-                <li className="transition-all duration-300 ease-in-out hover:text-primary">
-                  <Link href="/blogs">
-                    <span className={getActiveClass("/blogs")}>
-                      Blogs
-                    </span>
-                  </Link>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary whitespace-nowrap">
+                  <Link href="/faq"><span className={getActiveClass("/faq")}>FAQ</span></Link>
+                </li>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary whitespace-nowrap">
+                  <Link href="/apropsdenous"><span className={getActiveClass("/apropsdenous")}>À propos</span></Link>
+                </li>
+                <li className="transition-all duration-300 ease-in-out hover:text-primary whitespace-nowrap">
+                  <Link href="/contact"><span className={getActiveClass("/contact")}>Contact</span></Link>
                 </li>
               </ul>
             </div>
-            <ul className="hidden md:flex gap-5 font-bold text-sm">
+            <ul className="hidden lg:flex gap-3 font-bold text-sm">
               {!mounted ? (
                 <>
                   <li>
                     <Link
                       href="/auth/login-candidate"
-                      className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default"
+                      className="inline-flex items-center h-9 px-4 rounded-lg border-2 border-primary text-primary font-medium text-sm"
                     >
                       Candidat
                     </Link>
@@ -207,7 +195,7 @@ export default function NavBar() {
                   <li>
                     <Link
                       href="/auth/login-enterprise"
-                      className="px-6 py-3 rounded-[15px] bg-primary text-white font-default"
+                      className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm"
                     >
                       Entreprise
                     </Link>
@@ -218,7 +206,7 @@ export default function NavBar() {
                   <li>
                     <Link
                       href="/auth/login-candidate"
-                      className="px-6 py-3 rounded-[15px] border-[2px] border-primary text-primary font-default hover:bg-primary hover:text-white transition-all"
+                      className="inline-flex items-center h-9 px-4 rounded-lg border-2 border-primary text-primary font-medium text-sm hover:bg-primary hover:text-white transition-all"
                     >
                       Candidat
                     </Link>
@@ -226,24 +214,24 @@ export default function NavBar() {
                   <li>
                     <Link
                       href="/auth/login-enterprise"
-                      className="px-6 py-3 rounded-[15px] bg-primary text-white font-default hover:bg-primary-1 transition-all"
+                      className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                     >
                       Entreprise
                     </Link>
                   </li>
                 </>
               ) : (
-                <li className="flex items-center gap-3">
+                <li className="flex items-center gap-2">
                   <Link
                     href={getDashboardLink()}
-                    className="flex items-center gap-2 px-6 py-3 rounded-[15px] bg-primary text-white font-default hover:bg-primary-1 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                   >
                     <User className="w-4 h-4" />
                     {userType === 'candidat' ? 'Mon Espace Candidat' : 'Mon Espace Entreprise'}
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-3 rounded-[15px] border-[2px] border-red-500 text-red-500 font-default hover:bg-red-500 hover:text-white transition-all"
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-red-500 text-red-500 font-medium text-sm hover:bg-red-500 hover:text-white transition-all"
                     title="Se déconnecter"
                   >
                     <LogOut className="w-4 h-4" />
@@ -251,7 +239,7 @@ export default function NavBar() {
                 </li>
               )}
             </ul>
-            <div className="flex items-center md:hidden">
+            <div className="flex items-center lg:hidden">
               <button
                 className="outline-none p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 id="btn-mobile-menu"
@@ -286,7 +274,7 @@ export default function NavBar() {
             open ? "flex" : "hidden"
           }`}
         >
-          <ul className="flex flex-col w-full divide-y divide-gray-100 md:hidden font-poppins">
+          <ul className="flex flex-col w-full divide-y divide-gray-100 lg:hidden font-poppins">
             {/* Navigation Links */}
             <li className="hover:bg-gray-50 transition-colors">
               <Link href="/" className="flex items-center px-6 py-4" onClick={() => setOpen(false)}>
@@ -313,6 +301,20 @@ export default function NavBar() {
               <Link href="/blogs" className="flex items-center px-6 py-4" onClick={() => setOpen(false)}>
                 <span className={`text-base font-medium ${getActiveMobileClass("/blogs")}`}>
                   Blogs
+                </span>
+              </Link>
+            </li>
+            <li className="hover:bg-gray-50 transition-colors">
+              <Link href="/faq" className="flex items-center px-6 py-4" onClick={() => setOpen(false)}>
+                <span className={`text-base font-medium ${getActiveMobileClass("/faq")}`}>
+                  FAQ
+                </span>
+              </Link>
+            </li>
+            <li className="hover:bg-gray-50 transition-colors">
+              <Link href="/apropsdenous" className="flex items-center px-6 py-4" onClick={() => setOpen(false)}>
+                <span className={`text-base font-medium ${getActiveMobileClass("/apropsdenous")}`}>
+                  À propos
                 </span>
               </Link>
             </li>

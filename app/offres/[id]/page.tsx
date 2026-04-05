@@ -1,31 +1,16 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import SafeHtmlDisplay from "@/components/SafeHtmlDisplay";
-import { 
-  ArrowLeft, 
-  Briefcase, 
-  Building, 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  Users, 
-  Share2,
-  Bookmark,
-  AlertCircle,
-  CheckCircle,
-  Eye
+import {
+  ArrowLeft, Briefcase, Building, MapPin, Calendar,
+  Users, Share2, AlertCircle, CheckCircle, Eye
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { stripHtmlTags } from "@/lib/textUtils";
 
 interface OfferDetail {
   id: number;
@@ -43,10 +28,6 @@ interface OfferDetail {
   job_id: number;
   entreprise_id: number;
   salaire?: string;
-  experience_required?: string;
-  education_level?: string;
-  skills_required?: string[];
-  benefits?: string[];
   company_description?: string;
   is_verified?: string | boolean;
   applications_count?: number;
@@ -59,422 +40,263 @@ const OfferDetailPage: React.FC = () => {
   const [offer, setOffer] = useState<OfferDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [relatedOffers, setRelatedOffers] = useState<OfferDetail[]>([]);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-
+  const [daysAgo, setDaysAgo] = useState(0);
   const offerId = params.id as string;
 
   useEffect(() => {
     const fetchOfferDetail = async () => {
       try {
         setLoading(true);
-        
-        // Fetch the specific offer by ID (this will also increment views)
-        const offerResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/${offerId}`, {
-          headers: {
-            'ngrok-skip-browser-warning': 'true'
-          }
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/${offerId}`, {
+          headers: { 'ngrok-skip-browser-warning': 'true' }
         });
-        
-        if (offerResponse.ok) {
-          const currentOffer = await offerResponse.json();
-          
-          if (currentOffer && !currentOffer.error) {
-            setOffer(currentOffer);
-            
-            // Fetch all offers to find related ones
-            const allOffersResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`, {
-              headers: {
-                'ngrok-skip-browser-warning': 'true'
-              }
+        if (res.ok) {
+          const data = await res.json();
+          if (data && !data.error) {
+            setOffer(data);
+            const allRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`, {
+              headers: { 'ngrok-skip-browser-warning': 'true' }
             });
-            
-            if (allOffersResponse.ok) {
-              const result = await allOffersResponse.json();
-              const allOffers = Array.isArray(result.data) ? result.data : [];
-              
-              // Find related offers (same sector, different company)
-              const related = allOffers
-                .filter((o: OfferDetail) => 
-                  o.id !== currentOffer.id && 
-                  o.sector_id === currentOffer.sector_id
-                )
-                .slice(0, 3);
-              setRelatedOffers(related);
+            if (allRes.ok) {
+              const result = await allRes.json();
+              const all = Array.isArray(result.data) ? result.data : [];
+              setRelatedOffers(all.filter((o: OfferDetail) => o.id !== data.id && o.sector_id === data.sector_id).slice(0, 3));
             }
           } else {
             toast.error("Offre non trouvée");
             router.push("/offres");
           }
-        } else {
-          throw new Error("Failed to fetch offer");
-        }
-      } catch (error) {
-        console.error("Error fetching offer:", error);
+        } else throw new Error();
+      } catch {
         toast.error("Erreur lors du chargement de l'offre");
         router.push("/offres");
       } finally {
         setLoading(false);
       }
     };
-
-    if (offerId) {
-      fetchOfferDetail();
-    }
+    if (offerId) fetchOfferDetail();
   }, [offerId, router]);
 
-  const handleApply = () => {
-    router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
-  };
-
-  const handleShare = async () => {
-    // Ensure we're on the client side
-    if (typeof window === 'undefined') return;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: offer?.titre,
-          text: `Découvrez cette offre d'emploi: ${offer?.titre} chez ${offer?.company_name}`,
-          url: window.location.href,
-        });
-      } catch (error) {
-        console.log("Error sharing:", error);
-      }
-    } else {
-      // Fallback: copy to clipboard
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(window.location.href);
-        toast.success("Lien copié dans le presse-papiers!");
-      }
-    }
-  };
-
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-    toast.success(isBookmarked ? "Retiré des favoris" : "Ajouté aux favoris");
-  };
-
-  // State for client-side only calculations to prevent hydration issues
-  const [daysAgoValue, setDaysAgoValue] = useState(0);
-
-  // Calculate days ago on client side only
   useEffect(() => {
     if (offer?.created_at) {
-      const created = new Date(offer.created_at);
-      const now = new Date();
-      
-      if (!isNaN(created.getTime())) {
-        const diffTime = Math.abs(now.getTime() - created.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        setDaysAgoValue(Math.min(diffDays, 365));
-      }
+      const diff = Math.abs(new Date().getTime() - new Date(offer.created_at).getTime());
+      setDaysAgo(Math.min(Math.ceil(diff / 86400000), 365));
     }
   }, [offer?.created_at]);
 
-  const getDaysAgo = () => daysAgoValue;
+  const handleApply = () => router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+  const handleShare = async () => {
+    if (typeof window === 'undefined') return;
+    if (navigator.share) {
+      try { await navigator.share({ title: offer?.titre, url: window.location.href }); } catch {}
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Lien copié !");
+    }
   };
 
-  if (loading) {
-    return (
-      <>
-        <NavBar />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  if (!offer) {
-    return (
-      <>
-        <NavBar />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Offre non trouvée</h2>
-            <p className="text-gray-600 mb-4">Cette offre d'emploi n'existe pas ou a été supprimée.</p>
-            <Link href="/offres">
-              <Button className="bg-primary hover:bg-primary-1">
-                Retour aux offres
-              </Button>
-            </Link>
-          </div>
+  if (loading) return (
+    <>
+      <NavBar />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+      </div>
+      <Footer />
+    </>
+  );
+
+  if (!offer) return (
+    <>
+      <NavBar />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-14 w-14 text-gray-300 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Offre non trouvée</h2>
+          <p className="text-gray-500 mb-6 text-sm">Cette offre n'existe pas ou a été supprimée.</p>
+          <Link href="/offres" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-1 transition-colors">
+            Retour aux offres
+          </Link>
         </div>
-        <Footer />
-      </>
-    );
-  }
+      </div>
+      <Footer />
+    </>
+  );
 
   return (
     <>
       <NavBar />
       <div className="min-h-screen bg-gray-50 pt-20">
-        {/* Header */}
-        <div className="bg-white border-b">
-          <div className="container mx-auto px-4 py-6 max-w-7xl">
-            <div className="flex items-center justify-between mb-4">
-              <Button
-                variant="ghost"
-                onClick={() => router.back()}
-                className="text-primary hover:text-primary-1"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour
-              </Button>
-              
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="border-primary text-primary hover:bg-primary hover:text-white"
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Partager
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBookmark}
-                  className={`border-primary ${isBookmarked ? 'bg-primary text-white' : 'text-primary hover:bg-primary hover:text-white'}`}
-                >
-                  <Bookmark className={`h-4 w-4 mr-2 ${isBookmarked ? 'fill-current' : ''}`} />
-                  {isBookmarked ? 'Sauvegardé' : 'Sauvegarder'}
-                </Button>
+
+        {/* Hero banner */}
+        <div className="bg-white shadow-sm">
+          <div className="container mx-auto px-4 max-w-6xl py-6">
+            <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors mb-5">
+              <ArrowLeft className="h-4 w-4" /> Retour aux offres
+            </button>
+
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="h-14 w-14 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0">
+                  <Building className="h-7 w-7 text-green-600" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{offer.titre}</h1>
+                  <p className="text-gray-500 font-medium">{offer.company_name}</p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {offer.location && (
+                      <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full font-medium">
+                        <MapPin className="h-3 w-3" />{offer.location}
+                      </span>
+                    )}
+                    {offer.contractType && (
+                      <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full font-medium">
+                        <Calendar className="h-3 w-3" />{offer.contractType}
+                      </span>
+                    )}
+                    {offer.sector_name && (
+                      <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">
+                        <Briefcase className="h-3 w-3" />{offer.sector_name}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full font-medium">
+                      Publié il y a {daysAgo}j
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-primary hover:text-primary transition-colors">
+                  <Share2 className="h-4 w-4" /> Partager
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Content */}
+        <div className="container mx-auto px-4 max-w-6xl py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
+
+            {/* Main */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Offer Header */}
-              <Card className="border-l-4 border-l-primary">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
-                        {offer.titre}
-                      </CardTitle>
-                      <div className="flex items-center text-lg text-gray-700 mb-4">
-                        <Building className="h-5 w-5 mr-2 text-primary" />
-                        <span className="font-semibold">{offer.company_name}</span>
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {getDaysAgo()} jour{getDaysAgo() > 1 ? 's' : ''}
-                    </Badge>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Briefcase className="h-4 w-4 mr-2 text-primary-1" />
-                      <div>
-                        <p className="font-medium">{offer.sector_name}</p>
-                        <p className="text-xs">{offer.job_name}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="h-4 w-4 mr-2 text-primary-2" />
-                      <div>
-                        <p className="font-medium">{offer.location}</p>
-                        <p className="text-xs">Maroc</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="h-4 w-4 mr-2 text-primary-3" />
-                      <div>
-                        <p className="font-medium">{offer.contractType}</p>
-                        <p className="text-xs">Type de contrat</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
 
-              {/* Job Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-gray-900">
-                    Description du poste
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SafeHtmlDisplay
-                    html={offer.description}
-                    className="text-gray-700 leading-relaxed prose prose-sm max-w-none"
-                  />
-                </CardContent>
-              </Card>
+              {/* Description */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h2 className="text-base font-bold text-gray-900 mb-4">Description du poste</h2>
+                <SafeHtmlDisplay html={offer.description} className="text-gray-600 leading-relaxed prose prose-sm max-w-none text-sm" />
+              </div>
 
-              {/* Job Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-gray-900">
-                    Détails de l'offre
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Date de début</h4>
-                      <p className="text-gray-600">{formatDate(offer.date_debut)}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Date de fin</h4>
-                      <p className="text-gray-600">{formatDate(offer.date_fin)}</p>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
+              {/* Details */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h2 className="text-base font-bold text-gray-900 mb-4">Détails de l'offre</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Secteur d'activité</h4>
-                    <Badge variant="outline" className="border-primary text-primary">
-                      {offer.sector_name}
-                    </Badge>
+                    <p className="text-gray-400 text-xs mb-1">Date de début</p>
+                    <p className="font-medium text-gray-700">{formatDate(offer.date_debut)}</p>
                   </div>
-                  
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Métier</h4>
-                    <Badge variant="outline" className="border-primary-1 text-primary-1">
-                      {offer.job_name}
-                    </Badge>
+                    <p className="text-gray-400 text-xs mb-1">Date de fin</p>
+                    <p className="font-medium text-gray-700">{formatDate(offer.date_fin)}</p>
                   </div>
-                </CardContent>
-              </Card>
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">Secteur</p>
+                    <p className="font-medium text-gray-700">{offer.sector_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">Métier</p>
+                    <p className="font-medium text-gray-700">{offer.job_name}</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Apply Card */}
-              <Card className="sticky top-4">
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-900">
-                    Postuler à cette offre
-                  </CardTitle>
-                  <CardDescription>
-                    Créez votre profil et postulez avec votre CV vidéo
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button 
-                    onClick={handleApply}
-                    className="w-full bg-primary hover:bg-primary-1 text-white text-lg py-3"
-                    size="lg"
-                  >
-                    Postuler maintenant
-                  </Button>
-                  
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600">
-                      Vous devez créer un compte pour postuler
-                    </p>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Eye className="h-4 w-4 mr-2 text-primary" />
-                      <span>Vu par {offer.views_count || 0} candidats</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="h-4 w-4 mr-2 text-primary-1" />
-                      <span>{offer.applications_count || 0} candidatures</span>
-                    </div>
-                    {offer.is_verified && (
-                      <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 mr-2 text-primary-2" />
-                        <span>Offre vérifiée</span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="space-y-5">
 
-              {/* Company Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-900">
-                    À propos de l'entreprise
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Building className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="ml-3">
-                      <h4 className="font-semibold text-gray-900">{offer.company_name}</h4>
-                      <p className="text-sm text-gray-600">{offer.sector_name}</p>
-                    </div>
+              {/* Apply */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
+                <h3 className="font-bold text-gray-900 mb-1">Postuler à cette offre</h3>
+                <p className="text-xs text-gray-500 mb-4">Créez votre profil et postulez avec votre CV vidéo</p>
+                <button
+                  onClick={handleApply}
+                  className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm mb-4"
+                >
+                  Postuler maintenant
+                </button>
+                <div className="space-y-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-3.5 w-3.5 text-primary" />
+                    <span>{offer.views_count || 0} vues</span>
                   </div>
-                  
-                  <p className="text-sm text-gray-700 mb-4">
-                    {offer.company_description || "Une entreprise leader dans son secteur, offrant des opportunités de carrière exceptionnelles dans un environnement dynamique et innovant."}
-                  </p>
-                  
-                  <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-white">
-                    Voir toutes les offres de cette entreprise
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-3.5 w-3.5 text-primary" />
+                    <span>{offer.applications_count || 0} candidatures</span>
+                  </div>
+                  {offer.is_verified && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                      <span>Offre vérifiée</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Company */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h3 className="font-bold text-gray-900 mb-4">À propos de l'entreprise</h3>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center">
+                    <Building className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">{offer.company_name}</p>
+                    <p className="text-xs text-gray-500">{offer.sector_name}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  {offer.company_description || "Une entreprise leader dans son secteur, offrant des opportunités de carrière dans un environnement dynamique."}
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Related Offers */}
+          {/* Related offers */}
           {relatedOffers.length > 0 && (
             <div className="mt-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Offres similaires
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {relatedOffers.map((relatedOffer) => (
-                  <Card key={relatedOffer.id} className="hover:shadow-lg transition-shadow duration-300 border-l-4 border-l-primary">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2">
-                        {relatedOffer.titre}
-                      </CardTitle>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Building className="h-4 w-4 mr-1 text-primary" />
-                        <span>{relatedOffer.company_name}</span>
+              <h2 className="text-lg font-bold text-gray-900 mb-5">Offres similaires</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {relatedOffers.map((rel) => (
+                  <div
+                    key={rel.id}
+                    onClick={() => router.push(`/offres/${rel.id}`)}
+                    className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-5 flex flex-col gap-3 cursor-pointer"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0">
+                        <Building className="h-4 w-4 text-green-600" />
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <MapPin className="h-4 w-4 mr-2 text-primary-1" />
-                          <span>{relatedOffer.location}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="h-4 w-4 mr-2 text-primary-2" />
-                          <span>{relatedOffer.contractType}</span>
-                        </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors">{rel.titre}</h3>
+                        <p className="text-xs text-gray-500 truncate">{rel.company_name}</p>
                       </div>
-                      <Button 
-                        onClick={() => router.push(`/offres/${relatedOffer.id}`)}
-                        variant="outline"
-                        className="w-full border-primary text-primary hover:bg-primary hover:text-white"
-                      >
-                        Voir les détails
-                      </Button>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {rel.location && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
+                          <MapPin className="h-2.5 w-2.5" />{rel.location}
+                        </span>
+                      )}
+                      {rel.contractType && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">
+                          <Calendar className="h-2.5 w-2.5" />{rel.contractType}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

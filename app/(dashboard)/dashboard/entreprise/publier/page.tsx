@@ -53,9 +53,9 @@ export default function PublierPage() {
   };
 
   const addSkill = () => {
-    const trimmed = skillInput.trim();
-    if (trimmed && !requiredSkills.includes(trimmed)) {
-      setRequiredSkills(prev => [...prev, trimmed]);
+    const parts = skillInput.split(",").map(s => s.trim()).filter(s => s && !requiredSkills.includes(s));
+    if (parts.length > 0) {
+      setRequiredSkills(prev => [...prev, ...parts]);
     }
     setSkillInput("");
   };

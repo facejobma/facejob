@@ -16,10 +16,14 @@ const MAX_DURATION = 90;
 const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
   ({ onVideoReady }, ref) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const rafRef = useRef<number | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
+    const logoRef = useRef<HTMLImageElement | null>(null);
+    const recordingRef = useRef(false);
 
     const [recording, setRecording] = useState(false);
     const [recorded, setRecorded] = useState(false);
@@ -28,8 +32,15 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     const [cameraReady, setCameraReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    useEffect(() => {
+      const img = new Image();
+      img.src = "/facejobLogo.png";
+      img.onload = () => { logoRef.current = img; };
+    }, []);
+
     const killStream = useCallback(() => {
       if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
       }
@@ -41,6 +52,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
         videoRef.current.pause();
         videoRef.current.srcObject = null;
       }
+      recordingRef.current = false;
       setCameraReady(false);
       setRecording(false);
     }, []);
@@ -52,12 +64,12 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       try {
         const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         streamRef.current = s;
-        setCameraReady(true);
         if (videoRef.current) {
           videoRef.current.srcObject = s;
           videoRef.current.muted = true;
-          videoRef.current.play().catch(() => {});
+          await videoRef.current.play();
         }
+        setCameraReady(true);
       } catch {
         setError("Impossible d'acceder a la camera. Verifiez les permissions.");
       }
@@ -68,7 +80,42 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       return () => { killStream(); };
     }, []);
 
+    const drawLoop = useCallback(() => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      if (!video || !canvas || video.readyState < 2) {
+        rafRef.current = requestAnimationFrame(drawLoop);
+        return;
+      }
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      if (canvas.width !== video.videoWidth && video.videoWidth > 0) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+      }
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      if (logoRef.current && canvas.width > 0) {
+        const logo = logoRef.current;
+        const maxSize = Math.round(canvas.width * 0.15);
+        const ratio = Math.min(maxSize / logo.naturalWidth, maxSize / logo.naturalHeight);
+        const w = Math.round(logo.naturalWidth * ratio);
+        const h = Math.round(logo.naturalHeight * ratio);
+        const margin = Math.round(canvas.width * 0.025);
+        const x = canvas.width - w - margin;
+        const y = canvas.height - h - margin * 4; // higher up
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(logo, x, y, w, h);
+        ctx.globalAlpha = 1;
+      }
+
+      rafRef.current = requestAnimationFrame(drawLoop);
+    }, []);
+
     const stopRecording = useCallback(() => {
+      recordingRef.current = false;
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
       }
@@ -77,22 +124,31 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     }, []);
 
     const startRecording = () => {
-      if (!streamRef.current) return;
+      if (!streamRef.current || !canvasRef.current) return;
       chunksRef.current = [];
-      const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-        ? "video/webm;codecs=vp9"
+      recordingRef.current = true;
+
+      rafRef.current = requestAnimationFrame(drawLoop);
+
+      const canvasStream = canvasRef.current.captureStream(30);
+      streamRef.current.getAudioTracks().forEach((t) => canvasStream.addTrack(t));
+
+      const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+        ? "video/webm;codecs=vp9,opus"
         : "video/webm";
-      const mr = new MediaRecorder(streamRef.current, { mimeType });
+
+      const mr = new MediaRecorder(canvasStream, { mimeType, videoBitsPerSecond: 2_000_000 });
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
+        if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
         const blob = new Blob(chunksRef.current, { type: "video/webm" });
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
         setRecorded(true);
         killStream();
-        const file = new File([blob], `cv-video-${Date.now()}.webm`, { type: "video/webm" });
-        onVideoReady(file);
+        onVideoReady(new File([blob], `cv-video-${Date.now()}.webm`, { type: "video/webm" }));
       };
+
       mr.start(1000);
       mediaRecorderRef.current = mr;
       setRecording(true);
@@ -136,11 +192,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
             <span>Video enregistree — duree: {formatTime(elapsed)}</span>
           </div>
           <video src={previewUrl} controls className="w-full rounded-xl border-2 border-gray-200 shadow" />
-          <button
-            type="button"
-            onClick={reset}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
-          >
+          <button type="button" onClick={reset} className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
             <FaRedo className="text-xs" /> Recommencer
           </button>
         </div>
@@ -150,7 +202,14 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     return (
       <div className="space-y-4">
         <div className="relative bg-black rounded-xl overflow-hidden" style={{ maxHeight: "320px", aspectRatio: "16/9" }}>
-          <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+          {/* Video off-screen but rendered so drawImage works */}
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+          />
+          <canvas ref={canvasRef} className="w-full h-full object-cover" />
           {recording && (
             <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
               <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -166,28 +225,19 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
 
         <div className="flex justify-center gap-3">
           {!recording ? (
-            <button
-              type="button"
-              onClick={startRecording}
-              disabled={!cameraReady}
-              className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
-            >
+            <button type="button" onClick={startRecording} disabled={!cameraReady}
+              className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors">
               <FaVideo /> Demarrer
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={stopRecording}
-              className="flex items-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-xl transition-colors"
-            >
+            <button type="button" onClick={stopRecording}
+              className="flex items-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-xl transition-colors">
               <FaStop /> Arreter
             </button>
           )}
         </div>
 
-        <p className="text-xs text-gray-500 text-center">
-          Duree maximale: 1 min 30 sec
-        </p>
+        <p className="text-xs text-gray-500 text-center">Duree maximale: 1 min 30 sec</p>
       </div>
     );
   }

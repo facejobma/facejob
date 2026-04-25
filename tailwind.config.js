@@ -9,10 +9,14 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        poppins: ["Poppins", "sans-serif"],
-        default: ["Plus Jakarta Sans", "sans-serif"],
-        inter: ["var(--font-inter)", "sans-serif"],
+        sans: ['Manrope', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        heading: ['Inter', 'sans-serif'],
+        body: ['Manrope', 'sans-serif'],
+        accent: ['Space Grotesk', 'Inter', 'sans-serif'],
+        // Garder les anciennes pour compatibilité
+        poppins: ["Manrope", "sans-serif"],
+        default: ["Inter", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
       },
       backgroundImage: {
         hero: "url('/images/decore.png')",

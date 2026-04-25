@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Mail, User, MessageSquare, Send, CheckCircle } from "lucide-react";
 import { apiRequest, handleApiError } from "@/lib/apiUtils";
 import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 
 interface FormData {
   name: string;
@@ -143,31 +144,43 @@ const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-optional1">
       <NavBar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-12 overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
+        <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+        
+        <div className="container mx-auto px-6 relative">
+          <div className="max-w-3xl mx-auto text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-6 shadow-sm">
+              <MessageSquare className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Support & Contact</span>
+            </div>
+
+            <h1 className="font-heading text-4xl md:text-5xl font-extrabold text-secondary mb-4 leading-tight tracking-tight">
+              Contactez-nous
+            </h1>
+            <p className="font-body text-lg text-gray-600 leading-relaxed">
+              Nous aimerions avoir de vos nouvelles ! Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-20">
         <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-start">
           {/* Left Side - Form */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-12">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <MessageSquare className="w-8 h-8 text-primary" />
-              </div>
-              <h1 className="text-3xl font-bold text-secondary mb-2">
-                Contactez-nous
-              </h1>
-              <p className="text-third text-lg">
-                Nous aimerions avoir de vos nouvelles ! Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.
-              </p>
-            </div>
+          <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-xl p-8 lg:p-12">
 
             {/* Success Message */}
             {isSubmitted && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                <p className="text-green-700 font-medium">
+              <div className="mb-6 p-5 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl flex items-center shadow-sm">
+                <CheckCircle className="w-6 h-6 text-green-600 mr-3 flex-shrink-0" />
+                <p className="font-body text-green-700 font-medium">
                   Message envoyé avec succès ! Nous vous répondrons bientôt.
                 </p>
               </div>
@@ -177,11 +190,11 @@ const ContactPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name Field */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-secondary mb-2">
+                <label htmlFor="name" className="block text-sm font-semibold text-secondary mb-2 font-body">
                   Nom complet *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
@@ -189,21 +202,21 @@ const ContactPage: React.FC = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => updateFormData("name", e.target.value)}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
+                    className={`font-body block w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 ${
                       validationErrors.name 
                         ? "border-red-300 bg-red-50" 
-                        : "border-gray-300"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                     placeholder="Votre nom complet"
                     disabled={isLoading}
                     maxLength={255}
                   />
                 </div>
-                <div className="flex justify-between mt-1">
+                <div className="flex justify-between mt-2">
                   {validationErrors.name && (
-                    <p className="text-sm text-red-600">{validationErrors.name}</p>
+                    <p className="text-sm text-red-600 font-body">{validationErrors.name}</p>
                   )}
-                  <p className={`text-xs ml-auto ${getCharacterCountColor('name')}`}>
+                  <p className={`text-xs ml-auto font-body ${getCharacterCountColor('name')}`}>
                     {getCharacterCount('name')}
                   </p>
                 </div>
@@ -211,11 +224,11 @@ const ContactPage: React.FC = () => {
 
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-secondary mb-2">
+                <label htmlFor="email" className="block text-sm font-semibold text-secondary mb-2 font-body">
                   Adresse email *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
@@ -223,21 +236,21 @@ const ContactPage: React.FC = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => updateFormData("email", e.target.value)}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
+                    className={`font-body block w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 ${
                       validationErrors.email 
                         ? "border-red-300 bg-red-50" 
-                        : "border-gray-300"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                     placeholder="votre@email.com"
                     disabled={isLoading}
                     maxLength={255}
                   />
                 </div>
-                <div className="flex justify-between mt-1">
+                <div className="flex justify-between mt-2">
                   {validationErrors.email && (
-                    <p className="text-sm text-red-600">{validationErrors.email}</p>
+                    <p className="text-sm text-red-600 font-body">{validationErrors.email}</p>
                   )}
-                  <p className={`text-xs ml-auto ${getCharacterCountColor('email')}`}>
+                  <p className={`text-xs ml-auto font-body ${getCharacterCountColor('email')}`}>
                     {getCharacterCount('email')}
                   </p>
                 </div>
@@ -245,7 +258,7 @@ const ContactPage: React.FC = () => {
 
               {/* Message Field */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-secondary mb-2">
+                <label htmlFor="message" className="block text-sm font-semibold text-secondary mb-2 font-body">
                   Message *
                 </label>
                 <div className="relative">
@@ -254,21 +267,21 @@ const ContactPage: React.FC = () => {
                     rows={6}
                     value={formData.message}
                     onChange={(e) => updateFormData("message", e.target.value)}
-                    className={`block w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none ${
+                    className={`font-body block w-full px-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 resize-none ${
                       validationErrors.message 
                         ? "border-red-300 bg-red-50" 
-                        : "border-gray-300"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                     placeholder="Décrivez votre demande ou votre question en détail..."
                     disabled={isLoading}
                     maxLength={2000}
                   />
                 </div>
-                <div className="flex justify-between mt-1">
+                <div className="flex justify-between mt-2">
                   {validationErrors.message && (
-                    <p className="text-sm text-red-600">{validationErrors.message}</p>
+                    <p className="text-sm text-red-600 font-body">{validationErrors.message}</p>
                   )}
-                  <p className={`text-xs ml-auto ${getCharacterCountColor('message')}`}>
+                  <p className={`text-xs ml-auto font-body ${getCharacterCountColor('message')}`}>
                     {getCharacterCount('message')}
                   </p>
                 </div>
@@ -278,16 +291,16 @@ const ContactPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="group w-full flex justify-center items-center py-4 px-6 border-0 rounded-xl shadow-lg font-accent font-bold text-white bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
               >
                 {isLoading ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Envoi en cours...
                   </div>
                 ) : (
                   <div className="flex items-center">
-                    <Send className="w-4 h-4 mr-2" />
+                    <Send className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
                     Envoyer le message
                   </div>
                 )}
@@ -295,12 +308,12 @@ const ContactPage: React.FC = () => {
             </form>
 
             {/* Additional Info */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-sm text-third text-center">
+            <div className="mt-8 pt-6 border-t-2 border-gray-100">
+              <p className="text-sm font-body text-gray-600 text-center">
                 Vous pouvez également nous contacter directement à{" "}
                 <a 
                   href="mailto:contact@facejob.ma" 
-                  className="text-primary hover:text-primary-1 font-medium"
+                  className="text-primary hover:text-primary-1 font-semibold transition-colors"
                 >
                   contact@facejob.ma
                 </a>
@@ -310,35 +323,39 @@ const ContactPage: React.FC = () => {
 
           {/* Right Side - Image and Info */}
           <div className="mt-12 lg:mt-0">
-            <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
               <Image
                 src="/img1.jpg"
                 alt="Contact FaceJob"
-                className="w-full h-96 lg:h-full object-cover rounded-2xl shadow-lg"
+                className="w-full h-96 lg:h-full object-cover"
                 width={600}
                 height={800}
                 priority
               />
               
               {/* Overlay Content */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end">
                 <div className="p-8 text-white">
-                  <h2 className="text-2xl font-bold mb-4">
+                  <h2 className="font-heading text-3xl font-bold mb-4">
                     Nous sommes là pour vous aider
                   </h2>
-                  <p className="text-lg opacity-90 mb-6">
+                  <p className="font-body text-lg opacity-90 mb-6">
                     Notre équipe est dédiée à vous offrir la meilleure expérience possible sur FaceJob.
                   </p>
                   
                   {/* Contact Info */}
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <Mail className="w-5 h-5 mr-3" />
-                      <span>contact@facejob.ma</span>
+                  <div className="space-y-4">
+                    <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <span className="font-body">contact@facejob.ma</span>
                     </div>
-                    <div className="flex items-center">
-                      <MessageSquare className="w-5 h-5 mr-3" />
-                      <span>Réponse sous 24h</span>
+                    <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <span className="font-body">Réponse sous 24h</span>
                     </div>
                   </div>
                 </div>
@@ -347,6 +364,8 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

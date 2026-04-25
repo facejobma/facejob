@@ -191,10 +191,9 @@ const PublicOffersPage: React.FC = () => {
 
       const matchesSector = !selectedSector || offer.sector_id === Number(selectedSector);
       const matchesJob = !selectedJob || offer.job_id === Number(selectedJob);
-      const matchesCompany = !selectedCompany || offer.entreprise_id === Number(selectedCompany);
       const matchesCity = !selectedCity || offer.location === selectedCity;
 
-      return matchesSearch && matchesSector && matchesJob && matchesCompany && matchesCity;
+      return matchesSearch && matchesSector && matchesJob && matchesCity;
     });
   }, [offers, debouncedSearchQuery, selectedSector, selectedJob, selectedCompany, selectedCity]);
 
@@ -226,7 +225,6 @@ const PublicOffersPage: React.FC = () => {
     setSearchQuery("");
     setSelectedSector("");
     setSelectedJob("");
-    setSelectedCompany("");
     setSelectedCity("");
     setCurrentPage(1);
   };
@@ -294,28 +292,50 @@ const PublicOffersPage: React.FC = () => {
       <JobListingStructuredData offers={offers} />
       <WebSiteStructuredData />
       <NavBar />
-      <div className="min-h-screen bg-gray-50 pt-20">
+      <div className="min-h-screen bg-optional1">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
-          <div className="container mx-auto px-4 max-w-7xl">
+        <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-20 overflow-hidden">
+          {/* Background decorations */}
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
+          <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+          
+          <div className="container mx-auto px-4 max-w-7xl relative">
             <div className="text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                Trouvez votre emploi idéal
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-6 shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                <span className="text-sm font-medium text-primary">{offers.length} offres disponibles</span>
+              </div>
+
+              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-secondary mb-6 leading-tight tracking-tight">
+                Trouvez votre{" "}
+                <span className="relative inline-block">
+                  <span className="bg-gradient-to-r from-primary via-green-600 to-primary-1 bg-clip-text text-transparent">
+                    emploi idéal
+                  </span>
+                  <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 10C50 2 150 2 198 10" stroke="#60894B" strokeWidth="3" strokeLinecap="round" opacity="0.3"/>
+                  </svg>
+                </span>
               </h1>
-              <p className="text-xl mb-8 text-green-100">
-                Découvrez {offers.length} offres d'emploi de qualité au Maroc
+              
+              <p className="font-body text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Découvrez des opportunités de qualité au Maroc et postulez avec votre CV vidéo
               </p>
               
               {/* Quick Search */}
               <div className="max-w-2xl mx-auto">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
+                <div className="relative group">
+                  <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10 group-focus-within:text-primary transition-colors" />
                   <Input
                     type="text"
                     placeholder="Rechercher par titre, entreprise, secteur..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 pr-4 py-4 text-lg border-0 shadow-lg bg-white text-gray-900 placeholder-gray-500"
+                    className="pl-14 pr-6 py-6 text-base border-2 border-gray-200 focus:border-primary shadow-lg hover:shadow-xl bg-white text-gray-900 placeholder-gray-500 rounded-2xl transition-all duration-300 font-body"
                   />
                 </div>
               </div>
@@ -323,70 +343,19 @@ const PublicOffersPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Briefcase className="h-8 w-8 text-primary" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total des offres</p>
-                    <p className="text-2xl font-bold text-gray-900">{offers.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Building className="h-8 w-8 text-primary-1" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Entreprises</p>
-                    <p className="text-2xl font-bold text-gray-900">{companies.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <MapPin className="h-8 w-8 text-primary-2" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Villes</p>
-                    <p className="text-2xl font-bold text-gray-900">{availableCities.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <TrendingUp className="h-8 w-8 text-primary-3" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Secteurs</p>
-                    <p className="text-2xl font-bold text-gray-900">{sectors.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
+        <div className="container mx-auto px-4 pb-8 max-w-7xl">
           {/* Filters */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Filter className="h-5 w-5 mr-2" />
+          <Card className="mb-8 border-gray-200 shadow-sm">
+            <CardHeader className="border-b border-gray-100">
+              <CardTitle className="flex items-center font-heading text-xl">
+                <Filter className="h-5 w-5 mr-2 text-primary" />
                 Filtres de recherche
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 font-body">
                     Secteur
                   </label>
                   {isClient ? (
@@ -410,7 +379,7 @@ const PublicOffersPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 font-body">
                     Métier
                   </label>
                   {isClient ? (
@@ -432,28 +401,7 @@ const PublicOffersPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Entreprise
-                  </label>
-                  {isClient ? (
-                    <Select
-                      instanceId="company-select"
-                      value={selectedCompany ? { value: selectedCompany, label: companies.find(c => c.id === Number(selectedCompany))?.company_name } : null}
-                      onChange={(option) => setSelectedCompany(option ? option.value : "")}
-                      options={Array.isArray(companies) ? companies.map(company => ({ value: company.id.toString(), label: company.company_name })) : []}
-                      placeholder="Toutes les entreprises"
-                      isClearable
-                      styles={customSelectStyles}
-                    />
-                  ) : (
-                    <div className="h-[44px] border border-gray-300 rounded-lg bg-white flex items-center px-3 text-gray-500">
-                      Toutes les entreprises
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 font-body">
                     Ville
                   </label>
                   {isClient ? (
@@ -474,12 +422,16 @@ const PublicOffersPage: React.FC = () => {
                 </div>
               </div>
 
-              {(selectedSector || selectedJob || selectedCompany || selectedCity || searchQuery) && (
-                <div className="mt-4 flex justify-between items-center">
-                  <p className="text-sm text-gray-600">
-                    {filteredOffers.length} offre(s) trouvée(s)
+              {(selectedSector || selectedJob || selectedCity || searchQuery) && (
+                <div className="mt-6 pt-6 border-t border-gray-100 flex justify-between items-center">
+                  <p className="text-sm text-gray-600 font-body">
+                    <span className="font-semibold text-primary">{filteredOffers.length}</span> offre(s) trouvée(s)
                   </p>
-                  <Button variant="outline" onClick={clearFilters}>
+                  <Button 
+                    variant="outline" 
+                    onClick={clearFilters}
+                    className="font-accent hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                  >
                     Effacer les filtres
                   </Button>
                 </div>
@@ -503,21 +455,21 @@ const PublicOffersPage: React.FC = () => {
                     <div
                       key={offer.id}
                       onClick={() => router.push(`/offres/${offer.id}`)}
-                      className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                      className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-primary/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
                     >
-                      <div className="p-5 flex flex-col flex-1 gap-4">
+                      <div className="p-6 flex flex-col flex-1 gap-4">
                         {/* Header */}
                         <div className="flex items-start justify-between gap-3">
-                          <div className="h-11 w-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0 border border-green-100">
-                            <Building className="h-5 w-5 text-green-600" />
+                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-green-100/50 flex items-center justify-center flex-shrink-0 border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+                            <Building className="h-6 w-6 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors leading-snug mb-0.5">
+                            <h3 className="font-heading text-base font-bold text-secondary line-clamp-2 group-hover:text-primary transition-colors leading-snug mb-1">
                               {offer.titre}
                             </h3>
-                            <p className="text-xs text-gray-500 truncate">{offer.company_name}</p>
+                            <p className="font-body text-sm text-gray-600 truncate">{offer.company_name}</p>
                           </div>
-                          <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
+                          <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-1 font-body">
                             {getDaysAgo(offer.id)}j
                           </span>
                         </div>
@@ -525,53 +477,58 @@ const PublicOffersPage: React.FC = () => {
                         {/* Tags */}
                         <div className="flex flex-wrap gap-2">
                           {offer.location && (
-                            <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full font-medium">
-                              <MapPin className="h-3 w-3" />
+                            <span className="inline-flex items-center gap-1.5 text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full font-medium font-body border border-purple-100">
+                              <MapPin className="h-3.5 w-3.5" />
                               {offer.location}
                             </span>
                           )}
                           {offer.contractType && (
-                            <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full font-medium">
-                              <Calendar className="h-3 w-3" />
+                            <span className="inline-flex items-center gap-1.5 text-xs bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full font-medium font-body border border-orange-100">
+                              <Calendar className="h-3.5 w-3.5" />
                               {offer.contractType}
                             </span>
                           )}
                           {offer.sector_name && (
-                            <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">
-                              <Briefcase className="h-3 w-3" />
+                            <span className="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium font-body border border-blue-100">
+                              <Briefcase className="h-3.5 w-3.5" />
                               {offer.sector_name}
                             </span>
                           )}
                         </div>
 
                         {/* Description */}
-                        <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed flex-1">
+                        <p className="font-body text-sm text-gray-600 line-clamp-2 leading-relaxed flex-1">
                           {stripHtmlTags(offer.description)}
                         </p>
 
                         {/* CTA */}
                         <button
                           onClick={(e) => { e.stopPropagation(); handleApply(offer.id); }}
-                          className="w-full flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200"
+                          className="group/btn w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold text-sm py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
                         >
                           Postuler
-                          <ArrowRight className="h-3.5 w-3.5" />
+                          <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <Card className="text-center py-12">
+                <Card className="text-center py-16 border-2 border-dashed border-gray-200">
                   <CardContent>
-                    <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Briefcase className="h-10 w-10 text-gray-400" />
+                    </div>
+                    <h3 className="font-heading text-xl font-bold text-secondary mb-3">
                       Aucune offre trouvée
                     </h3>
-                    <p className="text-gray-600 mb-4">
-                      Essayez de modifier vos critères de recherche
+                    <p className="font-body text-gray-600 mb-6 max-w-md mx-auto">
+                      Essayez de modifier vos critères de recherche pour découvrir plus d'opportunités
                     </p>
-                    <Button onClick={clearFilters} variant="outline">
+                    <Button 
+                      onClick={clearFilters} 
+                      className="font-accent bg-primary hover:bg-primary-1 text-white"
+                    >
                       Effacer les filtres
                     </Button>
                   </CardContent>
@@ -585,6 +542,7 @@ const PublicOffersPage: React.FC = () => {
                     variant="outline"
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
+                    className="font-accent hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
                   >
                     Précédent
                   </Button>
@@ -595,7 +553,7 @@ const PublicOffersPage: React.FC = () => {
                         key={page}
                         variant={currentPage === page ? "default" : "outline"}
                         onClick={() => setCurrentPage(page)}
-                        className="w-10 h-10"
+                        className={`w-10 h-10 font-accent ${currentPage === page ? 'bg-primary hover:bg-primary-1' : 'hover:bg-primary hover:text-white hover:border-primary'} transition-all duration-300`}
                       >
                         {page}
                       </Button>
@@ -606,6 +564,7 @@ const PublicOffersPage: React.FC = () => {
                     variant="outline"
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
+                    className="font-accent hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
                   >
                     Suivant
                   </Button>

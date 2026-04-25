@@ -101,8 +101,8 @@ const OfferDetailPage: React.FC = () => {
   if (loading) return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+      <div className="min-h-screen bg-optional1 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
       <Footer />
     </>
@@ -111,12 +111,15 @@ const OfferDetailPage: React.FC = () => {
   if (!offer) return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-optional1 flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="h-14 w-14 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Offre non trouvée</h2>
-          <p className="text-gray-500 mb-6 text-sm">Cette offre n'existe pas ou a été supprimée.</p>
-          <Link href="/offres" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary-1 transition-colors">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="h-10 w-10 text-gray-400" />
+          </div>
+          <h2 className="font-heading text-2xl font-bold text-secondary mb-3">Offre non trouvée</h2>
+          <p className="font-body text-gray-600 mb-8">Cette offre n'existe pas ou a été supprimée.</p>
+          <Link href="/offres" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-green-600 text-white rounded-xl font-accent font-semibold hover:from-green-600 hover:to-primary transition-all duration-300 shadow-lg">
+            <ArrowLeft className="h-4 w-4" />
             Retour aux offres
           </Link>
         </div>
@@ -128,138 +131,183 @@ const OfferDetailPage: React.FC = () => {
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-gray-50 pt-20">
+      <div className="min-h-screen bg-optional1">
 
         {/* Hero banner */}
-        <div className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 max-w-6xl py-6">
-            <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors mb-5">
-              <ArrowLeft className="h-4 w-4" /> Retour aux offres
+        <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-12 overflow-hidden">
+          {/* Background decorations */}
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
+          <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+          
+          <div className="container mx-auto px-4 max-w-6xl relative">
+            <button onClick={() => router.back()} className="group flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary transition-all duration-300 mb-8 font-body">
+              <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> 
+              Retour aux offres
             </button>
 
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="h-14 w-14 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0">
-                  <Building className="h-7 w-7 text-green-600" />
-                </div>
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{offer.titre}</h1>
-                  <p className="text-gray-500 font-medium">{offer.company_name}</p>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {offer.location && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full font-medium">
-                        <MapPin className="h-3 w-3" />{offer.location}
+            <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-xl p-8">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                <div className="flex items-start gap-5 flex-1">
+                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/10 to-green-100/50 border-2 border-primary/20 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Building className="h-8 w-8 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-secondary mb-2 leading-tight">{offer.titre}</h1>
+                    <p className="font-body text-lg text-gray-600 font-semibold mb-4">{offer.company_name}</p>
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {offer.location && (
+                        <span className="inline-flex items-center gap-1.5 text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full font-medium font-body border border-purple-100">
+                          <MapPin className="h-3.5 w-3.5" />{offer.location}
+                        </span>
+                      )}
+                      {offer.contractType && (
+                        <span className="inline-flex items-center gap-1.5 text-xs bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full font-medium font-body border border-orange-100">
+                          <Calendar className="h-3.5 w-3.5" />{offer.contractType}
+                        </span>
+                      )}
+                      {offer.sector_name && (
+                        <span className="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium font-body border border-blue-100">
+                          <Briefcase className="h-3.5 w-3.5" />{offer.sector_name}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1.5 text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full font-medium font-body">
+                        Publié il y a {daysAgo}j
                       </span>
-                    )}
-                    {offer.contractType && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full font-medium">
-                        <Calendar className="h-3 w-3" />{offer.contractType}
-                      </span>
-                    )}
-                    {offer.sector_name && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">
-                        <Briefcase className="h-3 w-3" />{offer.sector_name}
-                      </span>
-                    )}
-                    <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full font-medium">
-                      Publié il y a {daysAgo}j
-                    </span>
+                    </div>
+
+                    {/* Stats inline */}
+                    <div className="flex flex-wrap gap-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 font-body">
+                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                          <Eye className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <span><span className="font-semibold text-gray-900">{offer.views_count || 0}</span> vues</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600 font-body">
+                        <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                          <Users className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <span><span className="font-semibold text-gray-900">{offer.applications_count || 0}</span> candidatures</span>
+                      </div>
+                      {offer.is_verified && (
+                        <div className="flex items-center gap-2 text-sm text-green-600 font-body font-medium">
+                          <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                          </div>
+                          <span>Offre vérifiée</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-2 flex-shrink-0">
-                <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-primary hover:text-primary transition-colors">
-                  <Share2 className="h-4 w-4" /> Partager
-                </button>
+                <div className="flex flex-col gap-3 lg:w-64 flex-shrink-0">
+                  <button
+                    onClick={handleApply}
+                    className="group w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  >
+                    Postuler maintenant
+                    <ArrowLeft className="h-4 w-4 rotate-180 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button onClick={handleShare} className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-200 hover:border-primary rounded-xl text-sm font-semibold text-gray-600 hover:text-primary transition-all duration-300 font-accent hover:shadow-md">
+                    <Share2 className="h-4 w-4" /> Partager l'offre
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 max-w-6xl py-8">
+        <div className="container mx-auto px-4 max-w-6xl py-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             {/* Main */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
 
               {/* Description */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h2 className="text-base font-bold text-gray-900 mb-4">Description du poste</h2>
-                <SafeHtmlDisplay html={offer.description} className="text-gray-600 leading-relaxed prose prose-sm max-w-none text-sm" />
+              <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 p-6">
+                <h2 className="font-heading text-lg font-bold text-secondary mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Briefcase className="h-4 w-4 text-primary" />
+                  </div>
+                  Description du poste
+                </h2>
+                <SafeHtmlDisplay html={offer.description} className="font-body text-gray-600 leading-relaxed prose prose-sm max-w-none" />
               </div>
 
               {/* Details */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h2 className="text-base font-bold text-gray-900 mb-4">Détails de l'offre</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-400 text-xs mb-1">Date de début</p>
-                    <p className="font-medium text-gray-700">{formatDate(offer.date_debut)}</p>
+              <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 p-6">
+                <h2 className="font-heading text-lg font-bold text-secondary mb-5 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Calendar className="h-4 w-4 text-primary" />
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-xs mb-1">Date de fin</p>
-                    <p className="font-medium text-gray-700">{formatDate(offer.date_fin)}</p>
+                  Détails de l'offre
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Date de début</p>
+                    <p className="font-semibold text-gray-900 font-body">{formatDate(offer.date_debut)}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-xs mb-1">Secteur</p>
-                    <p className="font-medium text-gray-700">{offer.sector_name}</p>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Date de fin</p>
+                    <p className="font-semibold text-gray-900 font-body">{formatDate(offer.date_fin)}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-xs mb-1">Métier</p>
-                    <p className="font-medium text-gray-700">{offer.job_name}</p>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Secteur</p>
+                    <p className="font-semibold text-gray-900 font-body">{offer.sector_name}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Métier</p>
+                    <p className="font-semibold text-gray-900 font-body">{offer.job_name}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-5">
-
-              {/* Apply */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
-                <h3 className="font-bold text-gray-900 mb-1">Postuler à cette offre</h3>
-                <p className="text-xs text-gray-500 mb-4">Créez votre profil et postulez avec votre CV vidéo</p>
-                <button
-                  onClick={handleApply}
-                  className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm mb-4"
-                >
-                  Postuler maintenant
-                </button>
-                <div className="space-y-2 text-xs text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Eye className="h-3.5 w-3.5 text-primary" />
-                    <span>{offer.views_count || 0} vues</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-3.5 w-3.5 text-primary" />
-                    <span>{offer.applications_count || 0} candidatures</span>
-                  </div>
-                  {offer.is_verified && (
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-3.5 w-3.5 text-green-500" />
-                      <span>Offre vérifiée</span>
-                    </div>
-                  )}
-                </div>
-              </div>
+            <div className="space-y-6 order-1 lg:order-2">
 
               {/* Company */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 className="font-bold text-gray-900 mb-4">À propos de l'entreprise</h3>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="h-10 w-10 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center">
-                    <Building className="h-5 w-5 text-green-600" />
+              <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:sticky lg:top-24">
+                <h3 className="font-heading text-xl font-bold text-secondary mb-5 flex items-center gap-2">
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <Building className="h-5 w-5 text-primary" />
+                  </div>
+                  À propos de l'entreprise
+                </h3>
+                <div className="flex items-center gap-4 mb-5 p-5 bg-gradient-to-br from-primary/5 to-green-50/50 rounded-xl border-2 border-primary/10">
+                  <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-green-100/50 border-2 border-primary/20 flex items-center justify-center flex-shrink-0">
+                    <Building className="h-7 w-7 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">{offer.company_name}</p>
-                    <p className="text-xs text-gray-500">{offer.sector_name}</p>
+                    <p className="font-heading font-bold text-secondary text-lg">{offer.company_name}</p>
+                    <p className="text-sm text-gray-600 font-body">{offer.sector_name}</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="font-body text-sm text-gray-600 leading-relaxed mb-6">
                   {offer.company_description || "Une entreprise leader dans son secteur, offrant des opportunités de carrière dans un environnement dynamique."}
                 </p>
+
+                {/* Quick info */}
+                <div className="space-y-3 pt-5 border-t-2 border-gray-100">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm font-medium text-gray-600 font-body">Secteur</span>
+                    <span className="text-sm font-bold text-secondary font-body">{offer.sector_name}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm font-medium text-gray-600 font-body">Métier</span>
+                    <span className="text-sm font-bold text-secondary font-body">{offer.job_name}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm font-medium text-gray-600 font-body">Localisation</span>
+                    <span className="text-sm font-bold text-secondary font-body">{offer.location}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm font-medium text-gray-600 font-body">Type de contrat</span>
+                    <span className="text-sm font-bold text-secondary font-body">{offer.contractType}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -267,32 +315,32 @@ const OfferDetailPage: React.FC = () => {
           {/* Related offers */}
           {relatedOffers.length > 0 && (
             <div className="mt-12">
-              <h2 className="text-lg font-bold text-gray-900 mb-5">Offres similaires</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <h2 className="font-heading text-2xl font-bold text-secondary mb-6">Offres similaires</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedOffers.map((rel) => (
                   <div
                     key={rel.id}
                     onClick={() => router.push(`/offres/${rel.id}`)}
-                    className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-5 flex flex-col gap-3 cursor-pointer"
+                    className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-primary/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col gap-4 cursor-pointer"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0">
-                        <Building className="h-4 w-4 text-green-600" />
+                    <div className="flex items-start gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-green-100/50 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        <Building className="h-6 w-6 text-primary" />
                       </div>
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors">{rel.titre}</h3>
-                        <p className="text-xs text-gray-500 truncate">{rel.company_name}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-heading text-base font-bold text-secondary line-clamp-2 group-hover:text-primary transition-colors mb-1">{rel.titre}</h3>
+                        <p className="font-body text-sm text-gray-600 truncate">{rel.company_name}</p>
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {rel.location && (
-                        <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
-                          <MapPin className="h-2.5 w-2.5" />{rel.location}
+                        <span className="inline-flex items-center gap-1.5 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full font-medium font-body border border-purple-100">
+                          <MapPin className="h-3 w-3" />{rel.location}
                         </span>
                       )}
                       {rel.contractType && (
-                        <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">
-                          <Calendar className="h-2.5 w-2.5" />{rel.contractType}
+                        <span className="inline-flex items-center gap-1.5 text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full font-medium font-body border border-orange-100">
+                          <Calendar className="h-3 w-3" />{rel.contractType}
                         </span>
                       )}
                     </div>

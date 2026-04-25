@@ -1,5 +1,6 @@
 import React from "react";
 import NavBar from "../../../components/NavBar";
+import Footer from "../../../components/Footer";
 import Link from "next/link";
 import { Metadata } from "next";
 
@@ -21,27 +22,37 @@ export const metadata: Metadata = {
 
 const Blog2Page: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-optional1">
       <NavBar />
-      
-      {/* White space for transparent navbar */}
-      <div className="h-20 bg-white" />
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary to-primary-1 text-white py-16">
-        <div className="container mx-auto px-6">
+      <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-16 overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
+        <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+        
+        <div className="container mx-auto px-6 relative">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-4">
-              <span className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium">
-                ⏱️ Optimisation RH
+            <div className="mb-6">
+              <span className="bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 text-primary px-5 py-2 rounded-full text-sm font-semibold font-accent shadow-sm inline-flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Optimisation RH
               </span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+            <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-secondary mb-6 leading-tight tracking-tight">
               Recrutement : Comment diviser votre temps de pré-sélection par deux ?
             </h1>
-            <div className="flex items-center justify-center text-white/80 text-sm">
+            <div className="flex items-center justify-center text-gray-600 font-body">
+              <svg className="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               <span>20 Janvier 2026</span>
               <span className="mx-3">•</span>
+              <svg className="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               <span>4 min de lecture</span>
             </div>
           </div>
@@ -110,17 +121,29 @@ const Blog2Page: React.FC = () => {
               
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-lg shadow-md">
-                  <div className="text-3xl mb-3">⚡</div>
+                  <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
                   <h3 className="font-bold text-primary mb-2">Le filtre immédiat</h3>
                   <p className="text-sm text-gray-600">Visionner une vidéo de 60 secondes est 5 fois plus rapide que de lire un CV et d'essayer d'imaginer la personne derrière.</p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-md">
-                  <div className="text-3xl mb-3">🎯</div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
                   <h3 className="font-bold text-primary-1 mb-2">La fin des "erreurs de casting"</h3>
                   <p className="text-sm text-gray-600">Vous ne recevez en entretien que les candidats dont vous avez déjà validé le savoir-être (soft skills).</p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-md">
-                  <div className="text-3xl mb-3">🚀</div>
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
                   <h3 className="font-bold text-primary-2 mb-2">Une marque employeur moderne</h3>
                   <p className="text-sm text-gray-600">Au Maroc, la guerre des talents est réelle. Proposer un processus innovant attire les profils les plus dynamiques.</p>
                 </div>
@@ -129,7 +152,12 @@ const Blog2Page: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="bg-primary-light text-primary rounded-full w-8 h-8 flex items-center justify-center text-lg mr-3">🔧</span>
+                <span className="bg-gradient-to-br from-primary/10 to-green-100/50 text-primary rounded-xl w-10 h-10 flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </span>
                 Comment intégrer FaceJob dans votre routine ?
               </h2>
               <p className="text-gray-700 leading-relaxed mb-6">
@@ -138,21 +166,34 @@ const Blog2Page: React.FC = () => {
               
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <span className="bg-primary-light text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">📁</span>
+                  <span className="bg-gradient-to-br from-primary/10 to-green-100/50 text-primary rounded-xl w-10 h-10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                  </span>
                   <div>
                     <h3 className="font-semibold text-gray-800 mb-2">Accès centralisé</h3>
                     <p className="text-gray-600">Toutes les vidéos de vos candidats sont au même endroit.</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <span className="bg-primary-1 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">👥</span>
+                  <span className="bg-gradient-to-br from-blue-500/10 to-blue-100/50 text-blue-600 rounded-xl w-10 h-10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </span>
                   <div>
                     <h3 className="font-semibold text-gray-800 mb-2">Partage collaboratif</h3>
                     <p className="text-gray-600">Envoyez les vidéos qui vous plaisent à vos managers en un clic pour obtenir leur avis immédiat.</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <span className="bg-primary-2 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4 mt-1">📍</span>
+                  <span className="bg-gradient-to-br from-purple-500/10 to-purple-100/50 text-purple-600 rounded-xl w-10 h-10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </span>
                   <div>
                     <h3 className="font-semibold text-gray-800 mb-2">Filtres locaux</h3>
                     <p className="text-gray-600">Ciblez spécifiquement les talents résidant dans votre ville ou prêts à s'y installer.</p>
@@ -183,18 +224,18 @@ const Blog2Page: React.FC = () => {
             </div>
 
             {/* Conclusion */}
-            <div className="bg-gradient-to-r from-primary to-primary-1 text-white rounded-xl p-8 mb-8">
-              <h2 className="text-2xl font-bold mb-4">Conclusion</h2>
-              <p className="text-lg leading-relaxed mb-6">
+            <div className="bg-gradient-to-r from-primary to-green-600 text-white rounded-2xl p-8 mb-8 shadow-lg">
+              <h2 className="font-heading text-2xl font-bold mb-4">Conclusion</h2>
+              <p className="font-body text-lg leading-relaxed mb-6">
                 Le recrutement de demain au Maroc ne se lit pas, il se regarde. Êtes-vous prêt à optimiser votre temps et à sécuriser vos embauches ?
               </p>
               <Link 
                 href="/auth/signup-entreprise" 
-                className="inline-flex items-center bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                className="group inline-flex items-center bg-white text-primary px-6 py-3 rounded-xl font-accent font-bold hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
               >
-                👉 Découvrez nos offres entreprises sur FaceJob.ma et publiez vos premières annonces gratuitement
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                Découvrez nos offres entreprises sur FaceJob.ma et publiez vos premières annonces gratuitement
+                <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </Link>
             </div>
@@ -203,10 +244,10 @@ const Blog2Page: React.FC = () => {
             <div className="mt-12 text-center">
               <Link 
                 href="/blogs" 
-                className="inline-flex items-center text-primary hover:text-primary-1 font-semibold transition-colors"
+                className="group inline-flex items-center text-primary hover:text-primary-1 font-accent font-semibold transition-all duration-300"
               >
-                <svg className="w-4 h-4 mr-2 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="w-5 h-5 mr-2 transform rotate-180 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
                 Retour au blog
               </Link>
@@ -214,6 +255,8 @@ const Blog2Page: React.FC = () => {
           </div>
         </div>
       </article>
+      
+      <Footer />
     </div>
   );
 };

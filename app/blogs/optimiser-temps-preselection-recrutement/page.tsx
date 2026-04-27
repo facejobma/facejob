@@ -38,7 +38,7 @@ const Blog2Page: React.FC = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Optimisation RH
+                optimisation du temps et de la qualité du recrutement
               </span>
             </div>
             <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-extrabold text-secondary mb-6 leading-tight tracking-tight">

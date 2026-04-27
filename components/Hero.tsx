@@ -19,20 +19,11 @@ export default function Hero() {
 
       <NavBar />
 
-      <div className="relative container mx-auto px-4 sm:px-6 max-w-7xl pt-20 sm:pt-28 pb-16 flex items-center min-h-[calc(100vh-80px)]">
+      <div className="relative container mx-auto px-4 sm:px-6 max-w-7xl pt-20 sm:pt-32 pb-16 flex items-center min-h-[calc(100vh-80px)]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center w-full">
 
           {/* Left — Text */}
           <div className="order-2 lg:order-1 flex flex-col gap-8 text-center lg:text-left animate-fade-in">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 w-fit mx-auto lg:mx-0 shadow-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span className="text-sm font-medium text-primary">CV Vidéo Innovant</span>
-            </div>
-
             <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-secondary leading-[1.1] tracking-tight">
               Osez la{" "}
               <span className="relative inline-block">

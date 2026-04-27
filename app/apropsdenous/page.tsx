@@ -24,6 +24,29 @@ const contentAR = [
 
 export default function AProposPage() {
   const [activeTab, setActiveTab] = useState<"fr" | "ar">("fr");
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  // Auto-play video when page loads
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.muted = false;
+        videoRef.current.play().catch(err => console.log("Autoplay prevented:", err));
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleTabChange = (tab: "fr" | "ar") => {
+    setActiveTab(tab);
+    // Play video with sound after tab change
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.muted = false;
+        videoRef.current.play().catch(err => console.log("Autoplay prevented:", err));
+      }
+    }, 100);
+  };
 
   return (
     <div className="min-h-screen bg-optional1 flex flex-col">
@@ -68,9 +91,10 @@ export default function AProposPage() {
           {/* Video */}
           <div className="rounded-2xl overflow-hidden shadow-xl mb-10 border-2 border-gray-100 bg-white">
             <video
+              ref={videoRef}
+              key={activeTab}
               className="w-full h-auto"
               controls
-              muted
               playsInline
               poster="/videos/videoImage.png"
             >
@@ -85,7 +109,7 @@ export default function AProposPage() {
           {/* Tabs */}
           <div className="flex gap-3 justify-center mb-10">
             <button
-              onClick={() => setActiveTab("fr")}
+              onClick={() => handleTabChange("fr")}
               className={`px-8 py-3 rounded-xl font-accent font-semibold transition-all duration-300 ${
                 activeTab === "fr"
                   ? "bg-gradient-to-r from-primary to-green-600 text-white shadow-lg scale-105"
@@ -95,7 +119,7 @@ export default function AProposPage() {
               Français
             </button>
             <button
-              onClick={() => setActiveTab("ar")}
+              onClick={() => handleTabChange("ar")}
               className={`px-8 py-3 rounded-xl font-accent font-semibold transition-all duration-300 ${
                 activeTab === "ar"
                   ? "bg-gradient-to-r from-primary to-green-600 text-white shadow-lg scale-105"

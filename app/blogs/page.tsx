@@ -34,7 +34,7 @@ const blogs = [
         image: "/img2.jpg",
         date: "20 Janvier 2026",
         readTime: "4 min",
-        category: "Optimisation du temps et de la qualité du recrutement",
+        category: "Recrutement: temps et qualité optimisés.",
     },
     {
         title: "Brillez devant l'objectif : 5 secrets pour oublier la caméra et décrocher votre job au Maroc",

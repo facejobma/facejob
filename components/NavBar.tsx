@@ -194,7 +194,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/auth/login-enterprise"
+                      href="/entreprise-bientot"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm"
                     >
                       Entreprise
@@ -213,7 +213,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/auth/login-enterprise"
+                      href="/entreprise-bientot"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                     >
                       Entreprise
@@ -331,7 +331,7 @@ export default function NavBar() {
                     Espace Candidat
                   </Link>
                   <Link
-                    href="/auth/login-enterprise"
+                    href="/entreprise-bientot"
                     className="w-full text-center px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-1 transition-all"
                     onClick={() => setOpen(false)}
                   >

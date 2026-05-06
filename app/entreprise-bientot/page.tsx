@@ -43,7 +43,7 @@ export default function EntrepriseBientotPage() {
         setEmail("");
       } else {
         if (data.data?.already_subscribed) {
-          toast.info("Vous êtes déjà inscrit sur la liste d'attente");
+          toast.success("Vous êtes déjà inscrit sur la liste d'attente");
           setIsSubmitted(true);
           setEmail("");
         } else {

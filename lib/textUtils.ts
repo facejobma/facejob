@@ -87,3 +87,17 @@ export const getTextPreview = (html: string, maxLength: number = 200): string =>
   const plainText = stripHtmlTags(html);
   return truncateText(plainText, maxLength);
 };
+
+/**
+ * Normalizes text by removing accents and converting to lowercase for search comparison
+ * @param text - Text to normalize
+ * @returns Normalized text (lowercase, no accents)
+ */
+export const normalizeForSearch = (text: string): string => {
+  if (!text) return '';
+  
+  return text
+    .toLowerCase()
+    .normalize('NFD') // Decompose accented characters
+    .replace(/[\u0300-\u036f]/g, ''); // Remove diacritical marks
+};

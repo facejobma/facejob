@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { Search, Briefcase, Building, MapPin, Calendar, Filter, TrendingUp, ArrowRight } from "lucide-react";
@@ -10,9 +10,24 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import toast from "react-hot-toast";
-import { stripHtmlTags } from "@/lib/textUtils";
+import { stripHtmlTags, normalizeForSearch } from "@/lib/textUtils";
 import { JobListingStructuredData, WebSiteStructuredData } from "@/components/StructuredData";
+
+// Cache keys
+const CACHE_KEYS = {
+  OFFERS: 'facejob_offers_cache',
+  SECTORS: 'facejob_sectors_cache',
+  JOBS: 'facejob_jobs_cache',
+  COMPANIES: 'facejob_companies_cache',
+  FILTERS: 'facejob_filters_state',
+  SCROLL_POSITION: 'facejob_scroll_position',
+  TIMESTAMP: 'facejob_cache_timestamp'
+};
+
+// Cache duration: 5 minutes
+const CACHE_DURATION = 5 * 60 * 1000;
 
 interface Offer {
   id: number;
@@ -69,6 +84,25 @@ const PublicOffersPage: React.FC = () => {
     setIsClient(true);
   }, []);
 
+  // Restore scroll position when returning to page
+  useEffect(() => {
+    const savedScrollPosition = sessionStorage.getItem(CACHE_KEYS.SCROLL_POSITION);
+    if (savedScrollPosition) {
+      window.scrollTo(0, parseInt(savedScrollPosition));
+      sessionStorage.removeItem(CACHE_KEYS.SCROLL_POSITION);
+    }
+  }, []);
+
+  // Save scroll position before navigation
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -78,116 +112,174 @@ const PublicOffersPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch offers without authentication for public access
-        const offersRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?page=1&per_page=1000`, {
-          headers: {
-            'ngrok-skip-browser-warning': 'true'
-          }
-        });
-        
-        if (offersRes.ok) {
-          const response = await offersRes.json();
-          // Handle both old format (direct array) and new format (with pagination)
-          const offersData = response.data || response;
-          setOffers(offersData);
-          
-          // Extract unique companies from offers data
-          const uniqueCompanies = Array.from(
-            new Map(
-              offersData
-                .filter((offer: Offer) => offer.company_name && offer.entreprise_id)
-                .map((offer: Offer) => [
-                  offer.entreprise_id,
-                  {
-                    id: offer.entreprise_id,
-                    company_name: offer.company_name
-                  }
-                ])
-            ).values()
-          ) as Company[];
-          setCompanies(uniqueCompanies);
+  // Load cached data or fetch from server
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
 
-          // Extract unique jobs from offers data
-          const uniqueJobs = Array.from(
-            new Map(
-              offersData
-                .filter((offer: Offer) => offer.job_name && offer.job_id)
-                .map((offer: Offer) => [
-                  offer.job_id,
-                  {
-                    id: offer.job_id,
-                    name: offer.job_name,
-                    sector_id: offer.sector_id
-                  }
-                ])
-            ).values()
-          ) as Job[];
-          setJobs(uniqueJobs);
+      // Check if cache is valid
+      const cacheTimestamp = sessionStorage.getItem(CACHE_KEYS.TIMESTAMP);
+      const now = Date.now();
+      const isCacheValid = cacheTimestamp && (now - parseInt(cacheTimestamp)) < CACHE_DURATION;
 
-          // Try to fetch sectors
-          try {
-            const sectorsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`, {
-              headers: {
-                'ngrok-skip-browser-warning': 'true'
-              }
-            });
-            if (sectorsRes.ok) {
-              const sectorsResponse = await sectorsRes.json();
-              const sectorsData = sectorsResponse.data || sectorsResponse;
-              setSectors(sectorsData);
-            } else {
-              console.error("Failed to fetch sectors:", sectorsRes.status);
-              // Extract sectors from offers as fallback
-              const uniqueSectors = Array.from(
-                new Map(
-                  offersData
-                    .filter((offer: Offer) => offer.sector_name && offer.sector_id)
-                    .map((offer: Offer) => [
-                      offer.sector_id,
-                      {
-                        id: offer.sector_id,
-                        name: offer.sector_name
-                      }
-                    ])
-                ).values()
-              ) as Sector[];
-              setSectors(uniqueSectors);
-            }
-          } catch (sectorError) {
-            console.error("Error fetching sectors:", sectorError);
+      if (isCacheValid) {
+        // Load from cache
+        const cachedOffers = sessionStorage.getItem(CACHE_KEYS.OFFERS);
+        const cachedSectors = sessionStorage.getItem(CACHE_KEYS.SECTORS);
+        const cachedJobs = sessionStorage.getItem(CACHE_KEYS.JOBS);
+        const cachedCompanies = sessionStorage.getItem(CACHE_KEYS.COMPANIES);
+        const cachedFilters = sessionStorage.getItem(CACHE_KEYS.FILTERS);
+
+        if (cachedOffers) {
+          setOffers(JSON.parse(cachedOffers));
+          setSectors(cachedSectors ? JSON.parse(cachedSectors) : []);
+          setJobs(cachedJobs ? JSON.parse(cachedJobs) : []);
+          setCompanies(cachedCompanies ? JSON.parse(cachedCompanies) : []);
+
+          // Restore filter state
+          if (cachedFilters) {
+            const filters = JSON.parse(cachedFilters);
+            setSearchQuery(filters.searchQuery || "");
+            setSelectedSector(filters.selectedSector || "");
+            setSelectedJob(filters.selectedJob || "");
+            setSelectedCity(filters.selectedCity || "");
+            setCurrentPage(filters.currentPage || 1);
           }
-        } else {
-          console.error("Failed to fetch offers:", offersRes.status);
-          toast.error("Impossible de charger les offres d'emploi");
+
+          setLoading(false);
+          return;
         }
-
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Erreur lors du chargement des données");
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchData();
+      // Fetch from server
+      const offersRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?page=1&per_page=1000`, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
+      
+      if (offersRes.ok) {
+        const response = await offersRes.json();
+        const offersData = response.data || response;
+        setOffers(offersData);
+        
+        // Cache offers
+        sessionStorage.setItem(CACHE_KEYS.OFFERS, JSON.stringify(offersData));
+        sessionStorage.setItem(CACHE_KEYS.TIMESTAMP, now.toString());
+
+        // Extract unique companies
+        const uniqueCompanies = Array.from(
+          new Map(
+            offersData
+              .filter((offer: Offer) => offer.company_name && offer.entreprise_id)
+              .map((offer: Offer) => [
+                offer.entreprise_id,
+                {
+                  id: offer.entreprise_id,
+                  company_name: offer.company_name
+                }
+              ])
+          ).values()
+        ) as Company[];
+        setCompanies(uniqueCompanies);
+        sessionStorage.setItem(CACHE_KEYS.COMPANIES, JSON.stringify(uniqueCompanies));
+
+        // Extract unique jobs
+        const uniqueJobs = Array.from(
+          new Map(
+            offersData
+              .filter((offer: Offer) => offer.job_name && offer.job_id)
+              .map((offer: Offer) => [
+                offer.job_id,
+                {
+                  id: offer.job_id,
+                  name: offer.job_name,
+                  sector_id: offer.sector_id
+                }
+              ])
+          ).values()
+        ) as Job[];
+        setJobs(uniqueJobs);
+        sessionStorage.setItem(CACHE_KEYS.JOBS, JSON.stringify(uniqueJobs));
+
+        // Fetch sectors
+        try {
+          const sectorsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`, {
+            headers: {
+              'ngrok-skip-browser-warning': 'true'
+            }
+          });
+          if (sectorsRes.ok) {
+            const sectorsResponse = await sectorsRes.json();
+            const sectorsData = sectorsResponse.data || sectorsResponse;
+            setSectors(sectorsData);
+            sessionStorage.setItem(CACHE_KEYS.SECTORS, JSON.stringify(sectorsData));
+          } else {
+            // Extract sectors from offers as fallback
+            const uniqueSectors = Array.from(
+              new Map(
+                offersData
+                  .filter((offer: Offer) => offer.sector_name && offer.sector_id)
+                  .map((offer: Offer) => [
+                    offer.sector_id,
+                    {
+                      id: offer.sector_id,
+                      name: offer.sector_name
+                    }
+                  ])
+              ).values()
+            ) as Sector[];
+            setSectors(uniqueSectors);
+            sessionStorage.setItem(CACHE_KEYS.SECTORS, JSON.stringify(uniqueSectors));
+          }
+        } catch (sectorError) {
+          console.error("Error fetching sectors:", sectorError);
+        }
+      } else {
+        console.error("Failed to fetch offers:", offersRes.status);
+        toast.error("Impossible de charger les offres d'emploi");
+      }
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Erreur lors du chargement des données");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Fetch data on mount
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Save filter state to cache whenever it changes
+  useEffect(() => {
+    if (!loading) {
+      const filters = {
+        searchQuery,
+        selectedSector,
+        selectedJob,
+        selectedCity,
+        currentPage
+      };
+      sessionStorage.setItem(CACHE_KEYS.FILTERS, JSON.stringify(filters));
+    }
+  }, [searchQuery, selectedSector, selectedJob, selectedCity, currentPage, loading]);
 
   // Filter offers
   const filteredOffers = useMemo(() => {
     return offers.filter((offer) => {
-      const matchesSearch = !debouncedSearchQuery || 
-        offer.titre?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        stripHtmlTags(offer.description)?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offer.company_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offer.sector_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offer.job_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offer.location?.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+      const matchesSearch = !debouncedSearchQuery || (() => {
+        const normalizedQuery = normalizeForSearch(debouncedSearchQuery);
+        
+        return normalizeForSearch(offer.titre || '').includes(normalizedQuery) ||
+          normalizeForSearch(stripHtmlTags(offer.description) || '').includes(normalizedQuery) ||
+          normalizeForSearch(offer.company_name || '').includes(normalizedQuery) ||
+          normalizeForSearch(offer.sector_name || '').includes(normalizedQuery) ||
+          normalizeForSearch(offer.job_name || '').includes(normalizedQuery) ||
+          normalizeForSearch(offer.location || '').includes(normalizedQuery);
+      })();
 
       const matchesSector = !selectedSector || offer.sector_id === Number(selectedSector);
       const matchesJob = !selectedJob || offer.job_id === Number(selectedJob);
@@ -216,8 +308,15 @@ const PublicOffersPage: React.FC = () => {
 
   // Handle apply button click
   const handleApply = (offerId: number) => {
+    // Save current scroll position before navigation
+    sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
     // Redirect to login page with return URL
     router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
+  };
+
+  // Handle link click to save scroll position
+  const handleLinkClick = () => {
+    sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
   };
 
   // Clear all filters
@@ -452,9 +551,10 @@ const PublicOffersPage: React.FC = () => {
               {paginatedOffers.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
                   {paginatedOffers.map((offer) => (
-                    <div
+                    <Link
                       key={offer.id}
-                      onClick={() => router.push(`/offres/${offer.id}`)}
+                      href={`/offres/${offer.id}`}
+                      onClick={handleLinkClick}
                       className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-primary/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
                     >
                       <div className="p-6 flex flex-col flex-1 gap-4">
@@ -503,14 +603,14 @@ const PublicOffersPage: React.FC = () => {
 
                         {/* CTA */}
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleApply(offer.id); }}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleApply(offer.id); }}
                           className="group/btn w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold text-sm py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
                         >
                           Postuler
                           <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                         </button>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (

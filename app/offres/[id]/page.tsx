@@ -12,6 +12,9 @@ import {
 import toast from "react-hot-toast";
 import Link from "next/link";
 
+// Cache key for scroll position
+const SCROLL_POSITION_KEY = 'facejob_scroll_position';
+
 interface OfferDetail {
   id: number;
   titre: string;
@@ -318,9 +321,9 @@ const OfferDetailPage: React.FC = () => {
               <h2 className="font-heading text-2xl font-bold text-secondary mb-6">Offres similaires</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedOffers.map((rel) => (
-                  <div
+                  <Link
                     key={rel.id}
-                    onClick={() => router.push(`/offres/${rel.id}`)}
+                    href={`/offres/${rel.id}`}
                     className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-primary/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col gap-4 cursor-pointer"
                   >
                     <div className="flex items-start gap-4">
@@ -344,7 +347,7 @@ const OfferDetailPage: React.FC = () => {
                         </span>
                       )}
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>

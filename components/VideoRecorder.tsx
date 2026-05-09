@@ -59,6 +59,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     const [cameraReady, setCameraReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isInitializing, setIsInitializing] = useState(false);
+    const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
       const img = new Image();
@@ -67,6 +68,14 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     }, []);
 
     const killStream = useCallback(() => {
+      console.log('🧹 killStream called');
+      
+      // Clear initialization timeout
+      if (initTimeoutRef.current) {
+        clearTimeout(initTimeoutRef.current);
+        initTimeoutRef.current = null;
+      }
+      
       if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
       if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -92,18 +101,31 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     useImperativeHandle(ref, () => ({ stopCamera: killStream }), [killStream]);
 
     const startCamera = useCallback(async () => {
+      console.log('🎥 startCamera called, isInitializing:', isInitializing);
+      
       // Éviter les appels multiples simultanés
       if (isInitializing) {
         console.log('🔄 Initialisation déjà en cours, ignoré');
         return;
       }
 
+      console.log('🚀 Starting camera initialization...');
       setIsInitializing(true);
       setError(null);
+      setCameraReady(false);
+      
+      // Timeout de sécurité pour éviter l'initialisation infinie
+      initTimeoutRef.current = setTimeout(() => {
+        console.log('⏰ Camera initialization timeout!');
+        setError("Timeout d'initialisation de la caméra. Veuillez réessayer.");
+        setIsInitializing(false);
+        setCameraReady(false);
+      }, 10000); // 10 secondes timeout
       
       try {
         // Nettoyer d'abord tout stream existant
         if (streamRef.current) {
+          console.log('🧹 Cleaning existing stream...');
           streamRef.current.getTracks().forEach(track => track.stop());
           streamRef.current = null;
         }
@@ -124,12 +146,14 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
           }
         };
 
-        console.log(`🎥 Demande d'accès caméra avec résolution: ${DEFAULT_RESOLUTION.width}x${DEFAULT_RESOLUTION.height}`);
+        console.log(`🎥 Requesting camera access with resolution: ${DEFAULT_RESOLUTION.width}x${DEFAULT_RESOLUTION.height}`);
         
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log('✅ Camera stream obtained');
         
         // Vérifier que le composant n'a pas été démonté pendant l'attente
         if (!videoRef.current) {
+          console.log('⚠️ Component unmounted, stopping stream');
           stream.getTracks().forEach(track => track.stop());
           return;
         }
@@ -137,6 +161,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
         streamRef.current = stream;
         
         if (videoRef.current) {
+          console.log('🎬 Setting up video element...');
           videoRef.current.srcObject = stream;
           videoRef.current.muted = true;
           
@@ -146,44 +171,59 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
             if (playPromise !== undefined) {
               await playPromise;
             }
+            console.log('▶️ Video play started successfully');
             
             // Log de la résolution réelle obtenue
             const videoTrack = stream.getVideoTracks()[0];
             const settings = videoTrack.getSettings();
-            console.log(`✅ Résolution obtenue: ${settings.width}x${settings.height}`);
+            console.log(`✅ Actual resolution: ${settings.width}x${settings.height}`);
             
             setCameraReady(true);
+            console.log('🎉 Camera ready!');
           } catch (playError) {
+            console.log('⚠️ Play error:', playError);
             // Ignorer les AbortError qui sont normales lors des changements rapides
             if (playError instanceof Error && playError.name !== 'AbortError') {
-              console.error('Erreur play():', playError);
+              console.error('❌ Serious play error:', playError);
               throw playError;
             } else {
-              console.log('🔄 Play() interrompu (normal lors des changements)');
+              console.log('🔄 Play interrupted (normal during changes)');
               setCameraReady(true); // Continuer malgré l'AbortError
             }
           }
         }
       } catch (error) {
-        console.error('Erreur caméra:', error);
+        console.error('❌ Camera error:', error);
         setError("Impossible d'accéder à la caméra. Vérifiez les permissions.");
         setCameraReady(false);
       } finally {
+        console.log('🏁 Camera initialization finished');
+        
+        // Clear timeout si l'initialisation se termine normalement
+        if (initTimeoutRef.current) {
+          clearTimeout(initTimeoutRef.current);
+          initTimeoutRef.current = null;
+        }
+        
         setIsInitializing(false);
       }
-    }, [isInitializing]);
+    }, []);
 
     useEffect(() => {
+      console.log('🔄 VideoRecorder useEffect triggered');
+      
       // Délai court pour éviter les appels multiples rapides
       const timer = setTimeout(() => {
+        console.log('🎥 Starting camera initialization...');
         startCamera();
-      }, 50);
+      }, 100);
       
       return () => { 
+        console.log('🧹 VideoRecorder cleanup');
         clearTimeout(timer);
         killStream(); 
       };
-    }, [startCamera, killStream]);
+    }, []); // Supprimer les dépendances pour éviter la boucle
 
     const drawLoop = useCallback(() => {
       const video = videoRef.current;
@@ -277,6 +317,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     };
 
     const reset = () => {
+      console.log('🔄 Reset called');
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
       setRecorded(false);
@@ -285,9 +326,12 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       // Délai court pour éviter les conflits avec killStream
       setTimeout(() => {
         if (!isInitializing) {
+          console.log('🔄 Restarting camera after reset...');
           startCamera();
+        } else {
+          console.log('⚠️ Cannot restart camera, initialization in progress');
         }
-      }, 100);
+      }, 200);
     };
 
     const formatTime = (s: number) =>

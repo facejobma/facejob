@@ -18,13 +18,22 @@ const CACHE_KEYS = {
   OFFERS: 'facejob_offers_cache_v2',
   SECTORS: 'facejob_sectors_cache_v2',
   JOBS: 'facejob_jobs_cache_v2',
-  COMPANIES: 'facejob_companies_cache_v2',
   TIMESTAMP: 'facejob_cache_timestamp_v2',
   SCROLL_POSITION: 'facejob_scroll_position',
+  UI_STATE: 'facejob_ui_state_v2',
 };
 
 const CACHE_DURATION = 5 * 60 * 1000;
 const PAGE_SIZE = 12;
+
+// Read saved UI state synchronously (called once at init)
+function readSavedUIState() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEYS.UI_STATE);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
 
 interface Offer {
   id: number;
@@ -45,7 +54,6 @@ interface Offer {
 
 interface Sector { id: number; name: string; }
 interface Job { id: number; name: string; sector_id: number; }
-interface Company { id: number; company_name: string; }
 
 const PublicOffersPage: React.FC = () => {
   const router = useRouter();
@@ -53,35 +61,58 @@ const PublicOffersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [selectedSector, setSelectedSector] = useState("");
-  const [selectedJob, setSelectedJob] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // Initialize filter state from sessionStorage immediately to avoid reset on back navigation
+  const [searchQuery, setSearchQuery] = useState(() => readSavedUIState()?.searchQuery ?? "");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(() => readSavedUIState()?.searchQuery ?? "");
+  const [selectedSector, setSelectedSector] = useState(() => readSavedUIState()?.selectedSector ?? "");
+  const [selectedJob, setSelectedJob] = useState(() => readSavedUIState()?.selectedJob ?? "");
+  const [selectedCity, setSelectedCity] = useState(() => readSavedUIState()?.selectedCity ?? "");
+  const [visibleCount, setVisibleCount] = useState(() => readSavedUIState()?.visibleCount ?? PAGE_SIZE);
+
   const [loadingMore, setLoadingMore] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [daysAgoMap, setDaysAgoMap] = useState<Record<number, number>>({});
+  const scrollRestoredRef = useRef(false);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setIsClient(true); }, []);
 
-  // Restore scroll position
+  // Restore scroll position after offers are rendered
   useEffect(() => {
-    const saved = sessionStorage.getItem(CACHE_KEYS.SCROLL_POSITION);
-    if (saved) {
-      window.scrollTo(0, parseInt(saved));
-      sessionStorage.removeItem(CACHE_KEYS.SCROLL_POSITION);
+    if (!loading && allOffers.length > 0 && !scrollRestoredRef.current) {
+      const saved = sessionStorage.getItem(CACHE_KEYS.SCROLL_POSITION);
+      if (saved) {
+        scrollRestoredRef.current = true;
+        requestAnimationFrame(() => {
+          window.scrollTo(0, parseInt(saved));
+          sessionStorage.removeItem(CACHE_KEYS.SCROLL_POSITION);
+        });
+      }
     }
-  }, []);
+  }, [loading, allOffers.length]);
 
-  // Save scroll on unload
+  // Save scroll on navigation away
   useEffect(() => {
     const handler = () => sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, []);
+
+  // Persist UI state (filters + visibleCount) to sessionStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      sessionStorage.setItem(CACHE_KEYS.UI_STATE, JSON.stringify({
+        searchQuery,
+        selectedSector,
+        selectedJob,
+        selectedCity,
+        visibleCount,
+      }));
+    } catch { /* quota exceeded, ignore */ }
+  }, [searchQuery, selectedSector, selectedJob, selectedCity, visibleCount]);
 
   // Debounce search
   useEffect(() => {
@@ -89,8 +120,13 @@ const PublicOffersPage: React.FC = () => {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  // Reset visible count when filters change
+  // Reset visible count only when user actively changes filters
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     setVisibleCount(PAGE_SIZE);
   }, [debouncedSearchQuery, selectedSector, selectedJob, selectedCity]);
 
@@ -221,7 +257,7 @@ const PublicOffersPage: React.FC = () => {
         if (entries[0].isIntersecting && !loadingMore) {
           setLoadingMore(true);
           setTimeout(() => {
-            setVisibleCount(prev => prev + PAGE_SIZE);
+            setVisibleCount((prev: number) => prev + PAGE_SIZE);
             setLoadingMore(false);
           }, 300);
         }
@@ -249,6 +285,14 @@ const PublicOffersPage: React.FC = () => {
 
   const handleLinkClick = () => {
     sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
+    // Also persist current UI state immediately
+    sessionStorage.setItem(CACHE_KEYS.UI_STATE, JSON.stringify({
+      searchQuery,
+      selectedSector,
+      selectedJob,
+      selectedCity,
+      visibleCount,
+    }));
   };
 
   const clearFilters = () => {

@@ -43,6 +43,8 @@ interface OffreCardProps {
   isProfileComplete: boolean;
   hasAlreadyApplied: boolean;
   onApplicationSuccess?: () => void;
+  autoOpenModal?: boolean;
+  onModalOpened?: () => void;
 }
 
 const OffreCard: React.FC<OffreCardProps> = ({
@@ -62,6 +64,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
   isProfileComplete,
   hasAlreadyApplied,
   onApplicationSuccess,
+  autoOpenModal = false,
+  onModalOpened,
 }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
@@ -102,6 +106,23 @@ const OffreCard: React.FC<OffreCardProps> = ({
     // Use offer ID to generate a consistent "days ago" value
     return (offreId % 7) + 1;
   }, [offreId]);
+
+  // Auto-open modal when autoOpenModal prop is true
+  useEffect(() => {
+    if (autoOpenModal && !localHasApplied) {
+      console.log('Auto-opening modal for offer:', offreId);
+      // Check if profile is complete first
+      if (!localIsProfileComplete && !hasSkippedProfileCompletion) {
+        setShowProfileModal(true);
+      } else {
+        openModal();
+      }
+      // Notify parent that modal was opened
+      if (onModalOpened) {
+        onModalOpened();
+      }
+    }
+  }, [autoOpenModal, localHasApplied, localIsProfileComplete, hasSkippedProfileCompletion]);
 
   // Check if user already applied to this offer on component mount
   useEffect(() => {
@@ -231,7 +252,10 @@ const OffreCard: React.FC<OffreCardProps> = ({
         setLocalHasApplied(true); // Update local state
         toast.success("Candidature envoyée avec succès!");
         
-        // Notify parent component to refresh the list
+        // Close the application modal immediately and show success modal
+        setModalIsOpen(false);
+        
+        // Notify parent component (but don't refresh the entire list)
         if (onApplicationSuccess) {
           onApplicationSuccess();
         }

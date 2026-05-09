@@ -1,29 +1,29 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import dynamic from "next/dynamic";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { Search, Briefcase, Building, MapPin, Calendar, Filter, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Select from "react-select";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { stripHtmlTags, normalizeForSearch } from "@/lib/textUtils";
+import { stripHtmlTags } from "@/lib/textUtils";
 import { JobListingStructuredData, WebSiteStructuredData } from "@/components/StructuredData";
 
+// Import Select dynamically to avoid SSR issues
+const Select = dynamic(() => import("react-select"), { ssr: false });
+
 const CACHE_KEYS = {
-  OFFERS: 'facejob_offers_cache_v2',
-  SECTORS: 'facejob_sectors_cache_v2',
-  JOBS: 'facejob_jobs_cache_v2',
-  TIMESTAMP: 'facejob_cache_timestamp_v2',
   SCROLL_POSITION: 'facejob_scroll_position',
   UI_STATE: 'facejob_ui_state_v2',
+  OFFERS_DATA: 'facejob_offers_data_v2',
+  FILTER_METADATA: 'facejob_filter_metadata_v2',
 };
 
-const CACHE_DURATION = 5 * 60 * 1000;
 const PAGE_SIZE = 12;
 
 // Read saved UI state synchronously (called once at init)
@@ -33,6 +33,40 @@ function readSavedUIState() {
     const raw = sessionStorage.getItem(CACHE_KEYS.UI_STATE);
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
+}
+
+// Read cached offers data
+function readCachedOffers() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEYS.OFFERS_DATA);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+// Read cached filter metadata
+function readCachedFilterMetadata() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEYS.FILTER_METADATA);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+// Save offers data to cache
+function saveOffersToCache(data: any) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(CACHE_KEYS.OFFERS_DATA, JSON.stringify(data));
+  } catch { /* quota exceeded */ }
+}
+
+// Save filter metadata to cache
+function saveFilterMetadataToCache(data: any) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(CACHE_KEYS.FILTER_METADATA, JSON.stringify(data));
+  } catch { /* quota exceeded */ }
 }
 
 interface Offer {
@@ -59,25 +93,214 @@ const PublicOffersPage: React.FC = () => {
   const router = useRouter();
   const [allOffers, setAllOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [allCities, setAllCities] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalOffers, setTotalOffers] = useState(0);
+  const [applyingOfferId, setApplyingOfferId] = useState<number | null>(null);
 
-  // Initialize filter state from sessionStorage immediately to avoid reset on back navigation
-  const [searchQuery, setSearchQuery] = useState(() => readSavedUIState()?.searchQuery ?? "");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(() => readSavedUIState()?.searchQuery ?? "");
-  const [selectedSector, setSelectedSector] = useState(() => readSavedUIState()?.selectedSector ?? "");
-  const [selectedJob, setSelectedJob] = useState(() => readSavedUIState()?.selectedJob ?? "");
-  const [selectedCity, setSelectedCity] = useState(() => readSavedUIState()?.selectedCity ?? "");
-  const [visibleCount, setVisibleCount] = useState(() => readSavedUIState()?.visibleCount ?? PAGE_SIZE);
+  // Initialize filter state - use empty values for SSR, load from cache after hydration
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [selectedSector, setSelectedSector] = useState("");
+  const [selectedJob, setSelectedJob] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
 
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const [daysAgoMap, setDaysAgoMap] = useState<Record<number, number>>({});
   const scrollRestoredRef = useRef(false);
-
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef<string | false>(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => { setIsClient(true); }, []);
+  // Cache refs - initialized after hydration
+  const saved = useRef<any>(null);
+  const cachedOffers = useRef<any>(null);
+  const cachedFilterMetadata = useRef<any>(null);
+
+  // Generate cache key for current filter state
+  const getCacheKey = () => {
+    if (!isHydrated) return '';
+    return `${debouncedSearchQuery}-${selectedSector}-${selectedJob}-${selectedCity}`;
+  };
+
+  // Handle hydration
+  useEffect(() => {
+    setIsHydrated(true);
+    
+    // Initialize cache refs after hydration
+    saved.current = readSavedUIState();
+    cachedOffers.current = readCachedOffers();
+    cachedFilterMetadata.current = readCachedFilterMetadata();
+    
+    // Restore filter state from cache
+    if (saved.current) {
+      console.log('Restoring filter state from cache:', saved.current);
+      setSearchQuery(saved.current.searchQuery || "");
+      setDebouncedSearchQuery(saved.current.searchQuery || "");
+      setSelectedSector(saved.current.selectedSector || "");
+      setSelectedJob(saved.current.selectedJob || "");
+      setSelectedCity(saved.current.selectedCity || "");
+    } else {
+      console.log('No saved filter state found');
+    }
+    
+    // Load cached filter metadata if available
+    if (cachedFilterMetadata.current) {
+      const metadata = cachedFilterMetadata.current;
+      setSectors(metadata.sectors || []);
+      setJobs(metadata.jobs || []);
+      setAllCities(metadata.cities || []);
+      console.log('Loaded filter metadata from cache');
+    }
+    
+    // Load cached offers if they match current filter state (after restoring filters)
+    setTimeout(() => {
+      if (cachedOffers.current) {
+        const currentCacheKey = getCacheKey();
+        if (cachedOffers.current.cacheKey === currentCacheKey) {
+          const cached = cachedOffers.current;
+          console.log('Initial hydration: Found matching cached offers:', cached.offers?.length);
+          // Les offres seront chargées par l'effet de reset des filtres
+        } else {
+          console.log('Initial hydration: No matching cached offers found');
+        }
+      }
+    }, 0);
+  }, []);
+
+  // Force update Select components when metadata is loaded and filters are restored
+  useEffect(() => {
+    if (isHydrated && sectors.length > 0 && saved.current) {
+      // Force re-render of Select components with restored values
+      const savedState = saved.current;
+      if (savedState.selectedSector && savedState.selectedSector !== selectedSector) {
+        console.log('Force updating sector selection:', savedState.selectedSector);
+        setSelectedSector(savedState.selectedSector);
+      }
+      if (savedState.selectedJob && savedState.selectedJob !== selectedJob) {
+        console.log('Force updating job selection:', savedState.selectedJob);
+        setSelectedJob(savedState.selectedJob);
+      }
+      if (savedState.selectedCity && savedState.selectedCity !== selectedCity) {
+        console.log('Force updating city selection:', savedState.selectedCity);
+        setSelectedCity(savedState.selectedCity);
+      }
+      if (savedState.searchQuery && savedState.searchQuery !== searchQuery) {
+        console.log('Force updating search query:', savedState.searchQuery);
+        setSearchQuery(savedState.searchQuery);
+        setDebouncedSearchQuery(savedState.searchQuery);
+      }
+    }
+  }, [isHydrated, sectors.length, allCities.length]);
+
+  // Load filter metadata if not cached
+  useEffect(() => {
+    
+    const loadFilterMetadata = async () => {
+      // Skip if we already have metadata (from cache or previous load)
+      if (sectors.length > 0 && jobs.length > 0 && allCities.length > 0) {
+        console.log('Filter metadata already loaded');
+        return;
+      }
+      
+      try {
+        console.log('Loading filter metadata from API...');
+        const metadataRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/filter-metadata`,
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+
+        if (metadataRes.ok) {
+          const metadata = await metadataRes.json();
+          const filterData = {
+            sectors: Array.isArray(metadata.sectors) ? metadata.sectors : [],
+            cities: Array.isArray(metadata.cities) ? metadata.cities : [],
+            jobs: []
+          };
+          
+          setSectors(filterData.sectors);
+          setAllCities(filterData.cities);
+          
+          // Extract jobs from sectors
+          const allJobs: Job[] = [];
+          if (Array.isArray(metadata.sectors)) {
+            metadata.sectors.forEach((sector: any) => {
+              if (sector.jobs && Array.isArray(sector.jobs)) {
+                sector.jobs.forEach((job: any) => {
+                  allJobs.push({
+                    id: job.id,
+                    name: job.name,
+                    sector_id: sector.id
+                  });
+                });
+              }
+            });
+          }
+          setJobs(allJobs);
+          filterData.jobs = allJobs;
+          
+          // Cache filter metadata
+          saveFilterMetadataToCache(filterData);
+          
+          console.log('Filter metadata loaded and cached:', {
+            sectors: filterData.sectors.length,
+            cities: filterData.cities.length,
+            jobs: allJobs.length
+          });
+        } else {
+          console.error('Failed to fetch filter metadata:', metadataRes.status);
+          // Fallback to old method
+          await loadFallbackMetadata();
+        }
+      } catch (error) {
+        console.error('Error loading filter metadata:', error);
+        await loadFallbackMetadata();
+      }
+    };
+
+    const loadFallbackMetadata = async () => {
+      try {
+        // Fallback to old method for sectors
+        const sectorsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`,
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        if (sectorsRes.ok) {
+          const sectorsData = (await sectorsRes.json()).data || await sectorsRes.json();
+          setSectors(sectorsData);
+        }
+
+        // Load cities from all offers
+        const allOffersRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?per_page=1000`,
+          { headers: { 'ngrok-skip-browser-warning': 'true' } }
+        );
+        if (allOffersRes.ok) {
+          const allOffersData = await allOffersRes.json();
+          const cities = Array.from(
+            new Set((allOffersData.data || []).map((o: any) => o.location).filter(Boolean))
+          ).sort() as string[];
+          setAllCities(cities);
+          
+          const uniqueJobs = Array.from(
+            new Map(
+              (allOffersData.data || [])
+                .filter((o: any) => o.job_name && o.job_id)
+                .map((o: any) => [o.job_id, { id: o.job_id, name: o.job_name, sector_id: o.sector_id }])
+            ).values()
+          ) as Job[];
+          setJobs(uniqueJobs);
+        }
+      } catch (error) {
+        console.error('Fallback metadata loading failed:', error);
+      }
+    };
+
+    loadFilterMetadata();
+  }, [isHydrated, sectors.length, jobs.length, allCities.length]);
 
   // Restore scroll position after offers are rendered
   useEffect(() => {
@@ -87,32 +310,98 @@ const PublicOffersPage: React.FC = () => {
         scrollRestoredRef.current = true;
         requestAnimationFrame(() => {
           window.scrollTo(0, parseInt(saved));
-          sessionStorage.removeItem(CACHE_KEYS.SCROLL_POSITION);
+          // Ne pas supprimer immédiatement la position de scroll
+          // Elle sera supprimée lors de la prochaine navigation
         });
       }
     }
   }, [loading, allOffers.length]);
 
-  // Save scroll on navigation away
+  // Save scroll on navigation away (but not when going to offers)
   useEffect(() => {
-    const handler = () => sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
+    const handler = () => {
+      // Sauvegarder la position de scroll seulement si on ne navigue pas vers une offre
+      if (!sessionStorage.getItem('facejob_navigating_to_offer')) {
+        sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
+      }
+    };
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, []);
 
-  // Persist UI state (filters + visibleCount) to sessionStorage
+  // Persist UI state on every change (more frequent saves)
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!isHydrated) return;
+    
     try {
-      sessionStorage.setItem(CACHE_KEYS.UI_STATE, JSON.stringify({
+      const uiState = {
         searchQuery,
         selectedSector,
         selectedJob,
         selectedCity,
-        visibleCount,
-      }));
+      };
+      sessionStorage.setItem(CACHE_KEYS.UI_STATE, JSON.stringify(uiState));
+      console.log('Saved UI state:', uiState);
     } catch { /* quota exceeded, ignore */ }
-  }, [searchQuery, selectedSector, selectedJob, selectedCity, visibleCount]);
+  }, [isHydrated, searchQuery, selectedSector, selectedJob, selectedCity]);
+
+  // Save offers to cache when they change (only after hydration and when we have data)
+  useEffect(() => {
+    if (!isHydrated || allOffers.length === 0) return;
+    
+    const cacheData = {
+      cacheKey: getCacheKey(),
+      offers: allOffers,
+      currentPage,
+      hasMore,
+      totalOffers,
+      timestamp: Date.now()
+    };
+    
+    saveOffersToCache(cacheData);
+    console.log('Saved to cache:', cacheData.offers.length, 'offers with key:', cacheData.cacheKey);
+  }, [isHydrated, allOffers, currentPage, hasMore, totalOffers, debouncedSearchQuery, selectedSector, selectedJob, selectedCity]);
+
+  // Save current state when navigating away
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (allOffers.length > 0) {
+        const cacheData = {
+          cacheKey: getCacheKey(),
+          offers: allOffers,
+          currentPage,
+          hasMore,
+          totalOffers,
+          timestamp: Date.now()
+        };
+        saveOffersToCache(cacheData);
+        console.log('Saved state before navigation:', cacheData.offers.length, 'offers');
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && allOffers.length > 0) {
+        const cacheData = {
+          cacheKey: getCacheKey(),
+          offers: allOffers,
+          currentPage,
+          hasMore,
+          totalOffers,
+          timestamp: Date.now()
+        };
+        saveOffersToCache(cacheData);
+        console.log('Saved state on visibility change:', cacheData.offers.length, 'offers');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [allOffers, currentPage, hasMore, totalOffers, debouncedSearchQuery, selectedSector, selectedJob, selectedCity]);
 
   // Debounce search
   useEffect(() => {
@@ -120,91 +409,121 @@ const PublicOffersPage: React.FC = () => {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  // Reset visible count only when user actively changes filters
-  const isFirstRender = useRef(true);
+  // Reset to page 1 when filters change (only after hydration)
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setVisibleCount(PAGE_SIZE);
-  }, [debouncedSearchQuery, selectedSector, selectedJob, selectedCity]);
+    if (!isHydrated) return;
+    
+    console.log('Filters changed, resetting to page 1');
+    setCurrentPage(1);
+    setAllOffers([]);
+    setHasMore(true);
+    loadingRef.current = false;
+  }, [isHydrated, debouncedSearchQuery, selectedSector, selectedJob, selectedCity]);
 
-  // Load data
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const now = Date.now();
-      const cacheTimestamp = sessionStorage.getItem(CACHE_KEYS.TIMESTAMP);
-      const isCacheValid = cacheTimestamp && (now - parseInt(cacheTimestamp)) < CACHE_DURATION;
-
-      if (isCacheValid) {
-        const cachedOffers = sessionStorage.getItem(CACHE_KEYS.OFFERS);
-        const cachedSectors = sessionStorage.getItem(CACHE_KEYS.SECTORS);
-        const cachedJobs = sessionStorage.getItem(CACHE_KEYS.JOBS);
-        if (cachedOffers) {
-          setAllOffers(JSON.parse(cachedOffers));
-          setSectors(cachedSectors ? JSON.parse(cachedSectors) : []);
-          setJobs(cachedJobs ? JSON.parse(cachedJobs) : []);
-          setLoading(false);
-          return;
-        }
-      }
-
-      const offersRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?page=1&per_page=500`,
-        { headers: { 'ngrok-skip-browser-warning': 'true' } }
-      );
-
-      if (!offersRes.ok) {
-        toast.error("Impossible de charger les offres d'emploi");
+  // Load data when page changes or filters change (only after hydration)
+  useEffect(() => {
+    if (!isHydrated) return;
+    
+    const loadPage = async () => {
+      console.log('Loading page:', currentPage, 'with filters:', {
+        search: debouncedSearchQuery,
+        sector: selectedSector,
+        job: selectedJob,
+        city: selectedCity
+      });
+      
+      // Check cache for navigation back (when returning from offer page)
+      const isReturningFromOffer = sessionStorage.getItem('facejob_navigating_to_offer') === 'true';
+      const cached = readCachedOffers();
+      const currentCacheKey = getCacheKey();
+      
+      if (isReturningFromOffer && cached && cached.cacheKey === currentCacheKey && 
+          cached.offers && cached.offers.length > 0 && currentPage === 1) {
+        console.log('Navigation back from offer detected, using cached data:', cached.offers.length, 'offers');
+        setAllOffers(cached.offers);
+        setHasMore(cached.hasMore || false);
+        setTotalOffers(cached.totalOffers || 0);
+        setLoading(false);
+        // Nettoyer le flag de navigation
+        sessionStorage.removeItem('facejob_navigating_to_offer');
         return;
       }
-
-      const response = await offersRes.json();
-      const offersData: Offer[] = response.data || response;
-      setAllOffers(offersData);
-      sessionStorage.setItem(CACHE_KEYS.OFFERS, JSON.stringify(offersData));
-      sessionStorage.setItem(CACHE_KEYS.TIMESTAMP, now.toString());
-
-      // Extract jobs from offers
-      const uniqueJobs = Array.from(
-        new Map(
-          offersData
-            .filter(o => o.job_name && o.job_id)
-            .map(o => [o.job_id, { id: o.job_id, name: o.job_name, sector_id: o.sector_id }])
-        ).values()
-      ) as Job[];
-      setJobs(uniqueJobs);
-      sessionStorage.setItem(CACHE_KEYS.JOBS, JSON.stringify(uniqueJobs));
-
-      // Fetch sectors
+      
+      // Nettoyer le flag si on n'utilise pas le cache
+      sessionStorage.removeItem('facejob_navigating_to_offer');
+      
+      // Prevent duplicate loading for the same request
+      const requestKey = `${currentPage}-${debouncedSearchQuery}-${selectedSector}-${selectedJob}-${selectedCity}`;
+      if (loadingRef.current === requestKey) return;
+      
+      loadingRef.current = requestKey;
+      
       try {
-        const sectorsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`,
-          { headers: { 'ngrok-skip-browser-warning': 'true' } }
-        );
-        if (sectorsRes.ok) {
-          const sectorsData = (await sectorsRes.json()).data || await sectorsRes.json();
-          setSectors(sectorsData);
-          sessionStorage.setItem(CACHE_KEYS.SECTORS, JSON.stringify(sectorsData));
-        } else {
-          const fallback = Array.from(
-            new Map(offersData.filter(o => o.sector_name && o.sector_id).map(o => [o.sector_id, { id: o.sector_id, name: o.sector_name }])).values()
-          ) as Sector[];
-          setSectors(fallback);
-          sessionStorage.setItem(CACHE_KEYS.SECTORS, JSON.stringify(fallback));
+        if (currentPage === 1) setLoading(true);
+        else setLoadingMore(true);
+
+        // Build query params
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          per_page: PAGE_SIZE.toString(),
+        });
+
+        if (debouncedSearchQuery) params.append('search', debouncedSearchQuery);
+        if (selectedSector) params.append('sector_id', selectedSector);
+        if (selectedJob) params.append('job_id', selectedJob);
+        if (selectedCity) params.append('location', selectedCity);
+
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?${params.toString()}`;
+        
+        console.log('Filters being sent:', {
+          search: debouncedSearchQuery,
+          sector_id: selectedSector,
+          job_id: selectedJob,
+          location: selectedCity,
+          url: url
+        });
+
+        const offersRes = await fetch(url, {
+          headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
+
+        if (!offersRes.ok) {
+          toast.error("Impossible de charger les offres d'emploi");
+          return;
         }
-      } catch { /* fallback already handled */ }
 
-    } catch {
-      toast.error("Erreur lors du chargement des données");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const response = await offersRes.json();
+        const offersData: Offer[] = response.data || [];
+        const pagination = response.pagination || {};
 
-  useEffect(() => { loadData(); }, [loadData]);
+        console.log('API Response received:', {
+          page: pagination.current_page,
+          offersCount: offersData.length,
+          totalOffers: pagination.total
+        });
+
+        if (currentPage === 1) {
+          setAllOffers(offersData);
+        } else {
+          setAllOffers(prev => [...prev, ...offersData]);
+        }
+
+        setHasMore(pagination.current_page < pagination.last_page);
+        setTotalOffers(pagination.total || 0);
+
+      } catch (error) {
+        console.error('Load page error:', error);
+        toast.error("Erreur lors du chargement des données");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        loadingRef.current = false;
+      }
+    };
+
+    // Toujours charger les données quand les dépendances changent
+    loadPage();
+  }, [isHydrated, currentPage, debouncedSearchQuery, selectedSector, selectedJob, selectedCity]);
 
   // Compute days ago once offers are loaded
   useEffect(() => {
@@ -220,46 +539,14 @@ const PublicOffersPage: React.FC = () => {
     setDaysAgoMap(map);
   }, [allOffers.length]);
 
-  // Filtered offers
-  const filteredOffers = useMemo(() => {
-    return allOffers.filter(offer => {
-      if (debouncedSearchQuery) {
-        const q = normalizeForSearch(debouncedSearchQuery);
-        const match =
-          normalizeForSearch(offer.titre || '').includes(q) ||
-          normalizeForSearch(stripHtmlTags(offer.description) || '').includes(q) ||
-          normalizeForSearch(offer.company_name || '').includes(q) ||
-          normalizeForSearch(offer.sector_name || '').includes(q) ||
-          normalizeForSearch(offer.job_name || '').includes(q) ||
-          normalizeForSearch(offer.location || '').includes(q);
-        if (!match) return false;
-      }
-      if (selectedSector && offer.sector_id !== Number(selectedSector)) return false;
-      if (selectedJob && offer.job_id !== Number(selectedJob)) return false;
-      if (selectedCity && offer.location !== selectedCity) return false;
-      return true;
-    });
-  }, [allOffers, debouncedSearchQuery, selectedSector, selectedJob, selectedCity]);
-
-  const visibleOffers = useMemo(
-    () => filteredOffers.slice(0, visibleCount),
-    [filteredOffers, visibleCount]
-  );
-
-  const hasMore = visibleCount < filteredOffers.length;
-
-  // IntersectionObserver for infinite scroll
+  // IntersectionObserver for infinite scroll - load next page from backend
   useEffect(() => {
-    if (!sentinelRef.current || !hasMore) return;
+    if (!sentinelRef.current || !hasMore || loadingMore || loading) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loadingMore) {
-          setLoadingMore(true);
-          setTimeout(() => {
-            setVisibleCount((prev: number) => prev + PAGE_SIZE);
-            setLoadingMore(false);
-          }, 300);
+        if (entries[0].isIntersecting && !loadingMore && !loading) {
+          setCurrentPage(prev => prev + 1);
         }
       },
       { rootMargin: '200px' }
@@ -267,32 +554,56 @@ const PublicOffersPage: React.FC = () => {
 
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [hasMore, loadingMore]);
+  }, [hasMore, loadingMore, loading]);
 
   const availableJobs = useMemo(() => {
     if (!selectedSector) return jobs;
     return jobs.filter(j => j.sector_id === Number(selectedSector));
   }, [jobs, selectedSector]);
 
-  const availableCities = useMemo(() => {
-    return Array.from(new Set(allOffers.map(o => o.location).filter(Boolean))).sort();
-  }, [allOffers]);
-
-  const handleApply = (offerId: number) => {
+  const handleApply = async (offerId: number) => {
     sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
-    router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
+    setApplyingOfferId(offerId);
+    
+    // Vérifier si l'utilisateur est connecté en vérifiant le token
+    try {
+      const authToken = document.cookie.split('authToken=')[1]?.split(';')[0]?.replace(/['"]/g, '');
+      
+      if (!authToken) {
+        // Pas de token, rediriger vers la connexion
+        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
+        return;
+      }
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Utilisateur connecté, rediriger vers la liste des offres avec l'ID pour ouvrir la popup
+        console.log('User is authenticated, redirecting to offers page with popup');
+        router.push(`/dashboard/candidat/offres?offerId=${offerId}`);
+      } else {
+        // Utilisateur non connecté, rediriger vers la page de connexion
+        console.log('User not authenticated, redirecting to login');
+        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
+      }
+    } catch (error) {
+      // En cas d'erreur, rediriger vers la page de connexion par sécurité
+      console.log('Error checking authentication, redirecting to login');
+      router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
+    } finally {
+      setApplyingOfferId(null);
+    }
   };
 
   const handleLinkClick = () => {
     sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
-    // Also persist current UI state immediately
-    sessionStorage.setItem(CACHE_KEYS.UI_STATE, JSON.stringify({
-      searchQuery,
-      selectedSector,
-      selectedJob,
-      selectedCity,
-      visibleCount,
-    }));
+    // Marquer qu'on navigue vers une offre (pour détecter le retour)
+    sessionStorage.setItem('facejob_navigating_to_offer', 'true');
   };
 
   const clearFilters = () => {
@@ -300,6 +611,10 @@ const PublicOffersPage: React.FC = () => {
     setSelectedSector("");
     setSelectedJob("");
     setSelectedCity("");
+    // Clear cached data when filters are cleared
+    try {
+      sessionStorage.removeItem(CACHE_KEYS.OFFERS_DATA);
+    } catch { /* ignore */ }
   };
 
   const customSelectStyles = {
@@ -338,7 +653,15 @@ const PublicOffersPage: React.FC = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                 </span>
-                <span className="text-sm font-medium text-primary">{allOffers.length} offres disponibles</span>
+                <span className="text-sm font-medium text-primary">
+                  {isHydrated ? (
+                    (selectedSector || selectedJob || selectedCity || searchQuery) ? 
+                      `${totalOffers} offres trouvées` : 
+                      `${totalOffers} offres disponibles`
+                  ) : (
+                    `${totalOffers} offres disponibles`
+                  )}
+                </span>
               </div>
               <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-secondary mb-6 leading-tight tracking-tight">
                 Trouvez votre{" "}
@@ -381,58 +704,56 @@ const PublicOffersPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 font-body">Secteur</label>
-                  {isClient ? (
-                    <Select
-                      instanceId="sector-select"
-                      value={selectedSector ? { value: selectedSector, label: sectors.find(s => s.id === Number(selectedSector))?.name } : null}
-                      onChange={(opt) => { setSelectedSector(opt ? opt.value : ""); setSelectedJob(""); }}
-                      options={sectors.map(s => ({ value: s.id.toString(), label: s.name }))}
-                      placeholder="Tous les secteurs"
-                      isClearable
-                      styles={customSelectStyles}
-                    />
-                  ) : (
-                    <div className="h-[44px] border border-gray-300 rounded-lg bg-white flex items-center px-3 text-gray-500">Tous les secteurs</div>
-                  )}
+                  <Select
+                    instanceId="sector-select"
+                    value={selectedSector ? { value: selectedSector, label: sectors.find(s => s.id === Number(selectedSector))?.name } : null}
+                    onChange={(opt: any) => { 
+                      console.log('Sector changed:', opt);
+                      setSelectedSector(opt ? opt.value : ""); 
+                      setSelectedJob(""); 
+                    }}
+                    options={sectors.map(s => ({ value: s.id.toString(), label: s.name }))}
+                    placeholder="Tous les secteurs"
+                    isClearable
+                    styles={customSelectStyles}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 font-body">Métier</label>
-                  {isClient ? (
-                    <Select
-                      instanceId="job-select"
-                      value={selectedJob ? { value: selectedJob, label: availableJobs.find(j => j.id === Number(selectedJob))?.name } : null}
-                      onChange={(opt) => setSelectedJob(opt ? opt.value : "")}
-                      options={availableJobs.map(j => ({ value: j.id.toString(), label: j.name }))}
-                      placeholder="Tous les métiers"
-                      isClearable
-                      isDisabled={!selectedSector}
-                      styles={customSelectStyles}
-                    />
-                  ) : (
-                    <div className="h-[44px] border border-gray-300 rounded-lg bg-gray-100 flex items-center px-3 text-gray-400">Tous les métiers</div>
-                  )}
+                  <Select
+                    instanceId="job-select"
+                    value={selectedJob ? { value: selectedJob, label: availableJobs.find(j => j.id === Number(selectedJob))?.name } : null}
+                    onChange={(opt: any) => {
+                      console.log('Job changed:', opt);
+                      setSelectedJob(opt ? opt.value : "");
+                    }}
+                    options={availableJobs.map(j => ({ value: j.id.toString(), label: j.name }))}
+                    placeholder="Tous les métiers"
+                    isClearable
+                    isDisabled={!selectedSector}
+                    styles={customSelectStyles}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 font-body">Ville</label>
-                  {isClient ? (
-                    <Select
-                      instanceId="city-select"
-                      value={selectedCity ? { value: selectedCity, label: selectedCity } : null}
-                      onChange={(opt) => setSelectedCity(opt ? opt.value : "")}
-                      options={availableCities.map(c => ({ value: c, label: c }))}
-                      placeholder="Toutes les villes"
-                      isClearable
-                      styles={customSelectStyles}
-                    />
-                  ) : (
-                    <div className="h-[44px] border border-gray-300 rounded-lg bg-white flex items-center px-3 text-gray-500">Toutes les villes</div>
-                  )}
+                  <Select
+                    instanceId="city-select"
+                    value={selectedCity ? { value: selectedCity, label: selectedCity } : null}
+                    onChange={(opt: any) => {
+                      console.log('City changed:', opt);
+                      setSelectedCity(opt ? opt.value : "");
+                    }}
+                    options={allCities.map(c => ({ value: c, label: c }))}
+                    placeholder="Toutes les villes"
+                    isClearable
+                    styles={customSelectStyles}
+                  />
                 </div>
               </div>
-              {(selectedSector || selectedJob || selectedCity || searchQuery) && (
+              {isHydrated && (selectedSector || selectedJob || selectedCity || searchQuery) && (
                 <div className="mt-6 pt-6 border-t border-gray-100 flex justify-between items-center">
                   <p className="text-sm text-gray-600 font-body">
-                    <span className="font-semibold text-primary">{filteredOffers.length}</span> offre(s) trouvée(s)
+                    <span className="font-semibold text-primary">{totalOffers}</span> offre(s) trouvée(s)
                   </p>
                   <Button variant="outline" onClick={clearFilters} className="font-accent hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
                     Effacer les filtres
@@ -452,13 +773,21 @@ const PublicOffersPage: React.FC = () => {
           {/* Offers grid */}
           {!loading && (
             <>
-              {visibleOffers.length > 0 ? (
+              {allOffers.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {visibleOffers.map((offer) => (
+                  {allOffers.map((offer, index) => (
                     <Link
-                      key={offer.id}
+                      key={`${offer.id}-${index}`}
                       href={`/offres/${offer.id}`}
-                      onClick={handleLinkClick}
+                      onClick={() => {
+                        handleLinkClick();
+                        console.log('Navigating to offer:', offer.id, 'Current filters:', {
+                          search: searchQuery,
+                          sector: selectedSector,
+                          job: selectedJob,
+                          city: selectedCity
+                        });
+                      }}
                       className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-primary/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
                     >
                       <div className="p-6 flex flex-col flex-1 gap-4">
@@ -498,10 +827,20 @@ const PublicOffersPage: React.FC = () => {
                         </p>
                         <button
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleApply(offer.id); }}
-                          className="group/btn w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold text-sm py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg"
+                          disabled={applyingOfferId === offer.id}
+                          className="group/btn w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold text-sm py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Postuler
-                          <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                          {applyingOfferId === offer.id ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Vérification...
+                            </>
+                          ) : (
+                            <>
+                              Postuler
+                              <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                            </>
+                          )}
                         </button>
                       </div>
                     </Link>
@@ -525,16 +864,16 @@ const PublicOffersPage: React.FC = () => {
               )}
 
               {/* Sentinel for infinite scroll */}
-              {hasMore && (
+              {hasMore && allOffers.length > 0 && (
                 <div ref={sentinelRef} className="flex justify-center items-center py-10">
                   {loadingMore && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
                 </div>
               )}
 
               {/* End of results */}
-              {!hasMore && visibleOffers.length > 0 && (
+              {!hasMore && allOffers.length > 0 && (
                 <p className="text-center text-sm text-gray-400 font-body py-10">
-                  Toutes les offres ont été chargées ({filteredOffers.length})
+                  Toutes les offres ont été chargées ({totalOffers})
                 </p>
               )}
             </>

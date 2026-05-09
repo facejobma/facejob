@@ -7,7 +7,8 @@ import OffreCard from "@/components/offreCard";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
 import { Search, X, Loader2 } from "lucide-react";
-import { fetchSectors, fetchOffers } from "@/lib/api";
+import { fetchSectors } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 
 const UI_STATE_KEY = 'facejob_dashboard_offres_ui_state';
 const PAGE_SIZE = 12;
@@ -22,11 +23,36 @@ function readSavedState() {
 
 const OffresPage: React.FC = () => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  const searchParams = useSearchParams();
+  const offerIdFromUrl = searchParams.get('offerId');
+  
   const [offres, setOffres] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sectors, setSectors] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalOffers, setTotalOffers] = useState(0);
+  const [autoOpenOfferId, setAutoOpenOfferId] = useState<number | null>(null);
+
+  // Handle offerId from URL (when redirected from public page)
+  useEffect(() => {
+    if (offerIdFromUrl) {
+      const offerId = parseInt(offerIdFromUrl);
+      if (!isNaN(offerId)) {
+        console.log('Auto-opening application popup for offer:', offerId);
+        setAutoOpenOfferId(offerId);
+        
+        // Clean up URL by removing the offerId parameter
+        const url = new URL(window.location.href);
+        url.searchParams.delete('offerId');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [offerIdFromUrl]);
 
   // Initialize all filter state from sessionStorage to survive back navigation
   const saved = useRef(readSavedState());
@@ -36,8 +62,6 @@ const OffresPage: React.FC = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(saved.current?.searchQuery ?? "");
   const [selectedCity, setSelectedCity] = useState<string>(saved.current?.selectedCity ?? "");
   const [selectedApplicationStatus, setSelectedApplicationStatus] = useState<string>(saved.current?.selectedApplicationStatus ?? "");
-  const [visibleCount, setVisibleCount] = useState<number>(saved.current?.visibleCount ?? PAGE_SIZE);
-  const [loadingMore, setLoadingMore] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -99,10 +123,9 @@ const OffresPage: React.FC = () => {
         searchQuery,
         selectedCity,
         selectedApplicationStatus,
-        visibleCount,
       }));
     } catch { /* quota exceeded */ }
-  }, [selectedSector, selectedJob, searchQuery, selectedCity, selectedApplicationStatus, visibleCount]);
+  }, [selectedSector, selectedJob, searchQuery, selectedCity, selectedApplicationStatus]);
 
   const isFirstSectorEffect = useRef(true);
   useEffect(() => {
@@ -128,148 +151,198 @@ const OffresPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Reset visible count when filters change (but not on first render)
-  const isFirstFilterChange = useRef(true);
+  // Reset to page 1 when filters change
   useEffect(() => {
-    if (isFirstFilterChange.current) {
-      isFirstFilterChange.current = false;
-      return;
-    }
-    setVisibleCount(PAGE_SIZE);
+    setCurrentPage(1);
+    setOffres([]);
+    setHasMore(true);
   }, [debouncedSearchQuery, selectedSector, selectedJob, selectedCity, selectedApplicationStatus]);
 
+  // Load data progressively from backend
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
+    const loadPage = async () => {
       try {
-        // Log authentication info
-        const user = typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
-        const userId = user ? JSON.parse(user).id : null;
-        console.log('🔐 Fetching offers with auth:', {
-          hasToken: !!authToken,
-          userId: userId,
-          tokenPreview: authToken ? `${authToken.substring(0, 20)}...` : 'none'
+        if (currentPage === 1) setLoading(true);
+        else setLoadingMore(true);
+
+        // Build query parameters for filters
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          per_page: PAGE_SIZE.toString(),
         });
 
-        // Fetch all data in parallel including profile analysis
-        const [offersResult, sectorsData, profileData] = await Promise.all([
-          fetchOffers(1, 500), // Fetch all offers at once for client-side filtering
-          fetchSectors(),
-          fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          }).then(res => res.ok ? res.json() : null)
-        ]);
+        if (debouncedSearchQuery) params.append('search', debouncedSearchQuery);
+        if (selectedSector) params.append('sector_id', selectedSector);
+        if (selectedJob) params.append('job_id', selectedJob);
+        if (selectedCity) params.append('location', selectedCity);
 
-        console.log('📊 Offers result:', {
-          totalOffers: offersResult.data?.length || 0,
-          sampleHasApplied: offersResult.data?.[0]?.has_applied,
-          pagination: offersResult.pagination
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?${params}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
         });
 
-        // Set offers with pagination info
-        const offersData = offersResult.data || [];
+        if (!response.ok) throw new Error('Failed to fetch offers');
         
-        setOffres(Array.isArray(offersData) ? offersData : []);
+        const result = await response.json();
+        const offersData = result.data || [];
+        const pagination = result.pagination || {};
 
-        // Set sectors
-        setSectors(Array.isArray(sectorsData) ? sectorsData : []);
+        if (currentPage === 1) {
+          setOffres(offersData);
+          
+          // Fetch filter metadata only on first load
+          try {
+            // Fetch all filter metadata in one call
+            const [metadataRes, profileData] = await Promise.all([
+              fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/filter-metadata`, {
+                headers: { 
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json",
+                  'ngrok-skip-browser-warning': 'true'
+                }
+              }),
+              fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json",
+                },
+              }).then(res => res.ok ? res.json() : null)
+            ]);
 
-        // Check profile completion once for all cards
-        if (profileData) {
-          const requiredFields = ["bio", "projects", "skills", "experiences"];
-          const missingFields = requiredFields.filter(
-            (field) => !profileData[field] || profileData[field].length === 0
-          );
-          setIsProfileComplete(missingFields.length === 0);
+            if (metadataRes.ok) {
+              const metadata = await metadataRes.json();
+              setSectors(Array.isArray(metadata.sectors) ? metadata.sectors : []);
+              setAvailableCities(Array.isArray(metadata.cities) ? metadata.cities : []);
+              console.log('Filter metadata loaded:', metadata);
+            } else {
+              // Fallback: load all cities from a separate call
+              try {
+                const allOffersRes = await fetch(
+                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?per_page=1000`,
+                  { headers: { 
+                    Authorization: `Bearer ${authToken}`,
+                    "Content-Type": "application/json",
+                    'ngrok-skip-browser-warning': 'true'
+                  } }
+                );
+                if (allOffersRes.ok) {
+                  const allOffersData = await allOffersRes.json();
+                  const cities = Array.from(
+                    new Set((allOffersData.data || []).map((o: any) => o.location).filter(Boolean))
+                  ).sort() as string[];
+                  setAvailableCities(cities);
+                  console.log('Cities loaded from all offers:', cities);
+                } else {
+                  // Final fallback: extract from current offers
+                  const cities = Array.from(
+                    new Set(offersData.map((o: any) => o.location).filter(Boolean))
+                  ).sort() as string[];
+                  setAvailableCities(cities);
+                }
+              } catch {
+                const cities = Array.from(
+                  new Set(offersData.map((o: any) => o.location).filter(Boolean))
+                ).sort() as string[];
+                setAvailableCities(cities);
+              }
+              
+              // Fallback to old method for sectors
+              const sectorsData = await fetchSectors();
+              setSectors(Array.isArray(sectorsData) ? sectorsData : []);
+            }
+
+            if (profileData) {
+              const requiredFields = ["bio", "projects", "skills", "experiences"];
+              const missingFields = requiredFields.filter(
+                (field) => !profileData[field] || profileData[field].length === 0
+              );
+              setIsProfileComplete(missingFields.length === 0);
+            } else {
+              setIsProfileComplete(false);
+            }
+
+          } catch (error) {
+            console.error('Error loading filter metadata:', error);
+            // Fallback: extract data from current offers
+            try {
+              const sectorsData = await fetchSectors();
+              setSectors(Array.isArray(sectorsData) ? sectorsData : []);
+            } catch { /* ignore */ }
+            
+            const cities = Array.from(
+              new Set(offersData.map((o: any) => o.location).filter(Boolean))
+            ).sort() as string[];
+            setAvailableCities(cities);
+          }
         } else {
-          setIsProfileComplete(false);
+          setOffres(prev => [...prev, ...offersData]);
         }
+
+        setHasMore(pagination.current_page < pagination.last_page);
+        setTotalOffers(pagination.total || 0);
 
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Erreur lors du chargement des données");
-        // Set empty arrays on error
-        setOffres([]);
-        setSectors([]);
-        setIsProfileComplete(false);
+        if (currentPage === 1) {
+          setOffres([]);
+          setSectors([]);
+          setIsProfileComplete(false);
+        }
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     };
 
     if (authToken) {
-      fetchAllData();
+      loadPage();
     }
-  }, [authToken]);
+  }, [authToken, currentPage, debouncedSearchQuery, selectedSector, selectedJob, selectedCity, selectedApplicationStatus]);
+
+  // Function to update a specific offer's application status
+  const updateOfferApplicationStatus = (offerId: number, hasApplied: boolean) => {
+    setOffres(prevOffres => 
+      prevOffres.map(offre => 
+        offre.id === offerId 
+          ? { ...offre, has_applied: hasApplied }
+          : offre
+      )
+    );
+  };
 
   // Function to refresh offers after application
   const refreshOffers = async () => {
     try {
-      const offersResult = await fetchOffers(1, 500);
-      const offersData = offersResult.data || [];
-      setOffres(Array.isArray(offersData) ? offersData : []);
+      // Instead of clearing all offers and reloading, just update the local state
+      // The OffreCard component already updates its local state (setLocalHasApplied)
+      // So we don't need to do anything here to avoid disrupting the user experience
+      console.log('Application submitted successfully - local state updated');
     } catch (error) {
       console.error("Error refreshing offers:", error);
     }
   };
 
-  const filteredOffers = useMemo(() => {
+  // Filter offers by application status only (other filters handled by backend)
+  const displayedOffers = useMemo(() => {
+    if (!selectedApplicationStatus) return offres;
+    
     return offres.filter((offre) => {
-      // Search filter
-      const matchesSearch = !debouncedSearchQuery || 
-        offre.titre?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offre.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offre.company_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offre.sector_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offre.job_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offre.location?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-        offre.contractType?.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
-
-      // City filter
-      const matchesCity = !selectedCity || offre.location === selectedCity;
-
-      // Application status filter
-      const matchesApplicationStatus = 
-        !selectedApplicationStatus || 
-        (selectedApplicationStatus === "applied" && offre.has_applied) ||
-        (selectedApplicationStatus === "not_applied" && !offre.has_applied);
-
-      // Other filters
-      const matchesSector = !selectedSector || offre.sector_id === Number(selectedSector);
-      const matchesJob = !selectedJob || offre.job_id === Number(selectedJob);
-
-      return matchesSearch && matchesCity && matchesApplicationStatus && matchesSector && matchesJob;
+      return (selectedApplicationStatus === "applied" && offre.has_applied) ||
+             (selectedApplicationStatus === "not_applied" && !offre.has_applied);
     });
-  }, [offres, debouncedSearchQuery, selectedCity, selectedApplicationStatus, selectedSector, selectedJob]);
+  }, [offres, selectedApplicationStatus]);
 
-  // Get unique cities from offers
-  const availableCities = useMemo(() => {
-    const cities = Array.from(new Set(offres.map(offre => offre.location).filter(Boolean)));
-    return cities.sort();
-  }, [offres]);
-
-  const visibleOffers = useMemo(
-    () => filteredOffers.slice(0, visibleCount),
-    [filteredOffers, visibleCount]
-  );
-
-  const hasMore = visibleCount < filteredOffers.length;
-
-  // IntersectionObserver for infinite scroll
+  // IntersectionObserver for infinite scroll - load next page from backend
   useEffect(() => {
-    if (!sentinelRef.current || !hasMore) return;
+    if (!sentinelRef.current || !hasMore || loadingMore || loading) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loadingMore) {
-          setLoadingMore(true);
-          setTimeout(() => {
-            setVisibleCount((prev: number) => prev + PAGE_SIZE);
-            setLoadingMore(false);
-          }, 300);
+        if (entries[0].isIntersecting && !loadingMore && !loading) {
+          setCurrentPage(prev => prev + 1);
         }
       },
       { rootMargin: '200px' }
@@ -277,7 +350,7 @@ const OffresPage: React.FC = () => {
 
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [hasMore, loadingMore]);
+  }, [hasMore, loadingMore, loading]);
 
   const clearAllFilters = () => {
     setSelectedSector("");
@@ -289,11 +362,11 @@ const OffresPage: React.FC = () => {
 
   const hasActiveFilters = selectedSector || selectedJob || searchQuery || selectedCity || selectedApplicationStatus;
 
-  if (loading) {
+  if (!authToken) {
     return (
       <FullPageLoading 
-        message="Chargement des offres"
-        submessage="Découvrez les meilleures opportunités"
+        message="Authentification requise"
+        submessage="Redirection en cours..."
       />
     );
   }
@@ -308,7 +381,10 @@ const OffresPage: React.FC = () => {
               Offres d'emploi
             </h1>
             <p className="text-gray-600 mt-1">
-              {offres.length} offre{offres.length > 1 ? 's' : ''} disponible{offres.length > 1 ? 's' : ''}
+              {(selectedSector || selectedJob || selectedCity || searchQuery || selectedApplicationStatus) ? 
+                `${totalOffers} offre${totalOffers > 1 ? 's' : ''} trouvée${totalOffers > 1 ? 's' : ''}` : 
+                `${totalOffers} offre${totalOffers > 1 ? 's' : ''} disponible${totalOffers > 1 ? 's' : ''}`
+              }
             </p>
           </div>
           <div className="hidden md:flex items-center gap-6">
@@ -541,36 +617,48 @@ const OffresPage: React.FC = () => {
       {/* Results Count */}
       <div className="flex items-center justify-between">
         <p className="text-gray-600">
-          <span className="font-semibold text-gray-900">{filteredOffers.length}</span> offre{filteredOffers.length > 1 ? 's' : ''} trouvée{filteredOffers.length > 1 ? 's' : ''}
+          <span className="font-semibold text-gray-900">{displayedOffers.length}</span> offre{displayedOffers.length > 1 ? 's' : ''} trouvée{displayedOffers.length > 1 ? 's' : ''}
         </p>
       </div>
 
       {/* Job Offers List */}
-      {visibleOffers.length > 0 ? (
+      {displayedOffers.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {visibleOffers.map((offre) => (
-              <OffreCard
-                key={offre.id}
-                offreId={offre.id}
-                titre={offre.titre}
-                entreprise_name={offre.company_name}
-                entreprise_logo={offre.company_logo}
-                sector_name={offre.sector_name}
-                job_name={offre.job_name}
-                location={offre.location}
-                contract_type={offre.contractType}
-                date_debut={offre.date_debut}
-                date_fin={offre.date_fin}
-                description={offre.description}
-                applications_count={offre.applications_count}
-                views_count={offre.views_count}
-                isProfileComplete={isProfileComplete}
-                hasAlreadyApplied={offre.has_applied || false}
-                onApplicationSuccess={refreshOffers}
-              />
-            ))}
-          </div>
+          {/* Loading state for initial load */}
+          {loading && offres.length === 0 ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="text-center">
+                <Loader2 className="h-12 w-12 animate-spin text-green-600 mx-auto mb-4" />
+                <p className="text-gray-600">Chargement des offres...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {displayedOffers.map((offre, index) => (
+                <OffreCard
+                  key={`${offre.id}-${index}`}
+                  offreId={offre.id}
+                  titre={offre.titre}
+                  entreprise_name={offre.company_name}
+                  entreprise_logo={offre.company_logo}
+                  sector_name={offre.sector_name}
+                  job_name={offre.job_name}
+                  location={offre.location}
+                  contract_type={offre.contractType}
+                  date_debut={offre.date_debut}
+                  date_fin={offre.date_fin}
+                  description={offre.description}
+                  applications_count={offre.applications_count}
+                  views_count={offre.views_count}
+                  isProfileComplete={isProfileComplete}
+                  hasAlreadyApplied={offre.has_applied || false}
+                  onApplicationSuccess={() => updateOfferApplicationStatus(offre.id, true)}
+                  autoOpenModal={autoOpenOfferId === offre.id}
+                  onModalOpened={() => setAutoOpenOfferId(null)}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Sentinel for infinite scroll */}
           {hasMore && (
@@ -580,9 +668,9 @@ const OffresPage: React.FC = () => {
           )}
 
           {/* End of results */}
-          {!hasMore && visibleOffers.length > 0 && (
+          {!hasMore && displayedOffers.length > 0 && (
             <p className="text-center text-sm text-gray-400 py-10">
-              Toutes les offres ont été chargées ({filteredOffers.length})
+              Toutes les offres ont été chargées ({displayedOffers.length})
             </p>
           )}
         </>

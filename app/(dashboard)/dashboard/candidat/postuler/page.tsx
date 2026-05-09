@@ -110,15 +110,44 @@ export default function PublishVideo() {
     });
   };
 
+  const getVideoResolution = (file: File): Promise<{width: number, height: number}> => {
+    return new Promise((resolve) => {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.onloadedmetadata = () => {
+        const resolution = {
+          width: video.videoWidth,
+          height: video.videoHeight
+        };
+        URL.revokeObjectURL(video.src);
+        resolve(resolution);
+      };
+      video.onerror = () => resolve({width: 0, height: 0});
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // Vérifier la durée
     const duration = await getVideoDuration(file);
     if (duration > MAX_DURATION) {
       setVideoDuration(Math.round(duration));
       setShowDurationModal(true);
       e.target.value = "";
       return;
+    }
+
+    // Vérifier la résolution (optionnel - pour information)
+    const resolution = await getVideoResolution(file);
+    console.log(`📹 Vidéo uploadée: ${resolution.width}x${resolution.height}`);
+    
+    // Afficher un message informatif sur la résolution
+    if (resolution.width > 0 && resolution.height > 0) {
+      const aspectRatio = (resolution.width / resolution.height).toFixed(2);
+      toast.success(`Vidéo détectée: ${resolution.width}x${resolution.height} (ratio ${aspectRatio})`, { duration: 3000 });
     }
 
     setIsUploadingRecording(true);
@@ -328,6 +357,7 @@ export default function PublishVideo() {
                     <div className="text-center">
                       <p className="text-base font-semibold text-gray-700">Cliquez pour choisir une vidéo</p>
                       <p className="text-sm text-gray-400 mt-1">MP4, MOV, AVI — max 1 min 3 sec</p>
+                      <p className="text-xs text-gray-500 mt-1">Résolution recommandée: 1280x720 (HD) ou supérieure</p>
                     </div>
                     <span className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg">
                       Choisir un fichier

@@ -1,12 +1,12 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import ModernLoginForm from "../../../components/auth/login/ModernLoginForm";
 import ModernAuthLayout from "../../../components/auth/ModernAuthLayout";
 import AuthLoadingSpinner from "../../../components/auth/AuthLoadingSpinner";
 
-const LoginCandidatPage = () => {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLoading, user } = useAuthGuard({});
@@ -57,6 +57,14 @@ const LoginCandidatPage = () => {
         returnUrl={returnUrl}
       />
     </ModernAuthLayout>
+  );
+}
+
+const LoginCandidatPage = () => {
+  return (
+    <Suspense fallback={<AuthLoadingSpinner message="Chargement de la page..." />}>
+      <LoginContent />
+    </Suspense>
   );
 };
 

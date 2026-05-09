@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import SafeHtmlDisplay from "@/components/SafeHtmlDisplay";
 import { useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import ProfileCompletionModal from "@/components/ProfileCompletionModal";
+import Link from "next/link";
 import {
   MapPin,
   Building,
@@ -287,7 +288,22 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden group">
+    <Link 
+      href={`/dashboard/candidat/offres/${offreId}`}
+      className="block h-full"
+      onClick={(e) => {
+        // Prevent navigation if clicking on interactive elements
+        const target = e.target as HTMLElement;
+        if (
+          target.closest('button') || 
+          target.closest('select') || 
+          target.closest('a[href]')
+        ) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <div className="bg-white rounded-2xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden group cursor-pointer">
       {/* Header Section */}
       <div className="px-6 pt-6 pb-4 bg-gradient-to-br from-gray-50 to-white">
         <div className="flex items-start gap-4">
@@ -602,7 +618,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </Link>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import Cookies from "js-cookie";
 import { FullPageLoading } from "@/components/ui/loading";
 import OffreCard from "@/components/offreCard";
@@ -10,6 +10,7 @@ import { Search, X, Loader2 } from "lucide-react";
 import { fetchSectors, fetchOffers } from "@/lib/api";
 
 const UI_STATE_KEY = 'facejob_dashboard_offres_ui_state';
+const PAGE_SIZE = 12;
 
 function readSavedState() {
   if (typeof window === 'undefined') return null;
@@ -26,8 +27,6 @@ const OffresPage: React.FC = () => {
   const [sectors, setSectors] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [totalOffers, setTotalOffers] = useState<number>(0);
 
   // Initialize all filter state from sessionStorage to survive back navigation
   const saved = useRef(readSavedState());
@@ -37,7 +36,10 @@ const OffresPage: React.FC = () => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(saved.current?.searchQuery ?? "");
   const [selectedCity, setSelectedCity] = useState<string>(saved.current?.selectedCity ?? "");
   const [selectedApplicationStatus, setSelectedApplicationStatus] = useState<string>(saved.current?.selectedApplicationStatus ?? "");
-  const [currentPage, setCurrentPage] = useState<number>(saved.current?.currentPage ?? 1);
+  const [visibleCount, setVisibleCount] = useState<number>(saved.current?.visibleCount ?? PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const customSelectStyles = {
     control: (base: any, state: any) => ({
@@ -97,10 +99,10 @@ const OffresPage: React.FC = () => {
         searchQuery,
         selectedCity,
         selectedApplicationStatus,
-        currentPage,
+        visibleCount,
       }));
     } catch { /* quota exceeded */ }
-  }, [selectedSector, selectedJob, searchQuery, selectedCity, selectedApplicationStatus, currentPage]);
+  }, [selectedSector, selectedJob, searchQuery, selectedCity, selectedApplicationStatus, visibleCount]);
 
   const isFirstSectorEffect = useRef(true);
   useEffect(() => {
@@ -126,6 +128,16 @@ const OffresPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Reset visible count when filters change (but not on first render)
+  const isFirstFilterChange = useRef(true);
+  useEffect(() => {
+    if (isFirstFilterChange.current) {
+      isFirstFilterChange.current = false;
+      return;
+    }
+    setVisibleCount(PAGE_SIZE);
+  }, [debouncedSearchQuery, selectedSector, selectedJob, selectedCity, selectedApplicationStatus]);
+
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
@@ -141,7 +153,7 @@ const OffresPage: React.FC = () => {
 
         // Fetch all data in parallel including profile analysis
         const [offersResult, sectorsData, profileData] = await Promise.all([
-          fetchOffers(currentPage, 15),
+          fetchOffers(1, 500), // Fetch all offers at once for client-side filtering
           fetchSectors(),
           fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
             headers: {
@@ -159,11 +171,8 @@ const OffresPage: React.FC = () => {
 
         // Set offers with pagination info
         const offersData = offersResult.data || [];
-        const pagination = offersResult.pagination || {};
         
         setOffres(Array.isArray(offersData) ? offersData : []);
-        setTotalPages(pagination.last_page || 1);
-        setTotalOffers(pagination.total || 0);
 
         // Set sectors
         setSectors(Array.isArray(sectorsData) ? sectorsData : []);
@@ -194,12 +203,12 @@ const OffresPage: React.FC = () => {
     if (authToken) {
       fetchAllData();
     }
-  }, [authToken, currentPage]);
+  }, [authToken]);
 
   // Function to refresh offers after application
   const refreshOffers = async () => {
     try {
-      const offersResult = await fetchOffers(currentPage, 15);
+      const offersResult = await fetchOffers(1, 500);
       const offersData = offersResult.data || [];
       setOffres(Array.isArray(offersData) ? offersData : []);
     } catch (error) {
@@ -241,6 +250,34 @@ const OffresPage: React.FC = () => {
     const cities = Array.from(new Set(offres.map(offre => offre.location).filter(Boolean)));
     return cities.sort();
   }, [offres]);
+
+  const visibleOffers = useMemo(
+    () => filteredOffers.slice(0, visibleCount),
+    [filteredOffers, visibleCount]
+  );
+
+  const hasMore = visibleCount < filteredOffers.length;
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loadingMore) {
+          setLoadingMore(true);
+          setTimeout(() => {
+            setVisibleCount((prev: number) => prev + PAGE_SIZE);
+            setLoadingMore(false);
+          }, 300);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore]);
 
   const clearAllFilters = () => {
     setSelectedSector("");
@@ -509,10 +546,10 @@ const OffresPage: React.FC = () => {
       </div>
 
       {/* Job Offers List */}
-      {filteredOffers.length > 0 ? (
+      {visibleOffers.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredOffers.map((offre) => (
+            {visibleOffers.map((offre) => (
               <OffreCard
                 key={offre.id}
                 offreId={offre.id}
@@ -535,54 +572,18 @@ const OffresPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Précédent
-              </button>
-              
-              <div className="flex items-center gap-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        currentPage === pageNum
-                          ? 'bg-green-600 text-white'
-                          : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Suivant
-              </button>
+          {/* Sentinel for infinite scroll */}
+          {hasMore && (
+            <div ref={sentinelRef} className="flex justify-center items-center py-10">
+              {loadingMore && <Loader2 className="h-8 w-8 animate-spin text-green-600" />}
             </div>
+          )}
+
+          {/* End of results */}
+          {!hasMore && visibleOffers.length > 0 && (
+            <p className="text-center text-sm text-gray-400 py-10">
+              Toutes les offres ont été chargées ({filteredOffers.length})
+            </p>
           )}
         </>
       ) : (

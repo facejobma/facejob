@@ -291,19 +291,22 @@ const OffreCard: React.FC<OffreCardProps> = ({
     <Link 
       href={`/dashboard/candidat/offres/${offreId}`}
       className="block h-full"
-      onClick={(e) => {
-        // Prevent navigation if clicking on interactive elements
-        const target = e.target as HTMLElement;
-        if (
-          target.closest('button') || 
-          target.closest('select') || 
-          target.closest('a[href]')
-        ) {
-          e.preventDefault();
-        }
-      }}
     >
-      <div className="bg-white rounded-2xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden group cursor-pointer">
+      <div 
+        className="bg-white rounded-2xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden group cursor-pointer"
+        onClick={(e) => {
+          // Prevent navigation only if clicking on interactive elements
+          const target = e.target as HTMLElement;
+          if (
+            target.closest('button') || 
+            target.closest('select') || 
+            target.closest('a:not([href*="/dashboard/candidat/offres/"])')
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
+      >
       {/* Header Section */}
       <div className="px-6 pt-6 pb-4 bg-gradient-to-br from-gray-50 to-white">
         <div className="flex items-start gap-4">
@@ -380,7 +383,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
           {(description?.length || 0) > 100 && (
             <button
               className="text-green-600 hover:text-green-700 font-semibold text-xs mt-2 flex items-center gap-1 transition-colors"
-              onClick={toggleDescription}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleDescription();
+              }}
             >
               <ChevronDown size={14} />
               Voir plus
@@ -397,7 +404,9 @@ const OffreCard: React.FC<OffreCardProps> = ({
         ) : (
           <button
             className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               // Si le profil n'est pas complet ET que l'utilisateur n'a pas encore cliqué sur "Passer"
               if (!localIsProfileComplete && !hasSkippedProfileCompletion) {
                 setShowProfileModal(true);
@@ -426,7 +435,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
           
           <div className="flex items-center gap-2">
             <button
-              onClick={() => router.push(`/dashboard/candidat/offres/${offreId}`)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push(`/dashboard/candidat/offres/${offreId}`);
+              }}
               className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 font-semibold transition-colors bg-white px-2.5 py-1 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-xs"
               title="Voir tous les détails"
             >
@@ -435,7 +448,11 @@ const OffreCard: React.FC<OffreCardProps> = ({
             </button>
             
             <button
-              onClick={handleShare}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleShare();
+              }}
               className="flex items-center gap-1.5 text-gray-600 hover:text-green-600 font-semibold transition-colors bg-white px-2.5 py-1 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 text-xs"
             >
               <Share2 size={14} />

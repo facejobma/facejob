@@ -51,6 +51,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     const streamRef = useRef<MediaStream | null>(null);
     const logoRef = useRef<HTMLImageElement | null>(null);
     const recordingRef = useRef(false);
+    const actualResolutionRef = useRef<{width: number, height: number} | null>(null);
 
     const [recording, setRecording] = useState(false);
     const [recorded, setRecorded] = useState(false);
@@ -59,6 +60,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     const [cameraReady, setCameraReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isInitializing, setIsInitializing] = useState(false);
+    const [actualResolution, setActualResolution] = useState(DEFAULT_RESOLUTION);
     const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
@@ -130,14 +132,24 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
           streamRef.current = null;
         }
 
-        // Contraintes vidéo avec résolution fixe
+        // Contraintes vidéo avec résolution flexible pour mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
         const constraints = {
-          video: {
+          video: isMobile ? {
+            // Sur mobile, laisser la caméra choisir sa résolution native
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 480, ideal: 720, max: 1080 },
+            aspectRatio: { ideal: 16/9 },
+            frameRate: { ideal: 30, max: 30 },
+            facingMode: "user"
+          } : {
+            // Sur desktop, utiliser la résolution fixe
             width: { ideal: DEFAULT_RESOLUTION.width },
             height: { ideal: DEFAULT_RESOLUTION.height },
             aspectRatio: DEFAULT_RESOLUTION.width / DEFAULT_RESOLUTION.height,
             frameRate: { ideal: 30, max: 30 },
-            facingMode: "user" // Caméra frontale par défaut
+            facingMode: "user"
           },
           audio: {
             echoCancellation: true,
@@ -177,6 +189,14 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
             const videoTrack = stream.getVideoTracks()[0];
             const settings = videoTrack.getSettings();
             console.log(`✅ Actual resolution: ${settings.width}x${settings.height}`);
+            
+            // Stocker la résolution réelle pour le canvas
+            const actualRes = {
+              width: settings.width || DEFAULT_RESOLUTION.width,
+              height: settings.height || DEFAULT_RESOLUTION.height
+            };
+            actualResolutionRef.current = actualRes;
+            setActualResolution(actualRes);
             
             setCameraReady(true);
             console.log('🎉 Camera ready!');
@@ -235,15 +255,18 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      // Forcer la résolution du canvas à la résolution fixe
-      if (canvas.width !== DEFAULT_RESOLUTION.width || canvas.height !== DEFAULT_RESOLUTION.height) {
-        canvas.width = DEFAULT_RESOLUTION.width;
-        canvas.height = DEFAULT_RESOLUTION.height;
-        console.log(`🎨 Canvas configuré à: ${canvas.width}x${canvas.height}`);
+      // Utiliser la résolution réelle de la caméra si disponible, sinon la résolution par défaut
+      const actualRes = actualResolutionRef.current || DEFAULT_RESOLUTION;
+      
+      // Configurer le canvas avec la résolution réelle de la caméra
+      if (canvas.width !== actualRes.width || canvas.height !== actualRes.height) {
+        canvas.width = actualRes.width;
+        canvas.height = actualRes.height;
+        console.log(`🎨 Canvas configuré à la résolution réelle: ${canvas.width}x${canvas.height}`);
       }
 
-      // Dessiner la vidéo en redimensionnant si nécessaire pour remplir le canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // Dessiner la vidéo sans redimensionnement pour éviter l'étirement
+      ctx.drawImage(video, 0, 0, actualRes.width, actualRes.height);
 
       // Ajouter le logo avec une taille proportionnelle à la résolution fixe
       if (logoRef.current && canvas.width > 0) {
@@ -282,14 +305,15 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       const canvasStream = canvasRef.current.captureStream(30);
       streamRef.current.getAudioTracks().forEach((t) => canvasStream.addTrack(t));
 
-      // Configuration d'encodage avec bitrate adapté à la résolution
-      const videoBitsPerSecond = DEFAULT_RESOLUTION.width >= 1920 ? 4_000_000 : 2_500_000; // 4Mbps pour Full HD, 2.5Mbps pour HD
+      // Configuration d'encodage avec bitrate adapté à la résolution réelle
+      const actualRes = actualResolutionRef.current || DEFAULT_RESOLUTION;
+      const videoBitsPerSecond = actualRes.width >= 1920 ? 4_000_000 : 2_500_000; // 4Mbps pour Full HD, 2.5Mbps pour HD
 
       const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
         ? "video/webm;codecs=vp9,opus"
         : "video/webm";
 
-      console.log(`🎬 Démarrage enregistrement: ${DEFAULT_RESOLUTION.width}x${DEFAULT_RESOLUTION.height} @ ${videoBitsPerSecond/1000000}Mbps`);
+      console.log(`🎬 Démarrage enregistrement: ${actualRes.width}x${actualRes.height} @ ${videoBitsPerSecond/1000000}Mbps`);
 
       const mr = new MediaRecorder(canvasStream, { mimeType, videoBitsPerSecond });
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
@@ -322,6 +346,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       setPreviewUrl(null);
       setRecorded(false);
       setElapsed(0);
+      setActualResolution(DEFAULT_RESOLUTION); // Reset à la résolution par défaut
       
       // Délai court pour éviter les conflits avec killStream
       setTimeout(() => {
@@ -374,7 +399,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
       <div className="space-y-4">
         <div className="relative bg-black rounded-xl overflow-hidden" style={{ 
           maxHeight: "400px", 
-          aspectRatio: `${DEFAULT_RESOLUTION.width}/${DEFAULT_RESOLUTION.height}` 
+          aspectRatio: `${actualResolution.width}/${actualResolution.height}` 
         }}>
           {/* Video off-screen mais rendu pour que drawImage fonctionne */}
           <video
@@ -386,8 +411,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
           <canvas 
             ref={canvasRef} 
             className="w-full h-full object-cover"
-            width={DEFAULT_RESOLUTION.width}
-            height={DEFAULT_RESOLUTION.height}
+            // Les dimensions seront définies dynamiquement dans drawLoop
           />
           {recording && (
             <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
@@ -427,7 +451,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
         </div>
 
         <p className="text-xs text-gray-500 text-center">
-          Durée maximale: 1 min 30 sec • Résolution: {DEFAULT_RESOLUTION.width}x{DEFAULT_RESOLUTION.height}
+          Durée maximale: 1 min 30 sec • Résolution: {actualResolution.width}x{actualResolution.height}
         </p>
       </div>
     );

@@ -11,9 +11,10 @@ import { secureLogin } from "@/lib/auth";
 
 interface ModernLoginFormProps {
   loginFor: "candidate" | "entreprise";
+  returnUrl?: string | null;
 }
 
-const ModernLoginForm = ({ loginFor }: ModernLoginFormProps) => {
+const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,7 +59,7 @@ const ModernLoginForm = ({ loginFor }: ModernLoginFormProps) => {
 
     setIsLoading(true);
     try {
-      const result = await secureLogin(email, password, loginFor);
+      const result = await secureLogin(email, password, loginFor, returnUrl);
       
       if (result.success) {
         toast.success("Connecté avec succès");

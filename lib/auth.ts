@@ -249,7 +249,12 @@ export interface AuthResult {
 }
 
 // Secure login function that handles authentication and role-based redirection
-export async function secureLogin(email: string, password: string, expectedRole: "candidate" | "entreprise"): Promise<AuthResult> {
+export async function secureLogin(
+  email: string, 
+  password: string, 
+  expectedRole: "candidate" | "entreprise",
+  returnUrl?: string | null
+): Promise<AuthResult> {
   try {
     const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
     // Use role-specific login endpoint
@@ -341,10 +346,17 @@ export async function secureLogin(email: string, password: string, expectedRole:
     Cookies.set("userRole", userRole, { expires: 7 });
     sessionStorage.setItem("userRole", userRole); // IMPORTANT: For sidebar navigation
     
-    console.log('🔐 Login successful - Redirecting to dashboard:', userRole);
+    console.log('🔐 Login successful - Checking for custom redirect:', { returnUrl });
     
-    // Redirect to appropriate dashboard based on actual role from database
-    redirectToDashboard(userRole);
+    // Handle custom redirection if returnUrl is provided
+    if (returnUrl) {
+      console.log('🔄 Redirecting to custom URL:', returnUrl);
+      window.location.href = returnUrl;
+    } else {
+      // Default redirect to appropriate dashboard based on actual role from database
+      console.log('🔄 Redirecting to default dashboard:', userRole);
+      redirectToDashboard(userRole);
+    }
 
     return { success: true };
 

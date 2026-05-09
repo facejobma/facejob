@@ -38,6 +38,39 @@ const OffresPage: React.FC = () => {
   const [totalOffers, setTotalOffers] = useState(0);
   const [autoOpenOfferId, setAutoOpenOfferId] = useState<number | null>(null);
 
+  // Check profile completion on component mount
+  useEffect(() => {
+    const checkProfileCompletion = async () => {
+      if (!authToken) return;
+      
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+        
+        if (response.ok) {
+          const profileData = await response.json();
+          const requiredFields = ["bio", "projects", "skills", "experiences"];
+          const missingFields = requiredFields.filter(
+            (field) => !profileData[field] || profileData[field].length === 0
+          );
+          setIsProfileComplete(missingFields.length === 0);
+          console.log('Profile completion checked on mount:', missingFields.length === 0);
+        } else {
+          setIsProfileComplete(false);
+        }
+      } catch (error) {
+        console.error('Error checking profile completion:', error);
+        setIsProfileComplete(false);
+      }
+    };
+
+    checkProfileCompletion();
+  }, [authToken]);
+
   // Handle offerId from URL (when redirected from public page)
   useEffect(() => {
     if (offerIdFromUrl) {
@@ -195,21 +228,13 @@ const OffresPage: React.FC = () => {
           // Fetch filter metadata only on first load
           try {
             // Fetch all filter metadata in one call
-            const [metadataRes, profileData] = await Promise.all([
-              fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/filter-metadata`, {
-                headers: { 
-                  Authorization: `Bearer ${authToken}`,
-                  "Content-Type": "application/json",
-                  'ngrok-skip-browser-warning': 'true'
-                }
-              }),
-              fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                  "Content-Type": "application/json",
-                },
-              }).then(res => res.ok ? res.json() : null)
-            ]);
+            const metadataRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/filter-metadata`, {
+              headers: { 
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+                'ngrok-skip-browser-warning': 'true'
+              }
+            });
 
             if (metadataRes.ok) {
               const metadata = await metadataRes.json();
@@ -253,16 +278,6 @@ const OffresPage: React.FC = () => {
               setSectors(Array.isArray(sectorsData) ? sectorsData : []);
             }
 
-            if (profileData) {
-              const requiredFields = ["bio", "projects", "skills", "experiences"];
-              const missingFields = requiredFields.filter(
-                (field) => !profileData[field] || profileData[field].length === 0
-              );
-              setIsProfileComplete(missingFields.length === 0);
-            } else {
-              setIsProfileComplete(false);
-            }
-
           } catch (error) {
             console.error('Error loading filter metadata:', error);
             // Fallback: extract data from current offers
@@ -289,7 +304,6 @@ const OffresPage: React.FC = () => {
         if (currentPage === 1) {
           setOffres([]);
           setSectors([]);
-          setIsProfileComplete(false);
         }
       } finally {
         setLoading(false);

@@ -215,7 +215,11 @@ const PublicOffersPage: React.FC = () => {
 
         if (metadataRes.ok) {
           const metadata = await metadataRes.json();
-          const filterData = {
+          const filterData: {
+            sectors: Sector[];
+            cities: string[];
+            jobs: Job[];
+          } = {
             sectors: Array.isArray(metadata.sectors) ? metadata.sectors : [],
             cities: Array.isArray(metadata.cities) ? metadata.cities : [],
             jobs: []

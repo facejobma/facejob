@@ -1,42 +1,43 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import Cookies from "js-cookie";
 import { FullPageLoading } from "@/components/ui/loading";
 import OffreCard from "@/components/offreCard";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
-import { Search, Briefcase, Building, Grid3x3, X, Filter, MapPin, Calendar, TrendingUp, ChevronDown } from "lucide-react";
-import { fetchSectors, fetchEnterprises, fetchOffers } from "@/lib/api";
+import { Search, X, Loader2 } from "lucide-react";
+import { fetchSectors, fetchOffers } from "@/lib/api";
+
+const UI_STATE_KEY = 'facejob_dashboard_offres_ui_state';
+
+function readSavedState() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(UI_STATE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
 
 const OffresPage: React.FC = () => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [offres, setOffres] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sectors, setSectors] = useState<any[]>([]);
-  const [entreprises, setEntreprises] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
-  const [selectedSector, setSelectedSector] = useState<string>("");
-  const [selectedJob, setSelectedJob] = useState<string>("");
-  const [selectedEntreprise, setSelectedEntreprise] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState<string>("");
-  const [selectedApplicationStatus, setSelectedApplicationStatus] = useState<string>("");
   const [isProfileComplete, setIsProfileComplete] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalOffers, setTotalOffers] = useState<number>(0);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
 
-  const sortedEntreprises = Array.isArray(entreprises) 
-    ? [...entreprises].sort((a, b) => a.company_name.localeCompare(b.company_name))
-    : [];
-
-  const entrepriseOptions = sortedEntreprises.map((entreprise) => ({
-    value: entreprise.id,
-    label: entreprise.company_name,
-  }));
+  // Initialize all filter state from sessionStorage to survive back navigation
+  const saved = useRef(readSavedState());
+  const [selectedSector, setSelectedSector] = useState<string>(saved.current?.selectedSector ?? "");
+  const [selectedJob, setSelectedJob] = useState<string>(saved.current?.selectedJob ?? "");
+  const [searchQuery, setSearchQuery] = useState<string>(saved.current?.searchQuery ?? "");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>(saved.current?.searchQuery ?? "");
+  const [selectedCity, setSelectedCity] = useState<string>(saved.current?.selectedCity ?? "");
+  const [selectedApplicationStatus, setSelectedApplicationStatus] = useState<string>(saved.current?.selectedApplicationStatus ?? "");
+  const [currentPage, setCurrentPage] = useState<number>(saved.current?.currentPage ?? 1);
 
   const customSelectStyles = {
     control: (base: any, state: any) => ({
@@ -87,13 +88,33 @@ const OffresPage: React.FC = () => {
     }),
   };
 
+  // Persist UI state on every change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(UI_STATE_KEY, JSON.stringify({
+        selectedSector,
+        selectedJob,
+        searchQuery,
+        selectedCity,
+        selectedApplicationStatus,
+        currentPage,
+      }));
+    } catch { /* quota exceeded */ }
+  }, [selectedSector, selectedJob, searchQuery, selectedCity, selectedApplicationStatus, currentPage]);
+
+  const isFirstSectorEffect = useRef(true);
   useEffect(() => {
     if (selectedSector) {
       const sector = sectors.find((sec) => sec.id === Number(selectedSector));
       setFilteredJobs(sector ? sector.jobs : []);
-      setSelectedJob("");
+      // Don't reset selectedJob on first render (restoring from cache)
+      if (!isFirstSectorEffect.current) {
+        setSelectedJob("");
+      }
+      isFirstSectorEffect.current = false;
     } else {
       setFilteredJobs([]);
+      isFirstSectorEffect.current = false;
     }
   }, [selectedSector, sectors]);
 
@@ -119,10 +140,9 @@ const OffresPage: React.FC = () => {
         });
 
         // Fetch all data in parallel including profile analysis
-        const [offersResult, sectorsData, entreprisesData, profileData] = await Promise.all([
-          fetchOffers(currentPage, 15), // Fetch with pagination and authentication
+        const [offersResult, sectorsData, profileData] = await Promise.all([
+          fetchOffers(currentPage, 15),
           fetchSectors(),
-          fetchEnterprises(),
           fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -148,9 +168,6 @@ const OffresPage: React.FC = () => {
         // Set sectors
         setSectors(Array.isArray(sectorsData) ? sectorsData : []);
 
-        // Set entreprises
-        setEntreprises(Array.isArray(entreprisesData) ? entreprisesData : []);
-
         // Check profile completion once for all cards
         if (profileData) {
           const requiredFields = ["bio", "projects", "skills", "experiences"];
@@ -168,7 +185,6 @@ const OffresPage: React.FC = () => {
         // Set empty arrays on error
         setOffres([]);
         setSectors([]);
-        setEntreprises([]);
         setIsProfileComplete(false);
       } finally {
         setLoading(false);
@@ -215,11 +231,10 @@ const OffresPage: React.FC = () => {
       // Other filters
       const matchesSector = !selectedSector || offre.sector_id === Number(selectedSector);
       const matchesJob = !selectedJob || offre.job_id === Number(selectedJob);
-      const matchesEntreprise = !selectedEntreprise || offre.entreprise_id === Number(selectedEntreprise);
 
-      return matchesSearch && matchesCity && matchesApplicationStatus && matchesSector && matchesJob && matchesEntreprise;
+      return matchesSearch && matchesCity && matchesApplicationStatus && matchesSector && matchesJob;
     });
-  }, [offres, debouncedSearchQuery, selectedCity, selectedApplicationStatus, selectedSector, selectedJob, selectedEntreprise]);
+  }, [offres, debouncedSearchQuery, selectedCity, selectedApplicationStatus, selectedSector, selectedJob]);
 
   // Get unique cities from offers
   const availableCities = useMemo(() => {
@@ -230,13 +245,12 @@ const OffresPage: React.FC = () => {
   const clearAllFilters = () => {
     setSelectedSector("");
     setSelectedJob("");
-    setSelectedEntreprise("");
     setSearchQuery("");
     setSelectedCity("");
     setSelectedApplicationStatus("");
   };
 
-  const hasActiveFilters = selectedSector || selectedJob || selectedEntreprise || searchQuery || selectedCity || selectedApplicationStatus;
+  const hasActiveFilters = selectedSector || selectedJob || searchQuery || selectedCity || selectedApplicationStatus;
 
   if (loading) {
     return (
@@ -338,7 +352,7 @@ const OffresPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Secteur Filter with react-select */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -391,23 +405,6 @@ const OffresPage: React.FC = () => {
               styles={customSelectStyles}
               className="w-full"
               noOptionsMessage={() => "Aucun poste trouvé"}
-            />
-          </div>
-
-          {/* Entreprise Filter - Already using react-select */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Entreprise
-            </label>
-            <Select
-              options={entrepriseOptions}
-              value={entrepriseOptions.find((opt) => opt.value === selectedEntreprise) || null}
-              onChange={(selected) => setSelectedEntreprise(selected ? selected.value : "")}
-              placeholder="Toutes les entreprises"
-              isClearable
-              styles={customSelectStyles}
-              className="w-full"
-              noOptionsMessage={() => "Aucune entreprise trouvée"}
             />
           </div>
 
@@ -483,17 +480,6 @@ const OffresPage: React.FC = () => {
                   <button
                     onClick={() => setSelectedJob("")}
                     className="hover:bg-emerald-200 rounded-full p-0.5"
-                  >
-                    <X size={12} />
-                  </button>
-                </span>
-              )}
-              {selectedEntreprise && (
-                <span className="inline-flex items-center gap-1 bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
-                  {entrepriseOptions.find((e) => e.value === selectedEntreprise)?.label}
-                  <button
-                    onClick={() => setSelectedEntreprise("")}
-                    className="hover:bg-teal-200 rounded-full p-0.5"
                   >
                     <X size={12} />
                   </button>

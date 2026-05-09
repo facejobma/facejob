@@ -247,23 +247,23 @@ const OfferDetailPage: React.FC = () => {
                   </div>
                   Détails de l'offre
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Date de début</p>
-                    <p className="font-semibold text-gray-900 font-body">{formatDate(offer.date_debut)}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Date de fin</p>
-                    <p className="font-semibold text-gray-900 font-body">{formatDate(offer.date_fin)}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Secteur</p>
-                    <p className="font-semibold text-gray-900 font-body">{offer.sector_name}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <p className="text-gray-500 text-xs mb-2 font-body font-medium">Métier</p>
-                    <p className="font-semibold text-gray-900 font-body">{offer.job_name}</p>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { label: "Date de début", value: offer.date_debut ? formatDate(offer.date_debut) : null, icon: <Calendar className="h-4 w-4 text-primary" /> },
+                    { label: "Date de fin", value: offer.date_fin ? formatDate(offer.date_fin) : null, icon: <Calendar className="h-4 w-4 text-primary" /> },
+                    { label: "Secteur", value: offer.sector_name, icon: <Briefcase className="h-4 w-4 text-primary" /> },
+                    { label: "Métier", value: offer.job_name, icon: <Users className="h-4 w-4 text-primary" /> },
+                  ].map(({ label, value, icon }) => value ? (
+                    <div key={label} className="bg-gray-50 rounded-xl p-4 border border-gray-100 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-white rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                        {icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-gray-500 text-xs mb-1 font-body font-medium">{label}</p>
+                        <p className="font-semibold text-gray-900 font-body text-sm leading-snug break-words">{value}</p>
+                      </div>
+                    </div>
+                  ) : null)}
                 </div>
               </div>
             </div>
@@ -293,23 +293,23 @@ const OfferDetailPage: React.FC = () => {
                 </p>
 
                 {/* Quick info */}
-                <div className="space-y-3 pt-5 border-t-2 border-gray-100">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-600 font-body">Secteur</span>
-                    <span className="text-sm font-bold text-secondary font-body">{offer.sector_name}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-600 font-body">Métier</span>
-                    <span className="text-sm font-bold text-secondary font-body">{offer.job_name}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-600 font-body">Localisation</span>
-                    <span className="text-sm font-bold text-secondary font-body">{offer.location}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-600 font-body">Type de contrat</span>
-                    <span className="text-sm font-bold text-secondary font-body">{offer.contractType}</span>
-                  </div>
+                <div className="space-y-2 pt-5 border-t-2 border-gray-100">
+                  {[
+                    { label: "Secteur", value: offer.sector_name, icon: <Briefcase className="h-3.5 w-3.5 text-primary" /> },
+                    { label: "Métier", value: offer.job_name, icon: <Users className="h-3.5 w-3.5 text-primary" /> },
+                    { label: "Localisation", value: offer.location, icon: <MapPin className="h-3.5 w-3.5 text-primary" /> },
+                    { label: "Type de contrat", value: offer.contractType, icon: <Calendar className="h-3.5 w-3.5 text-primary" /> },
+                  ].map(({ label, value, icon }) => value ? (
+                    <div key={label} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-6 h-6 bg-primary/10 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5">
+                        {icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 font-body mb-0.5">{label}</p>
+                        <p className="text-sm font-bold text-secondary font-body leading-snug break-words">{value}</p>
+                      </div>
+                    </div>
+                  ) : null)}
                 </div>
               </div>
             </div>

@@ -388,13 +388,14 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                     id="title"
                     value={formData.title || ""}
                     onChange={(e) => handleInputChange("title", e.target.value)}
+                    maxLength={150}
                     placeholder="Ex: Ingénieur en Informatique, Master en Marketing..."
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                     required
                     disabled={isSubmitting}
                   />
-                  <p className="text-xs text-green-700 mt-1">
-                    💡 Le titre ou spécialité de votre formation
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.title?.length || 0}/150 caractères
                   </p>
                 </div>
 
@@ -473,13 +474,14 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                     id="school_name"
                     value={formData.school_name || ""}
                     onChange={(e) => handleInputChange("school_name", e.target.value)}
+                    maxLength={200}
                     placeholder="Ex: Université Mohammed V, ENSA Rabat, OFPPT..."
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                     required
                     disabled={isSubmitting}
                   />
-                  <p className="text-xs text-green-700 mt-1">
-                    💡 Le nom de l'école, université ou centre de formation
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.school_name?.length || 0}/200 caractères
                   </p>
                 </div>
 

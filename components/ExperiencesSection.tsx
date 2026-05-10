@@ -465,6 +465,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               id="poste"
               value={formData.poste}
               onChange={(e) => handleInputChange("poste", e.target.value)}
+              maxLength={100}
               className={`w-full border ${formErrors.poste ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none`}
               placeholder="Ex: Développeur Full Stack"
             />
@@ -473,6 +474,9 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                 <span>⚠️</span> {formErrors.poste}
               </p>
             )}
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.poste?.length || 0}/100 caractères
+            </p>
           </div>
 
           {/* Entreprise */}
@@ -485,6 +489,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               id="organisme"
               value={formData.organisme}
               onChange={(e) => handleInputChange("organisme", e.target.value)}
+              maxLength={150}
               className={`w-full border ${formErrors.organisme ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none`}
               placeholder="Ex: Google, Microsoft, etc."
             />
@@ -493,6 +498,9 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                 <span>⚠️</span> {formErrors.organisme}
               </p>
             )}
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.organisme?.length || 0}/150 caractères
+            </p>
           </div>
 
           {/* Lieu */}
@@ -507,10 +515,14 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                 id="location"
                 value={formData.location || ""}
                 onChange={(e) => handleInputChange("location", e.target.value)}
+                maxLength={100}
                 className="w-full border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 pl-10 pr-4 transition-all outline-none"
                 placeholder="Ex: Casablanca, Maroc"
               />
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.location?.length || 0}/100 caractères
+            </p>
           </div>
 
           {/* Dates */}
@@ -579,6 +591,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               rows={4}
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
+              maxLength={1000}
               className={`w-full border ${formErrors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : 'border-gray-300 focus:border-green-500 focus:ring-green-200'} focus:ring-2 rounded-lg py-2.5 px-4 transition-all outline-none resize-none`}
               placeholder="Décrivez vos responsabilités, réalisations et compétences développées..."
             />
@@ -588,7 +601,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               </p>
             ) : (
               <p className="text-xs text-gray-500 mt-1">
-                Minimum 20 caractères requis • {formData.description?.length || 0} caractères
+                {formData.description?.length || 0}/1000 caractères • Minimum 20 caractères requis
               </p>
             )}
           </div>

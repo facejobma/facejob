@@ -286,10 +286,14 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
                     id="title"
                     value={formData.title}
                     onChange={(e) => handleInputChange("title", e.target.value)}
+                    maxLength={150}
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                     placeholder="Ex: Application mobile e-commerce, Site web portfolio..."
                     required
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.title?.length || 0}/150 caractères
+                  </p>
                 </div>
 
                 <div>
@@ -300,13 +304,14 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
                     id="description"
                     value={formData.description}
                     onChange={(e) => handleInputChange("description", e.target.value)}
+                    maxLength={1000}
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all resize-none"
                     placeholder="Décrivez votre projet, les technologies utilisées, votre rôle et les résultats obtenus..."
                     rows={5}
                     required
                   />
-                  <p className="text-xs text-green-700 mt-2">
-                    💡 Mentionnez les technologies, votre rôle et l'impact du projet
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.description?.length || 0}/1000 caractères
                   </p>
                 </div>
               </div>

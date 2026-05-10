@@ -135,10 +135,11 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
               onChange={handleInputChange}
               placeholder="Parlez de vous, votre parcours, vos objectifs professionnels..."
               rows={8}
+              maxLength={1000}
               className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all resize-none"
             />
             <p className="text-xs text-gray-500 mt-2">
-              {newBio.length} caractères • Minimum 20 caractères recommandés
+              {newBio.length}/1000 caractères
             </p>
           </div>
 

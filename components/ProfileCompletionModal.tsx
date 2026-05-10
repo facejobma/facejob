@@ -669,10 +669,11 @@ export default function ProfileCompletionModal({
                 onChange={(e) => setBioData(e.target.value)}
                 placeholder="Parlez de vous, votre parcours, vos objectifs professionnels..."
                 rows={6}
+                maxLength={1000}
                 className="mt-2 border-gray-300 focus:border-green-500 focus:ring-green-200"
               />
               <p className="text-xs text-gray-500 mt-1">
-                {bioData.length} caractères
+                {bioData.length}/1000 caractères
               </p>
             </div>
           ) : currentSection === "skills" ? (
@@ -689,6 +690,7 @@ export default function ProfileCompletionModal({
                     onChange={(e) => setNewSkill(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddSkill())}
                     placeholder="Ex: JavaScript, React, Node.js..."
+                    maxLength={50}
                     className="flex-1"
                   />
                   <Button
@@ -734,8 +736,12 @@ export default function ProfileCompletionModal({
                     setProjectData({ ...projectData, title: e.target.value })
                   }
                   placeholder="Ex: Application de gestion de tâches"
+                  maxLength={150}
                   className="mt-2"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {projectData.title.length}/150 caractères
+                </p>
               </div>
               <div>
                 <Label htmlFor="projectDescription" className="text-sm font-semibold text-gray-700">
@@ -749,8 +755,12 @@ export default function ProfileCompletionModal({
                   }
                   placeholder="Décrivez votre projet, les technologies utilisées..."
                   rows={4}
+                  maxLength={1000}
                   className="mt-2"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {projectData.description.length}/1000 caractères
+                </p>
               </div>
               <div>
                 <Label htmlFor="projectLink" className="text-sm font-semibold text-gray-700">
@@ -763,8 +773,12 @@ export default function ProfileCompletionModal({
                     setProjectData({ ...projectData, link: e.target.value })
                   }
                   placeholder="https://github.com/..."
+                  maxLength={200}
                   className="mt-2"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {projectData.link.length}/200 caractères
+                </p>
               </div>
             </div>
           ) : currentSection === "education" ? (
@@ -782,10 +796,11 @@ export default function ProfileCompletionModal({
                     setEducationData({ ...educationData, titre: e.target.value })
                   }
                   placeholder="Ex: Ingénieur en Informatique, Master en Marketing..."
+                  maxLength={150}
                   className="mt-2"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  💡 Le titre ou spécialité de votre formation
+                  {educationData.titre.length}/150 caractères
                 </p>
               </div>
               
@@ -870,8 +885,12 @@ export default function ProfileCompletionModal({
                       setEducationData({ ...educationData, etablissement: e.target.value })
                     }
                     placeholder="Ex: Université Mohammed V"
+                    maxLength={200}
                     className="mt-2"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {educationData.etablissement.length}/200 caractères
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -964,6 +983,7 @@ export default function ProfileCompletionModal({
                       }
                     }}
                     placeholder="Ex: Français, Anglais, Arabe..."
+                    maxLength={50}
                     className="flex-1"
                   />
                   <Button
@@ -1039,8 +1059,12 @@ export default function ProfileCompletionModal({
                       updateExperience(index, "organisme", e.target.value)
                     }
                     placeholder="Ex: Google, Microsoft..."
+                    maxLength={150}
                     className="mt-1"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {experience.organisme.length}/150 caractères
+                  </p>
                 </div>
 
                 <div>
@@ -1052,60 +1076,51 @@ export default function ProfileCompletionModal({
                       updateExperience(index, "poste", e.target.value)
                     }
                     placeholder="Ex: Développeur Full Stack"
+                    maxLength={100}
                     className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {experience.poste.length}/100 caractères
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor={`date-debut-${index}`}>
+                    Date de début
+                  </Label>
+                  <Input
+                    id={`date-debut-${index}`}
+                    type="date"
+                    value={experience.date_debut ? format(experience.date_debut, "yyyy-MM-dd") : ""}
+                    onChange={(e) => {
+                      const date = e.target.value ? new Date(e.target.value) : null;
+                      updateExperience(index, "date_debut", date);
+                    }}
+                    className="mt-1"
+                    style={{ colorScheme: 'light' }}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
                   />
                 </div>
 
                 <div>
-                  <Label>Date de début</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal mt-1"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {experience.date_debut
-                          ? format(experience.date_debut, "PPP", { locale: fr })
-                          : "Sélectionner une date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={experience.date_debut || undefined}
-                        onSelect={(date) =>
-                          updateExperience(index, "date_debut", date)
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div>
-                  <Label>Date de fin</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal mt-1"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {experience.date_fin
-                          ? format(experience.date_fin, "PPP", { locale: fr })
-                          : "En cours / Sélectionner"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={experience.date_fin || undefined}
-                        onSelect={(date) =>
-                          updateExperience(index, "date_fin", date)
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor={`date-fin-${index}`}>
+                    Date de fin
+                  </Label>
+                  <Input
+                    id={`date-fin-${index}`}
+                    type="date"
+                    value={experience.date_fin ? format(experience.date_fin, "yyyy-MM-dd") : ""}
+                    onChange={(e) => {
+                      const date = e.target.value ? new Date(e.target.value) : null;
+                      updateExperience(index, "date_fin", date);
+                    }}
+                    className="mt-1"
+                    style={{ colorScheme: 'light' }}
+                    onClick={(e) => e.currentTarget.showPicker?.()}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Laissez vide si en cours
+                  </p>
                 </div>
 
                 <div className="md:col-span-2">
@@ -1117,8 +1132,12 @@ export default function ProfileCompletionModal({
                       updateExperience(index, "location", e.target.value)
                     }
                     placeholder="Ex: Paris, France"
+                    maxLength={100}
                     className="mt-1"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {experience.location.length}/100 caractères
+                  </p>
                 </div>
 
                 <div className="md:col-span-2">
@@ -1130,9 +1149,13 @@ export default function ProfileCompletionModal({
                       updateExperience(index, "description", e.target.value)
                     }
                     placeholder="Décrivez vos responsabilités et réalisations..."
+                    maxLength={1000}
                     className="mt-1"
                     rows={3}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {experience.description.length}/1000 caractères
+                  </p>
                 </div>
               </div>
             </div>

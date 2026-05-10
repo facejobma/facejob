@@ -380,6 +380,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     name="newFirstName"
                     value={formData.newFirstName}
                     onChange={handleInputChange}
+                    maxLength={50}
                     placeholder="Entrez votre prénom"
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                     required
@@ -397,6 +398,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     name="newLastName"
                     value={formData.newLastName}
                     onChange={handleInputChange}
+                    maxLength={50}
                     placeholder="Entrez votre nom"
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                     required
@@ -431,6 +433,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     name="newTel"
                     value={formData.newTel}
                     onChange={handleInputChange}
+                    maxLength={20}
                     placeholder="Entrez votre téléphone"
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                     required
@@ -499,6 +502,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     name="newAddress"
                     value={formData.newAddress}
                     onChange={handleInputChange}
+                    maxLength={200}
                     placeholder="Ex: 12 Rue Hassan II, Casablanca"
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                   />
@@ -516,6 +520,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     name="newPreferredLocation"
                     value={formData.newPreferredLocation}
                     onChange={handleInputChange}
+                    maxLength={100}
                     placeholder="Ex: Casablanca, Rabat, Tanger..."
                     className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
                   />

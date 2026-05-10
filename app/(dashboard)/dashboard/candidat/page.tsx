@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Cookies from "js-cookie";
 import { FullPageLoading } from "@/components/ui/loading";
+import VideoPlayer from "@/components/VideoPlayer";
 import {
   ColumnDef,
   flexRender,
@@ -36,6 +37,7 @@ interface CV {
   is_verified: string;
   job_name: string;
   comment?: string; // Add comment field for decline reason
+  created_at?: string; // Add created_at field
 }
 
 export default function UsersPage() {
@@ -126,19 +128,17 @@ export default function UsersPage() {
         header: () => <div className="font-semibold text-gray-700">Vidéo</div>,
         cell: ({ row }) => (
           <div className="flex items-center">
-            <video
-              width="100"
-              height="60"
-              controls
-              data-video-id={row.original.id}
-              onPlay={() => handleVideoPlay(row.original.id)}
-              className="rounded-md bg-gray-900 border border-gray-200"
-              poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='60' viewBox='0 0 100 60'%3E%3Crect width='100' height='60' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='10'%3ECV%3C/text%3E%3C/svg%3E"
-            >
-              {row.original.link && (
-                <source src={row.original.link} type="video/mp4" />
-              )}
-            </video>
+            {row.original.link && (
+              <VideoPlayer
+                src={row.original.link}
+                videoId={row.original.id}
+                onPlay={handleVideoPlay}
+                width={100}
+                height={60}
+                className="rounded-md bg-gray-900 border border-gray-200"
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='60' viewBox='0 0 100 60'%3E%3Crect width='100' height='60' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='10'%3ECV%3C/text%3E%3C/svg%3E"
+              />
+            )}
           </div>
         ),
       },
@@ -597,15 +597,15 @@ export default function UsersPage() {
                 <div key={cv.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                   {/* Video Preview */}
                   <div className="relative aspect-video bg-gray-900">
-                    <video
-                      className="w-full h-full object-cover"
-                      controls
-                      data-video-id={cv.id}
-                      onPlay={() => handleVideoPlay(cv.id)}
-                      poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 400 225'%3E%3Crect width='400' height='225' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='14'%3ECV Vidéo%3C/text%3E%3C/svg%3E"
-                    >
-                      {cv.link && <source src={cv.link} type="video/mp4" />}
-                    </video>
+                    {cv.link && (
+                      <VideoPlayer
+                        src={cv.link}
+                        videoId={cv.id}
+                        onPlay={handleVideoPlay}
+                        className="w-full h-full object-cover"
+                        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 400 225'%3E%3Crect width='400' height='225' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='14'%3ECV Vidéo%3C/text%3E%3C/svg%3E"
+                      />
+                    )}
                     <div className="absolute top-2 right-2">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${config.bg} ${config.text}`}>
                         {config.icon}

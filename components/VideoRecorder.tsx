@@ -317,14 +317,25 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
 
       const mr = new MediaRecorder(canvasStream, { mimeType, videoBitsPerSecond });
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      mr.onstop = () => {
+      mr.onstop = async () => {
         if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
         const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        
+        // Créer un fichier avec les métadonnées de durée
+        const duration = elapsed; // Durée en secondes
+        const file = new File([blob], `cv-video-${Date.now()}.webm`, { 
+          type: "video/webm",
+          lastModified: Date.now()
+        });
+        
+        // Créer une URL pour la prévisualisation
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
         setRecorded(true);
         killStream();
-        onVideoReady(new File([blob], `cv-video-${Date.now()}.webm`, { type: "video/webm" }));
+        
+        // Passer le fichier au parent
+        onVideoReady(file);
       };
 
       mr.start(1000);

@@ -312,6 +312,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   return (
+    <>
     <Link 
       href={`/dashboard/candidat/offres/${offreId}`}
       className="block h-full"
@@ -571,24 +572,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
         onVideoChange={handleVideoChange}
       />
 
-      {/* Profile Completion Modal */}
-      <ProfileCompletionModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-        onSkip={() => {
-          setShowProfileModal(false);
-          setHasSkippedProfileCompletion(true); // Marquer que l'utilisateur a cliqué sur "Passer"
-          openModal(); // Ouvrir le modal de postulation
-        }}
-        candidatId={userId}
-        onProfileCompleted={() => {
-          setLocalIsProfileComplete(true);
-          setShowProfileModal(false);
-          // Open the application modal immediately after profile completion
-          openModal();
-        }}
-      />
-
       {/* Description Modal */}
       {showDescriptionModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDescriptionModal(false)}>
@@ -661,6 +644,28 @@ const OffreCard: React.FC<OffreCardProps> = ({
       )}
       </div>
     </Link>
+
+    {/* Profile Completion Modal - Rendered outside Link to prevent navigation */}
+    {typeof window !== 'undefined' && ReactDOM.createPortal(
+      <ProfileCompletionModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onSkip={() => {
+          setShowProfileModal(false);
+          setHasSkippedProfileCompletion(true); // Marquer que l'utilisateur a cliqué sur "Passer"
+          openModal(); // Ouvrir le modal de postulation
+        }}
+        candidatId={userId}
+        onProfileCompleted={() => {
+          setLocalIsProfileComplete(true);
+          setShowProfileModal(false);
+          // Open the application modal immediately after profile completion
+          openModal();
+        }}
+      />,
+      document.body
+    )}
+    </>
   );
 };
 

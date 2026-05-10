@@ -112,27 +112,51 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills, onUpdate }) =
     setIsAdding(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/skills`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title: newSkill }),
-        },
-      );
+      // Split by comma and trim each skill
+      const skillsToAdd = newSkill
+        .split(',')
+        .map(skill => skill.trim())
+        .filter(skill => skill.length > 0);
 
-      if (response.ok) {
-        const addedSkill = await response.json();
-        setEditedSkills((prev) => [...prev, addedSkill]); // Append new skill
+      if (skillsToAdd.length === 0) {
+        toast.error("Veuillez entrer au moins une compétence valide");
+        setIsAdding(false);
+        return;
+      }
+
+      // Add each skill separately
+      const addedSkills = [];
+      for (const skillTitle of skillsToAdd) {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/skills`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ title: skillTitle }),
+          },
+        );
+
+        if (response.ok) {
+          const addedSkill = await response.json();
+          addedSkills.push(addedSkill);
+        } else {
+          console.error(`Failed to add skill: ${skillTitle}`);
+        }
+      }
+
+      if (addedSkills.length > 0) {
+        setEditedSkills((prev) => [...prev, ...addedSkills]); // Append new skills
         setNewSkill(""); // Clear input field
-        toast.success("Compétence ajoutée!");
+        const message = addedSkills.length === 1 
+          ? "Compétence ajoutée!" 
+          : `${addedSkills.length} compétences ajoutées!`;
+        toast.success(message);
         onUpdate?.(); // Refresh profile completion
       } else {
-        console.error("Failed to add skill");
-        toast.error("Erreur lors de l'ajout");
+        toast.error("Erreur lors de l'ajout des compétences");
       }
     } catch (error) {
       console.error("Error adding skill:", error);
@@ -230,7 +254,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills, onUpdate }) =
               </button>
             </div>
             <p className="text-xs text-green-700 mt-2">
-              💡 Appuyez sur "Entrée" pour ajouter rapidement
+              💡 Séparez plusieurs compétences par des virgules (ex: a, b, c) ou appuyez sur "Entrée"
             </p>
           </div>
 

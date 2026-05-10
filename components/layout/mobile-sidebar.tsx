@@ -75,7 +75,7 @@ export function MobileSidebar({ className, role }: SidebarProps) {
                 <h3 className="mb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Navigation
                 </h3>
-                <DashboardNav items={navItems} setOpen={setOpen} closeOnClick={false} />
+                <DashboardNav items={navItems} setOpen={setOpen} closeOnClick={true} />
               </div>
             </div>
           </div>

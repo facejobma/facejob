@@ -125,7 +125,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills, onUpdate }) =
       }
 
       // Add each skill separately
-      const addedSkills = [];
+      const addedSkills: any[] = [];
       for (const skillTitle of skillsToAdd) {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/skills`,

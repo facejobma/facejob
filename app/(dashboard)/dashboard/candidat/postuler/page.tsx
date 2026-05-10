@@ -28,8 +28,6 @@ export default function PublishVideo() {
   const [isUploadingRecording, setIsUploadingRecording] = useState(false);
   const [showDurationModal, setShowDurationModal] = useState(false);
   const [videoDuration, setVideoDuration] = useState(0);
-  const [hasActiveVideo, setHasActiveVideo] = useState(false);
-  const [activeVideoInfo, setActiveVideoInfo] = useState<any>(null);
   const recorderRef = useRef<VideoRecorderHandle>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -57,38 +55,6 @@ export default function PublishVideo() {
     };
     fetchSectorsData();
   }, []);
-
-  // Vérifier si l'utilisateur a déjà une vidéo active
-  useEffect(() => {
-    const checkActiveVideo = async () => {
-      if (!user || !authToken) return;
-      
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video`, {
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (response.ok) {
-          const videos = await response.json();
-          const activeVideo = videos.find((video: any) => 
-            video.is_verified === 'Accepted' || video.is_verified === 'Pending'
-          );
-          
-          if (activeVideo) {
-            setHasActiveVideo(true);
-            setActiveVideoInfo(activeVideo);
-          }
-        }
-      } catch (error) {
-        console.error("Error checking active video:", error);
-      }
-    };
-    
-    checkActiveVideo();
-  }, [user, authToken]);
 
   const filteredJobs = sectors.find((s) => s.id === parseInt(selectedSector))?.jobs || [];
   const sectorOptions = sectors.map((s) => ({ value: s.id.toString(), label: s.name }));
@@ -247,38 +213,7 @@ export default function PublishVideo() {
       router.push("/dashboard/candidat");
     } catch (error: any) {
       console.error("Error publishing video:", error);
-      
-      // Gérer le cas spécifique où l'utilisateur a déjà une vidéo active
-      if (error.message && error.message.includes('409')) {
-        // Essayer de récupérer plus de détails sur l'erreur
-        try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/postuler`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${authToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              video_url: videoUrl,
-              nb_experiences: experiences,
-              job_id: selectedJob,
-              sector_id: selectedSector,
-              candidat_id: user.id,
-            })
-          });
-          
-          if (response.status === 409) {
-            const errorData = await response.json();
-            toast.error(errorData.message || "Vous avez déjà une vidéo active. Supprimez votre vidéo actuelle avant d'en créer une nouvelle.");
-          } else {
-            toast.error("Une erreur est survenue lors de la publication de votre CV vidéo.");
-          }
-        } catch {
-          toast.error("Vous avez déjà une vidéo active. Supprimez votre vidéo actuelle avant d'en créer une nouvelle.");
-        }
-      } else {
-        toast.error("Une erreur est survenue lors de la publication de votre CV vidéo.");
-      }
+      toast.error("Une erreur est survenue lors de la publication de votre CV vidéo.");
       setUploadStatus("failed");
     }
   };
@@ -308,37 +243,6 @@ export default function PublishVideo() {
           </div>
         </div>
 
-        {/* Active Video Warning */}
-        {hasActiveVideo && activeVideoInfo && (
-          <div className="mt-4 md:mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <FaInfoCircle className="text-amber-600 text-sm" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-amber-800 mb-1">Vidéo déjà active</h3>
-                <p className="text-sm text-amber-700 mb-2">
-                  Vous avez déjà une vidéo active pour le poste "{activeVideoInfo.job_name}" dans le secteur "{activeVideoInfo.secteur_name}".
-                </p>
-                <p className="text-xs text-amber-600">
-                  Statut: <span className="font-medium">
-                    {activeVideoInfo.is_verified === 'Accepted' ? 'Acceptée' : 
-                     activeVideoInfo.is_verified === 'Pending' ? 'En attente' : 'En cours'}
-                  </span>
-                </p>
-                <div className="mt-3">
-                  <button
-                    onClick={() => router.push('/dashboard/candidat')}
-                    className="text-sm font-medium text-amber-700 hover:text-amber-800 underline"
-                  >
-                    Voir mes CV vidéos →
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Process Steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mt-4 md:mt-6">
           {[
@@ -363,34 +267,7 @@ export default function PublishVideo() {
 
       {/* Main Content */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
-        {hasActiveVideo ? (
-          /* Message pour vidéo déjà active */
-          <div className="text-center py-12">
-            <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
-              <FaVideo className="text-2xl text-amber-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Vous avez déjà une vidéo active</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Pour créer une nouvelle vidéo, vous devez d'abord supprimer votre vidéo actuelle depuis votre dashboard.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={() => router.push('/dashboard/candidat')}
-                className="px-6 py-2.5 bg-primary hover:bg-primary-1 text-white font-semibold rounded-lg transition-colors"
-              >
-                Voir mes CV vidéos
-              </button>
-              <button
-                onClick={() => setHasActiveVideo(false)}
-                className="px-6 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-lg transition-colors"
-              >
-                Continuer quand même
-              </button>
-            </div>
-          </div>
-        ) : (
-          /* Formulaire normal */
-          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           {/* Video Section */}
           <div className="space-y-3 md:space-y-4">
             <div className="flex items-center gap-2 md:gap-3">
@@ -611,7 +488,6 @@ export default function PublishVideo() {
             </Button>
           </div>
         </form>
-        )}
       </div>
 
       {/* Duration warning modal */}

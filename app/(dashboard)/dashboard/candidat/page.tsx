@@ -44,6 +44,7 @@ export default function UsersPage() {
   const { toast: toastUI } = useToast();
   const authToken = Cookies.get("authToken");
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
+  const [currentPlayingVideo, setCurrentPlayingVideo] = useState<number | null>(null);
 
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [selectedSector, setSelectedSector] = useState<string>("");
@@ -62,6 +63,18 @@ export default function UsersPage() {
     
     return { total, accepted, pending, declined };
   }, [users]);
+
+  // Fonction pour gérer la lecture d'une vidéo
+  const handleVideoPlay = useCallback((videoId: number) => {
+    // Si une autre vidéo est en cours de lecture, l'arrêter
+    if (currentPlayingVideo !== null && currentPlayingVideo !== videoId) {
+      const previousVideo = document.querySelector(`video[data-video-id="${currentPlayingVideo}"]`) as HTMLVideoElement;
+      if (previousVideo) {
+        previousVideo.pause();
+      }
+    }
+    setCurrentPlayingVideo(videoId);
+  }, [currentPlayingVideo]);
 
   const handleDelete = useCallback(async (id: number) => {
     const authToken = Cookies.get("authToken");
@@ -117,6 +130,8 @@ export default function UsersPage() {
               width="100"
               height="60"
               controls
+              data-video-id={row.original.id}
+              onPlay={() => handleVideoPlay(row.original.id)}
               className="rounded-md bg-gray-900 border border-gray-200"
               poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='60' viewBox='0 0 100 60'%3E%3Crect width='100' height='60' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='10'%3ECV%3C/text%3E%3C/svg%3E"
             >
@@ -253,7 +268,7 @@ export default function UsersPage() {
         ),
       },
     ],
-    [handleDelete],
+    [handleDelete, handleVideoPlay],
   );
 
   const buildFetchUrl = useCallback(() => {
@@ -585,6 +600,8 @@ export default function UsersPage() {
                     <video
                       className="w-full h-full object-cover"
                       controls
+                      data-video-id={cv.id}
+                      onPlay={() => handleVideoPlay(cv.id)}
                       poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 400 225'%3E%3Crect width='400' height='225' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='14'%3ECV Vidéo%3C/text%3E%3C/svg%3E"
                     >
                       {cv.link && <source src={cv.link} type="video/mp4" />}

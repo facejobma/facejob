@@ -107,6 +107,16 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
 
   const handleGoogleLogin = async () => {
     try {
+      // Store returnUrl from URL params before OAuth redirect
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('returnUrl');
+        if (returnUrl) {
+          sessionStorage.setItem('oauthReturnUrl', returnUrl);
+          console.log('🔐 Stored returnUrl for OAuth:', returnUrl);
+        }
+      }
+
       // Use secure role-specific endpoint
       const endpoint = props.loginFor === 'candidate' 
         ? '/api/v1/auth/candidate/google'

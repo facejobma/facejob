@@ -88,13 +88,22 @@ function AuthCallbackContent() {
         // Show success message
         toast.success(`Connexion réussie via ${provider === 'linkedin' ? 'LinkedIn' : 'Google'}!`);
 
-        // Redirect based on user type
-        if (userType === 'candidate') {
-          router.push('/dashboard/candidat');
-        } else if (userType === 'entreprise') {
-          router.push('/dashboard/entreprise');
+        // Check if there's a returnUrl stored before OAuth redirect
+        const returnUrl = sessionStorage.getItem('oauthReturnUrl');
+        
+        if (returnUrl) {
+          console.log('🔄 Found returnUrl, redirecting to:', returnUrl);
+          sessionStorage.removeItem('oauthReturnUrl'); // Clean up
+          router.push(returnUrl);
         } else {
-          router.push('/');
+          // Redirect based on user type
+          if (userType === 'candidate') {
+            router.push('/dashboard/candidat');
+          } else if (userType === 'entreprise') {
+            router.push('/dashboard/entreprise');
+          } else {
+            router.push('/');
+          }
         }
 
       } catch (error) {

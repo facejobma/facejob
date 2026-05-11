@@ -58,10 +58,21 @@ function GoogleCallbackContent() {
 
         console.log('🔐 Google OAuth successful - Redirecting to dashboard:', authenticatedUser.role);
 
-        // Redirect to appropriate dashboard based on actual user role from database
-        setTimeout(() => {
-          redirectToDashboard(authenticatedUser.role);
-        }, 1000); // Small delay to show success message
+        // Check if there's a returnUrl stored before OAuth redirect
+        const returnUrl = sessionStorage.getItem('oauthReturnUrl');
+        
+        if (returnUrl) {
+          console.log('🔄 Found returnUrl, redirecting to:', returnUrl);
+          sessionStorage.removeItem('oauthReturnUrl'); // Clean up
+          setTimeout(() => {
+            window.location.href = returnUrl;
+          }, 1000);
+        } else {
+          // Redirect to appropriate dashboard based on actual user role from database
+          setTimeout(() => {
+            redirectToDashboard(authenticatedUser.role);
+          }, 1000); // Small delay to show success message
+        }
 
       } catch (error: any) {
         console.error("Google authentication error:", error);

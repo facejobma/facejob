@@ -22,27 +22,66 @@ export default function NavBar() {
 
   React.useEffect(() => {
     setMounted(true);
-    // Check authentication status from cookies (primary) or localStorage (fallback)
-    const token = Cookies.get('authToken') || localStorage.getItem('access_token');
     
-    // Check user role from multiple sources
-    let role = sessionStorage.getItem('userRole') || Cookies.get('userRole') || localStorage.getItem('user_type');
-    
-    // If still not found, try to detect from user object in sessionStorage
-    if (!role) {
-      const userStr = sessionStorage.getItem('user');
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          role = user.role || null;
-        } catch (e) {
-          console.error('Failed to parse user from sessionStorage');
-        }
+    const checkAuth = async () => {
+      // Check authentication status from cookies (primary) or localStorage (fallback)
+      const token = Cookies.get('authToken') || localStorage.getItem('access_token');
+      
+      if (!token) {
+        setIsAuthenticated(false);
+        setUserType(null);
+        return;
       }
-    }
+      
+      // Verify token validity with backend
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        });
+        
+        if (!response.ok) {
+          // Token is invalid or expired - clear everything
+          Cookies.remove('authToken');
+          Cookies.remove('userRole');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('user_type');
+          sessionStorage.removeItem('user');
+          sessionStorage.removeItem('userRole');
+          setIsAuthenticated(false);
+          setUserType(null);
+          return;
+        }
+        
+        const userData = await response.json();
+        
+        // Get role from backend response
+        let role = userData.role || sessionStorage.getItem('userRole') || Cookies.get('userRole');
+        
+        if (!role && userData) {
+          // Try to detect from user data structure
+          if (userData.first_name || userData.last_name || userData.job_id !== undefined) {
+            role = 'candidat';
+          } else if (userData.company_name || userData.sector_id || userData.siret) {
+            role = 'entreprise';
+          }
+        }
+        
+        setIsAuthenticated(true);
+        setUserType(role || null);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // On network error, keep showing as authenticated but token might be stale
+        const role = sessionStorage.getItem('userRole') || Cookies.get('userRole') || localStorage.getItem('user_type');
+        setIsAuthenticated(!!token);
+        setUserType(role || null);
+      }
+    };
     
-    setIsAuthenticated(!!token);
-    setUserType(role || null);
+    checkAuth();
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {

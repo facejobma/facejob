@@ -140,6 +140,9 @@ export default async function RootLayout({
   const session = "tmpSession";
   return (
     <html lang="fr" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <meta name="color-scheme" content="light" />
+      </head>
       <body className="font-sans">
         <Toaster position="top-center" />
         <Providers session={session}>

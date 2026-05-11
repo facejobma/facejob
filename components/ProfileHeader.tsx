@@ -322,28 +322,28 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </div>
         )}
 
-        <div className="flex-1">
-          <h2 className="text-xl font-bold text-gray-900 mb-1">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-bold text-gray-900 mb-1 break-words">
             {formData.newFirstName} {formData.newLastName}
           </h2>
-          <p className="text-gray-600 text-sm mb-3">
+          <p className="text-gray-600 text-sm mb-3 break-words">
             {formData.newHeadline || <span className="text-amber-500 italic">Poste non renseigné — important pour le matching</span>}
           </p>
 
           <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2 text-gray-700">
-              <FaPhone className="text-green-600 w-4 h-4" />
-              <span>{formData.newTel || "Téléphone non renseigné"}</span>
+            <div className="flex items-center gap-2 text-gray-700 min-w-0">
+              <FaPhone className="text-green-600 w-4 h-4 flex-shrink-0" />
+              <span className="truncate">{formData.newTel || "Téléphone non renseigné"}</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-700">
-              <FaEnvelope className="text-green-600 w-4 h-4" />
-              <span>{formData.newEmail || "Email non renseigné"}</span>
+            <div className="flex items-center gap-2 text-gray-700 min-w-0">
+              <FaEnvelope className="text-green-600 w-4 h-4 flex-shrink-0" />
+              <span className="truncate">{formData.newEmail || "Email non renseigné"}</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-700">
-              <FaMapPin className="text-green-600 w-4 h-4" />
+            <div className="flex items-center gap-2 text-gray-700 min-w-0">
+              <FaMapPin className="text-green-600 w-4 h-4 flex-shrink-0" />
               {formData.newPreferredLocation
-                ? <span>{formData.newPreferredLocation}</span>
-                : <span className="text-amber-500 italic text-xs">Ville préférée non renseignée — important pour le matching</span>
+                ? <span className="truncate">{formData.newPreferredLocation}</span>
+                : <span className="text-amber-500 italic text-xs break-words">Ville préférée non renseignée — important pour le matching</span>
               }
             </div>
           </div>

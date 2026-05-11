@@ -310,50 +310,50 @@ const Profile: React.FC = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
               <FaUser className="h-5 w-5 text-green-600" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{completionPercentage}%</p>
-              <p className="text-sm text-gray-600">Complété</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-2xl font-bold text-gray-900 truncate">{completionPercentage}%</p>
+              <p className="text-sm text-gray-600 truncate">Complété</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
               <FaBriefcase className="h-5 w-5 text-blue-600" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{userProfile?.experiences?.length || 0}</p>
-              <p className="text-sm text-gray-600">Expériences</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-2xl font-bold text-gray-900 truncate">{userProfile?.experiences?.length || 0}</p>
+              <p className="text-sm text-gray-600 truncate">Expériences</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
               <FaCog className="h-5 w-5 text-purple-600" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{userProfile?.skills?.length || 0}</p>
-              <p className="text-sm text-gray-600">Compétences</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-2xl font-bold text-gray-900 truncate">{userProfile?.skills?.length || 0}</p>
+              <p className="text-sm text-gray-600 truncate">Compétences</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
               <HiOutlineCollection className="h-5 w-5 text-orange-600" />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{userProfile?.projects?.length || 0}</p>
-              <p className="text-sm text-gray-600">Projets</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-2xl font-bold text-gray-900 truncate">{userProfile?.projects?.length || 0}</p>
+              <p className="text-sm text-gray-600 truncate">Projets</p>
             </div>
           </div>
         </div>

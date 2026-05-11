@@ -383,14 +383,16 @@ export default function PublishVideo() {
 
             ) : (
               /* Record tab */
-              <div className="space-y-3">
+              <div className="space-y-3 flex flex-col items-center">
                 {isUploadingRecording ? (
-                  <div className="flex flex-col items-center justify-center gap-3 p-8 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="flex flex-col items-center justify-center gap-3 p-8 bg-gray-50 rounded-xl border border-gray-200 w-full">
                     <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                     <p className="text-sm text-gray-600 font-medium">Upload en cours...</p>
                   </div>
                 ) : (
-                  <VideoRecorder ref={recorderRef} key="video-recorder" onVideoReady={handleRecordedVideo} />
+                  <div className="w-full max-w-2xl mx-auto">
+                    <VideoRecorder ref={recorderRef} key="video-recorder" onVideoReady={handleRecordedVideo} />
+                  </div>
                 )}
               </div>
             )}

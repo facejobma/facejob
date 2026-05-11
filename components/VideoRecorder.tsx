@@ -408,7 +408,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
 
     return (
       <div className="space-y-4">
-        <div className="relative bg-black rounded-xl overflow-hidden" style={{ 
+        <div className="relative bg-black rounded-xl overflow-hidden flex items-center justify-center" style={{ 
           maxHeight: "400px", 
           aspectRatio: `${actualResolution.width}/${actualResolution.height}` 
         }}>
@@ -421,7 +421,7 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
           />
           <canvas 
             ref={canvasRef} 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             // Les dimensions seront définies dynamiquement dans drawLoop
           />
           {recording && (

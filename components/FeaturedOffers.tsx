@@ -119,8 +119,35 @@ const FeaturedOffers: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleApply = (offerId: number) => {
-    router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
+  const handleApply = async (offerId: number) => {
+    // Vérifier si l'utilisateur est connecté en vérifiant le token
+    try {
+      const authToken = document.cookie.split('authToken=')[1]?.split(';')[0]?.replace(/['"]/g, '');
+      
+      if (!authToken) {
+        // Pas de token, rediriger vers la connexion avec returnUrl vers la page de détail de l'offre
+        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+        return;
+      }
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Utilisateur connecté, rediriger vers la page de détail de l'offre dans le dashboard
+        router.push(`/dashboard/candidat/offres/${offerId}`);
+      } else {
+        // Utilisateur non connecté, rediriger vers la page de connexion
+        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+      }
+    } catch (error) {
+      // En cas d'erreur, rediriger vers la page de connexion par sécurité
+      router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+    }
   };
 
   const getDaysAgo = (dateString: string) => {

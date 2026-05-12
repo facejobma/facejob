@@ -407,10 +407,9 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
     }
 
     return (
-      <div className="space-y-4">
-        <div className="relative bg-black rounded-xl overflow-hidden flex items-center justify-center" style={{ 
-          maxHeight: "400px", 
-          aspectRatio: `${actualResolution.width}/${actualResolution.height}` 
+      <div className="space-y-4 flex flex-col items-center">
+        <div className="relative bg-black rounded-xl overflow-hidden flex items-center justify-center w-full" style={{ 
+          height: "450px"
         }}>
           {/* Video off-screen mais rendu pour que drawImage fonctionne */}
           <video
@@ -421,7 +420,8 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
           />
           <canvas 
             ref={canvasRef} 
-            className="w-full h-full object-contain"
+            className="max-w-full max-h-full object-contain"
+            style={{ display: "block" }}
             // Les dimensions seront définies dynamiquement dans drawLoop
           />
           {recording && (

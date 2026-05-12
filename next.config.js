@@ -37,34 +37,52 @@ const nextConfig = {
     // Compression
     compress: true,
     
- 
+    // Turbopack configuration (empty to silence warning)
+    turbopack: {},
     
     // Headers for caching (only in production)
     async headers() {
-        if (process.env.NODE_ENV === 'development') {
-            return [];
+        const headers = [];
+        
+        // COOP and COEP headers for FFmpeg.wasm (SharedArrayBuffer support)
+        headers.push({
+            source: '/:path*',
+            headers: [
+                {
+                    key: 'Cross-Origin-Opener-Policy',
+                    value: 'same-origin',
+                },
+                {
+                    key: 'Cross-Origin-Embedder-Policy',
+                    value: 'require-corp',
+                },
+            ],
+        });
+        
+        if (process.env.NODE_ENV === 'production') {
+            headers.push(
+                {
+                    source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
+                    headers: [
+                        {
+                            key: 'Cache-Control',
+                            value: 'public, max-age=31536000, immutable',
+                        },
+                    ],
+                },
+                {
+                    source: '/_next/static/:path*',
+                    headers: [
+                        {
+                            key: 'Cache-Control',
+                            value: 'public, max-age=31536000, immutable',
+                        },
+                    ],
+                }
+            );
         }
         
-        return [
-            {
-                source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=31536000, immutable',
-                    },
-                ],
-            },
-            {
-                source: '/_next/static/:path*',
-                headers: [
-                    {
-                        key: 'Cache-Control',
-                        value: 'public, max-age=31536000, immutable',
-                    },
-                ],
-            },
-        ];
+        return headers;
     },
 }
 

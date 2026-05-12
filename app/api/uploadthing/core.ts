@@ -80,9 +80,9 @@ async function authenticateUser(req: Request) {
 export const ourFileRouter = {
   // Video upload with enhanced security
   videoUpload: f({
-    "video/mp4": { maxFileSize: "50MB" },
-    "video/webm": { maxFileSize: "50MB" },
-    "video/quicktime": { maxFileSize: "50MB" }
+    "video/mp4": { maxFileSize: "32MB" },
+    "video/webm": { maxFileSize: "32MB" },
+    "video/quicktime": { maxFileSize: "32MB" }
   })
     .input(z.object({ 
       candidateId: z.number().optional(),

@@ -37,10 +37,15 @@ interface OfferDetail {
   sector_id: number;
   job_id: number;
   entreprise_id: number;
+  salary_min?: number;
+  salary_max?: number;
+  currency?: string;
   salaire?: string;
   experience_required?: string;
   education_level?: string;
   skills_required?: string[];
+  required_skills?: string[];
+  required_languages?: string[];
   benefits?: string[];
   company_description?: string;
   is_verified?: string | boolean;
@@ -448,6 +453,99 @@ const CandidatOfferDetailPage: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Profil recherché - Matching Criteria */}
+      {((offer.salary_min || offer.salary_max) || 
+        (offer.required_languages && offer.required_languages.length > 0) || 
+        (offer.required_skills && offer.required_skills.length > 0) ||
+        (offer.benefits && offer.benefits.length > 0) ||
+        offer.experience_required) && (
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Profil recherché</h2>
+          
+          <div className="space-y-4">
+            {/* Salary */}
+            {(offer.salary_min || offer.salary_max) && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <span className="text-lg">💰</span>
+                  Salaire proposé
+                </h4>
+                <p className="text-gray-700 font-medium">
+                  {offer.salary_min && offer.salary_max 
+                    ? `${offer.salary_min.toLocaleString()} - ${offer.salary_max.toLocaleString()} ${offer.currency || 'MAD'}`
+                    : offer.salary_min 
+                    ? `À partir de ${offer.salary_min.toLocaleString()} ${offer.currency || 'MAD'}`
+                    : `Jusqu'à ${offer.salary_max?.toLocaleString()} ${offer.currency || 'MAD'}`
+                  }
+                </p>
+              </div>
+            )}
+
+            {/* Experience Required */}
+            {offer.experience_required && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <span className="text-lg">📅</span>
+                  Expérience requise
+                </h4>
+                <p className="text-gray-700">{offer.experience_required}</p>
+              </div>
+            )}
+
+            {/* Languages */}
+            {offer.required_languages && offer.required_languages.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <span className="text-lg">🗣️</span>
+                  Langues requises
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {offer.required_languages.map((lang, idx) => (
+                    <Badge key={idx} variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
+                      {lang}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Skills */}
+            {offer.required_skills && offer.required_skills.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <span className="text-lg">🛠️</span>
+                  Compétences requises
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {offer.required_skills.map((skill, idx) => (
+                    <Badge key={idx} variant="outline" className="border-green-200 text-green-700 bg-green-50">
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Benefits */}
+            {offer.benefits && offer.benefits.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <span className="text-lg">🎁</span>
+                  Avantages
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {offer.benefits.map((benefit, idx) => (
+                    <Badge key={idx} variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
+                      {benefit}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Details */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">

@@ -596,13 +596,13 @@ export default function UsersPage() {
               return (
                 <div key={cv.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                   {/* Video Preview */}
-                  <div className="relative aspect-video bg-gray-900">
+                  <div className="relative bg-gray-900" style={{ height: '200px' }}>
                     {cv.link && (
                       <VideoPlayer
                         src={cv.link}
                         videoId={cv.id}
                         onPlay={handleVideoPlay}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 400 225'%3E%3Crect width='400' height='225' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='14'%3ECV Vidéo%3C/text%3E%3C/svg%3E"
                       />
                     )}

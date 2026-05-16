@@ -27,6 +27,11 @@ import { HiOutlineVideoCamera, HiOutlineCollection } from "react-icons/hi";
 import { BiStats } from "react-icons/bi";
 import toast from "react-hot-toast";
 
+// In-memory map to deduplicate concurrent identical fetches (survives remounts)
+const inFlightFetches: Map<string, Promise<any>> = new Map();
+// Count concurrent requests for the same URL so the spinner stays stable
+const inFlightCounts: Map<string, number> = new Map();
+
 type ViewMode = 'cards' | 'table';
 
 interface CV {
@@ -284,76 +289,111 @@ export default function UsersPage() {
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   }, [selectedStatus, selectedSector, selectedJob]);
 
-  const fetchData = useCallback(async () => {
-    if (!authToken) {
-      toastUI({
-        title: "Erreur",
-        variant: "destructive",
-        description: "Utilisateur non authentifié",
-      });
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const url = buildFetchUrl();
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (Array.isArray(data)) {
-        setUsers(data);
-
-        if (allSectors.length === 0 && allJobs.length === 0) {
-          const sectors = Array.from(
-            new Set(data.map((user) => user.secteur_name).filter(Boolean)),
-          );
-          const jobs = Array.from(
-            new Set(data.map((user) => user.job_name).filter(Boolean)),
-          );
-          setAllSectors(sectors);
-          setAllJobs(jobs);
-        }
-      } else {
-        console.error("Fetched data is not an array:", data);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!authToken) {
         toastUI({
           title: "Erreur",
           variant: "destructive",
-          description: "Format de données invalide",
+          description: "Utilisateur non authentifié",
         });
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Fetch error:", error);
-      toastUI({
-        title: "Whoops!",
-        variant: "destructive",
-        description: "Erreur lors de la récupération des données.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    authToken,
-    toastUI,
-    buildFetchUrl,
-    allSectors.length,
-    allJobs.length,
-  ]);
 
-  useEffect(() => {
+      const url = buildFetchUrl();
+
+      const bumpCount = (requestUrl: string) => {
+        const count = (inFlightCounts.get(requestUrl) || 0) + 1;
+        inFlightCounts.set(requestUrl, count);
+        if (count === 1) {
+          setLoading(true);
+        }
+      };
+
+      const releaseCount = (requestUrl: string) => {
+        const count = (inFlightCounts.get(requestUrl) || 0) - 1;
+        if (count <= 0) {
+          inFlightCounts.delete(requestUrl);
+          setLoading(false);
+        } else {
+          inFlightCounts.set(requestUrl, count);
+        }
+      };
+
+      // If there's already an in-flight identical request, reuse its promise
+      if (inFlightFetches.has(url)) {
+        bumpCount(url);
+        try {
+          const data = await inFlightFetches.get(url);
+          if (Array.isArray(data)) {
+            setUsers(data);
+          }
+        } catch (error) {
+          console.error("Fetch (dedup) error:", error);
+        } finally {
+          releaseCount(url);
+        }
+        return;
+      }
+
+      bumpCount(url);
+      try {
+        const fetchPromise = (async () => {
+          const response = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          return await response.json();
+        })();
+
+        inFlightFetches.set(url, fetchPromise);
+
+        const data = await fetchPromise;
+
+        if (Array.isArray(data)) {
+          setUsers(data);
+
+          if (allSectors.length === 0 && allJobs.length === 0) {
+            const sectors = Array.from(
+              new Set(data.map((user) => user.secteur_name).filter(Boolean)),
+            );
+            const jobs = Array.from(
+              new Set(data.map((user) => user.job_name).filter(Boolean)),
+            );
+            setAllSectors(sectors);
+            setAllJobs(jobs);
+          }
+        } else {
+          console.error("Fetched data is not an array:", data);
+          toastUI({
+            title: "Erreur",
+            variant: "destructive",
+            description: "Format de données invalide",
+          });
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+        toastUI({
+          title: "Whoops!",
+          variant: "destructive",
+          description: "Erreur lors de la récupération des données.",
+        });
+      } finally {
+        inFlightFetches.delete(url);
+        releaseCount(url);
+      }
+    };
+
     fetchData();
-  }, [selectedStatus, selectedSector, selectedJob, authToken, toastUI, buildFetchUrl, allSectors.length, allJobs.length]);
+  }, [selectedStatus, selectedSector, selectedJob, authToken, toastUI, buildFetchUrl]);
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedStatus(event.target.value);

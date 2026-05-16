@@ -38,6 +38,7 @@ export default function PublishVideo() {
     size: number;
     duration: number;
   }>({ sizeTooLarge: false, durationTooLong: false, size: 0, duration: 0 });
+  const [formErrors, setFormErrors] = useState<{ video?: string; experiences?: string; sector?: string; job?: string }>({});
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showUploadProgress, setShowUploadProgress] = useState(false);
   const recorderRef = useRef<VideoRecorderHandle>(null);
@@ -88,14 +89,15 @@ export default function PublishVideo() {
   const sectorOptions = sectors.map((s) => ({ value: s.id.toString(), label: s.name }));
   const jobOptions = filteredJobs.map((j) => ({ value: j.id.toString(), label: j.name }));
 
-  const selectStyles = {
+  const getSelectStyles = (hasError: boolean) => ({
     control: (base: any) => ({
       ...base,
       minHeight: "42px",
       height: "42px",
-      borderColor: "#d1d5db",
+      borderColor: hasError ? "#dc2626" : "#d1d5db",
+      boxShadow: hasError ? "0 0 0 1px rgba(220, 38, 38, 0.4)" : base.boxShadow,
       borderRadius: "0.5rem",
-      "&:hover": { borderColor: "#9ca3af" },
+      "&:hover": { borderColor: hasError ? "#dc2626" : "#9ca3af" },
     }),
     valueContainer: (base: any) => ({
       ...base,
@@ -116,7 +118,7 @@ export default function PublishVideo() {
       backgroundColor: state.isSelected ? "var(--primary)" : state.isFocused ? "#f3f4f6" : "white",
       color: state.isSelected ? "white" : "#111827",
     }),
-  };
+  });
 
   const handleRecordedVideo = async (file: File) => {
     setIsUploadingRecording(true);
@@ -127,9 +129,9 @@ export default function PublishVideo() {
       const res = await startUpload([file], { candidateId: undefined, jobId: undefined });
       console.log("[RecUpload] Response:", res);
       if (res && res[0]) {
-        // Utiliser uniquement ufsUrl (nouvelle API) pour éviter les avertissements de dépréciation
         const url = res[0].ufsUrl || `https://utfs.io/f/${res[0].key}`;
         setVideoUrl(url);
+        setFormErrors((prev) => ({ ...prev, video: undefined }));
         toast.success("Video uploadee avec succes !");
       } else {
         toast.error("Erreur: pas de reponse du serveur");
@@ -228,6 +230,7 @@ export default function PublishVideo() {
         // Utiliser uniquement ufsUrl (nouvelle API) pour éviter les avertissements de dépréciation
         const url = res[0].ufsUrl || `https://utfs.io/f/${res[0].key}`;
         setVideoUrl(url);
+        setFormErrors((prev) => ({ ...prev, video: undefined }));
         toast.success("Vidéo téléchargée avec succès !");
       }
     } catch (error) {
@@ -248,22 +251,28 @@ export default function PublishVideo() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) { toast.error("Erreur: Utilisateur non connecté"); return; }
-    if (!videoUrl) { toast.error("Veuillez télécharger une vidéo!"); return; }
-    
-    // Validation des champs obligatoires
+
+    const errors: { video?: string; experiences?: string; sector?: string; job?: string } = {};
+    if (!videoUrl) {
+      errors.video = "Veuillez importer ou enregistrer une vidéo.";
+    }
     if (!experiences || experiences.trim() === "") {
-      toast.error("Veuillez renseigner vos années d'expérience!");
-      return;
+      errors.experiences = "Ce champ est obligatoire.";
     }
     if (!selectedSector) {
-      toast.error("Veuillez sélectionner un secteur d'activité!");
-      return;
+      errors.sector = "Veuillez sélectionner un secteur d'activité.";
     }
     if (!selectedJob) {
-      toast.error("Veuillez sélectionner un poste recherché!");
+      errors.job = "Veuillez sélectionner un poste recherché.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      toast.error("Veuillez corriger les champs obligatoires.");
       return;
     }
-    
+
+    setFormErrors({});
     setUploadStatus("uploading");
     try {
       await submitCandidateApplication({
@@ -310,13 +319,16 @@ export default function PublishVideo() {
 
       {/* Main Form */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {/* Video Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Votre CV vidéo</h2>
                 <p className="text-gray-600 text-sm mt-1">Enregistrez ou importez votre présentation</p>
+                {formErrors.video ? (
+                  <p className="text-sm text-red-600 mt-2">{formErrors.video}</p>
+                ) : null}
               </div>
               <div className="text-right">
                 <p className="text-xs font-medium text-gray-500">Durée maximale</p>
@@ -451,12 +463,19 @@ export default function PublishVideo() {
                 <input
                   type="number"
                   value={experiences}
-                  onChange={(e) => setExperiences(e.target.value)}
-                  className="w-full h-[42px] px-4 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  onChange={(e) => {
+                    setExperiences(e.target.value);
+                    if (formErrors.experiences) {
+                      setFormErrors((prev) => ({ ...prev, experiences: undefined }));
+                    }
+                  }}
+                  className={`w-full h-[42px] px-4 text-sm rounded-lg border focus:outline-none focus:ring-2 ${formErrors.experiences ? "border-red-500 focus:border-red-500 focus:ring-red-200" : "border-gray-300 focus:border-green-500 focus:ring-green-500"}`}
                   placeholder="Ex: 3"
                   min="0"
-                  required
                 />
+                {formErrors.experiences ? (
+                  <p className="mt-2 text-sm text-red-600">{formErrors.experiences}</p>
+                ) : null}
               </div>
 
               <div>
@@ -465,15 +484,23 @@ export default function PublishVideo() {
                 </label>
                 <Select
                   value={sectorOptions.find((o) => o.value === selectedSector) || null}
-                  onChange={(o) => { setSelectedSector(o?.value || ""); setSelectedJob(""); }}
+                  onChange={(o) => {
+                    setSelectedSector(o?.value || "");
+                    setSelectedJob("");
+                    if (formErrors.sector) {
+                      setFormErrors((prev) => ({ ...prev, sector: undefined }));
+                    }
+                  }}
                   options={sectorOptions}
-                  styles={selectStyles}
+                  styles={getSelectStyles(!!formErrors.sector)}
                   placeholder="Sélectionnez le secteur"
                   isClearable
                   isSearchable
                   noOptionsMessage={() => "Aucun secteur trouvé"}
-                  required
                 />
+                {formErrors.sector ? (
+                  <p className="mt-2 text-sm text-red-600">{formErrors.sector}</p>
+                ) : null}
               </div>
 
               <div className="md:col-span-2">
@@ -482,16 +509,23 @@ export default function PublishVideo() {
                 </label>
                 <Select
                   value={jobOptions.find((o) => o.value === selectedJob) || null}
-                  onChange={(o) => setSelectedJob(o?.value || "")}
+                  onChange={(o) => {
+                    setSelectedJob(o?.value || "");
+                    if (formErrors.job) {
+                      setFormErrors((prev) => ({ ...prev, job: undefined }));
+                    }
+                  }}
                   options={jobOptions}
-                  styles={selectStyles}
+                  styles={getSelectStyles(!!formErrors.job)}
                   placeholder="Sélectionnez le métier"
                   isDisabled={!selectedSector}
                   isClearable
                   isSearchable
                   noOptionsMessage={() => "Aucun métier trouvé"}
-                  required
                 />
+                {formErrors.job ? (
+                  <p className="mt-2 text-sm text-red-600">{formErrors.job}</p>
+                ) : null}
               </div>
             </div>
           </div>

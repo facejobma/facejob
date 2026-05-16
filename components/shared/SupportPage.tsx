@@ -26,6 +26,9 @@ interface SupportPageProps {
   userType: 'candidat' | 'entreprise';
 }
 
+type ContactField = 'name' | 'email' | 'subject' | 'message';
+type ContactErrors = Partial<Record<ContactField | 'general', string>>;
+
 const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -33,6 +36,7 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
     subject: '',
     message: ''
   });
+  const [errors, setErrors] = useState<ContactErrors>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,14 +44,70 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
       ...prev,
       [name]: value
     }));
+    setErrors(prev => ({ ...prev, [name]: undefined, general: undefined }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const validationErrors = validateContactForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
     // Handle form submission here
     console.log('Form submitted:', formData);
     // You can add API call here to submit the form
   };
+
+  const validateContactForm = (): ContactErrors => {
+    const nextErrors: ContactErrors = {};
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.name.trim()) {
+      nextErrors.name = "Le nom complet est obligatoire.";
+    } else if (formData.name.trim().length < 2) {
+      nextErrors.name = "Le nom doit contenir au moins 2 caractères.";
+    }
+
+    if (!formData.email.trim()) {
+      nextErrors.email = "L'email est obligatoire.";
+    } else if (!emailPattern.test(formData.email.trim())) {
+      nextErrors.email = "Veuillez saisir une adresse email valide.";
+    }
+
+    if (!formData.subject.trim()) {
+      nextErrors.subject = "Le sujet est obligatoire.";
+    } else if (formData.subject.trim().length < 3) {
+      nextErrors.subject = "Le sujet doit contenir au moins 3 caractères.";
+    }
+
+    if (!formData.message.trim()) {
+      nextErrors.message = "Le message est obligatoire.";
+    } else if (formData.message.trim().length < 10) {
+      nextErrors.message = "Le message doit contenir au moins 10 caractères.";
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      nextErrors.general = "Veuillez corriger les champs en rouge avant d'envoyer votre message.";
+    }
+
+    return nextErrors;
+  };
+
+  const getFieldClassName = (field: ContactField) =>
+    `w-full text-sm md:text-base ${
+      errors[field]
+        ? 'border-red-500 focus-visible:ring-red-200'
+        : ''
+    }`;
+
+  const renderFieldError = (field: ContactField) =>
+    errors[field] ? (
+      <p className="mt-1.5 text-xs font-medium text-red-600">{errors[field]}</p>
+    ) : null;
 
   // Dynamic content based on user type
   const getThemeColors = () => {
@@ -195,7 +255,13 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 md:p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              {errors.general && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                  {errors.general}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
@@ -207,9 +273,10 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Votre nom"
-                    className="w-full text-sm md:text-base"
-                    required
+                    className={getFieldClassName('name')}
+                    aria-invalid={!!errors.name}
                   />
+                  {renderFieldError('name')}
                 </div>
                 <div>
                   <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
@@ -221,9 +288,10 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="votre@email.com"
-                    className="w-full text-sm md:text-base"
-                    required
+                    className={getFieldClassName('email')}
+                    aria-invalid={!!errors.email}
                   />
+                  {renderFieldError('email')}
                 </div>
               </div>
               
@@ -237,9 +305,10 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                   value={formData.subject}
                   onChange={handleInputChange}
                   placeholder="Sujet de votre message"
-                  className="w-full text-sm md:text-base"
-                  required
+                  className={getFieldClassName('subject')}
+                  aria-invalid={!!errors.subject}
                 />
+                {renderFieldError('subject')}
               </div>
               
               <div>
@@ -252,9 +321,10 @@ const SupportPage: React.FC<SupportPageProps> = ({ userType }) => {
                   onChange={handleInputChange}
                   placeholder="Décrivez votre question ou problème..."
                   rows={5}
-                  className="w-full text-sm md:text-base"
-                  required
+                  className={getFieldClassName('message')}
+                  aria-invalid={!!errors.message}
                 />
+                {renderFieldError('message')}
               </div>
               
               <Button 

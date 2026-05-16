@@ -8,20 +8,24 @@ type Props = {};
 
 export default function Subscription({}: Props) {
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubscribe = async () => {
     if (!email.trim()) {
+      setEmailError("Veuillez entrer votre adresse email.");
       toast.error("Veuillez entrer votre adresse email");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      setEmailError("Veuillez entrer une adresse email valide.");
       toast.error("Veuillez entrer une adresse email valide");
       return;
     }
 
+    setEmailError("");
     setIsLoading(true);
     try {
       const result = await apiRequest(
@@ -37,6 +41,7 @@ export default function Subscription({}: Props) {
 
       if (result.success) {
         setEmail("");
+        setEmailError("");
         
         if (result.data.already_subscribed) {
           toast.success("Vous êtes déjà abonné à notre newsletter !");
@@ -46,10 +51,13 @@ export default function Subscription({}: Props) {
           toast.success("Merci pour votre abonnement ! Vous recevrez bientôt nos actualités.");
         }
       } else {
+        const firstValidationError = result.errors?.email?.[0] || result.details?.email?.[0];
+        setEmailError(firstValidationError || result.error || "Impossible de valider votre abonnement. Veuillez réessayer.");
         handleApiError(result, toast);
       }
     } catch (error) {
       console.error("Newsletter subscription error:", error);
+      setEmailError("Une erreur est survenue. Veuillez réessayer.");
       toast.error("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
@@ -86,9 +94,9 @@ export default function Subscription({}: Props) {
               Abonnez-vous pour recevoir des informations, les dernières
               nouvelles et d&apos;autres offres intéressantes sur facejob
             </h2>
-            <div className="flex flex-col w-full gap-3 sm:gap-4 md:gap-5 md:flex-row">
+            <div className="flex flex-col w-full gap-3 sm:gap-4 md:gap-5 md:flex-row md:items-start">
               <div className="relative w-full text-gray-600">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3">
+                <span className="absolute left-0 top-0 flex h-[48px] items-center pl-2 sm:pl-3 md:h-[55px]">
                   <label htmlFor="email" className="p-1">
                     <Image
                       src="/images/email.svg"
@@ -104,20 +112,32 @@ export default function Subscription({}: Props) {
                   type="email"
                   name="q"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError("");
+                  }}
                   disabled={isLoading}
-                  className="p-4 sm:p-5 pl-10 sm:pl-12 text-sm bg-white font-default rounded-lg w-full h-[48px] md:h-[55px] focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`p-4 sm:p-5 pl-10 sm:pl-12 text-sm bg-white font-default rounded-lg w-full h-[48px] md:h-[55px] border-2 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    emailError
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                      : "border-transparent focus:border-primary focus:ring-primary"
+                  }`}
                   placeholder="email@example.com"
                   autoComplete="off"
                   id="email"
-                  required
+                  aria-invalid={!!emailError}
                 />
+                {emailError && (
+                  <p className="mt-2 text-xs sm:text-sm font-medium text-red-600">
+                    {emailError}
+                  </p>
+                )}
               </div>
 
               <button
                 onClick={handleSubscribe}
                 disabled={isLoading}
-                className="bg-gradient-to-r inline-block from-primary to-primary font-default px-6 sm:px-7 py-3 sm:py-2 rounded-lg text-white text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:opacity-90 active:scale-95 min-h-[48px] md:min-h-[55px] whitespace-nowrap touch-manipulation"
+                className="bg-gradient-to-r inline-block from-primary to-primary font-default px-6 sm:px-7 py-3 sm:py-2 rounded-lg text-white text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:opacity-90 active:scale-95 min-h-[48px] md:h-[55px] whitespace-nowrap touch-manipulation md:self-start"
               >
                 {isLoading ? "Abonnement..." : "S'inscrire"}
               </button>

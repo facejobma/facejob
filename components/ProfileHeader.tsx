@@ -33,6 +33,18 @@ interface Sector {
   jobs: Job[];
 }
 
+type ProfileField =
+  | "newFirstName"
+  | "newLastName"
+  | "newEmail"
+  | "newTel"
+  | "newAddress"
+  | "newPreferredLocation"
+  | "selectedSector"
+  | "selectedJob";
+
+type ProfileErrors = Partial<Record<ProfileField | "general", string>>;
+
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   id,
   first_name,
@@ -56,6 +68,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [errors, setErrors] = useState<ProfileErrors>({});
 
   const [selectedSector, setSelectedSector] = useState(currentSectorId ? String(currentSectorId) : "");
   const [selectedJob, setSelectedJob] = useState(currentJobId ? String(currentJobId) : "");
@@ -83,10 +96,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   });
 
   const handleEditClick = () => {
+    setErrors({});
     setIsEditing(true);
   };
 
   const handleCloseModal = () => {
+    setErrors({});
     setIsEditing(false);
   };
 
@@ -95,11 +110,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
+      setErrors((prev) => ({ ...prev, general: "Veuillez sélectionner une image valide." }));
       toast.error("Veuillez sélectionner une image");
       return;
     }
 
     if (file.size > 4 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, general: "L'image ne doit pas dépasser 4MB." }));
       toast.error("L'image ne doit pas dépasser 4MB");
       return;
     }
@@ -130,6 +147,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   };
 
   const handleImageUploadError = (error: Error) => {
+    setErrors((prev) => ({ ...prev, general: error.message }));
     toast.error(`Erreur: ${error.message}`);
     setIsUploading(false);
   };
@@ -162,6 +180,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const validationErrors = validateProfileForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
 
     try {
       let response: Response;
@@ -237,11 +263,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         toast.success("Profil mis à jour avec succès!");
         router.refresh(); //refresh page
       } else {
+        const errorData = await response.json().catch(() => null);
+        setErrors(formatApiErrors(errorData));
         console.error("Failed to update profile data");
         toast.error("Échec de la mise à jour du profil");
       }
     } catch (error) {
       console.error("Error updating profile data:", error);
+      setErrors({ general: "Erreur lors de la mise à jour du profil. Veuillez réessayer." });
       toast.error("Erreur lors de la mise à jour du profil");
     }
   };
@@ -274,7 +303,83 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       ...prevData,
       [name]: value,
     }));
+    setErrors((prev) => ({ ...prev, [name]: undefined, general: undefined }));
   };
+
+  const validateProfileForm = (): ProfileErrors => {
+    const nextErrors: ProfileErrors = {};
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phonePattern = /^[+()\d\s.-]{8,20}$/;
+
+    if (!formData.newFirstName.trim()) {
+      nextErrors.newFirstName = "Le prénom est obligatoire.";
+    }
+
+    if (!formData.newLastName.trim()) {
+      nextErrors.newLastName = "Le nom est obligatoire.";
+    }
+
+    if (!formData.newEmail.trim()) {
+      nextErrors.newEmail = "L'email est obligatoire.";
+    } else if (!emailPattern.test(formData.newEmail.trim())) {
+      nextErrors.newEmail = "Veuillez saisir une adresse email valide.";
+    }
+
+    if (!formData.newTel.trim()) {
+      nextErrors.newTel = "Le téléphone est obligatoire.";
+    } else if (!phonePattern.test(formData.newTel.trim())) {
+      nextErrors.newTel = "Veuillez saisir un numéro de téléphone valide.";
+    }
+
+    return nextErrors;
+  };
+
+  const formatApiErrors = (errorData: any): ProfileErrors => {
+    const fieldMap: Record<string, ProfileField> = {
+      first_name: "newFirstName",
+      last_name: "newLastName",
+      email: "newEmail",
+      tel: "newTel",
+      phone: "newTel",
+      address: "newAddress",
+      preferred_location: "newPreferredLocation",
+      job_id: "selectedJob",
+      sector_id: "selectedSector",
+    };
+
+    const nextErrors: ProfileErrors = {};
+
+    if (errorData?.errors && typeof errorData.errors === "object") {
+      Object.entries(errorData.errors).forEach(([field, messages]) => {
+        const targetField = fieldMap[field];
+        const message = Array.isArray(messages) ? String(messages[0]) : String(messages);
+
+        if (targetField) {
+          nextErrors[targetField] = message;
+        } else if (!nextErrors.general) {
+          nextErrors.general = message;
+        }
+      });
+    }
+
+    if (!Object.keys(nextErrors).length) {
+      nextErrors.general = errorData?.message || "Impossible de mettre à jour le profil. Vérifiez les informations saisies.";
+    }
+
+    return nextErrors;
+  };
+
+  const getFieldClassName = (field: ProfileField) =>
+    `w-full border-2 rounded-lg py-2.5 px-4 outline-none transition-all ${
+      errors[field]
+        ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200"
+        : "border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+    }`;
+
+  const renderFieldError = (field: ProfileField) =>
+    errors[field] ? (
+      <p className="mt-1.5 text-xs font-medium text-red-600">{errors[field]}</p>
+    ) : null;
 
   const filteredJobs =
     sectors.find((sector) => sector.id === parseInt(selectedSector))?.jobs ||
@@ -357,8 +462,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         title="Modifier le Profil"
         description="Mettre à jour vos informations personnelles"
       >
-        <form onSubmit={handleProfileUpdate}>
+        <form onSubmit={handleProfileUpdate} noValidate>
           <div className="space-y-6">
+            {errors.general && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                {errors.general}
+              </div>
+            )}
+
             {/* Profile Information Section */}
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
               <div className="flex items-center gap-2 mb-4">
@@ -382,9 +493,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     onChange={handleInputChange}
                     maxLength={50}
                     placeholder="Entrez votre prénom"
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
-                    required
+                    className={getFieldClassName("newFirstName")}
+                    aria-invalid={!!errors.newFirstName}
                   />
+                  {renderFieldError("newFirstName")}
                 </div>
 
                 {/* Last Name */}
@@ -400,9 +512,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     onChange={handleInputChange}
                     maxLength={50}
                     placeholder="Entrez votre nom"
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
-                    required
+                    className={getFieldClassName("newLastName")}
+                    aria-invalid={!!errors.newLastName}
                   />
+                  {renderFieldError("newLastName")}
                 </div>
 
                 {/* Email */}
@@ -417,9 +530,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     value={formData.newEmail}
                     onChange={handleInputChange}
                     placeholder="Entrez votre email"
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
-                    required
+                    className={getFieldClassName("newEmail")}
+                    aria-invalid={!!errors.newEmail}
                   />
+                  {renderFieldError("newEmail")}
                 </div>
 
                 {/* Phone */}
@@ -435,9 +549,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     onChange={handleInputChange}
                     maxLength={20}
                     placeholder="Entrez votre téléphone"
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
-                    required
+                    className={getFieldClassName("newTel")}
+                    aria-invalid={!!errors.newTel}
                   />
+                  {renderFieldError("newTel")}
                 </div>
 
                 {/* Sector */}
@@ -452,8 +567,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     onChange={(e) => {
                       setSelectedSector(e.target.value);
                       setSelectedJob("");
+                      setErrors((prev) => ({ ...prev, selectedSector: undefined, selectedJob: undefined, general: undefined }));
                     }}
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    className={getFieldClassName("selectedSector")}
+                    aria-invalid={!!errors.selectedSector}
                   >
                     <option value="">Sélectionnez le secteur</option>
                     {sectors.map((sector) => (
@@ -462,6 +579,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       </option>
                     ))}
                   </select>
+                  {renderFieldError("selectedSector")}
                 </div>
 
                 {/* Job */}
@@ -473,8 +591,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   <select
                     id="metier"
                     value={selectedJob}
-                    onChange={(e) => setSelectedJob(e.target.value)}
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    onChange={(e) => {
+                      setSelectedJob(e.target.value);
+                      setErrors((prev) => ({ ...prev, selectedJob: undefined, general: undefined }));
+                    }}
+                    className={`${getFieldClassName("selectedJob")} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    aria-invalid={!!errors.selectedJob}
                     disabled={!selectedSector}
                   >
                     <option value="">Sélectionnez le métier</option>
@@ -489,6 +611,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       💡 Sélectionnez d'abord un secteur
                     </p>
                   )}
+                  {renderFieldError("selectedJob")}
                 </div>
 
                 {/* Address - Full Width */}
@@ -504,8 +627,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     onChange={handleInputChange}
                     maxLength={200}
                     placeholder="Ex: 12 Rue Hassan II, Casablanca"
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    className={getFieldClassName("newAddress")}
+                    aria-invalid={!!errors.newAddress}
                   />
+                  {renderFieldError("newAddress")}
                 </div>
 
                 {/* Preferred Location - Full Width */}
@@ -522,8 +647,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     onChange={handleInputChange}
                     maxLength={100}
                     placeholder="Ex: Casablanca, Rabat, Tanger..."
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    className={getFieldClassName("newPreferredLocation")}
+                    aria-invalid={!!errors.newPreferredLocation}
                   />
+                  {renderFieldError("newPreferredLocation")}
                 </div>
 
                 {/* Profile Picture - Full Width */}

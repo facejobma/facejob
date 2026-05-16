@@ -73,6 +73,7 @@ const ApplicationHistory: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState<string>("");
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -88,7 +89,7 @@ const ApplicationHistory: React.FC = () => {
 
   useEffect(() => {
     filterApplications();
-  }, [applications, statusFilter, dateFilter, searchQuery]);
+  }, [applications, statusFilter, dateFilter, appliedSearchQuery]);
 
   const fetchApplicationHistory = async () => {
     try {
@@ -149,8 +150,8 @@ const ApplicationHistory: React.FC = () => {
     }
 
     // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+    if (appliedSearchQuery.trim()) {
+      const query = appliedSearchQuery.toLowerCase();
       filtered = filtered.filter(app => 
         app.title.toLowerCase().includes(query) ||
         app.company.toLowerCase().includes(query) ||
@@ -238,9 +239,19 @@ const ApplicationHistory: React.FC = () => {
     setStatusFilter("all");
     setDateFilter("all");
     setSearchQuery("");
+    setAppliedSearchQuery("");
   };
 
-  const hasActiveFilters = statusFilter !== "all" || dateFilter !== "all" || searchQuery.trim() !== "";
+  const handleSearch = () => {
+    setAppliedSearchQuery(searchQuery);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setAppliedSearchQuery("");
+  };
+
+  const hasActiveFilters = statusFilter !== "all" || dateFilter !== "all" || appliedSearchQuery.trim() !== "";
 
   if (loading) {
     return (
@@ -330,15 +341,49 @@ const ApplicationHistory: React.FC = () => {
 
         {/* Search Bar */}
         <div className="mb-4">
-          <div className="relative">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Rechercher par titre, entreprise, secteur..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-            />
+          <div className="flex flex-col gap-2 md:block">
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Rechercher par titre, entreprise, secteur..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
+                className="w-full pl-10 pr-10 md:pr-32 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-3 md:right-28 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Effacer la recherche"
+                >
+                  <FaTimes className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleSearch}
+                className="absolute right-2 top-1/2 hidden -translate-y-1/2 items-center gap-2 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 md:flex"
+              >
+                <FaSearch className="h-3.5 w-3.5" />
+                <span>Rechercher</span>
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={handleSearch}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 md:hidden"
+            >
+              <FaSearch className="h-4 w-4" />
+              <span>Rechercher</span>
+            </button>
           </div>
         </div>
 

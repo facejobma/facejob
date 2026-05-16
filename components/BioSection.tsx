@@ -92,7 +92,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={handleEditClick}
-          className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-[#16a34a] text-white hover:bg-[#15803d] rounded-lg transition-colors"
         >
           <Edit className="w-4 h-4" />
           {currentBio && currentBio.trim().length > 0 ? 'Modifier' : 'Ajouter'}
@@ -108,7 +108,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
             <p className="text-sm text-gray-600 mb-3">Aucune description ajoutée</p>
             <button
               onClick={handleEditClick}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-medium rounded-lg transition-colors"
             >
               <FaPlus className="w-4 h-4" />
               Ajouter une description
@@ -123,9 +123,9 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
         title="Editer Description"
         description="Mettre à jour votre description"
       >
-        <form onSubmit={handleBioUpdate} className="space-y-5">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200">
-            <label htmlFor="newBio" className="block text-sm font-semibold text-gray-700 mb-2">
+        <form onSubmit={handleBioUpdate} className="space-y-4 sm:space-y-5">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 sm:p-6 border-2 border-primary/20">
+            <label htmlFor="newBio" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Votre Description <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -134,28 +134,28 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
               value={newBio}
               onChange={handleInputChange}
               placeholder="Parlez de vous, votre parcours, vos objectifs professionnels..."
-              rows={8}
+              rows={6}
               maxLength={1000}
-              className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all resize-none"
+              className="w-full text-sm sm:text-base border-2 border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 outline-none transition-all resize-none"
             />
             <p className="text-xs text-gray-500 mt-2">
               {newBio.length}/1000 caractères
             </p>
           </div>
 
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={handleCloseModal}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+              className="w-full sm:flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors font-medium disabled:opacity-50 text-sm sm:text-base"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !newBio.trim()}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full sm:flex-1 px-4 py-2.5 bg-[#16a34a] hover:bg-[#15803d] active:bg-[#166534] text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {isSubmitting ? (
                 <>

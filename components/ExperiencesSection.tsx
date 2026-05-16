@@ -321,7 +321,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
         <div className="flex gap-2">
           <button
             onClick={showPrompt}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#16a34a]/10 text-[#16a34a] hover:bg-[#16a34a]/15 rounded-lg transition-colors"
             title="Ajouter des expériences avec l'assistant"
           >
             <Briefcase className="w-4 h-4" />
@@ -329,7 +329,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           </button>
           <button
             onClick={() => handleEditClick(null)} // Add new experience
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#16a34a] text-white hover:bg-[#15803d] rounded-lg transition-colors"
           >
             <PlusSquare className="w-4 h-4" />
             Ajouter
@@ -382,7 +382,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
                   <button
                     type="button"
                     onClick={() => handleEditClick(exp)}
-                    className="text-blue-500 hover:text-blue-700 p-1.5 hover:bg-blue-50 rounded transition-colors"
+                    className="text-[#16a34a] hover:text-[#15803d] p-1.5 hover:bg-[#16a34a]/10 rounded transition-colors"
                     title="Modifier"
                   >
                     <Edit width={16} height={16} />
@@ -403,13 +403,14 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
             <Briefcase className="h-10 w-10 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 mb-3">Aucune expérience ajoutée</p>
-            <button
+            {/* CTA supprimé pour éviter le double affichage (le bouton “Ajouter” dans le header ouvre la modal) */}
+            {/* <button
               onClick={() => handleEditClick(null)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
               <PlusSquare className="w-4 h-4" />
               Ajouter une expérience
-            </button>
+            </button> */}
           </div>
         )}
       </div>
@@ -621,7 +622,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
                 isSubmitting 
                   ? "bg-gray-400 cursor-not-allowed text-white" 
-                  : "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-md hover:shadow-lg"
+                  : "bg-[#16a34a] hover:bg-[#15803d] text-white shadow-md hover:shadow-lg"
               }`}
             >
               {isSubmitting ? (

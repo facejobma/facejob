@@ -18,6 +18,7 @@ import { OfferCandidatActions } from "../OfferCandidatActions";
 import { apiRequest, handleApiError } from "@/lib/apiUtils";
 import RichTextEditor from "@/components/RichTextEditor";
 import toast from "react-hot-toast";
+import { COMMON_LANGUAGES } from "@/constants/languages";
 
 interface Job {
   id: number;
@@ -98,7 +99,6 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
   const [currentData, setCurrentData] = useState(initialData);
 
   // Languages & skills state
-  const AVAILABLE_LANGUAGES = ["Arabe", "Français", "Anglais", "Espagnol", "Allemand", "Italien", "Portugais"];
   const [requiredLanguages, setRequiredLanguages] = useState<string[]>(initialData.required_languages ?? []);
   const [requiredSkills, setRequiredSkills] = useState<string[]>(initialData.required_skills ?? []);
   const [skillInput, setSkillInput] = useState("");
@@ -436,10 +436,10 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">Langues requises</label>
               <div className="flex flex-wrap gap-2">
-                {AVAILABLE_LANGUAGES.map(lang => (
+                {COMMON_LANGUAGES.map(lang => (
                   <button key={lang} type="button" onClick={() => toggleLanguage(lang)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                      requiredLanguages.includes(lang) ? "bg-green-600 text-white border-green-600" : "bg-white text-gray-700 border-gray-300 hover:border-green-400"
+                      requiredLanguages.includes(lang) ? "bg-primary text-white border-primary" : "bg-white text-gray-700 border-gray-300 hover:border-primary"
                     }`}>
                     {lang}
                   </button>

@@ -8,6 +8,7 @@ import { fetchSectors, createOffer, fetchLastPayment } from "@/lib/api";
 import RichTextEditor from "@/components/RichTextEditor";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { useUser } from "@/hooks/useUser";
+import { COMMON_LANGUAGES } from "@/constants/languages";
 
 interface Sector {
   id: number;
@@ -43,8 +44,6 @@ export default function PublierPage() {
   const [requiredLanguages, setRequiredLanguages] = useState<string[]>([]);
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
-
-  const AVAILABLE_LANGUAGES = ["Arabe", "Français", "Anglais", "Espagnol", "Allemand", "Italien", "Portugais"];
 
   const toggleLanguage = (lang: string) => {
     setRequiredLanguages(prev =>
@@ -400,15 +399,15 @@ export default function PublierPage() {
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Langues requises</label>
             <div className="flex flex-wrap gap-2">
-              {AVAILABLE_LANGUAGES.map(lang => (
+              {COMMON_LANGUAGES.map(lang => (
                 <button
                   key={lang}
                   type="button"
                   onClick={() => toggleLanguage(lang)}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                     requiredLanguages.includes(lang)
-                      ? "bg-green-600 text-white border-green-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-green-400"
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white text-gray-700 border-gray-300 hover:border-primary"
                   }`}
                 >
                   {lang}

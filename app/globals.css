@@ -368,3 +368,21 @@
 .w-36 {
   width: 9rem;
 }
+
+
+/* React-Select z-index fix for modals */
+.language-select__menu-portal,
+[class*="language-select__menu-portal"] {
+  z-index: 99999 !important;
+}
+
+.language-select__menu,
+[class*="language-select__menu"] {
+  z-index: 99999 !important;
+}
+
+/* Ensure react-select menus always appear on top of modals */
+div[class*="__menu-portal"],
+div[class*="__menu"] {
+  z-index: 99999 !important;
+}

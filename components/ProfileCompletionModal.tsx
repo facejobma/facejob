@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus, X, Briefcase, Clock, GraduationCap, Lightbulb, FolderOpen, FileText, CheckCircle, AlertCircle, Globe } from "lucide-react";
+import { CalendarIcon, Plus, X, Briefcase, Clock, GraduationCap, Lightbulb, FolderOpen, FileText, CheckCircle, AlertCircle, Globe, Search } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { SKILLS_BY_CATEGORY, TOP_SKILLS } from "@/constants/skills";
 
 interface Experience {
   organisme: string;
@@ -38,6 +40,7 @@ export default function ProfileCompletionModal({
   candidatId,
   onProfileCompleted,
 }: ProfileCompletionModalProps) {
+  const router = useRouter();
   const [experiences, setExperiences] = useState<Experience[]>([
     {
       organisme: "",
@@ -52,11 +55,14 @@ export default function ProfileCompletionModal({
   const [missingSections, setMissingSections] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState<string>("");
+  const [isMobile, setIsMobile] = useState(false);
 
   // Additional form states for other sections
   const [bioData, setBioData] = useState("");
   const [skillsData, setSkillsData] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
+  const [skillSearchTerm, setSkillSearchTerm] = useState("");
+  const [selectedSkillCategory, setSelectedSkillCategory] = useState(TOP_SKILLS_CATEGORY);
   const [languagesData, setLanguagesData] = useState<string[]>([]);
   const [newLanguage, setNewLanguage] = useState("");
   const [projectData, setProjectData] = useState({
@@ -75,6 +81,36 @@ export default function ProfileCompletionModal({
   const [degrees, setDegrees] = useState<Array<{ id: string; name: string; level: string }>>([]);
   const [degreeSearchTerm, setDegreeSearchTerm] = useState("");
   const [isDegreeDropdownOpen, setIsDegreeDropdownOpen] = useState(false);
+
+  const skillsByCategory = useMemo(
+    () => ({
+      [TOP_SKILLS_CATEGORY]: TOP_SKILLS,
+      ...SKILLS_BY_CATEGORY,
+    }),
+    []
+  );
+
+  const filteredSkills = useMemo(() => {
+    const categorySkills =
+      skillsByCategory[selectedSkillCategory as keyof typeof skillsByCategory] || [];
+    const search = skillSearchTerm.toLowerCase().trim();
+
+    if (!search) return categorySkills;
+
+    return categorySkills.filter((skill) => skill.toLowerCase().includes(search));
+  }, [skillSearchTerm, selectedSkillCategory, skillsByCategory]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateIsMobile = () => setIsMobile(mediaQuery.matches);
+
+    updateIsMobile();
+    mediaQuery.addEventListener("change", updateIsMobile);
+
+    return () => mediaQuery.removeEventListener("change", updateIsMobile);
+  }, []);
 
   // Fetch profile data to detect missing sections
   useEffect(() => {
@@ -202,6 +238,11 @@ export default function ProfileCompletionModal({
     if (currentSection === "bio") {
       return handleSubmitBio();
     } else if (currentSection === "skills") {
+      if (isMobile) {
+        onClose();
+        router.push("/dashboard/candidat/competences");
+        return;
+      }
       return handleSubmitSkills();
     } else if (currentSection === "projects") {
       return handleSubmitProject();
@@ -475,7 +516,8 @@ export default function ProfileCompletionModal({
       // Reset forms
       setBioData("");
       setSkillsData([]);
-      setNewSkill("");
+      setSkillSearchTerm("");
+      setSelectedSkillCategory(TOP_SKILLS_CATEGORY);
       setLanguagesData([]);
       setNewLanguage("");
       setProjectData({ title: "", description: "", link: "" });
@@ -507,9 +549,11 @@ export default function ProfileCompletionModal({
     }
   };
 
-  const handleAddSkill = () => {
-    if (newSkill.trim() && !skillsData.includes(newSkill.trim())) {
-      setSkillsData([...skillsData, newSkill.trim()]);
+  const handleAddSkill = (skill?: string | React.MouseEvent<HTMLButtonElement>) => {
+    const skillToAdd = typeof skill === "string" ? skill : newSkill.trim();
+
+    if (skillToAdd && !skillsData.includes(skillToAdd)) {
+      setSkillsData([...skillsData, skillToAdd]);
       setNewSkill("");
     }
   };
@@ -554,18 +598,18 @@ export default function ProfileCompletionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" aria-describedby="experience-modal-description">
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-5xl max-h-[92dvh] overflow-y-auto !p-3 sm:w-[calc(100vw-2rem)] sm:!p-6" aria-describedby="experience-modal-description">
         {loading ? (
           // Loading state
           <>
-            <DialogHeader className="relative pb-4 border-b-2 border-gray-200">
-              <DialogTitle className="flex items-center gap-3 text-2xl pr-8">
-                <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl p-3">
-                  <AlertCircle className="h-6 w-6 text-blue-600 animate-pulse" />
+            <DialogHeader className="relative pb-3 sm:pb-4 border-b-2 border-gray-200">
+              <DialogTitle className="flex items-start gap-2 sm:gap-3 text-lg sm:text-2xl pr-8 text-left">
+                <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg sm:rounded-xl p-2 sm:p-3 shrink-0">
+                  <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 animate-pulse" />
                 </div>
                 <div className="text-gray-900">Analyse de votre profil</div>
               </DialogTitle>
-              <p id="experience-modal-description" className="text-gray-600 mt-3 text-base">
+              <p id="experience-modal-description" className="text-gray-600 mt-2 sm:mt-3 text-sm sm:text-base text-left">
                 Veuillez patienter pendant que nous analysons votre profil...
               </p>
             </DialogHeader>
@@ -577,21 +621,21 @@ export default function ProfileCompletionModal({
         ) : (
           // Content after loading
           <>
-            <DialogHeader className="relative pb-4 border-b-2 border-gray-200">
-              <DialogTitle className="flex items-center gap-3 text-2xl pr-8">
-                <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-3">
+            <DialogHeader className="relative pb-3 sm:pb-4 border-b-2 border-gray-200">
+              <DialogTitle className="flex items-start gap-2 sm:gap-3 text-lg sm:text-2xl pr-8 text-left">
+                <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg sm:rounded-xl p-2 sm:p-3 shrink-0">
                   {getSectionIcon()}
                 </div>
-                <div>
-                  <div className="text-gray-900">{getSectionTitle()}</div>
+                <div className="min-w-0">
+                  <div className="text-gray-900 break-words">{getSectionTitle()}</div>
                   {missingSections.length > 1 && (
-                    <div className="text-sm font-normal text-amber-600 mt-1">
+                    <div className="text-xs sm:text-sm font-normal text-amber-600 mt-1">
                       Section {missingSections.indexOf(currentSection) + 1} sur {missingSections.length}
                     </div>
                   )}
                 </div>
               </DialogTitle>
-              <p id="experience-modal-description" className="text-gray-600 mt-3 text-base">
+              <p id="experience-modal-description" className="text-gray-600 mt-2 sm:mt-3 text-sm sm:text-base text-left">
                 {currentSection === "experiences" 
                   ? "Complétez votre profil en ajoutant vos expériences professionnelles."
                   : `Complétez votre profil en ajoutant: ${getSectionTitle()}`}
@@ -600,54 +644,54 @@ export default function ProfileCompletionModal({
 
         {/* Show missing sections alert if any */}
         {!loading && missingSections.length > 0 && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-5 mb-6 shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="bg-amber-100 rounded-xl p-3 flex-shrink-0">
-                <AlertCircle className="h-6 w-6 text-amber-600" />
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-3 sm:p-5 mb-4 sm:mb-6 shadow-sm">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="bg-amber-100 rounded-lg sm:rounded-xl p-2 sm:p-3 flex-shrink-0">
+                <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
               </div>
-              <div className="flex-1">
-                <h4 className="font-bold text-amber-900 text-base mb-3">
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-amber-900 text-sm sm:text-base mb-3">
                   Sections de profil à compléter
                 </h4>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {missingSections.includes("bio") && (
-                    <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
                       <FileText className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       <span className="font-medium">À propos de moi</span>
                     </div>
                   )}
                   {missingSections.includes("experiences") && (
-                    <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
                       <Briefcase className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       <span className="font-medium">Expériences</span>
                     </div>
                   )}
                   {missingSections.includes("skills") && (
-                    <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
                       <Lightbulb className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       <span className="font-medium">Compétences</span>
                     </div>
                   )}
                   {missingSections.includes("projects") && (
-                    <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
                       <FolderOpen className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       <span className="font-medium">Projets</span>
                     </div>
                   )}
                   {missingSections.includes("education") && (
-                    <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
                       <GraduationCap className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       <span className="font-medium">Formation</span>
                     </div>
                   )}
                   {missingSections.includes("languages") && (
-                    <div className="flex items-center gap-2 text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
                       <Globe className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       <span className="font-medium">Langues parlées</span>
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-amber-800 mt-4 flex items-center gap-2 bg-white rounded-lg p-2 border border-amber-200">
+                <p className="text-xs sm:text-sm text-amber-800 mt-3 sm:mt-4 flex items-start gap-2 bg-white rounded-lg p-2 border border-amber-200">
                   <span className="text-lg">💡</span>
                   <span>Complétez ces sections pour améliorer vos chances auprès des recruteurs.</span>
                 </p>
@@ -656,7 +700,7 @@ export default function ProfileCompletionModal({
           </div>
         )}
 
-        <div className="space-y-6 mt-6">
+        <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
           {currentSection === "bio" ? (
             // Bio Form
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200">
@@ -676,7 +720,136 @@ export default function ProfileCompletionModal({
                 {bioData.length}/1000 caractères
               </p>
             </div>
+          ) : currentSection === "skills" && isMobile ? (
+            <div className="rounded-lg border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-white p-2 shadow-sm">
+                  <Lightbulb className="h-5 w-5 text-green-600" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-semibold text-gray-900">
+                    Complétez vos compétences sur la page dédiée
+                  </h4>
+                  <p className="mt-1 text-sm leading-6 text-gray-600">
+                    Sur mobile, la page Compétences est plus confortable pour choisir et enregistrer vos compétences.
+                  </p>
+                </div>
+              </div>
+            </div>
           ) : currentSection === "skills" ? (
+            // Skills Form - fixed list selection
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 sm:p-6 border-2 border-green-200 space-y-3 sm:space-y-4">
+              <div>
+                <Label className="text-sm font-semibold text-gray-700">
+                  Sélectionnez vos compétences <span className="text-red-500">*</span>
+                </Label>
+                <p className="text-xs text-gray-600 mt-1 leading-5">
+                  Choisissez uniquement depuis la liste FaceJob pour améliorer le matching avec les offres.
+                </p>
+              </div>
+
+              {skillsData.length > 0 && (
+                <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                  {skillsData.map((skill) => (
+                    <div
+                      key={skill}
+                      className="flex max-w-full items-center justify-between gap-2 bg-green-100 text-green-800 px-3 py-2 sm:py-1.5 rounded-lg text-sm"
+                    >
+                      <span className="truncate">{skill}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="text-green-600 hover:text-green-800 font-bold shrink-0"
+                        aria-label={`Retirer ${skill}`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  value={skillSearchTerm}
+                  onChange={(e) => setSkillSearchTerm(e.target.value)}
+                  placeholder="Rechercher une compétence..."
+                  className="pl-10 pr-10 border-green-200 focus:border-green-500 focus:ring-green-200"
+                />
+                {skillSearchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSkillSearchTerm("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label="Effacer la recherche"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              <div className="-mx-3 flex gap-2 overflow-x-auto overscroll-x-contain px-3 pb-2 sm:-mx-1 sm:px-1">
+                {Object.keys(skillsByCategory).map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedSkillCategory(category)}
+                    className={`shrink-0 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium transition-colors ${
+                      selectedSkillCategory === category
+                        ? "bg-[#16a34a] text-white"
+                        : "bg-white text-gray-700 border border-gray-200 hover:bg-green-50 hover:border-green-300"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+
+              <div className="bg-white rounded-lg border border-green-200 p-2 sm:p-3">
+                {filteredSkills.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Search className="h-10 w-10 mx-auto text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-500">Aucune compétence trouvée dans la liste.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[36dvh] sm:max-h-[42vh] overflow-y-auto pr-1">
+                    {filteredSkills.map((skill) => {
+                      const isSelected = skillsData.includes(skill);
+                      const isDisabled = !isSelected && skillsData.length >= 20;
+
+                      return (
+                        <button
+                          key={skill}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              handleRemoveSkill(skill);
+                            } else {
+                              handleAddSkill(skill);
+                            }
+                          }}
+                          disabled={isDisabled}
+                          className={`min-w-0 min-h-11 sm:min-h-10 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
+                            isSelected
+                              ? "bg-[#16a34a] text-white"
+                              : "bg-white text-gray-700 border border-gray-300 hover:border-green-500 hover:bg-green-50"
+                          } ${isDisabled ? "opacity-40 cursor-not-allowed" : ""}`}
+                        >
+                          {isSelected ? (
+                            <CheckCircle className="h-4 w-4 shrink-0" />
+                          ) : (
+                            <Plus className="h-4 w-4 shrink-0" />
+                          )}
+                          <span className="min-w-0 truncate">{skill}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : false && currentSection === "skills" ? (
             // Skills Form
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200 space-y-4">
               <div>
@@ -1173,11 +1346,11 @@ export default function ProfileCompletionModal({
           </>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t-2 border-gray-200">
+          <div className="sticky bottom-0 -mx-3 flex flex-col gap-2 border-t-2 border-gray-200 bg-white/95 px-3 pt-3 pb-1 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:gap-3 sm:bg-transparent sm:px-0 sm:pt-6 sm:pb-0 sm:mt-8">
             <Button
               variant="outline"
               onClick={onClose}
-              className="flex-1 sm:flex-none border-2 border-gray-300 hover:bg-gray-50 font-semibold"
+              className="flex-1 sm:flex-none border-2 border-gray-300 hover:bg-gray-50 font-semibold text-sm"
               aria-label="Fermer sans enregistrer"
             >
               <X className="h-4 w-4 mr-2" />
@@ -1186,7 +1359,7 @@ export default function ProfileCompletionModal({
             <Button
               variant="outline"
               onClick={onSkip}
-              className="flex-1 sm:flex-none border-2 border-amber-300 text-amber-700 hover:bg-amber-50 font-semibold"
+              className="flex-1 sm:flex-none border-2 border-amber-300 text-amber-700 hover:bg-amber-50 font-semibold text-sm"
               aria-label="Passer l'ajout d'expériences pour le moment"
             >
               <Clock className="h-4 w-4 mr-2" />
@@ -1195,7 +1368,7 @@ export default function ProfileCompletionModal({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl"
+              className="flex-1 bg-[#16a34a] hover:bg-[#15803d] text-white font-semibold shadow-lg hover:shadow-xl text-sm"
               aria-label="Enregistrer"
             >
               {isSubmitting ? (
@@ -1206,7 +1379,9 @@ export default function ProfileCompletionModal({
               ) : (
                 <>
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  {missingSections.indexOf(currentSection) < missingSections.length - 1 
+                  {currentSection === "skills" && isMobile
+                    ? "Compléter mes compétences"
+                    : missingSections.indexOf(currentSection) < missingSections.length - 1 
                     ? "Suivant" 
                     : "Terminer"}
                 </>
@@ -1220,3 +1395,5 @@ export default function ProfileCompletionModal({
     </Dialog>
   );
 }
+
+const TOP_SKILLS_CATEGORY = "Top Compétences";

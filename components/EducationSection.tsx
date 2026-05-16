@@ -279,7 +279,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => handleEditClick(null)}
-          className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-[#16a34a] text-white hover:bg-[#15803d] rounded-lg transition-colors"
         >
           <PlusSquare className="w-4 h-4" />
           Ajouter
@@ -323,7 +323,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                   <button
                     type="button"
                     onClick={() => handleEditClick(edu)}
-                    className="text-blue-500 hover:text-blue-700 p-1.5 hover:bg-blue-50 rounded transition-colors"
+                    className="text-[#16a34a] hover:text-[#15803d] p-1.5 hover:bg-[#16a34a]/10 rounded transition-colors"
                     title="Modifier"
                   >
                     <Edit width={16} height={16} />
@@ -344,13 +344,14 @@ const EducationSection: React.FC<EducationSectionProps> = ({
           <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
             <PlusSquare className="h-10 w-10 text-gray-400 mx-auto mb-3" />
             <p className="text-sm text-gray-600 mb-3">Aucune formation ajoutée</p>
-            <button
+            {/* CTA supprimé pour éviter le double affichage (le bouton “Ajouter” ouvre la modal) */}
+            {/* <button
               onClick={() => handleEditClick(null)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
               <PlusSquare className="w-4 h-4" />
               Ajouter une formation
-            </button>
+            </button> */}
           </div>
         )}
       </div>
@@ -521,7 +522,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting || !formData.title?.trim() || !formData.degree || !formData.school_name?.trim() || !formData.graduation_date}
-                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-[#16a34a] hover:bg-[#15803d] text-white rounded-lg transition-colors font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 onClick={() => {
                   // Close dropdown when submitting
                   setIsDegreeDropdownOpen(false);

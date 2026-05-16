@@ -235,7 +235,7 @@ const Profile: React.FC = () => {
         <div className="relative">
           <LoadingSpinner message="Chargement du profil..." />
           <div className="absolute inset-0 flex items-center justify-center">
-            <HiOutlineUser className="text-2xl text-green-600 animate-pulse" />
+            <HiOutlineUser className="text-2xl text-primary animate-pulse" />
           </div>
         </div>
         <div className="text-center">
@@ -274,13 +274,13 @@ const Profile: React.FC = () => {
               {availabilityStatus && (
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs md:text-sm font-medium ${
                   availabilityStatus === 'disponible' 
-                    ? 'bg-green-100 text-green-800' 
+                    ? 'bg-primary/10 text-primary' 
                     : 'bg-amber-100 text-amber-800'
                 }`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${
+                <span className={`h-1.5 w-1.5 rounded-full ${
                     availabilityStatus === 'disponible' 
-                      ? 'bg-green-600' 
-                      : 'bg-amber-600'
+                      ? 'bg-primary' 
+                      : 'bg-primary/20'
                   }`}></span>
                   {availabilityStatus === 'disponible' ? 'Actif' : 'Suspendu'}
                 </span>
@@ -291,7 +291,7 @@ const Profile: React.FC = () => {
           <button
             onClick={handleDownloadCV}
             disabled={downloadingCV}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base font-medium whitespace-nowrap w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#16a34a] hover:bg-[#15803d] text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base font-medium whitespace-nowrap w-full sm:w-auto"
           >
             {downloadingCV ? (
               <>
@@ -312,8 +312,8 @@ const Profile: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <FaUser className="h-5 w-5 text-green-600" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FaUser className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-2xl font-bold text-gray-900 truncate">{completionPercentage}%</p>
@@ -324,8 +324,8 @@ const Profile: React.FC = () => {
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <FaBriefcase className="h-5 w-5 text-blue-600" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FaBriefcase className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-2xl font-bold text-gray-900 truncate">{userProfile?.experiences?.length || 0}</p>
@@ -336,8 +336,8 @@ const Profile: React.FC = () => {
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-              <FaCog className="h-5 w-5 text-purple-600" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FaCog className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-2xl font-bold text-gray-900 truncate">{userProfile?.skills?.length || 0}</p>
@@ -348,8 +348,8 @@ const Profile: React.FC = () => {
 
         <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-              <HiOutlineCollection className="h-5 w-5 text-orange-600" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <HiOutlineCollection className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-2xl font-bold text-gray-900 truncate">{userProfile?.projects?.length || 0}</p>
@@ -361,70 +361,72 @@ const Profile: React.FC = () => {
 
       {/* Progress Bar with Missing Items */}
       {completionPercentage < 100 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <HiOutlineLightBulb className="text-amber-600" />
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <HiOutlineLightBulb className="text-primary" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-amber-800 text-sm">Complétez votre profil</h3>
-                <span className="text-sm font-bold text-amber-800">{completionPercentage}%</span>
+                <h3 className="font-semibold text-primary text-sm">Complétez votre profil</h3>
+                <span className="text-sm font-bold text-primary">{completionPercentage}%</span>
+
               </div>
-              <div className="w-full bg-amber-200 rounded-full h-2 mb-3">
+              <div className="w-full bg-primary/20 rounded-full h-2 mb-3">
                 <div
-                  className="bg-amber-600 rounded-full h-2 transition-all duration-500"
+                  className="bg-primary rounded-full h-2 transition-all duration-500"
                   style={{ width: `${completionPercentage}%` }}
                 ></div>
               </div>
+
               
               {/* Missing Items List */}
               <div className="space-y-1.5">
                 {(!userProfile?.bio || userProfile.bio.trim().length === 0) && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <FaFileAlt className="text-amber-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <FaFileAlt className="text-primary flex-shrink-0" />
                     <span>Ajoutez une description "À propos de moi"</span>
                   </div>
                 )}
                 {(!userProfile?.experiences || userProfile.experiences.length === 0) && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <FaBriefcase className="text-amber-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <FaBriefcase className="text-primary flex-shrink-0" />
                     <span>Ajoutez vos expériences professionnelles</span>
                   </div>
                 )}
                 {(!userProfile?.skills || userProfile.skills.length === 0) && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <FaCog className="text-amber-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <FaCog className="text-primary flex-shrink-0" />
                     <span>Ajoutez vos compétences</span>
                   </div>
                 )}
                 {(!userProfile?.languages || userProfile.languages.length === 0) && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <Globe className="text-amber-600 flex-shrink-0 w-3 h-3" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <Globe className="text-primary flex-shrink-0 w-3 h-3" />
                     <span>Ajoutez les langues que vous parlez</span>
                   </div>
                 )}
                 {(!userProfile?.projects || userProfile.projects.length === 0) && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <HiOutlineCollection className="text-amber-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <HiOutlineCollection className="text-primary flex-shrink-0" />
                     <span>Ajoutez vos projets</span>
                   </div>
                 )}
                 {(!userProfile?.education || userProfile.education.length === 0) && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <FaGraduationCap className="text-amber-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <FaGraduationCap className="text-primary flex-shrink-0" />
                     <span>Ajoutez votre formation</span>
                   </div>
                 )}
                 {(!userProfile?.image || userProfile?.image === "https://via.placeholder.com/150") && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <FaUser className="text-amber-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <FaUser className="text-primary flex-shrink-0" />
                     <span>Ajoutez une photo de profil</span>
                   </div>
                 )}
                 {(!userProfile?.first_name || !userProfile?.last_name || !userProfile?.tel || !userProfile?.email) && (
-                  <div className="flex items-center gap-2 text-xs text-amber-700">
-                    <FaUser className="text-amber-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <FaUser className="text-primary flex-shrink-0" />
                     <span>Complétez vos informations personnelles</span>
                   </div>
                 )}
@@ -438,13 +440,13 @@ const Profile: React.FC = () => {
       <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <FaUser className="text-green-600 text-sm" />
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FaUser className="text-primary text-sm" />
             </div>
             <h2 className="text-base md:text-lg font-semibold text-gray-900">Informations personnelles</h2>
           </div>
           {(userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email) && (
-            <span className="text-xs text-green-600 font-medium whitespace-nowrap flex items-center gap-1">
+            <span className="text-xs text-primary font-medium whitespace-nowrap flex items-center gap-1">
               <span>✓</span>
               <span>Complété</span>
             </span>
@@ -473,13 +475,13 @@ const Profile: React.FC = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <FaFileAlt className="text-green-600 text-sm" />
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <FaFileAlt className="text-primary text-sm" />
               </div>
               <h2 className="text-base md:text-lg font-semibold text-gray-900">À propos de moi</h2>
             </div>
             {(userProfile?.bio && userProfile.bio.trim().length > 0) && (
-              <span className="text-xs text-green-600 font-medium whitespace-nowrap flex items-center gap-1">
+              <span className="text-xs text-primary font-medium whitespace-nowrap flex items-center gap-1">
                 <span>✓</span>
                 <span>Complété</span>
               </span>
@@ -492,13 +494,13 @@ const Profile: React.FC = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <FaCog className="text-purple-600 text-sm" />
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <FaCog className="text-primary text-sm" />
               </div>
               <h2 className="text-base md:text-lg font-semibold text-gray-900">Compétences</h2>
             </div>
             {(userProfile?.skills && userProfile.skills.length > 0) && (
-              <span className="text-xs text-green-600 font-medium whitespace-nowrap">
+              <span className="text-xs text-primary font-medium whitespace-nowrap">
                 {userProfile.skills.length} compétence{userProfile.skills.length > 1 ? 's' : ''}
               </span>
             )}
@@ -514,13 +516,13 @@ const Profile: React.FC = () => {
       <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <FaBriefcase className="text-blue-600 text-sm" />
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FaBriefcase className="text-primary text-sm" />
             </div>
             <h2 className="text-base md:text-lg font-semibold text-gray-900">Expériences professionnelles</h2>
           </div>
           {(userProfile?.experiences && userProfile.experiences.length > 0) && (
-            <span className="text-xs text-green-600 font-medium whitespace-nowrap">
+            <span className="text-xs text-primary font-medium whitespace-nowrap">
               {userProfile.experiences.length} expérience{userProfile.experiences.length > 1 ? 's' : ''}
             </span>
           )}
@@ -538,13 +540,13 @@ const Profile: React.FC = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-                <HiOutlineCollection className="text-orange-600 text-sm" />
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <HiOutlineCollection className="text-primary text-sm" />
               </div>
               <h2 className="text-base md:text-lg font-semibold text-gray-900">Projets</h2>
             </div>
             {(userProfile?.projects && userProfile.projects.length > 0) && (
-              <span className="text-xs text-green-600 font-medium whitespace-nowrap">
+              <span className="text-xs text-primary font-medium whitespace-nowrap">
                 {userProfile.projects.length} projet{userProfile.projects.length > 1 ? 's' : ''}
               </span>
             )}
@@ -556,13 +558,13 @@ const Profile: React.FC = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                <FaGraduationCap className="text-indigo-600 text-sm" />
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <FaGraduationCap className="text-primary text-sm" />
               </div>
               <h2 className="text-base md:text-lg font-semibold text-gray-900">Formation</h2>
             </div>
             {(userProfile?.education && userProfile.education.length > 0) && (
-              <span className="text-xs text-green-600 font-medium whitespace-nowrap">
+              <span className="text-xs text-primary font-medium whitespace-nowrap">
                 {userProfile.education.length} formation{userProfile.education.length > 1 ? 's' : ''}
               </span>
             )}
@@ -606,52 +608,52 @@ const Profile: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
-                <FaExclamationTriangle className="text-red-600 text-xl" />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <FaExclamationTriangle className="text-red-600 text-lg sm:text-xl" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Confirmer la suppression</h3>
             </div>
             
             <div className="mb-6">
-              <p className="text-gray-700 mb-4">
+              <p className="text-sm sm:text-base text-gray-700 mb-4">
                 Cette action est <span className="font-bold text-red-600">irréversible</span>. Toutes vos données seront définitivement supprimées :
               </p>
-              <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 mb-4">
+              <ul className="list-disc list-inside text-xs sm:text-sm text-gray-600 space-y-1.5 mb-4 pl-2">
                 <li>Profil et informations personnelles</li>
                 <li>CV vidéos et candidatures</li>
                 <li>Historique et statistiques</li>
                 <li>Expériences, compétences et projets</li>
               </ul>
-              <p className="text-sm text-gray-700 mb-4">
-                Pour confirmer, tapez <span className="font-mono font-bold bg-gray-100 px-2 py-1 rounded">SUPPRIMER</span> ci-dessous :
+              <p className="text-xs sm:text-sm text-gray-700 mb-3">
+                Pour confirmer, tapez <span className="font-mono font-bold bg-gray-100 px-2 py-1 rounded text-xs sm:text-sm">SUPPRIMER</span> ci-dessous :
               </p>
               <input
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="Tapez SUPPRIMER"
-                className="w-full border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 rounded-lg px-4 py-2 outline-none transition-all"
+                className="w-full border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 outline-none transition-all text-sm sm:text-base"
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setDeleteConfirmText("");
                 }}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                className="w-full sm:flex-1 px-4 py-2.5 sm:py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors font-medium disabled:opacity-50 text-sm sm:text-base"
               >
                 Annuler
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmText !== "SUPPRIMER" || isDeleting}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full sm:flex-1 px-4 py-2.5 sm:py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 {isDeleting ? (
                   <>

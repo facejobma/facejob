@@ -44,7 +44,7 @@ const ProfileReactivationButton: React.FC<ProfileReactivationButtonProps> = ({
         <button
           onClick={handleReactivate}
           disabled={loading}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors font-medium text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#16a34a] hover:bg-[#15803d] text-white rounded-lg transition-colors font-medium text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
         >
           {loading ? (
             <>

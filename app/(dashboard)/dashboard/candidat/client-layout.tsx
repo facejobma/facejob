@@ -85,7 +85,7 @@ function DashboardLayoutContent({
 
       <div className="flex flex-1 mt-16">
         <Sidebar />
-        <main className={`flex-1 transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-20'}`}>
+        <main className={`min-w-0 flex-1 overflow-x-hidden transition-all duration-300 ${isOpen ? 'md:ml-64' : 'md:ml-20'}`}>
           <DashboardPageWrapper>
             {children}
           </DashboardPageWrapper>

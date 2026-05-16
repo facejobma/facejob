@@ -289,14 +289,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <div className="flex justify-between items-start mb-4">
         <div className="flex gap-2">
           <button
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#16a34a] text-white hover:bg-[#15803d] rounded-lg transition-colors"
             onClick={handleEditClick}
           >
             <Edit className="w-4 h-4" />
             Modifier
           </button>
           <button
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-600 text-white hover:bg-gray-700 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-[#16a34a] text-white hover:bg-[#15803d] rounded-lg transition-colors"
             title="Modifier le Mot de Passe"
             onClick={handlePasswordChangeClick}
           >
@@ -590,7 +590,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium shadow-sm"
+                className="flex-1 px-4 py-2.5 bg-[#16a34a] hover:bg-[#15803d] text-white rounded-lg transition-colors font-medium shadow-sm"
               >
                 Sauvegarder
               </button>

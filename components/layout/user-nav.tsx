@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import Cookies from "js-cookie";
 import { performLogout } from "@/lib/auth";
+import { getBrowserImageSrc } from "@/lib/images";
 
 const userDataString =
   typeof window !== "undefined" ? window.sessionStorage?.getItem("user") : null;
@@ -34,6 +35,7 @@ export function UserNav() {
     typeof window !== "undefined"
       ? window.sessionStorage?.getItem("userRole")
       : null;
+  const avatarSrc = getBrowserImageSrc(user?.image || user?.logo);
 
   console.log("The actual userRole => ", userRole);
 
@@ -50,7 +52,7 @@ export function UserNav() {
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={user?.image || user?.logo || undefined}
+                src={avatarSrc || undefined}
                 alt={user?.first_name ?? user?.company_name}
               />
               <AvatarFallback>

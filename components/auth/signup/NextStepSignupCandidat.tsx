@@ -37,8 +37,27 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
   const maxLength = 250;
   const router = useRouter();
 
+  const clearError = (field: string) => {
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const getFieldClassName = (field: string, extra = "") =>
+    `w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+      errors[field] ? "border-red-500 bg-red-50 focus:ring-red-500" : "border-gray-300 focus:ring-primary"
+    } ${extra}`;
+
+  const renderFieldError = (field: string) =>
+    errors[field] ? (
+      <p id={`${field}-error`} className="mt-1 text-sm font-medium text-red-600">
+        {errors[field]}
+      </p>
+    ) : null;
+
   const handleBioChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    if (e.target.value.length <= maxLength) setBio(e.target.value);
+    if (e.target.value.length <= maxLength) {
+      setBio(e.target.value);
+      clearError("bio");
+    }
   };
 
   const remainingCharacters = maxLength - bio.length;
@@ -69,10 +88,12 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({ ...prev, image: "Veuillez selectionner une image valide." }));
       toast.error("Veuillez sélectionner une image valide.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, image: "L'image ne doit pas depasser 5 Mo." }));
       toast.error("L'image ne doit pas dépasser 5 Mo.");
       return;
     }
@@ -88,6 +109,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
     if (!selectedSector) newErrors.sector = "Veuillez sélectionner un secteur.";
     if (!selectedJob) newErrors.job = "Veuillez sélectionner un métier.";
     if (!yearsOfExperience.trim()) newErrors.yearsOfExperience = "Veuillez indiquer vos années d'expérience.";
+    if (yearsOfExperience.trim() && (Number(yearsOfExperience) < 0 || Number(yearsOfExperience) > 50)) newErrors.yearsOfExperience = "Veuillez entrer une valeur entre 0 et 50.";
     if (!imageFile) newErrors.image = "Veuillez uploader une photo de profil.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -95,7 +117,6 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error("Veuillez corriger les erreurs avant de soumettre.");
       return;
     }
 
@@ -137,6 +158,22 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
         setShowVerificationModal(true);
         setTimeout(() => sessionStorage.clear(), 500);
       } else {
+        if (result.errors && typeof result.errors === "object") {
+          const mappedErrors: { [key: string]: string } = {};
+          const fieldMap: Record<string, string> = {
+            job_id: "job",
+            sector_id: "sector",
+            years_of_experience: "yearsOfExperience",
+            yearsOfExperience: "yearsOfExperience",
+          };
+
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            const targetField = fieldMap[field] || field;
+            mappedErrors[targetField] = Array.isArray(messages) ? String(messages[0]) : String(messages);
+          });
+          setErrors(mappedErrors);
+          return;
+        }
         toast.error(result.message || "Erreur lors de la mise à jour du profil.");
       }
     } catch {
@@ -193,9 +230,11 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
             {!imagePreview ? (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center gap-3 hover:border-primary hover:bg-green-50 transition-colors"
+                className={`w-full border-2 border-dashed rounded-lg p-5 flex flex-col items-center gap-2 hover:border-primary hover:bg-green-50 transition-colors ${
+                  errors.image ? "border-red-500 bg-red-50" : "border-gray-300"
+                }`}
               >
-                <Upload className="w-8 h-8 text-gray-400" />
+                <Upload className="w-7 h-7 text-gray-400" />
                 <div className="text-center">
                   <p className="text-sm font-medium text-gray-700">Cliquez pour choisir une photo</p>
                   <p className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP — max 5 Mo</p>
@@ -204,13 +243,13 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
             ) : (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 <Camera className="w-4 h-4" /> Changer la photo
               </button>
             )}
             {errors.image && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+              <p className="mt-2 text-sm font-medium text-red-600 flex items-center gap-1">
                 <X className="w-4 h-4" />{errors.image}
               </p>
             )}
@@ -230,10 +269,12 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
                 onChange={handleBioChange}
                 maxLength={maxLength}
                 rows={4}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors resize-none ${errors.bio ? "border-red-300 focus:ring-red-500" : "border-gray-300 focus:ring-primary"}`}
+                className={getFieldClassName("bio", "resize-none")}
+                aria-invalid={!!errors.bio}
+                aria-describedby={errors.bio ? "bio-error" : undefined}
               />
               <div className="flex justify-between items-center mt-1">
-                {errors.bio && <p className="text-sm text-red-600">{errors.bio}</p>}
+                {errors.bio && <p id="bio-error" className="text-sm font-medium text-red-600">{errors.bio}</p>}
                 <p className="text-gray-400 text-xs ml-auto">{remainingCharacters} restants</p>
               </div>
             </div>
@@ -245,13 +286,15 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
               </label>
               <select
                 value={selectedSector}
-                onChange={(e) => { setSelectedSector(e.target.value); setSelectedJob(""); }}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors appearance-none bg-white ${errors.sector ? "border-red-300 focus:ring-red-500" : "border-gray-300 focus:ring-primary"}`}
+                onChange={(e) => { setSelectedSector(e.target.value); setSelectedJob(""); clearError("sector"); clearError("job"); }}
+                className={getFieldClassName("sector", "appearance-none bg-white")}
+                aria-invalid={!!errors.sector}
+                aria-describedby={errors.sector ? "sector-error" : undefined}
               >
                 <option value="" disabled>Sélectionnez votre secteur</option>
                 {sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
-              {errors.sector && <p className="mt-1 text-sm text-red-600">{errors.sector}</p>}
+              {renderFieldError("sector")}
             </div>
 
             {/* Job */}
@@ -261,14 +304,16 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
               </label>
               <select
                 value={selectedJob}
-                onChange={(e) => setSelectedJob(e.target.value)}
+                onChange={(e) => { setSelectedJob(e.target.value); clearError("job"); }}
                 disabled={!selectedSector}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors appearance-none bg-white ${!selectedSector ? "bg-gray-100 cursor-not-allowed" : errors.job ? "border-red-300 focus:ring-red-500" : "border-gray-300 focus:ring-primary"}`}
+                className={getFieldClassName("job", `appearance-none ${!selectedSector ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`)}
+                aria-invalid={!!errors.job}
+                aria-describedby={errors.job ? "job-error" : undefined}
               >
                 <option value="">{!selectedSector ? "Sélectionnez d'abord un secteur" : "Sélectionnez votre métier"}</option>
                 {filteredJobs.map((j) => <option key={j.id} value={j.id}>{j.name}</option>)}
               </select>
-              {errors.job && <p className="mt-1 text-sm text-red-600">{errors.job}</p>}
+              {renderFieldError("job")}
             </div>
 
             {/* Experience */}
@@ -280,11 +325,13 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
                 type="number"
                 placeholder="Nombre d'années d'expérience"
                 value={yearsOfExperience}
-                onChange={(e) => setYearsOfExperience(e.target.value)}
+                onChange={(e) => { setYearsOfExperience(e.target.value); clearError("yearsOfExperience"); }}
                 min="0" max="50"
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${errors.yearsOfExperience ? "border-red-300 focus:ring-red-500" : "border-gray-300 focus:ring-primary"}`}
+                className={getFieldClassName("yearsOfExperience")}
+                aria-invalid={!!errors.yearsOfExperience}
+                aria-describedby={errors.yearsOfExperience ? "yearsOfExperience-error" : undefined}
               />
-              {errors.yearsOfExperience && <p className="mt-1 text-sm text-red-600">{errors.yearsOfExperience}</p>}
+              {renderFieldError("yearsOfExperience")}
             </div>
           </div>
         </div>
@@ -295,18 +342,18 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
             <button
               onClick={() => { onSkip(); sessionStorage.clear(); router.push("/auth/login-candidate"); }}
               disabled={isSubmitting}
-              className="flex-1 py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Ignorer pour le moment
             </button>
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex-1 py-3 px-6 bg-primary text-white font-medium rounded-lg hover:bg-primary-1 transition-colors disabled:opacity-50"
+              className="flex-1 py-2 px-4 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-1 transition-colors disabled:opacity-50"
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                   Traitement...
                 </div>
               ) : "Terminer mon profil"}

@@ -14,11 +14,18 @@ interface ModernLoginFormProps {
   returnUrl?: string | null;
 }
 
+type LoginFieldErrors = {
+  email?: string;
+  password?: string;
+  general?: string;
+};
+
 const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<LoginFieldErrors>({});
 
   const validateEmail = (value: string) => {
     if (!value) {
@@ -47,16 +54,31 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
   };
 
   const validateFields = () => {
-    let isValid = true;
-    if (!validateEmail(email)) isValid = false;
-    if (!validatePassword(password)) isValid = false;
-    return isValid;
+    const emailValue = email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const nextErrors: LoginFieldErrors = {};
+
+    if (!emailValue) {
+      nextErrors.email = "Veuillez entrer votre adresse email.";
+    } else if (!emailRegex.test(emailValue)) {
+      nextErrors.email = "Veuillez entrer une adresse email valide, par exemple nom@email.com.";
+    }
+
+    if (!password) {
+      nextErrors.password = "Veuillez entrer votre mot de passe.";
+    } else if (password.length < 8) {
+      nextErrors.password = "Le mot de passe doit contenir au moins 8 caracteres.";
+    }
+
+    setErrors(nextErrors);
+    return !nextErrors.email && !nextErrors.password;
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validateFields()) return;
 
+    setErrors({});
     setIsLoading(true);
     try {
       const result = await secureLogin(email, password, loginFor, returnUrl);
@@ -88,15 +110,29 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
             break;
           default:
             // For all other errors, just show the backend message
+            setErrors({
+              general: result.error || "Impossible de vous connecter. Verifiez votre email et votre mot de passe.",
+            });
             toast.error(result.error || "Une erreur s'est produite lors de la connexion");
         }
       }
     } catch (error: any) {
       console.error('Unexpected login error:', error);
+      setErrors({ general: "Une erreur inattendue s'est produite. Veuillez reessayer." });
       toast.error("Une erreur inattendue s'est produite");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    setErrors((prev) => ({ ...prev, email: undefined, general: undefined }));
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    setErrors((prev) => ({ ...prev, password: undefined, general: undefined }));
   };
 
   const handleGoogleLogin = async () => {
@@ -185,6 +221,12 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
   };
 
   const currentTheme = loginFor === "candidate" ? themeClasses.candidate : themeClasses.enterprise;
+  const getInputClassName = (field: "email" | "password") =>
+    `block w-full py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+      errors[field]
+        ? "border-red-500 bg-red-50 focus:ring-red-500"
+        : `border-gray-300 ${currentTheme.focusRing}`
+    }`;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -243,6 +285,12 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
 
       {/* Login Form */}
       <form onSubmit={handleSubmit} className="space-y-3">
+        {errors.general && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {errors.general}
+          </div>
+        )}
+
         {/* Email Field */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-secondary mb-1">
@@ -256,12 +304,19 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focusRing} focus:border-transparent transition-colors`}
+              onChange={(e) => handleEmailChange(e.target.value)}
+              className={`${getInputClassName("email")} pl-10 pr-3`}
               placeholder="votre@email.com"
               disabled={isLoading}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
             />
           </div>
+          {errors.email && (
+            <p id="email-error" className="mt-1.5 text-sm font-medium text-red-600">
+              {errors.email}
+            </p>
+          )}
         </div>
 
         {/* Password Field */}
@@ -277,10 +332,12 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focusRing} focus:border-transparent transition-colors`}
+              onChange={(e) => handlePasswordChange(e.target.value)}
+              className={`${getInputClassName("password")} pl-10 pr-10`}
               placeholder="••••••••"
               disabled={isLoading}
+              aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? "password-error" : undefined}
             />
             <button
               type="button"
@@ -294,6 +351,11 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
               )}
             </button>
           </div>
+          {errors.password && (
+            <p id="password-error" className="mt-1.5 text-sm font-medium text-red-600">
+              {errors.password}
+            </p>
+          )}
         </div>
 
         {/* Forgot Password Link */}

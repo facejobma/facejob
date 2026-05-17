@@ -19,6 +19,49 @@ import toast from "react-hot-toast";
 import { useUser } from "@/hooks/useUser";
 import ProfileReactivationButton from "@/components/ProfileReactivationButton";
 import { fetchAvailabilityStatus } from "@/lib/api";
+import { normalizeImageUrl, PROFILE_PLACEHOLDER_IMAGE } from "@/lib/images";
+
+const buildCompleteProfile = (user: any, profileData: any) => {
+  const image = normalizeImageUrl(profileData?.image ?? user?.image, PROFILE_PLACEHOLDER_IMAGE);
+
+  return {
+    id: profileData?.id ?? user?.id,
+    first_name: profileData?.first_name ?? user?.first_name ?? "",
+    last_name: profileData?.last_name ?? user?.last_name ?? "",
+    tel: profileData?.tel ?? user?.tel ?? "",
+    email: profileData?.email ?? user?.email ?? "",
+    image,
+    companyName: profileData?.companyName || "",
+    bio: profileData?.bio || "",
+    address: profileData?.address || "",
+    preferred_location: profileData?.preferred_location || "",
+    zip_code: profileData?.zip_code ?? user?.zip_code ?? "",
+    job: profileData?.job || null,
+    experiences: profileData?.experiences || [],
+    skills: profileData?.skills || [],
+    projects: profileData?.projects || [],
+    education: profileData?.educations || [],
+    languages: profileData?.languages || [],
+  };
+};
+
+const syncSessionUser = (user: any, completeProfile: any) => {
+  if (typeof window === "undefined") return;
+
+  window.sessionStorage.setItem(
+    "user",
+    JSON.stringify({
+      ...user,
+      id: completeProfile.id,
+      first_name: completeProfile.first_name,
+      last_name: completeProfile.last_name,
+      tel: completeProfile.tel,
+      email: completeProfile.email,
+      image: completeProfile.image,
+      zip_code: completeProfile.zip_code,
+    })
+  );
+};
 
 const Profile: React.FC = () => {
   const router = useRouter();
@@ -47,27 +90,10 @@ const Profile: React.FC = () => {
       const profileData = await response.json();
       const user = JSON.parse(window.sessionStorage.getItem("user") || "{}");
 
-      const completeProfile = {
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        tel: user.tel,
-        email: user.email,
-        image: user.image || "https://via.placeholder.com/150",
-        companyName: profileData.companyName || "",
-        bio: profileData.bio || "",
-        address: profileData.address || "",
-        preferred_location: profileData.preferred_location || "",
-        zip_code: user.zip_code || "",
-        job: profileData.job || [],
-        experiences: profileData.experiences || [],
-        skills: profileData.skills || [],
-        projects: profileData.projects || [],
-        education: profileData.educations || [],
-        languages: profileData.languages || [],
-      };
+      const completeProfile = buildCompleteProfile(user, profileData);
 
       setUserProfile(completeProfile);
+      syncSessionUser(user, completeProfile);
     } catch (error) {
       console.error("Error refreshing profile:", error);
     }
@@ -190,27 +216,10 @@ const Profile: React.FC = () => {
 
         const profileData = await response.json();
 
-        const completeProfile = {
-          id: user.id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          tel: user.tel,
-          email: user.email,
-          image: user.image || "https://via.placeholder.com/150",
-          companyName: profileData.companyName || "",
-          bio: profileData.bio || "",
-          address: profileData.address || "",
-          preferred_location: profileData.preferred_location || "",
-          zip_code: user.zip_code || "",
-          job: profileData.job || [],
-          experiences: profileData.experiences || [],
-          skills: profileData.skills || [],
-          projects: profileData.projects || [],
-          education: profileData.educations || [],
-          languages: profileData.languages || [],
-        };
+        const completeProfile = buildCompleteProfile(user, profileData);
 
         setUserProfile(completeProfile);
+        syncSessionUser(user, completeProfile);
         setLoading(false);
 
         // Fetch availability status separately (non-blocking)
@@ -255,7 +264,7 @@ const Profile: React.FC = () => {
       userProfile?.skills?.length > 0,
       userProfile?.projects?.length > 0,
       userProfile?.education?.length > 0,
-      userProfile?.image && userProfile?.image !== "https://via.placeholder.com/150",
+      userProfile?.image && userProfile?.image !== PROFILE_PLACEHOLDER_IMAGE,
       userProfile?.first_name && userProfile?.last_name && userProfile?.tel && userProfile?.email,
       userProfile?.languages?.length > 0,
     ].filter(Boolean).length
@@ -418,7 +427,7 @@ const Profile: React.FC = () => {
                     <span>Ajoutez votre formation</span>
                   </div>
                 )}
-                {(!userProfile?.image || userProfile?.image === "https://via.placeholder.com/150") && (
+                {(!userProfile?.image || userProfile?.image === PROFILE_PLACEHOLDER_IMAGE) && (
                   <div className="flex items-center gap-2 text-xs text-primary">
                     <FaUser className="text-primary flex-shrink-0" />
                     <span>Ajoutez une photo de profil</span>
@@ -466,6 +475,7 @@ const Profile: React.FC = () => {
           currentJobId={userProfile.job?.id}
           currentSectorId={userProfile.job?.sector_id}
           preferredLocation={userProfile.preferred_location}
+          onUpdate={refreshProfile}
         />
       </div>
 

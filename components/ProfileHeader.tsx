@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
 import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser, FaUpload } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { getBrowserImageSrc, normalizeImageUrl, PROFILE_PLACEHOLDER_IMAGE } from "@/lib/images";
 
 interface ProfileHeaderProps {
   id: number;
@@ -20,6 +21,7 @@ interface ProfileHeaderProps {
   currentJobId?: number;
   currentSectorId?: number;
   preferredLocation?: string;
+  onUpdate?: () => Promise<void> | void;
 }
 
 interface Job {
@@ -59,6 +61,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   currentJobId,
   currentSectorId,
   preferredLocation,
+  onUpdate,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const router = useRouter();
@@ -92,8 +95,34 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     newCompanyName: companyName ?? "",
     newTel: tel ?? "",
     newEmail: email ?? "",
-    newImage: image ?? "",
+    newImage: normalizeImageUrl(image),
   });
+
+  useEffect(() => {
+    if (selectedImageFile) return;
+
+    setFormData({
+      newFirstName: first_name ?? "",
+      newLastName: last_name ?? "",
+      newHeadline: headline ?? "",
+      newAddress: address ?? "",
+      newPreferredLocation: preferredLocation ?? "",
+      newCompanyName: companyName ?? "",
+      newTel: tel ?? "",
+      newEmail: email ?? "",
+      newImage: normalizeImageUrl(image),
+    });
+  }, [
+    first_name,
+    last_name,
+    headline,
+    address,
+    preferredLocation,
+    companyName,
+    tel,
+    email,
+    image,
+  ]);
 
   const handleEditClick = () => {
     setErrors({});
@@ -253,13 +282,22 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           newCompanyName: updatedData.data.company,
           newTel: updatedData.data.tel,
           newEmail: updatedData.data.email,
-          newImage: updatedData.data.image,
+          newImage: normalizeImageUrl(updatedData.data.image),
         }));
 
         // Close the modal
         setIsEditing(false);
+        setSelectedImageFile(null);
 
-        window.sessionStorage.setItem("user", JSON.stringify(updatedData.data));
+        await onUpdate?.();
+
+        window.sessionStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...updatedData.data,
+            image: normalizeImageUrl(updatedData.data.image),
+          })
+        );
         toast.success("Profil mis à jour avec succès!");
         router.refresh(); //refresh page
       } else {
@@ -389,6 +427,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     router.push("/dashboard/candidat/change-password");
   };
 
+  const renderProfileImage = (src: string, alt: string, className: string) => {
+    return <img src={getBrowserImageSrc(src)} alt={alt} className={className} />;
+  };
+
   return (
     <div className="relative">
       <div className="flex justify-between items-start mb-4">
@@ -411,13 +453,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         </div>
       </div>
       <div className="flex items-start gap-6">
-        {formData.newImage && formData.newImage !== "https://via.placeholder.com/150" ? (
+        {formData.newImage && formData.newImage !== PROFILE_PLACEHOLDER_IMAGE ? (
           <div>
-            <img
-              src={formData.newImage}
-              alt="Profile Avatar"
-              className="w-20 h-20 rounded-full border-2 border-gray-200 object-cover"
-            />
+            {renderProfileImage(
+              formData.newImage,
+              "Profile Avatar",
+              "w-20 h-20 rounded-full border-2 border-gray-200 object-cover"
+            )}
           </div>
         ) : (
           <div>
@@ -658,11 +700,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-2">Photo de profil</label>
                   {formData.newImage ? (
                     <div className="flex items-center gap-4">
-                      <img
-                        src={formData.newImage}
-                        alt="Profile Preview"
-                        className="w-20 h-20 rounded-full border-2 border-green-300 object-cover"
-                      />
+                      {renderProfileImage(
+                        formData.newImage,
+                        "Profile Preview",
+                        "w-20 h-20 rounded-full border-2 border-green-300 object-cover"
+                      )}
                       <button
                         type="button"
                         onClick={handleRemoveImage}

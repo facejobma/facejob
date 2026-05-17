@@ -14,6 +14,7 @@ interface ModernSignupCandidateProps {
 }
 
 const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) => {
+  const specialCharRegex = /[^\w\s]/;
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -37,6 +38,18 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
       setFieldErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
+
+  const getInputClassName = (field: string) =>
+    `block w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+      fieldErrors[field]
+        ? "border-red-500 bg-red-50 focus:ring-red-500"
+        : "border-gray-300 focus:ring-primary"
+    }`;
+
+  const renderFieldError = (field: string) =>
+    fieldErrors[field] ? (
+      <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors[field]}</p>
+    ) : null;
 
   const validateEmail = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,8 +81,8 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
       toast.error("Le mot de passe doit contenir au moins un chiffre.");
       return false;
     }
-    if (!/(?=.*[@$!%*?&])/.test(value)) {
-      toast.error("Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&).");
+    if (!specialCharRegex.test(value)) {
+      toast.error("Le mot de passe doit contenir au moins un caractère spécial, par exemple : @, #, :, ! ou ?.");
       return false;
     }
     return true;
@@ -81,12 +94,58 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
       hasLowercase: /(?=.*[a-z])/.test(password),
       hasUppercase: /(?=.*[A-Z])/.test(password),
       hasNumber: /(?=.*\d)/.test(password),
-      hasSpecialChar: /(?=.*[@$!%*?&])/.test(password)
+      hasSpecialChar: specialCharRegex.test(password)
     };
   };
 
   const validateFields = () => {
     const { firstName, lastName, tel, sex, email, password, passwordConfirm, acceptTerms } = formData;
+    const nextErrors: Record<string, string> = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!firstName.trim()) {
+      nextErrors.firstName = "Veuillez entrer votre prenom.";
+    }
+    if (!lastName.trim()) {
+      nextErrors.lastName = "Veuillez entrer votre nom.";
+    }
+    if (!tel.trim()) {
+      nextErrors.tel = "Veuillez entrer votre numero de telephone.";
+    }
+    if (!sex) {
+      nextErrors.sex = "Veuillez choisir votre sexe.";
+    }
+    if (!email.trim()) {
+      nextErrors.email = "Veuillez entrer votre adresse email.";
+    } else if (!emailRegex.test(email.trim())) {
+      nextErrors.email = "Veuillez entrer une adresse email valide, par exemple nom@email.com.";
+    }
+    if (!password) {
+      nextErrors.password = "Veuillez entrer votre mot de passe.";
+    } else if (password.length < 8) {
+      nextErrors.password = "Le mot de passe doit contenir au moins 8 caracteres.";
+    } else if (!/(?=.*[a-z])/.test(password)) {
+      nextErrors.password = "Le mot de passe doit contenir au moins une lettre minuscule.";
+    } else if (!/(?=.*[A-Z])/.test(password)) {
+      nextErrors.password = "Le mot de passe doit contenir au moins une lettre majuscule.";
+    } else if (!/(?=.*\d)/.test(password)) {
+      nextErrors.password = "Le mot de passe doit contenir au moins un chiffre.";
+    } else if (!specialCharRegex.test(password)) {
+      nextErrors.password = "Le mot de passe doit contenir au moins un caractere special, par exemple : @, #, :, ! ou ?.";
+    }
+    if (!passwordConfirm) {
+      nextErrors.passwordConfirm = "Veuillez confirmer votre mot de passe.";
+    } else if (password !== passwordConfirm) {
+      nextErrors.passwordConfirm = "Les mots de passe ne correspondent pas.";
+    }
+    if (!acceptTerms) {
+      nextErrors.acceptTerms = "Veuillez accepter les conditions d'utilisation.";
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      return false;
+    }
     
     if (!firstName.trim()) {
       toast.error("Veuillez entrer votre prénom.");
@@ -167,9 +226,19 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
       } else {
         if (result.errorType === 'validation' && result.errors) {
           const mappedErrors: Record<string, string> = {};
+          const fieldMap: Record<string, string> = {
+            first_name: "firstName",
+            last_name: "lastName",
+            password_confirmation: "passwordConfirm",
+            passwordConfirm: "passwordConfirm",
+            accept_terms: "acceptTerms",
+            terms: "acceptTerms",
+          };
+
           Object.keys(result.errors).forEach(field => {
             const errorMessages = result.errors![field];
-            mappedErrors[field] = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages;
+            const targetField = fieldMap[field] || field;
+            mappedErrors[targetField] = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages;
           });
           setFieldErrors(mappedErrors);
           
@@ -271,7 +340,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
           </div>
 
           {/* Signup Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3" noValidate>
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -283,17 +352,14 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => updateFormData("firstName", e.target.value)}
-                  className={`block w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                    fieldErrors.firstName 
-                      ? "border-red-300 focus:ring-red-500" 
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
+                  className={getInputClassName("firstName")}
                   placeholder="Prénom"
                   disabled={isLoading}
-                  required
+                  aria-invalid={!!fieldErrors.firstName}
+                  aria-describedby={fieldErrors.firstName ? "firstName-error" : undefined}
                 />
                 {fieldErrors.firstName && (
-                  <p className="mt-1 text-xs text-red-600">{fieldErrors.firstName}</p>
+                  <p id="firstName-error" className="mt-1 text-xs font-medium text-red-600">{fieldErrors.firstName}</p>
                 )}
               </div>
 
@@ -306,17 +372,14 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => updateFormData("lastName", e.target.value)}
-                  className={`block w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                    fieldErrors.lastName 
-                      ? "border-red-300 focus:ring-red-500" 
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
+                  className={getInputClassName("lastName")}
                   placeholder="Nom"
                   disabled={isLoading}
-                  required
+                  aria-invalid={!!fieldErrors.lastName}
+                  aria-describedby={fieldErrors.lastName ? "lastName-error" : undefined}
                 />
                 {fieldErrors.lastName && (
-                  <p className="mt-1 text-xs text-red-600">{fieldErrors.lastName}</p>
+                  <p id="lastName-error" className="mt-1 text-xs font-medium text-red-600">{fieldErrors.lastName}</p>
                 )}
               </div>
             </div>
@@ -332,17 +395,14 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                   type="tel"
                   value={formData.tel}
                   onChange={(e) => updateFormData("tel", e.target.value)}
-                  className={`block w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                    fieldErrors.tel 
-                      ? "border-red-300 focus:ring-red-500" 
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
+                  className={getInputClassName("tel")}
                   placeholder="+212 6XX XXX XXX"
                   disabled={isLoading}
-                  required
+                  aria-invalid={!!fieldErrors.tel}
+                  aria-describedby={fieldErrors.tel ? "tel-error" : undefined}
                 />
                 {fieldErrors.tel && (
-                  <p className="mt-1 text-xs text-red-600">{fieldErrors.tel}</p>
+                  <p id="tel-error" className="mt-1 text-xs font-medium text-red-600">{fieldErrors.tel}</p>
                 )}
               </div>
 
@@ -350,7 +410,13 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                 <label className="block text-xs font-medium text-secondary mb-1">
                   Sexe *
                 </label>
-                <div className="flex space-x-4 pt-2">
+                <div
+                  className={`flex space-x-4 rounded-lg border px-3 py-2 transition-colors ${
+                    fieldErrors.sex ? "border-red-500 bg-red-50" : "border-transparent"
+                  }`}
+                  aria-invalid={!!fieldErrors.sex}
+                  aria-describedby={fieldErrors.sex ? "sex-error" : undefined}
+                >
                   <label className="flex items-center cursor-pointer">
                     <input
                       type="radio"
@@ -395,6 +461,9 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                     <span className="text-xs text-secondary">Homme</span>
                   </label>
                 </div>
+                {fieldErrors.sex && (
+                  <p id="sex-error" className="mt-1 text-xs font-medium text-red-600">{fieldErrors.sex}</p>
+                )}
               </div>
             </div>
 
@@ -408,17 +477,14 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                 type="email"
                 value={formData.email}
                 onChange={(e) => updateFormData("email", e.target.value)}
-                className={`block w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                  fieldErrors.email 
-                    ? "border-red-300 focus:ring-red-500" 
-                    : "border-gray-300 focus:ring-primary"
-                }`}
+                className={getInputClassName("email")}
                 placeholder="votre@email.com"
                 disabled={isLoading}
-                required
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? "email-error" : undefined}
               />
               {fieldErrors.email && (
-                <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>
+                <p id="email-error" className="mt-1 text-xs font-medium text-red-600">{fieldErrors.email}</p>
               )}
             </div>
 
@@ -436,14 +502,11 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                     onChange={(e) => updateFormData("password", e.target.value)}
                     onFocus={() => setShowPasswordRequirements(true)}
                     onBlur={() => setShowPasswordRequirements(false)}
-                    className={`block w-full px-3 py-2 pr-9 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                      fieldErrors.password 
-                        ? "border-red-300 focus:ring-red-500" 
-                        : "border-gray-300 focus:ring-primary"
-                    }`}
+                    className={`${getInputClassName("password")} pr-9`}
                     placeholder="••••••••"
                     disabled={isLoading}
-                    required
+                    aria-invalid={!!fieldErrors.password}
+                    aria-describedby={fieldErrors.password ? "password-error" : undefined}
                   />
                   <button
                     type="button"
@@ -458,7 +521,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                   </button>
                 </div>
                 {fieldErrors.password && (
-                  <p className="mt-1 text-xs text-red-600">{fieldErrors.password}</p>
+                  <p id="password-error" className="mt-1 text-xs font-medium text-red-600">{fieldErrors.password}</p>
                 )}
               </div>
 
@@ -472,10 +535,11 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                     type={showConfirmPassword ? "text" : "password"}
                     value={formData.passwordConfirm}
                     onChange={(e) => updateFormData("passwordConfirm", e.target.value)}
-                    className="block w-full px-3 py-2 pr-9 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                    className={`${getInputClassName("passwordConfirm")} pr-9`}
                     placeholder="••••••••"
                     disabled={isLoading}
-                    required
+                    aria-invalid={!!fieldErrors.passwordConfirm}
+                    aria-describedby={fieldErrors.passwordConfirm ? "passwordConfirm-error" : undefined}
                   />
                   <button
                     type="button"
@@ -489,6 +553,11 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                     )}
                   </button>
                 </div>
+                {fieldErrors.passwordConfirm && (
+                  <p id="passwordConfirm-error" className="mt-1 text-xs font-medium text-red-600">
+                    {fieldErrors.passwordConfirm}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -547,7 +616,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                           <XCircle className="h-3 w-3 text-red-500 mr-1 flex-shrink-0" />
                         )}
                         <span className={requirements.hasSpecialChar ? "text-green-700" : "text-red-700"}>
-                          Caractère spécial (@$!%*?&)
+                          Caractère spécial (@, #, :, !, ?...)
                         </span>
                       </div>
                     </div>
@@ -557,7 +626,12 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
             )}
 
             {/* Terms Checkbox */}
-            <div className="flex items-start">
+            <div>
+            <div
+              className={`flex items-start rounded-lg border px-3 py-2 transition-colors ${
+                fieldErrors.acceptTerms ? "border-red-500 bg-red-50" : "border-transparent"
+              }`}
+            >
               <div className="flex items-center h-5">
                 <input
                   id="acceptTerms"
@@ -566,7 +640,8 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                   onChange={(e) => updateFormData("acceptTerms", e.target.checked)}
                   className="sr-only"
                   disabled={isLoading}
-                  required
+                  aria-invalid={!!fieldErrors.acceptTerms}
+                  aria-describedby={fieldErrors.acceptTerms ? "acceptTerms-error" : undefined}
                 />
                 <div 
                   onClick={() => updateFormData("acceptTerms", !formData.acceptTerms)}
@@ -589,6 +664,12 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
                   </Link>
                 </label>
               </div>
+            </div>
+            {fieldErrors.acceptTerms && (
+              <p id="acceptTerms-error" className="mt-1 text-xs font-medium text-red-600">
+                {fieldErrors.acceptTerms}
+              </p>
+            )}
             </div>
 
             {/* Submit Button */}

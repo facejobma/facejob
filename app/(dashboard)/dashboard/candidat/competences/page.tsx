@@ -11,7 +11,6 @@ interface Skill {
   id: string | number;
   title: string;
 }
-
 interface CandidatProfile {
   id?: number;
   candidat_id?: number;

@@ -77,7 +77,13 @@ const PaginatedOffersList: React.FC<PaginatedOffersListProps> = ({ className }) 
 
   // Handle apply button click
   const handleApply = (offerId: number) => {
-    router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offerId}`);
+    const dashboardOfferUrl = `/dashboard/candidat/offres/${offerId}`;
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('oauthReturnUrl', dashboardOfferUrl);
+    }
+
+    router.push(`/auth/login-candidate?returnUrl=${encodeURIComponent(dashboardOfferUrl)}`);
   };
 
   if (loading) {

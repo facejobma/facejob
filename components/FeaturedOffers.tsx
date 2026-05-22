@@ -120,13 +120,20 @@ const FeaturedOffers: React.FC = () => {
   }, []);
 
   const handleApply = async (offerId: number) => {
+    const dashboardOfferUrl = `/dashboard/candidat/offres/${offerId}`;
+    const loginUrl = `/auth/login-candidate?returnUrl=${encodeURIComponent(dashboardOfferUrl)}`;
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('oauthReturnUrl', dashboardOfferUrl);
+    }
+
     // Vérifier si l'utilisateur est connecté en vérifiant le token
     try {
       const authToken = document.cookie.split('authToken=')[1]?.split(';')[0]?.replace(/['"]/g, '');
       
       if (!authToken) {
         // Pas de token, rediriger vers la connexion avec returnUrl vers la page de détail de l'offre
-        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+        router.push(loginUrl);
         return;
       }
       
@@ -139,14 +146,15 @@ const FeaturedOffers: React.FC = () => {
       
       if (response.ok) {
         // Utilisateur connecté, rediriger vers la page de détail de l'offre dans le dashboard
-        router.push(`/dashboard/candidat/offres/${offerId}`);
+        sessionStorage.removeItem('oauthReturnUrl');
+        router.push(dashboardOfferUrl);
       } else {
         // Utilisateur non connecté, rediriger vers la page de connexion
-        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+        router.push(loginUrl);
       }
     } catch (error) {
       // En cas d'erreur, rediriger vers la page de connexion par sécurité
-      router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+      router.push(loginUrl);
     }
   };
 

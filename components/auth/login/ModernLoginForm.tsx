@@ -178,6 +178,22 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
 
   const handleLinkedinLogin = async () => {
     try {
+      // Store returnUrl from URL params or props before OAuth redirect
+      if (typeof window !== 'undefined') {
+        if (returnUrl) {
+          sessionStorage.setItem('oauthReturnUrl', returnUrl);
+          console.log('ðŸ” Stored returnUrl for OAuth:', returnUrl);
+        } else {
+          // Also check URL params as fallback
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlReturnUrl = urlParams.get('returnUrl');
+          if (urlReturnUrl) {
+            sessionStorage.setItem('oauthReturnUrl', urlReturnUrl);
+            console.log('ðŸ” Stored returnUrl from URL for OAuth:', urlReturnUrl);
+          }
+        }
+      }
+
       const endpoint = loginFor === "candidate" 
         ? "/api/v1/auth/candidate/linkedin" 
         : "/api/v1/auth/entreprise/linkedin";

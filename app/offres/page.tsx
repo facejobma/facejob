@@ -566,7 +566,11 @@ const PublicOffersPage: React.FC = () => {
   }, [jobs, selectedSector]);
 
   const handleApply = async (offerId: number) => {
+    const dashboardOfferUrl = `/dashboard/candidat/offres/${offerId}`;
+    const loginUrl = `/auth/login-candidate?returnUrl=${encodeURIComponent(dashboardOfferUrl)}`;
+
     sessionStorage.setItem(CACHE_KEYS.SCROLL_POSITION, window.scrollY.toString());
+    sessionStorage.setItem('oauthReturnUrl', dashboardOfferUrl);
     setApplyingOfferId(offerId);
     
     // Vérifier si l'utilisateur est connecté en vérifiant le token
@@ -575,7 +579,7 @@ const PublicOffersPage: React.FC = () => {
       
       if (!authToken) {
         // Pas de token, rediriger vers la connexion
-        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+        router.push(loginUrl);
         return;
       }
       
@@ -589,16 +593,17 @@ const PublicOffersPage: React.FC = () => {
       if (response.ok) {
         // Utilisateur connecté, rediriger vers la page de détail de l'offre
         console.log('User is authenticated, redirecting to offer detail page');
-        router.push(`/dashboard/candidat/offres/${offerId}`);
+        sessionStorage.removeItem('oauthReturnUrl');
+        router.push(dashboardOfferUrl);
       } else {
         // Utilisateur non connecté, rediriger vers la page de connexion
         console.log('User not authenticated, redirecting to login');
-        router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+        router.push(loginUrl);
       }
     } catch (error) {
       // En cas d'erreur, rediriger vers la page de connexion par sécurité
       console.log('Error checking authentication, redirecting to login');
-      router.push(`/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offerId}`);
+      router.push(loginUrl);
     } finally {
       setApplyingOfferId(null);
     }

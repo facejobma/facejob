@@ -4,8 +4,17 @@ import { FC, FormEvent, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
-import Cookies from "js-cookie";
-import { Eye, EyeOff, Mail, Lock, Building2, Phone, Check, CheckCircle, XCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  Building2,
+  Phone,
+  Check,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import google from "@/public/svg/google.svg";
 import linkedin from "@/public/svg/linkedin.svg";
 import { apiRequest, handleApiError } from "@/lib/apiUtils";
@@ -14,7 +23,9 @@ interface ModernSignupEntrepriseProps {
   onNextStep: () => void;
 }
 
-const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep }) => {
+const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({
+  onNextStep,
+}) => {
   const [formData, setFormData] = useState({
     companyName: "",
     tel: "",
@@ -23,18 +34,19 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
     passwordConfirm: "",
     acceptTerms: false,
   });
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+  const [showPasswordRequirements, setShowPasswordRequirements] =
+    useState(false);
 
   const updateFormData = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear field error when user starts typing
     if (fieldErrors[field]) {
-      setFieldErrors(prev => ({ ...prev, [field]: "" }));
+      setFieldErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -57,11 +69,15 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
       return false;
     }
     if (!/(?=.*[a-z])/.test(value)) {
-      toast.error("Le mot de passe doit contenir au moins une lettre minuscule.");
+      toast.error(
+        "Le mot de passe doit contenir au moins une lettre minuscule.",
+      );
       return false;
     }
     if (!/(?=.*[A-Z])/.test(value)) {
-      toast.error("Le mot de passe doit contenir au moins une lettre majuscule.");
+      toast.error(
+        "Le mot de passe doit contenir au moins une lettre majuscule.",
+      );
       return false;
     }
     if (!/(?=.*\d)/.test(value)) {
@@ -69,7 +85,9 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
       return false;
     }
     if (!/(?=.*[@$!%*?&])/.test(value)) {
-      toast.error("Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&).");
+      toast.error(
+        "Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&).",
+      );
       return false;
     }
     return true;
@@ -81,13 +99,77 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
       hasLowercase: /(?=.*[a-z])/.test(password),
       hasUppercase: /(?=.*[A-Z])/.test(password),
       hasNumber: /(?=.*\d)/.test(password),
-      hasSpecialChar: /(?=.*[@$!%*?&])/.test(password)
+      hasSpecialChar: /(?=.*[@$!%*?&])/.test(password),
     };
   };
 
+  const getInputClassName = (field: string, padding = "pl-10 pr-3") =>
+    `block w-full ${padding} py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+      fieldErrors[field]
+        ? "border-red-500 bg-red-50 focus:ring-red-500"
+        : "border-gray-300 focus:ring-green-500"
+    }`;
+
+  const renderFieldError = (field: string) =>
+    fieldErrors[field] ? (
+      <p
+        id={`${field}-error`}
+        className="mt-1 text-sm font-medium text-red-600"
+      >
+        {fieldErrors[field]}
+      </p>
+    ) : null;
+
   const validateFields = () => {
-    const { companyName, tel, email, password, passwordConfirm, acceptTerms } = formData;
-    
+    const { companyName, tel, email, password, passwordConfirm, acceptTerms } =
+      formData;
+    const nextErrors: Record<string, string> = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!companyName.trim()) {
+      nextErrors.companyName = "Veuillez entrer le nom de l'entreprise.";
+    }
+    if (!tel.trim()) {
+      nextErrors.tel = "Veuillez entrer votre numero de telephone.";
+    }
+    if (!email.trim()) {
+      nextErrors.email = "Veuillez entrer une adresse email.";
+    } else if (!emailRegex.test(email.trim())) {
+      nextErrors.email = "Veuillez entrer une adresse email valide.";
+    }
+    if (!password) {
+      nextErrors.password = "Veuillez entrer votre mot de passe.";
+    } else if (password.length < 8) {
+      nextErrors.password =
+        "Le mot de passe doit contenir au moins 8 caracteres.";
+    } else if (!/(?=.*[a-z])/.test(password)) {
+      nextErrors.password =
+        "Le mot de passe doit contenir au moins une lettre minuscule.";
+    } else if (!/(?=.*[A-Z])/.test(password)) {
+      nextErrors.password =
+        "Le mot de passe doit contenir au moins une lettre majuscule.";
+    } else if (!/(?=.*\d)/.test(password)) {
+      nextErrors.password =
+        "Le mot de passe doit contenir au moins un chiffre.";
+    } else if (!/(?=.*[@$!%*?&])/.test(password)) {
+      nextErrors.password =
+        "Le mot de passe doit contenir au moins un caractere special (@$!%*?&).";
+    }
+    if (!passwordConfirm) {
+      nextErrors.passwordConfirm = "Veuillez confirmer votre mot de passe.";
+    } else if (password !== passwordConfirm) {
+      nextErrors.passwordConfirm = "Les mots de passe ne correspondent pas.";
+    }
+    if (!acceptTerms) {
+      nextErrors.acceptTerms =
+        "Veuillez accepter les conditions d'utilisation.";
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
+      return false;
+    }
+
     if (!companyName.trim()) {
       toast.error("Veuillez entrer le nom de l'entreprise.");
       return false;
@@ -119,66 +201,56 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
 
     setIsLoading(true);
     setFieldErrors({}); // Clear previous errors
-    
+
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/entreprise/register",
+        process.env.NEXT_PUBLIC_BACKEND_URL +
+          "/api/v1/auth/entreprise/register",
         {
           method: "POST",
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (result.success) {
         console.log("Registration response:", result);
         console.log("Result data:", result.data);
-        
-        // Store user ID for profile completion
+
         const userId = result.data?.user_id || result.data?.data?.user_id;
         const token = result.data?.token || result.data?.data?.token;
-        
+
         if (userId) {
           sessionStorage.setItem("userId", userId.toString());
         }
-        
-        // Store authentication token
         if (token) {
-          // Clean the token (remove any quotes)
-          const cleanToken = token.replace(/['"]/g, '');
-          
-          // Store in cookies for persistence with proper settings
-          Cookies.set("authToken", cleanToken, { 
-            expires: 7, // 7 days
-            path: '/',
-            sameSite: 'lax'
-          });
-          // Also store in sessionStorage as primary source
-          sessionStorage.setItem("authToken", cleanToken);
-          
-          // Debug log
-          console.log("Token stored successfully:", {
-            tokenLength: cleanToken.length,
-            tokenPreview: cleanToken.substring(0, 20) + '...',
-            cookie: Cookies.get("authToken") ? "✓" : "✗",
-            session: sessionStorage.getItem("authToken") ? "✓" : "✗"
-          });
-        } else {
-          console.error("No token found in response!");
+          sessionStorage.setItem("authToken", token.replace(/['"]/g, ""));
         }
-        
-        toast.success("Votre compte entreprise a été créé avec succès !");
+        sessionStorage.setItem("pendingVerificationEmail", formData.email);
+
+        toast.success("Compte créé. Complétez maintenant votre profil.");
         onNextStep();
       } else {
         // Handle validation errors specifically
-        if (result.errorType === 'validation' && result.errors) {
+        if (result.errorType === "validation" && result.errors) {
           // Map backend field names to frontend field names if needed
           const mappedErrors: Record<string, string> = {};
-          Object.keys(result.errors).forEach(field => {
+          const fieldMap: Record<string, string> = {
+            company_name: "companyName",
+            companyName: "companyName",
+            password_confirmation: "passwordConfirm",
+            passwordConfirm: "passwordConfirm",
+            accept_terms: "acceptTerms",
+            terms: "acceptTerms",
+          };
+          Object.keys(result.errors).forEach((field) => {
             const errorMessages = result.errors![field];
-            mappedErrors[field] = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages;
+            const targetField = fieldMap[field] || field;
+            mappedErrors[targetField] = Array.isArray(errorMessages)
+              ? errorMessages[0]
+              : errorMessages;
           });
           setFieldErrors(mappedErrors);
-          
+
           // Show the first validation error as toast
           const firstErrorField = Object.keys(result.errors)[0];
           const firstErrorMessage = result.errors[firstErrorField][0];
@@ -198,9 +270,9 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
   const handleGoogleSignup = async () => {
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/entreprise/google"
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/entreprise/google",
       );
-      
+
       if (result.success) {
         window.location.href = result.data.url;
       } else {
@@ -215,9 +287,10 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
   const handleLinkedinSignup = async () => {
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/entreprise/linkedin"
+        process.env.NEXT_PUBLIC_BACKEND_URL +
+          "/api/v1/auth/entreprise/linkedin",
       );
-      
+
       if (result.success) {
         window.location.href = result.data.url;
       } else {
@@ -255,7 +328,7 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
           <Image src={google} alt="Google" className="w-5 h-5 mr-3" />
           S'inscrire avec Google
         </button>
-        
+
         <button
           type="button"
           onClick={handleLinkedinSignup}
@@ -273,15 +346,20 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">Ou créez votre compte</span>
+          <span className="px-2 bg-white text-gray-500">
+            Ou créez votre compte
+          </span>
         </div>
       </div>
 
       {/* Signup Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {/* Company Name Field */}
         <div>
-          <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="companyName"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Nom de l'entreprise *
           </label>
           <div className="relative">
@@ -293,24 +371,24 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
               type="text"
               value={formData.companyName}
               onChange={(e) => updateFormData("companyName", e.target.value)}
-              className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                fieldErrors.companyName 
-                  ? "border-red-300 focus:ring-red-500" 
-                  : "border-gray-300 focus:ring-green-500"
-              }`}
+              className={getInputClassName("companyName")}
               placeholder="Raison sociale de votre entreprise"
               disabled={isLoading}
-              required
+              aria-invalid={!!fieldErrors.companyName}
+              aria-describedby={
+                fieldErrors.companyName ? "companyName-error" : undefined
+              }
             />
           </div>
-          {fieldErrors.companyName && (
-            <p className="mt-1 text-sm text-red-600">{fieldErrors.companyName}</p>
-          )}
+          {renderFieldError("companyName")}
         </div>
 
         {/* Phone Field */}
         <div>
-          <label htmlFor="tel" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="tel"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Téléphone *
           </label>
           <div className="relative">
@@ -322,24 +400,22 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
               type="tel"
               value={formData.tel}
               onChange={(e) => updateFormData("tel", e.target.value)}
-              className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                fieldErrors.tel 
-                  ? "border-red-300 focus:ring-red-500" 
-                  : "border-gray-300 focus:ring-green-500"
-              }`}
+              className={getInputClassName("tel")}
               placeholder="+212 5XX XXX XXX"
               disabled={isLoading}
-              required
+              aria-invalid={!!fieldErrors.tel}
+              aria-describedby={fieldErrors.tel ? "tel-error" : undefined}
             />
           </div>
-          {fieldErrors.tel && (
-            <p className="mt-1 text-sm text-red-600">{fieldErrors.tel}</p>
-          )}
+          {renderFieldError("tel")}
         </div>
 
         {/* Email Field */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Adresse email professionnelle *
           </label>
           <div className="relative">
@@ -351,25 +427,23 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
               type="email"
               value={formData.email}
               onChange={(e) => updateFormData("email", e.target.value)}
-              className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                fieldErrors.email 
-                  ? "border-red-300 focus:ring-red-500" 
-                  : "border-gray-300 focus:ring-green-500"
-              }`}
+              className={getInputClassName("email")}
               placeholder="contact@entreprise.com"
               disabled={isLoading}
-              required
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
             />
           </div>
-          {fieldErrors.email && (
-            <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
-          )}
+          {renderFieldError("email")}
         </div>
 
         {/* Password Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Mot de passe *
             </label>
             <div className="relative">
@@ -383,14 +457,13 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                 onChange={(e) => updateFormData("password", e.target.value)}
                 onFocus={() => setShowPasswordRequirements(true)}
                 onBlur={() => setShowPasswordRequirements(false)}
-                className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
-                  fieldErrors.password 
-                    ? "border-red-300 focus:ring-red-500" 
-                    : "border-gray-300 focus:ring-green-500"
-                }`}
+                className={getInputClassName("password", "pl-10 pr-10")}
                 placeholder="••••••••"
                 disabled={isLoading}
-                required
+                aria-invalid={!!fieldErrors.password}
+                aria-describedby={
+                  fieldErrors.password ? "password-error" : undefined
+                }
               />
               <button
                 type="button"
@@ -404,13 +477,14 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                 )}
               </button>
             </div>
-            {fieldErrors.password && (
-              <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
-            )}
+            {renderFieldError("password")}
           </div>
 
           <div>
-            <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="passwordConfirm"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Confirmer *
             </label>
             <div className="relative">
@@ -421,11 +495,18 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                 id="passwordConfirm"
                 type={showConfirmPassword ? "text" : "password"}
                 value={formData.passwordConfirm}
-                onChange={(e) => updateFormData("passwordConfirm", e.target.value)}
-                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                onChange={(e) =>
+                  updateFormData("passwordConfirm", e.target.value)
+                }
+                className={getInputClassName("passwordConfirm", "pl-10 pr-10")}
                 placeholder="••••••••"
                 disabled={isLoading}
-                required
+                aria-invalid={!!fieldErrors.passwordConfirm}
+                aria-describedby={
+                  fieldErrors.passwordConfirm
+                    ? "passwordConfirm-error"
+                    : undefined
+                }
               />
               <button
                 type="button"
@@ -439,13 +520,16 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                 )}
               </button>
             </div>
+            {renderFieldError("passwordConfirm")}
           </div>
         </div>
 
         {/* Password Requirements - Under both password fields */}
         {(showPasswordRequirements || formData.password) && (
           <div className="p-3 bg-gray-50 rounded-lg border">
-            <p className="text-xs font-medium text-gray-700 mb-2">Exigences du mot de passe :</p>
+            <p className="text-xs font-medium text-gray-700 mb-2">
+              Exigences du mot de passe :
+            </p>
             {(() => {
               const requirements = getPasswordRequirements(formData.password);
               return (
@@ -456,7 +540,13 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                     ) : (
                       <XCircle className="h-3 w-3 text-red-500 mr-2" />
                     )}
-                    <span className={requirements.minLength ? "text-green-700" : "text-red-700"}>
+                    <span
+                      className={
+                        requirements.minLength
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }
+                    >
                       Au moins 8 caractères
                     </span>
                   </div>
@@ -466,7 +556,13 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                     ) : (
                       <XCircle className="h-3 w-3 text-red-500 mr-2" />
                     )}
-                    <span className={requirements.hasLowercase ? "text-green-700" : "text-red-700"}>
+                    <span
+                      className={
+                        requirements.hasLowercase
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }
+                    >
                       Une lettre minuscule (a-z)
                     </span>
                   </div>
@@ -476,7 +572,13 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                     ) : (
                       <XCircle className="h-3 w-3 text-red-500 mr-2" />
                     )}
-                    <span className={requirements.hasUppercase ? "text-green-700" : "text-red-700"}>
+                    <span
+                      className={
+                        requirements.hasUppercase
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }
+                    >
                       Une lettre majuscule (A-Z)
                     </span>
                   </div>
@@ -486,7 +588,13 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                     ) : (
                       <XCircle className="h-3 w-3 text-red-500 mr-2" />
                     )}
-                    <span className={requirements.hasNumber ? "text-green-700" : "text-red-700"}>
+                    <span
+                      className={
+                        requirements.hasNumber
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }
+                    >
                       Un chiffre (0-9)
                     </span>
                   </div>
@@ -496,7 +604,13 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
                     ) : (
                       <XCircle className="h-3 w-3 text-red-500 mr-2" />
                     )}
-                    <span className={requirements.hasSpecialChar ? "text-green-700" : "text-red-700"}>
+                    <span
+                      className={
+                        requirements.hasSpecialChar
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }
+                    >
                       Un caractère spécial (@$!%*?&)
                     </span>
                   </div>
@@ -507,39 +621,58 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({ onNextStep })
         )}
 
         {/* Terms Checkbox */}
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              id="acceptTerms"
-              type="checkbox"
-              checked={formData.acceptTerms}
-              onChange={(e) => updateFormData("acceptTerms", e.target.checked)}
-              className="sr-only"
-              disabled={isLoading}
-              required
-            />
-            <div 
-              onClick={() => updateFormData("acceptTerms", !formData.acceptTerms)}
-              className={`w-5 h-5 border-2 rounded cursor-pointer flex items-center justify-center transition-colors ${
-                formData.acceptTerms 
-                  ? "border-green-500 bg-green-500" 
-                  : "border-gray-300"
-              }`}
-            >
-              {formData.acceptTerms && (
-                <Check className="w-3 h-3 text-white" />
-              )}
+        <div>
+          <div
+            className={`flex items-start rounded-lg border px-3 py-2 transition-colors ${
+              fieldErrors.acceptTerms
+                ? "border-red-500 bg-red-50"
+                : "border-transparent"
+            }`}
+          >
+            <div className="flex items-center h-5">
+              <input
+                id="acceptTerms"
+                type="checkbox"
+                checked={formData.acceptTerms}
+                onChange={(e) =>
+                  updateFormData("acceptTerms", e.target.checked)
+                }
+                className="sr-only"
+                disabled={isLoading}
+                aria-invalid={!!fieldErrors.acceptTerms}
+                aria-describedby={
+                  fieldErrors.acceptTerms ? "acceptTerms-error" : undefined
+                }
+              />
+              <div
+                onClick={() =>
+                  updateFormData("acceptTerms", !formData.acceptTerms)
+                }
+                className={`w-5 h-5 border-2 rounded cursor-pointer flex items-center justify-center transition-colors ${
+                  formData.acceptTerms
+                    ? "border-green-500 bg-green-500"
+                    : "border-gray-300"
+                }`}
+              >
+                {formData.acceptTerms && (
+                  <Check className="w-3 h-3 text-white" />
+                )}
+              </div>
+            </div>
+            <div className="ml-3 text-sm">
+              <label htmlFor="acceptTerms" className="text-gray-700">
+                J'accepte les{" "}
+                <Link
+                  href="/termes/entreprise"
+                  className="text-green-600 hover:text-green-500 font-medium"
+                >
+                  conditions d'utilisation
+                </Link>{" "}
+                de FaceJob
+              </label>
             </div>
           </div>
-          <div className="ml-3 text-sm">
-            <label htmlFor="acceptTerms" className="text-gray-700">
-              J'accepte les{" "}
-              <Link href="/termes/entreprise" className="text-green-600 hover:text-green-500 font-medium">
-                conditions d'utilisation
-              </Link>{" "}
-              de FaceJob
-            </label>
-          </div>
+          {renderFieldError("acceptTerms")}
         </div>
 
         {/* Submit Button */}

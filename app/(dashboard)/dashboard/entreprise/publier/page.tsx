@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Select, { MultiValue, StylesConfig } from "react-select";
 import { toast } from "react-hot-toast";
 import Cookies from "js-cookie";
 import { Send } from "lucide-react";
@@ -8,18 +9,51 @@ import { fetchSectors, createOffer, fetchLastPayment } from "@/lib/api";
 import RichTextEditor from "@/components/RichTextEditor";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { useUser } from "@/hooks/useUser";
-import { COMMON_LANGUAGES } from "@/constants/languages";
+import languagesData from "@/data/languages.json";
+import skillsData from "@/data/skills.json";
 
 interface Sector {
   id: number;
   name: string;
 }
 
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+const AVAILABLE_LANGUAGES = languagesData.languages;
+const AVAILABLE_SKILLS = Object.values(skillsData).flat();
+const AVAILABLE_LANGUAGE_SET = new Set(AVAILABLE_LANGUAGES);
+const AVAILABLE_SKILL_SET = new Set(AVAILABLE_SKILLS);
+const LANGUAGE_OPTIONS: SelectOption[] = AVAILABLE_LANGUAGES.map(
+  (language) => ({
+    value: language,
+    label: language,
+  }),
+);
+const SKILL_GROUP_LABELS: Record<string, string> = {
+  technical_skills: "Compétences techniques",
+  soft_skills: "Soft skills",
+  business_skills: "Business",
+  language_skills: "Langues et communication",
+  industry_specific: "Métiers et secteurs",
+};
+const SKILL_OPTIONS = Object.entries(skillsData).map(([group, skills]) => ({
+  label: SKILL_GROUP_LABELS[group] || group,
+  options: skills.map((skill) => ({
+    value: skill,
+    label: skill,
+  })),
+}));
+
 export default function PublierPage() {
   const { user, isLoading: userLoading } = useUser();
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading">("idle");
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading">(
+    "idle",
+  );
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isLimitReachedModalOpen, setIsLimitReachedModalOpen] = useState(false);
@@ -43,25 +77,63 @@ export default function PublierPage() {
 
   const [requiredLanguages, setRequiredLanguages] = useState<string[]>([]);
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
-  const [skillInput, setSkillInput] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const toggleLanguage = (lang: string) => {
-    setRequiredLanguages(prev =>
-      prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]
-    );
-  };
-
-  const addSkill = () => {
-    const parts = skillInput.split(",").map(s => s.trim()).filter(s => s && !requiredSkills.includes(s));
-    if (parts.length > 0) {
-      setRequiredSkills(prev => [...prev, ...parts]);
+  const handleLanguagesChange = (options: MultiValue<SelectOption>) => {
+    setRequiredLanguages(options.map((option) => option.value));
+    if (formErrors.required_languages) {
+      setFormErrors((prev) => ({ ...prev, required_languages: "" }));
     }
-    setSkillInput("");
   };
 
-  const removeSkill = (skill: string) => {
-    setRequiredSkills(prev => prev.filter(s => s !== skill));
+  const handleSkillsChange = (options: MultiValue<SelectOption>) => {
+    setRequiredSkills(options.map((option) => option.value));
+    if (formErrors.required_skills) {
+      setFormErrors((prev) => ({ ...prev, required_skills: "" }));
+    }
   };
+
+  const getFieldClassName = (field: string) =>
+    `w-full px-4 py-2.5 bg-white border rounded-lg focus:ring-2 text-gray-900 ${
+      formErrors[field]
+        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+        : "border-gray-300 focus:ring-green-500 focus:border-green-500"
+    }`;
+
+  const renderFieldError = (field: string) =>
+    formErrors[field] ? (
+      <p
+        id={`${field}-error`}
+        className="mt-1 text-sm font-medium text-red-600"
+      >
+        {formErrors[field]}
+      </p>
+    ) : null;
+
+  const getSelectControlClassName = (field: string) =>
+    `min-h-[44px] rounded-lg shadow-none ${
+      formErrors[field] ? "border-red-500" : "border-gray-300"
+    }`;
+
+  const getSelectStyles = (
+    field: string,
+  ): StylesConfig<SelectOption, true> => ({
+    control: (base, state) => ({
+      ...base,
+      minHeight: "44px",
+      borderColor: formErrors[field]
+        ? "#ef4444"
+        : state.isFocused
+          ? "#22c55e"
+          : "#d1d5db",
+      boxShadow: state.isFocused
+        ? `0 0 0 1px ${formErrors[field] ? "#ef4444" : "#22c55e"}`
+        : base.boxShadow,
+      "&:hover": {
+        borderColor: formErrors[field] ? "#ef4444" : "#22c55e",
+      },
+    }),
+  });
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
@@ -96,30 +168,29 @@ export default function PublierPage() {
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
           },
-        }
+        },
       );
-      
+
       if (response.ok) {
         const payment = await response.json();
-        
+
         // Use backend data directly - it already calculates job_remaining correctly
         const jobPosted = payment.job_posted || 0;
-        const jobRemaining = payment.job_remaining === 'unlimited' || payment.job_remaining === -1 
-          ? -1 
-          : parseInt(payment.job_remaining || '0');
-        
+        const jobRemaining =
+          payment.job_remaining === "unlimited" || payment.job_remaining === -1
+            ? -1
+            : parseInt(payment.job_remaining || "0");
+
         // Calculate total limit
-        const jobLimit = jobRemaining === -1 
-          ? -1 
-          : jobPosted + jobRemaining;
-        
+        const jobLimit = jobRemaining === -1 ? -1 : jobPosted + jobRemaining;
+
         setPlanInfo({
           jobLimit,
           jobPosted,
           jobRemaining,
-          planName: payment.plan_name || 'Plan Standard'
+          planName: payment.plan_name || "Plan Standard",
         });
-        
+
         // If limit reached, show modal immediately
         if (jobRemaining !== -1 && jobRemaining <= 0) {
           setIsLimitReachedModalOpen(true);
@@ -139,59 +210,86 @@ export default function PublierPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user?.id) {
       toast.error("Erreur: Utilisateur non identifié");
       return;
     }
-    
+
     // Check if job limit is reached BEFORE validation
     if (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0) {
       setIsLimitReachedModalOpen(true);
       return;
     }
-    
-    if (!formData.titre || !formData.description || !formData.sector_id || !formData.date_debut || !formData.location) {
-      toast.error("Veuillez remplir tous les champs obligatoires");
-      return;
+
+    const nextErrors: Record<string, string> = {};
+    const plainText = formData.description.replace(/<[^>]*>/g, "");
+
+    if (!formData.titre.trim()) {
+      nextErrors.titre = "Veuillez entrer le titre de l'offre.";
+    } else if (formData.titre.trim().length < 5) {
+      nextErrors.titre = "Le titre doit contenir au moins 5 caractères.";
+    } else if (formData.titre.length > 255) {
+      nextErrors.titre = "Le titre ne peut pas dépasser 255 caractères.";
     }
 
-    if (formData.titre.trim().length < 5) {
-      toast.error("Le titre doit contenir au moins 5 caractères");
-      return;
+    if (!formData.sector_id) {
+      nextErrors.sector_id = "Veuillez sélectionner un secteur.";
     }
 
-    if (formData.titre.length > 255) {
-      toast.error("Le titre ne peut pas dépasser 255 caractères");
-      return;
+    if (!formData.location.trim()) {
+      nextErrors.location = "Veuillez entrer la localisation.";
     }
 
-    const plainText = formData.description.replace(/<[^>]*>/g, '');
-    if (plainText.length < 50) {
-      toast.error("La description doit contenir au moins 50 caractères");
-      return;
+    if (!formData.date_debut) {
+      nextErrors.date_debut = "Veuillez choisir une date de début.";
     }
 
-    if (plainText.length > 10000) {
-      toast.error("La description ne peut pas dépasser 10000 caractères");
-      return;
+    if (!plainText.trim()) {
+      nextErrors.description = "Veuillez entrer la description de l'offre.";
+    } else if (plainText.length < 50) {
+      nextErrors.description =
+        "La description doit contenir au moins 50 caractères.";
+    } else if (plainText.length > 10000) {
+      nextErrors.description =
+        "La description ne peut pas dépasser 10000 caractères.";
     }
 
     // Validate date de début is in the future
     const startDate = new Date(formData.date_debut);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (startDate < today) {
-      toast.error("La date de début doit être dans le futur");
+    if (formData.date_debut && startDate < today) {
+      nextErrors.date_debut = "La date de début doit être dans le futur.";
+    }
+
+    if (
+      requiredLanguages.some(
+        (language) => !AVAILABLE_LANGUAGE_SET.has(language),
+      )
+    ) {
+      nextErrors.required_languages =
+        "Veuillez choisir uniquement les langues proposées.";
+    }
+
+    if (requiredSkills.some((skill) => !AVAILABLE_SKILL_SET.has(skill))) {
+      nextErrors.required_skills =
+        "Veuillez choisir uniquement les compétences proposées.";
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
       return;
     }
+
+    setFormErrors({});
 
     setIsLoading(true);
     setUploadStatus("uploading");
 
     try {
       const sanitizedDescription = sanitizeHtml(formData.description);
-      
+
       await createOffer({
         ...formData,
         description: sanitizedDescription,
@@ -215,16 +313,22 @@ export default function PublierPage() {
       setIsSuccessModalOpen(true);
     } catch (error: any) {
       console.error("Error creating offer:", error);
-      
+
       // Handle specific backend errors
       if (error?.error === "JOB_LIMIT_REACHED") {
         const limit = error?.limit || 3;
         const used = error?.used || limit;
-        toast.error(`Limite de publication d'offres atteinte pour votre plan actuel. (${used}/${limit} offres utilisées)`);
+        toast.error(
+          `Limite de publication d'offres atteinte pour votre plan actuel. (${used}/${limit} offres utilisées)`,
+        );
       } else if (error?.message) {
         toast.error(error.message);
       } else {
-        toast.error(error instanceof Error ? error.message : "Erreur lors de la publication de l'offre");
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Erreur lors de la publication de l'offre",
+        );
       }
     } finally {
       setIsLoading(false);
@@ -232,12 +336,19 @@ export default function PublierPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   // Show loading state while user data is being fetched
@@ -262,26 +373,34 @@ export default function PublierPage() {
               <Send className="text-green-600 w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Publier une offre d'emploi</h1>
-              <p className="text-gray-600">Remplissez les informations de votre offre</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Publier une offre d'emploi
+              </h1>
+              <p className="text-gray-600">
+                Remplissez les informations de votre offre
+              </p>
             </div>
           </div>
-          
+
           {/* Job Limit Indicator */}
           {planInfo && (
             <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border-2 border-green-300 shadow-sm">
               <div className="text-right">
-                <p className="text-xs text-gray-600 font-medium">Offres restantes</p>
-                <p className={`text-lg font-bold ${
-                  planInfo.jobRemaining === -1 
-                    ? 'text-green-600' 
-                    : planInfo.jobRemaining === 0 
-                    ? 'text-red-600' 
-                    : planInfo.jobRemaining <= 2 
-                    ? 'text-amber-600' 
-                    : 'text-green-600'
-                }`}>
-                  {planInfo.jobRemaining === -1 ? '∞' : planInfo.jobRemaining}
+                <p className="text-xs text-gray-600 font-medium">
+                  Offres restantes
+                </p>
+                <p
+                  className={`text-lg font-bold ${
+                    planInfo.jobRemaining === -1
+                      ? "text-green-600"
+                      : planInfo.jobRemaining === 0
+                        ? "text-red-600"
+                        : planInfo.jobRemaining <= 2
+                          ? "text-amber-600"
+                          : "text-green-600"
+                  }`}
+                >
+                  {planInfo.jobRemaining === -1 ? "∞" : planInfo.jobRemaining}
                   {planInfo.jobLimit !== -1 && ` / ${planInfo.jobLimit}`}
                 </p>
               </div>
@@ -291,28 +410,43 @@ export default function PublierPage() {
       </div>
 
       {/* Warning Alert if low on jobs */}
-      {planInfo && planInfo.jobRemaining !== -1 && planInfo.jobRemaining <= 2 && planInfo.jobRemaining > 0 && (
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <svg className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-              <h3 className="text-sm font-semibold text-amber-900 mb-1">
-                Attention: Il vous reste seulement {planInfo.jobRemaining} offre{planInfo.jobRemaining > 1 ? 's' : ''} à publier
-              </h3>
-              <p className="text-sm text-amber-800">
-                Vous avez utilisé {planInfo.jobPosted} sur {planInfo.jobLimit} offres de votre plan {planInfo.planName}. 
-                Pensez à mettre à niveau votre plan pour publier plus d'offres.
-              </p>
+      {planInfo &&
+        planInfo.jobRemaining !== -1 &&
+        planInfo.jobRemaining <= 2 &&
+        planInfo.jobRemaining > 0 && (
+          <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg
+                className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <div>
+                <h3 className="text-sm font-semibold text-amber-900 mb-1">
+                  Attention: Il vous reste seulement {planInfo.jobRemaining}{" "}
+                  offre{planInfo.jobRemaining > 1 ? "s" : ""} à publier
+                </h3>
+                <p className="text-sm text-amber-800">
+                  Vous avez utilisé {planInfo.jobPosted} sur {planInfo.jobLimit}{" "}
+                  offres de votre plan {planInfo.planName}. Pensez à mettre à
+                  niveau votre plan pour publier plus d'offres.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Main Form Card */}
       <div className="bg-white rounded-lg border border-gray-200">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6" noValidate>
           {/* Titre */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -323,17 +457,12 @@ export default function PublierPage() {
               name="titre"
               value={formData.titre}
               onChange={handleInputChange}
-              className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+              className={getFieldClassName("titre")}
               placeholder="Ex: Développeur Full Stack Senior"
-              required
-              minLength={5}
-              maxLength={255}
+              aria-invalid={!!formErrors.titre}
+              aria-describedby={formErrors.titre ? "titre-error" : undefined}
             />
-            {formData.titre && formData.titre.trim().length < 5 && (
-              <p className="mt-1 text-sm text-red-600">
-                Le titre doit contenir au moins 5 caractères ({formData.titre.trim().length}/5)
-              </p>
-            )}
+            {renderFieldError("titre")}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -346,8 +475,11 @@ export default function PublierPage() {
                 name="sector_id"
                 value={formData.sector_id}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
-                required
+                className={getFieldClassName("sector_id")}
+                aria-invalid={!!formErrors.sector_id}
+                aria-describedby={
+                  formErrors.sector_id ? "sector_id-error" : undefined
+                }
               >
                 <option value="">Sélectionner un secteur</option>
                 {sectors.map((sector) => (
@@ -356,6 +488,7 @@ export default function PublierPage() {
                   </option>
                 ))}
               </select>
+              {renderFieldError("sector_id")}
             </div>
 
             {/* Type de contrat */}
@@ -389,63 +522,68 @@ export default function PublierPage() {
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+              className={getFieldClassName("location")}
               placeholder="Ex: Casablanca, Maroc"
-              required
+              aria-invalid={!!formErrors.location}
+              aria-describedby={
+                formErrors.location ? "location-error" : undefined
+              }
             />
+            {renderFieldError("location")}
           </div>
 
           {/* Langues requises */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Langues requises</label>
-            <div className="flex flex-wrap gap-2">
-              {COMMON_LANGUAGES.map(lang => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => toggleLanguage(lang)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                    requiredLanguages.includes(lang)
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-primary"
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Langues requises
+            </label>
+            <Select<SelectOption, true>
+              isMulti
+              options={LANGUAGE_OPTIONS}
+              value={LANGUAGE_OPTIONS.filter((option) =>
+                requiredLanguages.includes(option.value),
+              )}
+              onChange={handleLanguagesChange}
+              placeholder="Rechercher et sélectionner des langues..."
+              noOptionsMessage={() => "Aucune langue trouvée"}
+              classNamePrefix="react-select"
+              styles={getSelectStyles("required_languages")}
+              classNames={{
+                control: () => getSelectControlClassName("required_languages"),
+                multiValue: () => "bg-green-50 border border-green-200",
+                multiValueLabel: () => "text-green-700",
+                multiValueRemove: () =>
+                  "text-green-600 hover:bg-red-50 hover:text-red-600",
+              }}
+            />
+            {renderFieldError("required_languages")}
           </div>
 
           {/* Compétences requises */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Compétences requises</label>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                value={skillInput}
-                onChange={e => setSkillInput(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
-                className="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
-                placeholder="Ex: React.js, Python, SQL..."
-              />
-              <button
-                type="button"
-                onClick={addSkill}
-                className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-              >
-                Ajouter
-              </button>
-            </div>
-            {requiredSkills.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {requiredSkills.map(skill => (
-                  <span key={skill} className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-sm font-medium">
-                    {skill}
-                    <button type="button" onClick={() => removeSkill(skill)} className="ml-1 text-emerald-500 hover:text-red-500 transition-colors">×</button>
-                  </span>
-                ))}
-              </div>
-            )}
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Compétences requises
+            </label>
+            <Select<SelectOption, true>
+              isMulti
+              options={SKILL_OPTIONS}
+              value={AVAILABLE_SKILLS.filter((skill) =>
+                requiredSkills.includes(skill),
+              ).map((skill) => ({ value: skill, label: skill }))}
+              onChange={handleSkillsChange}
+              placeholder="Rechercher et sélectionner des compétences..."
+              noOptionsMessage={() => "Aucune compétence trouvée"}
+              classNamePrefix="react-select"
+              styles={getSelectStyles("required_skills")}
+              classNames={{
+                control: () => getSelectControlClassName("required_skills"),
+                multiValue: () => "bg-emerald-50 border border-emerald-200",
+                multiValueLabel: () => "text-emerald-700",
+                multiValueRemove: () =>
+                  "text-emerald-600 hover:bg-red-50 hover:text-red-600",
+              }}
+            />
+            {renderFieldError("required_skills")}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -459,9 +597,14 @@ export default function PublierPage() {
                 name="date_debut"
                 value={formData.date_debut}
                 onChange={handleInputChange}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                min={new Date().toISOString().split("T")[0]}
+                className={getFieldClassName("date_debut")}
+                aria-invalid={!!formErrors.date_debut}
+                aria-describedby={
+                  formErrors.date_debut ? "date_debut-error" : undefined
+                }
               />
+              {renderFieldError("date_debut")}
             </div>
 
             {/* Date de fin */}
@@ -484,16 +627,27 @@ export default function PublierPage() {
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Description de l'offre <span className="text-red-500">*</span>
             </label>
-            <div className="border border-gray-300 rounded-lg overflow-hidden">
+            <div
+              className={`border rounded-lg overflow-hidden ${
+                formErrors.description ? "border-red-500" : "border-gray-300"
+              }`}
+            >
               <RichTextEditor
                 content={formData.description}
-                onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
+                onChange={(content) => {
+                  setFormData((prev) => ({ ...prev, description: content }));
+                  if (formErrors.description) {
+                    setFormErrors((prev) => ({ ...prev, description: "" }));
+                  }
+                }}
                 placeholder="Décrivez le poste, les missions, les compétences requises..."
                 minHeight="300px"
               />
             </div>
+            {renderFieldError("description")}
             <p className="mt-1 text-xs text-gray-500">
-              Minimum 50 caractères • {formData.description.replace(/<[^>]*>/g, '').length} / 10000
+              Minimum 50 caractères •{" "}
+              {formData.description.replace(/<[^>]*>/g, "").length} / 10000
             </p>
           </div>
 
@@ -508,9 +662,19 @@ export default function PublierPage() {
             </button>
             <button
               type="submit"
-              disabled={isLoading || !!(planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0)}
+              disabled={
+                isLoading ||
+                !!(
+                  planInfo &&
+                  planInfo.jobLimit !== -1 &&
+                  planInfo.jobRemaining <= 0
+                )
+              }
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 font-medium rounded-lg transition-colors ${
-                isLoading || (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0)
+                isLoading ||
+                (planInfo &&
+                  planInfo.jobLimit !== -1 &&
+                  planInfo.jobRemaining <= 0)
                   ? "bg-gray-400 text-white cursor-not-allowed"
                   : "bg-green-600 text-white hover:bg-green-700"
               }`}
@@ -520,10 +684,22 @@ export default function PublierPage() {
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Publication en cours...</span>
                 </>
-              ) : planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0 ? (
+              ) : planInfo &&
+                planInfo.jobLimit !== -1 &&
+                planInfo.jobRemaining <= 0 ? (
                 <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                   <span>Limite atteinte</span>
                 </>
@@ -541,19 +717,34 @@ export default function PublierPage() {
       {/* Success Modal */}
       {isSuccessModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/50" onClick={() => window.location.reload()}></div>
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => window.location.reload()}
+          ></div>
           <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
             <div className="text-center mb-6">
               <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-8 h-8 text-amber-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Offre soumise avec succès!
               </h2>
               <p className="text-gray-600">
-                Votre offre d'emploi a été soumise et est en attente de validation par notre équipe. Vous serez notifié une fois qu'elle sera approuvée et publiée.
+                Votre offre d'emploi a été soumise et est en attente de
+                validation par notre équipe. Vous serez notifié une fois qu'elle
+                sera approuvée et publiée.
               </p>
             </div>
             <div className="flex gap-3">
@@ -579,19 +770,33 @@ export default function PublierPage() {
       {/* Upgrade Modal */}
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setIsUpgradeModalOpen(false)}></div>
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setIsUpgradeModalOpen(false)}
+          ></div>
           <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
             <div className="text-center mb-6">
               <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="w-8 h-8 text-amber-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Limite atteinte
               </h2>
               <p className="text-gray-600">
-                Vous avez atteint la limite de votre plan. Mettez à niveau pour publier plus d'offres.
+                Vous avez atteint la limite de votre plan. Mettez à niveau pour
+                publier plus d'offres.
               </p>
             </div>
             <div className="flex gap-3">
@@ -602,7 +807,9 @@ export default function PublierPage() {
                 Annuler
               </button>
               <button
-                onClick={() => window.location.href = "/dashboard/entreprise/services"}
+                onClick={() =>
+                  (window.location.href = "/dashboard/entreprise/services")
+                }
                 className="flex-1 px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
               >
                 Mettre à niveau
@@ -615,12 +822,25 @@ export default function PublierPage() {
       {/* Job Limit Reached Modal */}
       {isLimitReachedModalOpen && planInfo && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setIsLimitReachedModalOpen(false)}></div>
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setIsLimitReachedModalOpen(false)}
+          ></div>
           <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
             <div className="text-center mb-6">
               <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <svg
+                  className="w-8 h-8 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
@@ -629,20 +849,31 @@ export default function PublierPage() {
               <div className="bg-gray-50 rounded-lg p-4 mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">Plan actuel:</span>
-                  <span className="text-sm font-semibold text-gray-900">{planInfo.planName}</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {planInfo.planName}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Offres publiées:</span>
-                  <span className="text-sm font-semibold text-gray-900">{planInfo.jobPosted} / {planInfo.jobLimit}</span>
+                  <span className="text-sm text-gray-600">
+                    Offres publiées:
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {planInfo.jobPosted} / {planInfo.jobLimit}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Offres restantes:</span>
-                  <span className="text-sm font-bold text-red-600">{planInfo.jobRemaining}</span>
+                  <span className="text-sm text-gray-600">
+                    Offres restantes:
+                  </span>
+                  <span className="text-sm font-bold text-red-600">
+                    {planInfo.jobRemaining}
+                  </span>
                 </div>
               </div>
               <p className="text-gray-600">
-                Vous avez atteint la limite de publication d'offres pour votre plan actuel. 
-                Pour continuer à publier des offres, veuillez mettre à niveau votre abonnement.
+                Vous avez atteint la limite de publication d'offres pour votre
+                plan actuel. Pour continuer à publier des offres, veuillez
+                mettre à niveau votre abonnement.
               </p>
             </div>
             <div className="flex gap-3">
@@ -656,7 +887,9 @@ export default function PublierPage() {
                 Retour
               </button>
               <button
-                onClick={() => window.location.href = "/dashboard/entreprise/services"}
+                onClick={() =>
+                  (window.location.href = "/dashboard/entreprise/services")
+                }
                 className="flex-1 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-colors shadow-sm"
               >
                 Mettre à niveau

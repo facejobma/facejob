@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
 import { downloadResumePDF } from "@/components/ResumePDF";
+import { LANGUAGE_OPTIONS } from "@/constants/languages";
 import { useUser } from "@/hooks/useUser";
 import { 
   MapPin, Briefcase, GraduationCap, Code, Building2, 
@@ -63,6 +64,26 @@ interface Payment {
   status: string;
 }
 
+interface CandidateFilters {
+  sector: any | null;
+  job: any | null;
+  city: string;
+  education: any | null;
+  language: any | null;
+  minExperience: any | null;
+  maxExperience: any | null;
+}
+
+const EMPTY_FILTERS: CandidateFilters = {
+  sector: null,
+  job: null,
+  city: "",
+  education: null,
+  language: null,
+  minExperience: null,
+  maxExperience: null,
+};
+
 const CandidatsPage: React.FC = () => {
   const { user, isLoading: userLoading } = useUser();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -116,8 +137,31 @@ const CandidatsPage: React.FC = () => {
   const getImageUrl = (imageUrl: string | null): string => {
     if (!imageUrl) return '';
     const fixedUrl = fixImageUrl(imageUrl);
-    // Si l'URL commence par http, l'utiliser directement, sinon ajouter le chemin du backend
-    return fixedUrl.startsWith('http') ? fixedUrl : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${fixedUrl}`;
+
+    if (fixedUrl.startsWith('http')) {
+      return `/api/image-proxy?url=${encodeURIComponent(fixedUrl)}`;
+    }
+
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${fixedUrl}`;
+  };
+
+  const getVideoUrl = (videoUrl: string | null): string => {
+    if (!videoUrl) return '';
+
+    const fixedUrl = fixImageUrl(videoUrl);
+
+    if (fixedUrl.startsWith('http')) {
+      return `/api/video-proxy?url=${encodeURIComponent(fixedUrl)}`;
+    }
+
+    const cleanPath = fixedUrl.replace(/^\/+/, '').replace(/^video\//, '');
+    const encodedPath = cleanPath
+      .split('/')
+      .map((part) => encodeURIComponent(part))
+      .join('/');
+    const backendVideoUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${encodedPath}`;
+
+    return `/api/video-proxy?url=${encodeURIComponent(backendVideoUrl)}`;
   };
   
   // Filters
@@ -126,13 +170,12 @@ const CandidatsPage: React.FC = () => {
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [selectedSector, setSelectedSector] = useState<any>(null);
   const [selectedJob, setSelectedJob] = useState<any>(null);
-  const [selectedCity, setSelectedCity] = useState<any>(null);
-  const [selectedGender, setSelectedGender] = useState<any>(null);
+  const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedEducation, setSelectedEducation] = useState<any>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<any>(null);
   const [minExperience, setMinExperience] = useState<any>(null);
   const [maxExperience, setMaxExperience] = useState<any>(null);
-  const [cities, setCities] = useState<string[]>([]);
+  const [appliedFilters, setAppliedFilters] = useState<CandidateFilters>(EMPTY_FILTERS);
 
   // Custom styles for react-select
   const selectStyles = {
@@ -236,7 +279,11 @@ const CandidatsPage: React.FC = () => {
     }
   };
 
-  const fetchCandidates = async (page: number, append: boolean = false) => {
+  const fetchCandidates = async (
+    page: number,
+    append: boolean = false,
+    filters: CandidateFilters = appliedFilters
+  ) => {
     try {
       if (!append) setLoading(true);
       else setLoadingMore(true);
@@ -246,14 +293,13 @@ const CandidatsPage: React.FC = () => {
         per_page: "10",
       });
       
-      if (selectedSector) params.append('sector_id', selectedSector.value);
-      if (selectedJob) params.append('job_id', selectedJob.value);
-      if (selectedCity) params.append('city', selectedCity.value);
-      if (selectedGender) params.append('gender', selectedGender.value);
-      if (selectedEducation) params.append('education_level', selectedEducation.value);
-      if (selectedLanguage) params.append('language', selectedLanguage.value);
-      if (minExperience) params.append('min_experience', minExperience.value);
-      if (maxExperience) params.append('max_experience', maxExperience.value);
+      if (filters.sector) params.append('sector_id', filters.sector.value);
+      if (filters.job) params.append('job_id', filters.job.value);
+      if (filters.city.trim()) params.append('city', filters.city.trim());
+      if (filters.education) params.append('education_level', filters.education.value);
+      if (filters.language) params.append('language', filters.language.value);
+      if (filters.minExperience) params.append('min_experience', filters.minExperience.value);
+      if (filters.maxExperience) params.append('max_experience', filters.maxExperience.value);
       
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postule/all?${params.toString()}`,
@@ -271,11 +317,6 @@ const CandidatsPage: React.FC = () => {
           setCandidates(result.data);
         }
         
-        const uniqueCities = Array.from(new Set(
-          result.data.map((c: Candidate) => c.city).filter(Boolean)
-        ));
-        setCities(uniqueCities as string[]);
-        
         setHasMore(result.pagination?.has_more_pages || false);
       } else {
         if (!append) setCandidates([]);
@@ -291,8 +332,8 @@ const CandidatsPage: React.FC = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchCandidates(1, false);
-  }, [selectedSector, selectedJob, selectedCity, selectedGender, selectedEducation, selectedLanguage, minExperience, maxExperience]);
+    fetchCandidates(1, false, appliedFilters);
+  }, []);
 
   useEffect(() => {
     if (user?.id) {
@@ -314,55 +355,13 @@ const CandidatsPage: React.FC = () => {
       if (scrollTop + clientHeight >= scrollHeight - 100) {
         const nextPage = currentPage + 1;
         setCurrentPage(nextPage);
-        fetchCandidates(nextPage, true);
+        fetchCandidates(nextPage, true, appliedFilters);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentPage, loadingMore, hasMore]);
-
-  // Intersection Observer to control video playback
-  useEffect(() => {
-    const observerOptions = {
-      root: null,
-      threshold: 0.5, // Video is considered "in view" when 50% visible
-    };
-
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        const videoElement = entry.target as HTMLVideoElement;
-        
-        if (entry.isIntersecting) {
-          // Play the current video (muted initially to avoid autoplay restrictions)
-          videoElement.muted = isMuted;
-          videoElement.play().catch(err => {
-            // If play fails, ensure it's muted and try again
-            console.log('Autoplay prevented, playing muted');
-            videoElement.muted = true;
-            videoElement.play().catch(e => console.log('Play failed:', e));
-          });
-        } else {
-          // Pause and mute videos that are out of view
-          videoElement.pause();
-          videoElement.currentTime = 0; // Reset to beginning
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-
-    // Observe all video elements
-    Object.values(videoRefs.current).forEach((video) => {
-      if (video) {
-        observer.observe(video);
-      }
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [candidates, isMuted]);
+  }, [currentPage, loadingMore, hasMore, appliedFilters]);
 
   const handleGenerateCV = async (candidateId: number) => {
     try {
@@ -499,15 +498,36 @@ const CandidatsPage: React.FC = () => {
     }
   };
 
+  const buildDraftFilters = (): CandidateFilters => ({
+    sector: selectedSector,
+    job: selectedJob,
+    city: selectedCity,
+    education: selectedEducation,
+    language: selectedLanguage,
+    minExperience,
+    maxExperience,
+  });
+
+  const applyFilters = () => {
+    const nextFilters = buildDraftFilters();
+    setAppliedFilters(nextFilters);
+    setCurrentPage(1);
+    fetchCandidates(1, false, nextFilters);
+    setShowFilters(false);
+  };
+
   const clearFilters = () => {
     setSelectedSector(null);
     setSelectedJob(null);
-    setSelectedCity(null);
-    setSelectedGender(null);
+    setSelectedCity("");
     setSelectedEducation(null);
     setSelectedLanguage(null);
     setMinExperience(null);
     setMaxExperience(null);
+    setAppliedFilters(EMPTY_FILTERS);
+    setCurrentPage(1);
+    fetchCandidates(1, false, EMPTY_FILTERS);
+    setShowFilters(false);
   };
 
   const toggleMute = () => {
@@ -544,7 +564,16 @@ const CandidatsPage: React.FC = () => {
     setDetailCandidate(null);
   };
 
-  const hasActiveFilters = selectedSector || selectedJob || selectedCity || selectedGender || selectedEducation || selectedLanguage || minExperience || maxExperience;
+  const hasActiveFilters = Boolean(
+    appliedFilters.sector ||
+    appliedFilters.job ||
+    appliedFilters.city ||
+    appliedFilters.education ||
+    appliedFilters.language ||
+    appliedFilters.minExperience ||
+    appliedFilters.maxExperience
+  );
+  const hasDraftFilters = Boolean(selectedSector || selectedJob || selectedCity || selectedEducation || selectedLanguage || minExperience || maxExperience);
 
   // Show loading state while user data is being fetched
   if (userLoading) {
@@ -610,7 +639,7 @@ const CandidatsPage: React.FC = () => {
             <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between rounded-t-xl md:rounded-t-2xl z-10">
               <div className="flex-1 min-w-0">
                 <h2 className="text-base md:text-lg font-bold text-gray-900">Filtres de recherche</h2>
-                <p className="text-xs md:text-sm text-gray-500">Les résultats se mettent à jour automatiquement</p>
+                <p className="text-xs md:text-sm text-gray-500">Cliquez sur rechercher pour appliquer les filtres</p>
               </div>
               <button
                 onClick={() => setShowFilters(false)}
@@ -639,7 +668,7 @@ const CandidatsPage: React.FC = () => {
                 </div>
 
                 {/* Poste */}
-                <div>
+                <div className="relative group">
                   <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Poste</label>
                   <Select
                     value={selectedJob}
@@ -653,21 +682,22 @@ const CandidatsPage: React.FC = () => {
                     menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                     menuPosition="fixed"
                   />
+                  {!selectedSector && (
+                    <div className="pointer-events-none absolute left-0 top-full z-[60] mt-2 hidden w-full rounded-lg bg-gray-900 px-3 py-2 text-xs font-medium text-white shadow-lg group-hover:block group-focus-within:block">
+                      Choisissez d'abord un secteur pour afficher les postes disponibles.
+                    </div>
+                  )}
                 </div>
 
                 {/* Ville */}
                 <div>
                   <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Ville</label>
-                  <Select
+                  <input
+                    type="text"
                     value={selectedCity}
-                    onChange={setSelectedCity}
-                    options={cities.map(c => ({ value: c, label: c }))}
-                    styles={selectStyles}
-                    placeholder="Toutes les villes..."
-                    isClearable
-                    isSearchable
-                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                    menuPosition="fixed"
+                    onChange={(event) => setSelectedCity(event.target.value)}
+                    placeholder="Saisir une ville..."
+                    className="w-full min-h-10 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 placeholder:text-gray-400"
                   />
                 </div>
 
@@ -693,11 +723,7 @@ const CandidatsPage: React.FC = () => {
                   <Select
                     value={selectedLanguage}
                     onChange={setSelectedLanguage}
-                    options={[
-                      "Arabe", "Français", "Anglais", "Espagnol", "Allemand",
-                      "Italien", "Portugais", "Chinois", "Japonais", "Russe",
-                      "Néerlandais", "Turc", "Persan", "Coréen", "Hindi",
-                    ].map(l => ({ value: l, label: l }))}
+                    options={LANGUAGE_OPTIONS}
                     styles={selectStyles}
                     placeholder="Toutes les langues..."
                     isClearable
@@ -736,28 +762,17 @@ const CandidatsPage: React.FC = () => {
                     menuPosition="fixed"
                   />
                 </div>
-
-                {/* Genre */}
-                <div>
-                  <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Genre</label>
-                  <Select
-                    value={selectedGender}
-                    onChange={setSelectedGender}
-                    options={[
-                      { value: 'male', label: 'Homme' },
-                      { value: 'female', label: 'Femme' }
-                    ]}
-                    styles={selectStyles}
-                    placeholder="Tous les genres..."
-                    isClearable
-                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                    menuPosition="fixed"
-                  />
-                </div>
               </div>
 
-              {hasActiveFilters && (
-                <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-200">
+              <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={applyFilters}
+                  className="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
+                >
+                  <Filter className="w-4 h-4" />
+                  Rechercher
+                </button>
+                {(hasDraftFilters || hasActiveFilters) && (
                   <button
                     onClick={clearFilters}
                     className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
@@ -765,8 +780,8 @@ const CandidatsPage: React.FC = () => {
                     <X className="w-4 h-4" />
                     Réinitialiser tous les filtres
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </>
@@ -815,24 +830,34 @@ const CandidatsPage: React.FC = () => {
                   <div 
                     className="relative h-48 bg-black overflow-hidden cursor-pointer group"
                     onClick={() => handleVideoClick(candidate)}
+                    onMouseEnter={() => {
+                      const video = videoRefs.current[candidate.cv_id];
+                      if (video) {
+                        video.muted = true;
+                        video.play().catch(() => {});
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      const video = videoRefs.current[candidate.cv_id];
+                      if (video) {
+                        video.pause();
+                        video.currentTime = 0;
+                      }
+                    }}
                     style={{ zIndex: 0 }}
                   >
                     <video
                       ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
-                      src={candidate.link.startsWith('http') ? candidate.link : `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${candidate.link}`}
+                      src={getVideoUrl(candidate.link)}
                       className="w-full h-full object-cover"
                       style={{ zIndex: 0, position: 'relative' }}
                       loop
                       muted
                       playsInline
+                      preload="metadata"
                       controlsList="nodownload"
-                      onMouseEnter={(e) => e.currentTarget.play()}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.pause();
-                        e.currentTarget.currentTime = 0;
-                      }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
                         <Eye className="w-8 h-8 text-white" />
                       </div>
@@ -1013,7 +1038,7 @@ const CandidatsPage: React.FC = () => {
                     <div className="relative bg-black rounded-xl overflow-hidden aspect-video">
                       <video
                         ref={detailVideoRef}
-                        src={detailCandidate.link.startsWith('http') ? detailCandidate.link : `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${detailCandidate.link}`}
+                        src={getVideoUrl(detailCandidate.link)}
                         className="w-full h-full object-contain"
                         controls
                         controlsList="nodownload"

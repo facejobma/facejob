@@ -56,7 +56,9 @@ const nextConfig = {
     async headers() {
         const headers = [];
         
-        // COOP and COEP headers for FFmpeg.wasm (SharedArrayBuffer support)
+        // COOP and COEP headers for FFmpeg.wasm (SharedArrayBuffer support).
+        // Use credentialless so public cross-origin media can render without
+        // requiring third-party servers to send Cross-Origin-Resource-Policy.
         headers.push({
             source: '/:path*',
             headers: [
@@ -66,7 +68,7 @@ const nextConfig = {
                 },
                 {
                     key: 'Cross-Origin-Embedder-Policy',
-                    value: 'require-corp',
+                    value: 'credentialless',
                 },
             ],
         });

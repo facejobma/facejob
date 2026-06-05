@@ -1,9 +1,61 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 import NavBar from "./NavBar";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Hero() {
+  const heroVideos = [
+    { src: "/videos/video1.webm", label: "Candidate 1" },
+    { src: "/videos/video2.webm", label: "Candidate 2" },
+  ];
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [isSwitchingVideo, setIsSwitchingVideo] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const activeVideo = heroVideos[activeVideoIndex];
+  const previewVideoIndex = activeVideoIndex === 0 ? 1 : 0;
+  const previewVideo = heroVideos[previewVideoIndex];
+  const activeVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = activeVideoRef.current;
+
+    if (!video) return;
+
+    video.load();
+    video.play().catch(() => undefined);
+  }, [activeVideo.src]);
+
+  useEffect(() => {
+    if (!isSwitchingVideo) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setIsSwitchingVideo(false);
+    }, 360);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isSwitchingVideo, activeVideoIndex]);
+
+  const switchVideo = () => {
+    setIsSwitchingVideo(true);
+    setActiveVideoIndex(previewVideoIndex);
+  };
+
+  useEffect(() => {
+    if (!isVideoModalOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsVideoModalOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isVideoModalOpen]);
+
   return (
     <header className="relative w-full min-h-screen bg-gradient-to-br from-white via-optional1 to-green-50/30 overflow-hidden">
       {/* Enhanced animated background elements */}
@@ -115,18 +167,50 @@ export default function Hero() {
           <div className="order-2 lg:order-2 animate-fade-in-delayed">
             <div className="relative max-w-lg mx-auto lg:max-w-none">
               {/* Decorative elements */}
-              <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-green-400/20 to-green-600/20 rounded-[2rem] blur-3xl opacity-60 animate-pulse" />
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl" />
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-green-400/10 rounded-full blur-2xl" />
+              <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-green-400/20 to-green-600/20 rounded-[2rem] blur-3xl opacity-30 sm:opacity-60 animate-pulse" />
+              <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl opacity-60 sm:opacity-100" />
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-green-400/10 rounded-full blur-2xl opacity-60 sm:opacity-100" />
               
               {/* Image container with enhanced styling */}
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary to-green-600 rounded-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
-                <div className="relative rounded-3xl shadow-2xl ring-1 ring-gray-900/5 group-hover:shadow-primary/20 transition-all duration-500 overflow-hidden">
+              <div className="relative group aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/3]">
+                <div className={`hero-video-stage absolute inset-0 ${isSwitchingVideo ? "is-switching" : ""}`}>
+                  <button
+                    type="button"
+                    className="hero-video-card hero-video-card-preview"
+                    onClick={switchVideo}
+                    aria-label={`Afficher la video de ${previewVideo.label}`}
+                  >
+                    <video
+                      className="h-full w-full object-cover pointer-events-none"
+                      src={previewVideo.src}
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                    />
+                  </button>
+                  <div
+                    className="hero-video-card hero-video-card-front"
+                    onClick={() => setIsVideoModalOpen(true)}
+                  >
+                    <video
+                      key={activeVideo.src}
+                      ref={activeVideoRef}
+                      className="h-full w-full object-cover"
+                      src={activeVideo.src}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                    />
+                  </div>
+                </div>
+                <div className="hero-image-intro absolute inset-0 rounded-3xl ring-1 ring-gray-900/5 transition-all duration-500 overflow-hidden">
                   <Image
                     src="/img1.jpg"
                     alt="Professionnelle enregistrant son CV vidéo sur FaceJob"
-                    className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     width={700}
                     height={520}
                     priority
@@ -142,6 +226,33 @@ export default function Hero() {
 
         </div>
       </div>
+      {isVideoModalOpen && (
+        <div
+          className="hero-video-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Video de ${activeVideo.label}`}
+          onClick={() => setIsVideoModalOpen(false)}
+        >
+          <div className="hero-video-modal-panel" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="hero-video-modal-close"
+              onClick={() => setIsVideoModalOpen(false)}
+              aria-label="Fermer la video"
+            >
+              X
+            </button>
+            <video
+              className="hero-video-modal-player"
+              src={activeVideo.src}
+              controls
+              autoPlay
+              playsInline
+            />
+          </div>
+        </div>
+      )}
     </header>
   );
 }

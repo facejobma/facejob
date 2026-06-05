@@ -143,6 +143,9 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = () => {
       scrollToFirstError(nextErrors);
       return;
     }
+
+    if (!logoFile) return;
+
     setErrors({});
 
     setIsSubmitting(true);

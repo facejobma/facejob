@@ -20,15 +20,27 @@ export default function Hero() {
       <NavBar />
 
       <div className="relative container mx-auto px-4 sm:px-6 max-w-7xl pt-20 sm:pt-32 pb-16 flex items-center min-h-[calc(100vh-80px)]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center w-full">
+
+          <h1 className="order-1 lg:hidden font-heading text-4xl sm:text-5xl font-extrabold text-secondary leading-[1.1] tracking-tight text-center animate-fade-in">
+            Votre talent<br/>mérite{" "}
+            <span className="relative inline-block">
+              <span className="bg-gradient-to-r from-primary via-green-600 to-primary-1 bg-clip-text text-transparent animate-gradient">
+                d'être vu.
+              </span>
+              <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 10C50 2 150 2 198 10" stroke="#60894B" strokeWidth="3" strokeLinecap="round" opacity="0.3"/>
+              </svg>
+            </span>
+          </h1>
 
           {/* Left — Text */}
-          <div className="order-2 lg:order-1 flex flex-col gap-8 text-center lg:text-left animate-fade-in">
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-secondary leading-[1.1] tracking-tight">
-              Osez la{" "}
+          <div className="order-3 lg:order-1 flex flex-col gap-8 text-center lg:text-left animate-fade-in">
+            <h1 className="hidden lg:block font-heading text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold text-secondary leading-[1.1] tracking-tight">
+              Votre talent<br/>mérite{" "}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-primary via-green-600 to-primary-1 bg-clip-text text-transparent animate-gradient">
-                  différence !
+                 d'être vu.
                 </span>
                 <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 10C50 2 150 2 198 10" stroke="#60894B" strokeWidth="3" strokeLinecap="round" opacity="0.3"/>
@@ -44,7 +56,7 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
                 href="/auth/signup-candidate"
-                className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold text-base rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 overflow-hidden"
+                className="group relative inline-flex items-center justify-center px-5 py-3 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold text-base rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Créer mon CV vidéo gratuit
@@ -56,7 +68,7 @@ export default function Hero() {
               </Link>
               <Link
                 href="/offres"
-                className="group inline-flex items-center justify-center px-8 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white font-accent font-semibold text-base rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                className="group inline-flex items-center justify-center px-5 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white font-accent font-semibold text-base rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
               >
                 Voir les offres
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -100,7 +112,7 @@ export default function Hero() {
           </div>
 
           {/* Right — Image */}
-          <div className="order-1 lg:order-2 animate-fade-in-delayed">
+          <div className="order-2 lg:order-2 animate-fade-in-delayed">
             <div className="relative max-w-lg mx-auto lg:max-w-none">
               {/* Decorative elements */}
               <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-green-400/20 to-green-600/20 rounded-[2rem] blur-3xl opacity-60 animate-pulse" />

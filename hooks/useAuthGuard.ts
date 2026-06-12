@@ -27,6 +27,21 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
   const hasChecked = useRef(false);
   const isMounted = useRef(true);
 
+  const buildLoginRedirect = (loginPath: string) => {
+    if (typeof window === 'undefined') {
+      return loginPath;
+    }
+
+    const currentPath = `${window.location.pathname}${window.location.search}`;
+    const isAlreadyOnLogin = window.location.pathname.startsWith('/auth/');
+
+    if (isAlreadyOnLogin) {
+      return loginPath;
+    }
+
+    return `${loginPath}?returnUrl=${encodeURIComponent(currentPath)}`;
+  };
+
   useEffect(() => {
     // Mark as mounted
     isMounted.current = true;
@@ -50,7 +65,7 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
             setIsLoading(false);
             setIsAuthorized(false);
             if (redirectTo) {
-              router.replace(redirectTo);
+              router.replace(buildLoginRedirect(redirectTo));
             }
             return;
           }
@@ -116,7 +131,7 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
         setIsLoading(false);
         setIsAuthorized(false);
         if (redirectTo) {
-          router.replace(redirectTo);
+          router.replace(buildLoginRedirect(redirectTo));
         }
       }
     };
@@ -126,7 +141,7 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
         setIsLoading(false);
         setIsAuthorized(false);
         if (redirectTo) {
-          router.replace(redirectTo);
+          router.replace(buildLoginRedirect(redirectTo));
         }
         return;
       }

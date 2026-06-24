@@ -46,7 +46,9 @@ const SignupCandidatPage = () => {
   };
 
   const handleSkip = () => {
-    setStep((prevStep) => prevStep + 1);
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("authToken");
+    router.push("/dashboard/candidat");
   };
 
   if (step === 2) {

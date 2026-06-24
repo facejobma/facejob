@@ -338,7 +338,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => { onSkip(); sessionStorage.clear(); router.push("/auth/login-candidate"); }}
+              onClick={onSkip}
               disabled={isSubmitting}
               className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
             >

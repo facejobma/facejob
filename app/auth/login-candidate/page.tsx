@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import ModernLoginForm from "../../../components/auth/login/ModernLoginForm";
 import ModernAuthLayout from "../../../components/auth/ModernAuthLayout";
@@ -17,6 +18,17 @@ function LoginContent() {
   // Redirect logged-in users to their dashboard or returnUrl
   useEffect(() => {
     if (!isLoading && user) {
+      if (user.role === 'candidat' && user.is_completed === false) {
+        sessionStorage.setItem('userId', String(user.id));
+        sessionStorage.setItem('userEmail', user.email || '');
+        const authToken = Cookies.get('authToken');
+        if (authToken) {
+          sessionStorage.setItem('authToken', authToken);
+        }
+        router.replace('/auth/signup-candidate');
+        return;
+      }
+
       // If we have a returnUrl, use that
       if (returnUrl) {
         console.log('🔄 User already logged in, redirecting to returnUrl:', returnUrl);

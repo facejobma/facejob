@@ -15,7 +15,17 @@ const SignupCandidatPage = () => {
     const authToken = Cookies.get("authToken");
     const userRole = typeof window !== "undefined" ? sessionStorage.getItem("userRole") : null;
     
+    const userId =
+      typeof window !== "undefined"
+        ? window.sessionStorage?.getItem("userId") || ""
+        : "";
+
     if (authToken && userRole) {
+      if (userRole === "candidat" && userId) {
+        setStep(2);
+        return;
+      }
+
       // Redirect to appropriate dashboard based on user role
       if (userRole === "candidat") {
         router.push("/dashboard/candidat");
@@ -24,11 +34,6 @@ const SignupCandidatPage = () => {
       }
       return;
     }
-
-    const userId =
-      typeof window !== "undefined"
-        ? window.sessionStorage?.getItem("userId") || ""
-        : "";
 
     // If the userId already exists in session (means the user has created an account), skip to Step 2
     if (userId) {

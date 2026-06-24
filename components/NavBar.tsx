@@ -8,6 +8,21 @@ import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./Logo";
 import { User, LogOut } from "lucide-react";
 import Cookies from "js-cookie";
+import { clearInvalidAuthSession, getAuthenticatedUser, type UserRole } from "@/lib/auth";
+
+type NavUserRole = Extract<UserRole, "candidat" | "entreprise">;
+
+function normalizeNavRole(role: unknown): NavUserRole | null {
+  if (role === "candidat" || role === "candidate") {
+    return "candidat";
+  }
+
+  if (role === "entreprise" || role === "enterprise") {
+    return "entreprise";
+  }
+
+  return null;
+}
 
 export default function NavBar() {
   const [open, setOpen] = React.useState(false);
@@ -16,7 +31,7 @@ export default function NavBar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
-  const [userType, setUserType] = React.useState<string | null>(null);
+  const [userType, setUserType] = React.useState<NavUserRole | null>(null);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const { scrollY } = useScroll();
 
@@ -24,10 +39,10 @@ export default function NavBar() {
     setMounted(true);
     
     const checkAuth = async () => {
-      // Check authentication status from cookies (primary) or localStorage (fallback)
-      const token = Cookies.get('authToken') || localStorage.getItem('access_token');
+      const token = Cookies.get('authToken');
       
       if (!token) {
+        clearInvalidAuthSession();
         setIsAuthenticated(false);
         setUserType(null);
         return;
@@ -45,12 +60,7 @@ export default function NavBar() {
         
         if (!response.ok) {
           // Token is invalid or expired - clear everything
-          Cookies.remove('authToken');
-          Cookies.remove('userRole');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('user_type');
-          sessionStorage.removeItem('user');
-          sessionStorage.removeItem('userRole');
+          clearInvalidAuthSession();
           setIsAuthenticated(false);
           setUserType(null);
           return;
@@ -59,7 +69,7 @@ export default function NavBar() {
         const userData = await response.json();
         
         // Get role from backend response
-        let role = userData.role || sessionStorage.getItem('userRole') || Cookies.get('userRole');
+        let role = normalizeNavRole(userData.role);
         
         if (!role && userData) {
           // Try to detect from user data structure
@@ -69,15 +79,22 @@ export default function NavBar() {
             role = 'entreprise';
           }
         }
+
+        role = normalizeNavRole(role);
+
+        if (!role) {
+          clearInvalidAuthSession();
+          setIsAuthenticated(false);
+          setUserType(null);
+          return;
+        }
         
         setIsAuthenticated(true);
-        setUserType(role || null);
+        setUserType(role);
       } catch (error) {
         console.error('Auth check failed:', error);
-        // On network error, keep showing as authenticated but token might be stale
-        const role = sessionStorage.getItem('userRole') || Cookies.get('userRole') || localStorage.getItem('user_type');
-        setIsAuthenticated(!!token);
-        setUserType(role || null);
+        setIsAuthenticated(false);
+        setUserType(null);
       }
     };
     
@@ -108,16 +125,7 @@ export default function NavBar() {
   };
 
   const handleLogout = () => {
-    // Clear cookies
-    Cookies.remove('authToken');
-    Cookies.remove('userRole');
-    // Clear localStorage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_type');
-    localStorage.removeItem('auth_provider');
-    // Clear sessionStorage
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('userRole');
+    clearInvalidAuthSession();
     
     setIsAuthenticated(false);
     setUserType(null);
@@ -125,12 +133,34 @@ export default function NavBar() {
   };
 
   const getDashboardLink = () => {
-    // Check state first, then fallback to direct sessionStorage check
-    const role = userType || sessionStorage.getItem('userRole');
+    const role = normalizeNavRole(userType);
     if (role === 'candidat') return '/dashboard/candidat';
     if (role === 'entreprise') return '/dashboard/entreprise';
-    return '/';
+    return null;
   };
+
+  const handleDashboardClick = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    const user = await getAuthenticatedUser();
+    const role = normalizeNavRole(user?.role);
+
+    if (!role) {
+      clearInvalidAuthSession();
+      setIsAuthenticated(false);
+      setUserType(null);
+      const loginPath = userType === 'candidat' ? '/auth/login-candidate' : '/auth/login-entreprise';
+      const returnUrl = dashboardLink || '/dashboard/entreprise';
+      router.push(`${loginPath}?returnUrl=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+
+    setIsAuthenticated(true);
+    setUserType(role);
+    router.push(role === 'candidat' ? '/dashboard/candidat' : '/dashboard/entreprise');
+  };
+
+  const dashboardLink = getDashboardLink();
   return (
     <>
       <Head>
@@ -259,10 +289,11 @@ export default function NavBar() {
                     </Link>
                   </li>
                 </>
-              ) : (
+              ) : dashboardLink ? (
                 <li className="flex items-center gap-2">
                   <Link
-                    href={getDashboardLink()}
+                    href={dashboardLink}
+                    onClick={handleDashboardClick}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                   >
                     <User className="w-4 h-4" />
@@ -276,6 +307,25 @@ export default function NavBar() {
                     <LogOut className="w-4 h-4" />
                   </button>
                 </li>
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      href="/auth/login-candidate"
+                      className="inline-flex items-center h-9 px-4 rounded-lg border-2 border-primary text-primary font-medium text-sm hover:bg-primary hover:text-white transition-all"
+                    >
+                      Candidat
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/entreprise-bientot"
+                      className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
+                    >
+                      Entreprise
+                    </Link>
+                  </li>
+                </>
               )}
             </ul>
             <div className="flex items-center lg:hidden">
@@ -378,13 +428,16 @@ export default function NavBar() {
                   </Link>
                 </div>
               </li>
-            ) : (
+            ) : dashboardLink ? (
               <li className="p-6 bg-gray-50">
                 <div className="flex flex-col gap-3">
                   <Link
-                    href={getDashboardLink()}
+                    href={dashboardLink}
                     className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-1 transition-all"
-                    onClick={() => setOpen(false)}
+                    onClick={(event) => {
+                      setOpen(false);
+                      handleDashboardClick(event);
+                    }}
                   >
                     <User className="w-5 h-5" />
                     {userType === 'candidat' ? 'Mon Espace' : 'Mon Espace'}
@@ -399,6 +452,25 @@ export default function NavBar() {
                     <LogOut className="w-5 h-5" />
                     Se déconnecter
                   </button>
+                </div>
+              </li>
+            ) : (
+              <li className="p-6 bg-gray-50">
+                <div className="flex flex-col gap-3">
+                  <Link
+                    href="/auth/login-candidate"
+                    className="w-full text-center px-6 py-3 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all"
+                    onClick={() => setOpen(false)}
+                  >
+                    Espace Candidat
+                  </Link>
+                  <Link
+                    href="/entreprise-bientot"
+                    className="w-full text-center px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-1 transition-all"
+                    onClick={() => setOpen(false)}
+                  >
+                    Espace Entreprise
+                  </Link>
                 </div>
               </li>
             )}

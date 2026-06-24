@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff, Mail, Lock, User, Building2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Building2, X, AlertCircle } from "lucide-react";
 import google from "@/public/svg/google.svg";
 import linkedin from "@/public/svg/linkedin.svg";
 import { secureLogin } from "@/lib/auth";
@@ -26,6 +26,10 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<LoginFieldErrors>({});
+  const [verificationModal, setVerificationModal] = useState({
+    isOpen: false,
+    message: "",
+  });
 
   const validateEmail = (value: string) => {
     if (!value) {
@@ -90,23 +94,10 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
         // Use the error message from the backend (result.error) which already contains the proper message
         switch (result.errorType) {
           case 'verification':
-            // Show the backend message with extended duration
-            toast.error(result.error || "Votre adresse e-mail doit être vérifiée avant de vous connecter.", { duration: 6000 });
-            // Show option to resend verification email
-            setTimeout(() => {
-              toast((t) => (
-                <div className="flex flex-col gap-2">
-                  <span>Vous n'avez pas reçu l'email ?</span>
-                  <Link
-                    href="/auth/resend-verification"
-                    className="text-primary font-medium hover:underline"
-                    onClick={() => toast.dismiss(t.id)}
-                  >
-                    Renvoyer l'email de vérification
-                  </Link>
-                </div>
-              ), { duration: 8000 });
-            }, 1000);
+            setVerificationModal({
+              isOpen: true,
+              message: result.error || "Votre adresse email doit etre verifiee avant de vous connecter.",
+            });
             break;
           default:
             // For all other errors, just show the backend message
@@ -245,7 +236,55 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
     }`;
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <>
+      {verificationModal.isOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4 py-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="verification-modal-title"
+        >
+          <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setVerificationModal({ isOpen: false, message: "" })}
+              className="absolute right-3 top-3 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+
+            <h2 id="verification-modal-title" className="mb-2 text-xl font-bold text-secondary">
+              Compte non activé
+            </h2>
+            <p className="mb-5 text-sm leading-6 text-gray-600">
+              {verificationModal.message}
+            </p>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setVerificationModal({ isOpen: false, message: "" })}
+                className="inline-flex justify-center rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                Fermer
+              </button>
+              <Link
+                href="/auth/resend-verification"
+                className="inline-flex justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-1"
+              >
+                Renvoyer l'email
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="w-full max-w-md mx-auto">
       {/* Header */}
       <div className="text-center mb-6">
         <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${currentTheme.iconBg}`}>
@@ -413,7 +452,8 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
           </Link>
         </p>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

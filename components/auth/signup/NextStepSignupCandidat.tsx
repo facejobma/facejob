@@ -151,12 +151,10 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
       const result = await res.json();
 
       if (res.ok && (result.success !== false)) {
-        const email = typeof window !== "undefined"
-          ? window.sessionStorage?.getItem("userEmail") || ""
-          : "";
-        setUserEmail(email);
-        setShowVerificationModal(true);
-        setTimeout(() => sessionStorage.clear(), 500);
+        sessionStorage.removeItem("userId");
+        sessionStorage.removeItem("authToken");
+        toast.success("Profil complété avec succès.");
+        router.push("/dashboard/candidat");
       } else {
         if (result.errors && typeof result.errors === "object") {
           const mappedErrors: { [key: string]: string } = {};

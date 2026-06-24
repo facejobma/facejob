@@ -133,12 +133,12 @@ export async function verifyEmail(token: string, email: string) {
   throw new Error(`Failed to verify email: ${response.status}`);
 }
 
-export async function resendVerification(email: string, userType: 'candidat' | 'entreprise') {
+export async function resendVerification(email: string) {
   const response = await publicApiCall('/auth/resend-verification', {
     method: 'POST',
     body: JSON.stringify({
       email: email.trim(),
-      user_type: userType,
+      user_type: 'candidat',
     })
   });
   if (response.ok) return response.json();

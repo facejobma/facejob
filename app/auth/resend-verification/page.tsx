@@ -1,233 +1,183 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import NavBar from '@/components/NavBar';
-import { Mail, Send, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'react-hot-toast';
-import { resendVerification } from '@/lib/api';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
+import { Mail, Send, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "react-hot-toast";
+import { resendVerification } from "@/lib/api";
 
 const ResendVerificationPage: React.FC = () => {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [userType, setUserType] = useState<'candidat' | 'entreprise'>('candidat');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
-      toast.error('Veuillez entrer votre adresse email');
+      toast.error("Veuillez entrer votre adresse email");
       return;
     }
 
-    if (!email.includes('@')) {
-      toast.error('Veuillez entrer une adresse email valide');
+    if (!email.includes("@")) {
+      toast.error("Veuillez entrer une adresse email valide");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      await resendVerification(email.trim(), userType);
+      await resendVerification(email.trim());
       setEmailSent(true);
-      toast.success('Email de vérification envoyé !');
+      toast.success("Email de vérification envoyé !");
     } catch (error) {
-      console.error('Resend verification error:', error);
-      toast.error(error instanceof Error ? error.message : 'Erreur lors de l\'envoi de l\'email');
+      console.error("Resend verification error:", error);
+      toast.error(error instanceof Error ? error.message : "Erreur lors de l'envoi de l'email");
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (emailSent) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-        <NavBar />
-        
-        <div className="container mx-auto px-4 pt-24 pb-16">
-          <div className="max-w-md mx-auto">
-            <Card className="shadow-xl border-gray-200">
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-4">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                    <Mail className="h-8 w-8 text-green-600" />
-                  </div>
-                </div>
-                
-                <CardTitle className="text-2xl font-bold text-green-600">
-                  Email envoyé !
-                </CardTitle>
-                
-                <CardDescription className="text-gray-600 mt-2">
-                  Un nouveau lien de vérification a été envoyé à votre adresse email.
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="text-center space-y-4">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-green-800 text-sm">
-                    <strong>Email envoyé à :</strong><br />
-                    {email}
-                  </p>
-                </div>
-
-                <div className="text-sm text-gray-600 space-y-2">
-                  <p>Vérifiez votre boîte de réception et cliquez sur le lien de vérification.</p>
-                  <p>N'oubliez pas de vérifier vos spams si vous ne recevez pas l'email.</p>
-                </div>
-
-                <div className="space-y-3">
-                  <Button 
-                    onClick={() => {
-                      setEmailSent(false);
-                      setEmail('');
-                    }}
-                    variant="outline"
-                    className="w-full border-gray-300 hover:bg-gray-50"
-                  >
-                    Renvoyer à une autre adresse
-                  </Button>
-                  
-                  <Button 
-                    onClick={() => router.push('/')}
-                    variant="ghost"
-                    className="w-full hover:bg-gray-100"
-                  >
-                    Retour à l'accueil
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-white">
       <NavBar />
-      
-      <div className="container mx-auto px-4 pt-24 pb-16">
-        <div className="max-w-md mx-auto">
-          <Card className="shadow-xl border-gray-200">
-            <CardHeader className="text-center relative">
-              <Button
-                onClick={() => router.back()}
-                variant="ghost"
-                className="absolute top-4 left-4 p-2 hover:bg-gray-100"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              
-              <div className="mx-auto mb-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                  <Mail className="h-8 w-8 text-primary" />
-                </div>
+
+      <main className="pt-24">
+        <section className="border-b border-gray-100 bg-gradient-to-b from-green-50/70 to-white">
+          <div className="container mx-auto max-w-5xl px-4 py-10 sm:py-14">
+            <div className="max-w-2xl">
+              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                {emailSent ? <CheckCircle2 className="h-7 w-7" /> : <Mail className="h-7 w-7" />}
               </div>
-              
-              <CardTitle className="text-2xl font-bold text-secondary">
-                Renvoyer l'email de vérification
-              </CardTitle>
-              
-              <CardDescription className="text-gray-600 mt-2">
-                Entrez votre adresse email pour recevoir un nouveau lien de vérification.
-              </CardDescription>
-            </CardHeader>
 
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="userType" className="block text-sm font-medium text-secondary mb-2">
-                    Type de compte
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setUserType('candidat')}
-                      className={`p-3 rounded-lg border-2 transition-colors ${
-                        userType === 'candidat'
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <div className="font-semibold">Candidat</div>
-                        <div className="text-xs text-gray-600">Chercheur d'emploi</div>
-                      </div>
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={() => setUserType('entreprise')}
-                      className={`p-3 rounded-lg border-2 transition-colors ${
-                        userType === 'entreprise'
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <div className="font-semibold">Entreprise</div>
-                        <div className="text-xs text-gray-600">Recruteur</div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
+              <h1 className="mb-3 text-3xl font-bold text-secondary sm:text-4xl">
+                {emailSent ? "Email envoyé" : "Renvoyer l'email de vérification"}
+              </h1>
+              <p className="max-w-xl text-base leading-7 text-gray-600">
+                {emailSent
+                  ? "Un nouveau lien de vérification a été envoyé à votre adresse email candidat."
+                  : "Cette page est réservée aux comptes candidats. Entrez votre adresse email pour recevoir un nouveau lien de vérification."}
+              </p>
+            </div>
+          </div>
+        </section>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-secondary mb-2">
-                    Adresse email
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="votre@email.com"
-                    className="w-full border-gray-300 focus:ring-primary focus:border-primary"
-                    required
-                  />
-                </div>
-
-                <Button 
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary-1 text-white"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Envoi en cours...
-                    </div>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      Renvoyer l'email
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Vous vous souvenez de votre mot de passe ?{' '}
-                  <button
-                    onClick={() => router.push('/auth/login')}
-                    className="text-primary hover:text-primary-1 font-medium hover:underline"
-                  >
-                    Se connecter
-                  </button>
+        <section className="container mx-auto max-w-5xl px-4 py-10 sm:py-14">
+          {emailSent ? (
+            <div className="max-w-2xl">
+              <div className="mb-6 border-l-4 border-green-500 bg-green-50 px-5 py-4">
+                <p className="text-sm font-medium text-green-900">
+                  Email envoyé à : <span className="font-bold">{email}</span>
                 </p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+
+              <div className="mb-8 space-y-2 text-sm leading-6 text-gray-600">
+                <p>Vérifiez votre boîte de réception et cliquez sur le lien de vérification.</p>
+                <p>N'oubliez pas de vérifier vos spams si vous ne recevez pas l'email.</p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  onClick={() => {
+                    setEmailSent(false);
+                    setEmail("");
+                  }}
+                  variant="outline"
+                  className="border-gray-300 hover:bg-gray-50"
+                >
+                  Renvoyer à une autre adresse
+                </Button>
+
+                <Button
+                  onClick={() => router.push("/")}
+                  variant="ghost"
+                  className="hover:bg-gray-100"
+                >
+                  Retour à l'accueil
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+              <div>
+                <label className="mb-3 block text-sm font-medium text-secondary">
+                  Type de compte
+                </label>
+                <div className="grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    className="rounded-lg border-2 border-primary bg-primary/10 p-4 text-left text-primary transition-colors"
+                    aria-pressed="true"
+                  >
+                    <span className="block font-semibold">Candidat</span>
+                    <span className="mt-1 block text-xs text-gray-600">Chercheur d'emploi</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled
+                    className="cursor-not-allowed rounded-lg border-2 border-gray-200 bg-gray-50 p-4 text-left text-gray-400 opacity-70"
+                    aria-disabled="true"
+                  >
+                    <span className="block font-semibold">Entreprise</span>
+                    <span className="mt-1 block text-xs text-gray-500">Désactivé pour le moment</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-secondary">
+                  Adresse email candidat
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  className="h-12 max-w-xl border-gray-300 focus:border-primary focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-primary text-white hover:bg-primary-1"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
+                    Envoi en cours...
+                  </span>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Renvoyer l'email
+                  </>
+                )}
+              </Button>
+
+              <p className="text-sm text-gray-600">
+                Vous vous souvenez de votre mot de passe ?{" "}
+                <button
+                  type="button"
+                  onClick={() => router.push("/auth/login-candidate")}
+                  className="font-medium text-primary hover:text-primary-1 hover:underline"
+                >
+                  Se connecter
+                </button>
+              </p>
+            </form>
+          )}
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 };

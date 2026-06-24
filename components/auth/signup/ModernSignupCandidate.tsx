@@ -31,6 +31,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+  const [registrationEmail, setRegistrationEmail] = useState("");
 
   const updateFormData = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -186,7 +187,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
 
     setIsLoading(true);
     setFieldErrors({});
-    
+
     try {
       const result = await apiRequest(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/candidate/register",
@@ -198,31 +199,11 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
 
       if (result.success) {
         console.log("Registration successful - result:", result);
-        
-        // The backend response is wrapped in result.data
-        const responseData = result.data;
-        
-        if (responseData && responseData.data) {
-          const userData = responseData.data;
-          
-          sessionStorage.setItem("userId", userData.user_id);
-          sessionStorage.setItem("userEmail", formData.email); // Store email for verification modal
-          
-          // Store the authentication token
-          if (userData.token) {
-            // Clean the token (remove any quotes)
-            const cleanToken = userData.token.replace(/['"]/g, '');
-            sessionStorage.setItem("authToken", cleanToken);
-            console.log("Token stored in sessionStorage");
-          } else {
-            console.warn("No token received from registration");
-          }
-        } else {
-          console.error("Unexpected response structure:", responseData);
-        }
-        
-        toast.success("Compte créé ! Veuillez vérifier votre email pour activer votre compte.");
-        onNextStep();
+        sessionStorage.removeItem("userId");
+        sessionStorage.removeItem("authToken");
+        sessionStorage.setItem("userEmail", formData.email);
+        setRegistrationEmail(formData.email);
+        toast.success("Compte cree ! Veuillez verifier votre email pour activer votre compte.");
       } else {
         if (result.errorType === 'validation' && result.errors) {
           const mappedErrors: Record<string, string> = {};
@@ -241,7 +222,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
             mappedErrors[targetField] = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages;
           });
           setFieldErrors(mappedErrors);
-          
+
           const firstErrorField = Object.keys(result.errors)[0];
           const firstErrorMessage = result.errors[firstErrorField][0];
           toast.error(firstErrorMessage);
@@ -293,6 +274,39 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
 
   return (
     <div className="h-full flex flex-col">
+      {registrationEmail ? (
+        <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Mail className="h-8 w-8" />
+          </div>
+          <h1 className="mb-2 text-xl font-bold text-secondary">
+            Vérifiez votre adresse email
+          </h1>
+          <p className="mb-4 max-w-sm text-sm leading-6 text-third">
+            Nous avons envoyé un lien de vérification à{" "}
+            <span className="font-semibold text-secondary">{registrationEmail}</span>.
+            Vous pourrez compléter votre profil après activation du compte.
+          </p>
+          <div className="mb-6 border-l-4 border-primary bg-green-50/70 px-4 py-3 text-left text-sm text-gray-700">
+            Si cette boîte email n'existe pas, vous ne recevrez pas le lien et le compte restera inactif.
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/auth/resend-verification"
+              className="inline-flex justify-center rounded-lg border border-primary px-4 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white"
+            >
+              Renvoyer l'email
+            </Link>
+            <Link
+              href="/auth/login-candidate"
+              className="inline-flex justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-1"
+            >
+              Se connecter
+            </Link>
+          </div>
+        </div>
+      ) : (
+      <>
       {/* Header */}
       <div className="text-center mb-4 flex-shrink-0">
         <h1 className="text-xl font-bold text-secondary mb-1">
@@ -703,6 +717,8 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

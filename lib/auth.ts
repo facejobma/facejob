@@ -10,6 +10,23 @@ export interface AuthUser {
   [key: string]: any;
 }
 
+export function clearInvalidAuthSession() {
+  Cookies.remove("authToken");
+  Cookies.remove("userRole");
+  Cookies.remove("authToken", { path: "/" });
+  Cookies.remove("userRole", { path: "/" });
+
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user_type");
+    localStorage.removeItem("auth_provider");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("userRole");
+    sessionStorage.removeItem("authToken");
+  }
+}
+
 // Get user data from token by calling the backend
 export async function getUserFromToken(): Promise<AuthUser | null> {
   const token = Cookies.get("authToken");
@@ -32,12 +49,7 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
     if (!response.ok) {
       // Token is invalid, clear it silently without calling logout
       // This prevents redirect loops - let the calling code handle the redirect
-      Cookies.remove("authToken");
-      Cookies.remove("userRole");
-      if (typeof window !== "undefined") {
-        sessionStorage.removeItem("user");
-        sessionStorage.removeItem("userRole");
-      }
+      clearInvalidAuthSession();
       return null;
     }
 
@@ -91,12 +103,7 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
   } catch (error) {
     console.error('Error fetching user data:', error);
     // Don't call logout() here - just clear the token to prevent redirect loops
-    Cookies.remove("authToken");
-    Cookies.remove("userRole");
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("user");
-      sessionStorage.removeItem("userRole");
-    }
+    clearInvalidAuthSession();
     return null;
   }
 }
@@ -316,6 +323,8 @@ export async function secureLogin(
       };
     }
     
+    const authenticatedUser = data.data?.user || data.user || data.data;
+
     // Store user data in session storage
     if (data.data?.user) {
       sessionStorage.setItem("user", JSON.stringify(data.data.user));
@@ -345,6 +354,12 @@ export async function secureLogin(
     // Store role for quick access in both cookies and sessionStorage
     Cookies.set("userRole", userRole, { expires: 7 });
     sessionStorage.setItem("userRole", userRole); // IMPORTANT: For sidebar navigation
+    sessionStorage.setItem("authToken", authToken);
+
+    if (userRole === "candidat" && authenticatedUser?.id) {
+      sessionStorage.setItem("userId", String(authenticatedUser.id));
+      sessionStorage.setItem("userEmail", authenticatedUser.email || email);
+    }
     
     console.log('🔐 Login successful - Checking for custom redirect:', { returnUrl });
     
@@ -352,6 +367,9 @@ export async function secureLogin(
     if (returnUrl) {
       console.log('🔄 Redirecting to custom URL:', returnUrl);
       window.location.href = returnUrl;
+    } else if (userRole === "candidat" && authenticatedUser?.is_completed === false) {
+      console.log('Redirecting incomplete candidate to profile completion');
+      window.location.href = '/auth/signup-candidate';
     } else {
       // Default redirect to appropriate dashboard based on actual role from database
       console.log('🔄 Redirecting to default dashboard:', userRole);

@@ -177,7 +177,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       // Update existing experience
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/experience/update/${selectedExperience.id}`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/experience/update/${selectedExperience.id}`,
           {
             method: "PUT",
             headers: {
@@ -219,7 +219,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       // Add new experience
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/experience/add`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/experience/add`,
           {
             method: "POST",
             headers: {
@@ -291,7 +291,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
   const handleDeleteExperience = async (experience: Experience) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/experience/delete/${experience.id}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/experience/delete/${experience.id}`,
         {
           method: "DELETE",
           headers: {

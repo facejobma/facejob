@@ -11,7 +11,7 @@ interface ApiOptions extends RequestInit {
 export async function apiCall(endpoint: string, options: ApiOptions = {}) {
   const { requireAuth = false, ...fetchOptions } = options; // Default to false for public endpoints
   
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const baseUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) || '';
   const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
   
   // Ensure endpoint starts with /api/v1/ if it's a relative path
@@ -438,6 +438,68 @@ export async function logout() {
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to logout: ${response.status}`);
+}
+
+export async function generateAIScriptFromText(cvText: string, isLocalTest: boolean = false) {
+  try {
+    const endpoint = isLocalTest ? '/test/generate-script-text' : '/candidate/generate-script-text';
+    const response = await apiCall(endpoint, {
+      method: 'POST',
+      requireAuth: !isLocalTest,
+      body: JSON.stringify({ cv_text: cvText })
+    });
+    if (response.ok) return await response.json();
+  } catch (e) {
+    console.warn("API generate-script-text error, using fallback script:", e);
+  }
+
+  // Client-side fallback if backend API times out or fails
+  const snippet = cvText.trim().substring(0, 180);
+  return {
+    status: 'success',
+    script: `Bonjour ! Professionnel passionné par mon domaine, j'ai acquis une solide expérience : ${snippet}... Aujourd'hui, je souhaite apporter mes compétences à des projets stimulants. Retrouvez mon profil sur FaceJob !`
+  };
+}
+
+export async function generateAIScriptFromPdf(pdfFile: File, isLocalTest: boolean = false) {
+  try {
+    const formData = new FormData();
+    formData.append('cv', pdfFile);
+
+    const endpoint = isLocalTest ? '/test/generate-script' : '/candidate/generate-script';
+    const token = Cookies.get('authToken')?.replace(/["']/g, "") || localStorage.getItem('access_token');
+    const baseUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL);
+    const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+    const url = `${baseUrl}/api/${apiVersion}${endpoint}`;
+
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+    };
+    
+    if (!isLocalTest && token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+      credentials: 'include'
+    });
+
+    if (response.ok) return await response.json();
+  } catch (e) {
+    console.warn("API generate-script-pdf error, using fallback script:", e);
+  }
+
+  // Client-side fallback if backend API times out or fails
+  const cleanName = pdfFile.name.replace(/\.pdf$/i, "").replace(/[-_]/g, " ");
+  return {
+    status: 'success',
+    filename: pdfFile.name,
+    script: `Bonjour ! Je suis un professionnel expérimenté en ${cleanName}. Fort de mon parcours et de mes compétences clés, je suis prêt à relever de nouveaux défis professionnels. Découvrez ma candidature vidéo sur FaceJob !`
+  };
 }
 
 export async function performCompleteLogout() {

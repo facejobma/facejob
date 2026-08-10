@@ -50,14 +50,14 @@ const OfferDetailPage: React.FC = () => {
     const fetchOfferDetail = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/${offerId}`, {
+        const res = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/${offerId}`, {
           headers: { 'ngrok-skip-browser-warning': 'true' }
         });
         if (res.ok) {
           const data = await res.json();
           if (data && !data.error) {
             setOffer(data);
-            const allRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres`, {
+            const allRes = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres`, {
               headers: { 'ngrok-skip-browser-warning': 'true' }
             });
             if (allRes.ok) {
@@ -105,7 +105,7 @@ const OfferDetailPage: React.FC = () => {
         return;
       }
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+      const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',

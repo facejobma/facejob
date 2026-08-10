@@ -209,7 +209,7 @@ const PublicOffersPage: React.FC = () => {
       try {
         console.log('Loading filter metadata from API...');
         const metadataRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/filter-metadata`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/filter-metadata`,
           { headers: { 'ngrok-skip-browser-warning': 'true' } }
         );
 
@@ -269,7 +269,7 @@ const PublicOffersPage: React.FC = () => {
       try {
         // Fallback to old method for sectors
         const sectorsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/sectors`,
           { headers: { 'ngrok-skip-browser-warning': 'true' } }
         );
         if (sectorsRes.ok) {
@@ -279,7 +279,7 @@ const PublicOffersPage: React.FC = () => {
 
         // Load cities from all offers
         const allOffersRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?per_page=1000`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres?per_page=1000`,
           { headers: { 'ngrok-skip-browser-warning': 'true' } }
         );
         if (allOffersRes.ok) {
@@ -477,7 +477,7 @@ const PublicOffersPage: React.FC = () => {
         if (selectedJob) params.append('job_id', selectedJob);
         if (selectedCity) params.append('location', selectedCity);
 
-        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?${params.toString()}`;
+        const url = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres?${params.toString()}`;
         
         console.log('Filters being sent:', {
           search: debouncedSearchQuery,
@@ -583,7 +583,7 @@ const PublicOffersPage: React.FC = () => {
         return;
       }
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+      const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',

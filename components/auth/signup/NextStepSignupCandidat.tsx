@@ -65,7 +65,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
   useEffect(() => {
     const fetchSectors = async () => {
       try {
-        const result = await apiRequest(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors");
+        const result = await apiRequest((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/sectors");
         if (result.success && result.data) {
           const sectorsData = Array.isArray(result.data) ? result.data : result.data.data;
           setSectors(Array.isArray(sectorsData) ? sectorsData : []);
@@ -137,7 +137,7 @@ const NextStepSignupCandidat: FC<NextStepSignupCandidatProps> = ({ onSkip }) => 
       if (imageFile) formData.append("image", imageFile);
 
       const res = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-candidate",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/complete-candidate",
         {
           method: "POST",
           headers: {

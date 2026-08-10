@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
@@ -139,10 +139,10 @@ const CandidatsPage: React.FC = () => {
     const fixedUrl = fixImageUrl(imageUrl);
 
     if (fixedUrl.startsWith('http')) {
-      return `/api/image-proxy?url=${encodeURIComponent(fixedUrl)}`;
+      return `/local-api/image-proxy?url=${encodeURIComponent(fixedUrl)}`;
     }
 
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${fixedUrl}`;
+    return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${fixedUrl}`;
   };
 
   const getVideoUrl = (videoUrl: string | null): string => {
@@ -151,7 +151,7 @@ const CandidatsPage: React.FC = () => {
     const fixedUrl = fixImageUrl(videoUrl);
 
     if (fixedUrl.startsWith('http')) {
-      return `/api/video-proxy?url=${encodeURIComponent(fixedUrl)}`;
+      return `/local-api/video-proxy?url=${encodeURIComponent(fixedUrl)}`;
     }
 
     const cleanPath = fixedUrl.replace(/^\/+/, '').replace(/^video\//, '');
@@ -159,9 +159,9 @@ const CandidatsPage: React.FC = () => {
       .split('/')
       .map((part) => encodeURIComponent(part))
       .join('/');
-    const backendVideoUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${encodedPath}`;
+    const backendVideoUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/video/${encodedPath}`;
 
-    return `/api/video-proxy?url=${encodeURIComponent(backendVideoUrl)}`;
+    return `/local-api/video-proxy?url=${encodeURIComponent(backendVideoUrl)}`;
   };
   
   // Filters
@@ -236,7 +236,7 @@ const CandidatsPage: React.FC = () => {
   const fetchSectors = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/sectors",
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       const result = await response.json();
@@ -249,7 +249,7 @@ const CandidatsPage: React.FC = () => {
   const fetchDiplomes = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/diplomes",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/diplomes",
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       const result = await response.json();
@@ -264,7 +264,7 @@ const CandidatsPage: React.FC = () => {
     
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/last`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/payments/${user.id}/last`,
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       if (response.ok) {
@@ -302,7 +302,7 @@ const CandidatsPage: React.FC = () => {
       if (filters.maxExperience) params.append('max_experience', filters.maxExperience.value);
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postule/all?${params.toString()}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/postule/all?${params.toString()}`,
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       
@@ -407,7 +407,7 @@ const CandidatsPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/consumations`,
         {
           method: "POST",
           headers: {

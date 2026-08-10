@@ -28,7 +28,7 @@ export function normalizeImageUrl(
     return `https:${imageUrl}`;
   }
 
-  const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/$/, "");
+  const backendUrl = ((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) || "").replace(/\/$/, "");
 
   if (imageUrl.startsWith("/storage/")) {
     return `${backendUrl}${imageUrl}`;
@@ -51,7 +51,7 @@ export function getBrowserImageSrc(value?: string | null): string {
   if (!imageUrl) return "";
 
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-    return `/api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
+    return `/local-api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
   }
 
   return imageUrl;

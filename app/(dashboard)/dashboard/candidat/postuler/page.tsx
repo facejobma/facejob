@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { UploadDropzone, useUploadThing } from "@/lib/uploadthing";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import { FaTrash, FaVideo, FaUpload, FaCheckCircle, FaCloudUploadAlt, FaEdit, FaInfoCircle } from "react-icons/fa";
@@ -13,6 +12,7 @@ import Select from "react-select";
 import { useUser } from "@/hooks/useUser";
 import VideoRecorder, { type VideoRecorderHandle } from "@/components/VideoRecorder";
 import { useVideoCompressor } from "@/hooks/useVideoCompressor";
+import AIProfileScriptGenerator from "@/components/AIProfileScriptGenerator";
 
 interface Job { id: number; name: string; }
 interface Sector { id: number; name: string; jobs: Job[]; }
@@ -26,6 +26,8 @@ export default function PublishVideo() {
   const [selectedJob, setSelectedJob] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [videoTab, setVideoTab] = useState<"upload" | "record">("upload");
+  const [teleprompterScript, setTeleprompterScript] = useState("");
+  const [showTeleprompter, setShowTeleprompter] = useState(false);
   const [isUploadingRecording, setIsUploadingRecording] = useState(false);
   const [showDurationModal, setShowDurationModal] = useState(false);
   const [videoDuration, setVideoDuration] = useState(0);
@@ -56,20 +58,77 @@ export default function PublishVideo() {
   }, [isCompressing, progress]);
 
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const { startUpload } = useUploadThing("videoUpload", {
-    onUploadError: (error) => {
+  
+  // Custom S3 upload function replacing startUpload from UploadThing
+  const startUpload = async (files: File[], metadata: any = {}) => {
+    try {
+      setUploadProgress(10);
+      setShowUploadProgress(true);
+      
+      const file = files[0];
+      if (!file) throw new Error("No file provided");
+
+      // 1. Get presigned URL
+      const presignRes = await fetch('/local-api/s3/presign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type,
+        }),
+      });
+
+      if (!presignRes.ok) {
+        const errorText = await presignRes.text().catch(() => "No response body");
+        let errorData: any = {};
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          // not json
+        }
+        const message = errorData?.error || `Failed to get upload URL (Status: ${presignRes.status}). Body: ${errorText.substring(0, 100)}`;
+        throw new Error(message);
+      }
+      
+      const { presignedUrl, fileUrl, key } = await presignRes.json();
+      setUploadProgress(20);
+
+      // 2. Upload file directly to S3 with real-time XHR progress tracking
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", presignedUrl, true);
+        xhr.setRequestHeader("Content-Type", file.type);
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            // Map S3 upload progress to 20% -> 95% range
+            const percent = Math.round(20 + (event.loaded / event.total) * 75);
+            setUploadProgress(percent);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            setUploadProgress(100);
+            resolve();
+          } else {
+            reject(new Error(`Failed to upload to S3 (Status ${xhr.status})`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error during S3 upload"));
+        xhr.ontimeout = () => reject(new Error("Upload timed out"));
+
+        xhr.send(file);
+      });
+
+      return [{ ufsUrl: fileUrl, key: key }];
+    } catch (error: any) {
       toast.error(`Erreur upload: ${error.message}`, { id: "rec-upload" });
       setShowUploadProgress(false);
-    },
-    onUploadProgress: (progress) => {
-      setUploadProgress(progress);
-      setShowUploadProgress(true);
-    },
-    onUploadBegin: () => {
-      setUploadProgress(0);
-      setShowUploadProgress(true);
-    },
-  });
+      throw error;
+    }
+  };
 
   useEffect(() => {
     const fetchSectorsData = async () => {
@@ -434,16 +493,51 @@ export default function PublishVideo() {
               </div>
 
             ) : (
-              /* Record tab */
-              <div className="mt-4">
-                {isUploadingRecording ? (
-                  <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                    <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4" />
-                    <p className="text-gray-600 font-medium">Upload en cours...</p>
-                  </div>
-                ) : (
-                  <VideoRecorder ref={recorderRef} key="video-recorder" onVideoReady={handleRecordedVideo} />
-                )}
+              /* Record tab with AI assistant sidebar */
+              <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div className="lg:col-span-3">
+                  {isUploadingRecording ? (
+                    <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-[450px]">
+                      <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4" />
+                      <p className="text-gray-600 font-medium">Upload en cours...</p>
+                    </div>
+                  ) : (
+                    <VideoRecorder 
+                      ref={recorderRef} 
+                      key="video-recorder" 
+                      onVideoReady={handleRecordedVideo}
+                      teleprompterScript={teleprompterScript}
+                      showTeleprompter={showTeleprompter}
+                      onCloseTeleprompter={() => setShowTeleprompter(false)}
+                    />
+                  )}
+                </div>
+                <div className="lg:col-span-2 space-y-4">
+                  <AIProfileScriptGenerator 
+                    onScriptGenerated={(script) => {
+                      setTeleprompterScript(script);
+                      if (script) {
+                        setShowTeleprompter(true);
+                      } else {
+                        setShowTeleprompter(false);
+                      }
+                    }}
+                    initialScript={teleprompterScript}
+                  />
+                  {teleprompterScript && !isUploadingRecording && (
+                    <button
+                      type="button"
+                      onClick={() => setShowTeleprompter(!showTeleprompter)}
+                      className={`w-full py-2.5 px-4 font-bold text-sm rounded-lg transition-all border ${
+                        showTeleprompter 
+                          ? "bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100" 
+                          : "bg-green-600 hover:bg-green-700 text-white shadow-sm border-transparent"
+                      }`}
+                    >
+                      {showTeleprompter ? "Masquer le Téléprompteur" : "Afficher le Téléprompteur"}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -676,40 +770,45 @@ export default function PublishVideo() {
         document.body
       )}
 
-      {/* Modal de progression d'upload */}
-      {showUploadProgress && typeof window !== 'undefined' && createPortal(
-        <div className="fixed bottom-6 right-6 z-50">
-          <div className="bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden w-80">
-            {/* Header */}
-            <div className="bg-green-600 p-4">
-              <div className="flex items-center">
-                <FaUpload className="text-white text-lg mr-3" />
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold text-sm">Upload en cours</h3>
-                  <p className="text-white/90 text-xs">Veuillez patienter...</p>
-                </div>
-                <div className="text-white font-bold text-lg">
-                  {uploadProgress}%
-                </div>
+      {/* Full-Screen Blocking Modal Overlay Spinner during Upload */}
+      {(showUploadProgress || isUploadingRecording || uploadStatus === "uploading") && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[99999] bg-slate-900/85 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center pointer-events-auto cursor-wait select-none animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 max-w-md w-full space-y-6 transform scale-100 animate-in zoom-in-95 duration-200">
+            {/* Pulsing Spinner Icon Container */}
+            <div className="relative flex items-center justify-center w-24 h-24 mx-auto">
+              <div className="absolute inset-0 rounded-full border-4 border-green-200 border-t-green-600 animate-spin"></div>
+              <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center shadow-inner">
+                <FaCloudUploadAlt className="text-3xl text-green-600 animate-pulse" />
               </div>
             </div>
 
+            {/* Title & Percentage */}
+            <div className="space-y-1">
+              <h3 className="text-xl font-extrabold text-gray-900">Téléversement de votre CV en cours...</h3>
+              <p className="text-sm font-semibold text-green-600">
+                {uploadProgress > 0 ? `${uploadProgress}% effectué` : "Initialisation du transfert S3..."}
+              </p>
+            </div>
+
             {/* Progress Bar */}
-            <div className="p-4">
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div 
-                  className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-              
-              {/* Status Text */}
-              <div className="mt-3 text-sm text-gray-600">
-                {uploadProgress < 30 && "Préparation..."}
-                {uploadProgress >= 30 && uploadProgress < 70 && "Envoi en cours..."}
-                {uploadProgress >= 70 && uploadProgress < 100 && "Finalisation..."}
-                {uploadProgress === 100 && "Terminé !"}
-              </div>
+            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden border border-gray-200">
+              <div 
+                className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-300 shadow-sm"
+                style={{ width: `${Math.max(uploadProgress, 8)}%` }}
+              />
+            </div>
+
+            {/* Status Steps */}
+            <div className="text-xs font-medium text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+              {uploadProgress < 30 && "⚡ Preparation & Compression du fichier..."}
+              {uploadProgress >= 30 && uploadProgress < 70 && "☁️ Envoi sécurisé vers AWS S3..."}
+              {uploadProgress >= 70 && uploadProgress < 100 && "🔒 Vérification et finalisation..."}
+              {uploadProgress === 100 && "✅ Téléversement réussi ! Redirection en cours..."}
+            </div>
+
+            {/* Locking Warning */}
+            <div className="flex items-center justify-center gap-2 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-xl">
+              <span>🔒 Navigation bloquée. Veuillez ne pas fermer ni rafraîchir cette page.</span>
             </div>
           </div>
         </div>,

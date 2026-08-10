@@ -102,7 +102,7 @@ const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
         : "/api/v1/auth/entreprise/google";
         
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + endpoint,
       );
 
       if (response.ok) {
@@ -126,7 +126,7 @@ const SecureLoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
         : "/api/v1/auth/entreprise/linkedin";
         
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + endpoint,
       );
 
       if (response.ok) {

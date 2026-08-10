@@ -50,7 +50,7 @@ export default function NavBar() {
       
       // Verify token validity with backend
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`, {
+        const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/entreprise-bientot"
+                      href="/auth/login-entreprise"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm"
                     >
                       Entreprise
@@ -282,7 +282,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/entreprise-bientot"
+                      href="/auth/login-entreprise"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                     >
                       Entreprise
@@ -319,7 +319,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/entreprise-bientot"
+                      href="/auth/login-entreprise"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                     >
                       Entreprise
@@ -420,7 +420,7 @@ export default function NavBar() {
                     Espace Candidat
                   </Link>
                   <Link
-                    href="/entreprise-bientot"
+                    href="/auth/login-entreprise"
                     className="w-full text-center px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-1 transition-all"
                     onClick={() => setOpen(false)}
                   >
@@ -465,7 +465,7 @@ export default function NavBar() {
                     Espace Candidat
                   </Link>
                   <Link
-                    href="/entreprise-bientot"
+                    href="/auth/login-entreprise"
                     className="w-full text-center px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-1 transition-all"
                     onClick={() => setOpen(false)}
                   >

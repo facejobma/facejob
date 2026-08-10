@@ -148,7 +148,7 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
         ? "/api/v1/auth/candidate/google" 
         : "/api/v1/auth/entreprise/google";
         
-      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
+      const response = await fetch((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + endpoint, {
         headers: {
           'ngrok-skip-browser-warning': 'true'
         }
@@ -189,7 +189,7 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
         ? "/api/v1/auth/candidate/linkedin" 
         : "/api/v1/auth/entreprise/linkedin";
         
-      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
+      const response = await fetch((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + endpoint, {
         headers: {
           'ngrok-skip-browser-warning': 'true'
         }

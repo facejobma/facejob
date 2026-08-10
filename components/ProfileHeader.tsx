@@ -154,7 +154,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     if (formData.newImage && formData.newImage.includes('/storage/profiles/')) {
       try {
         await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/candidate/profile-image',
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + '/api/v1/candidate/profile-image',
           {
             method: 'DELETE',
             headers: {
@@ -192,7 +192,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     if (currentImage && currentImage.includes('/storage/profiles/')) {
       try {
         await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/candidate/profile-image',
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + '/api/v1/candidate/profile-image',
           {
             method: 'DELETE',
             headers: {
@@ -235,7 +235,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         data.append("image", selectedImageFile);
 
         response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/update-profile`,
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/candidate/update-profile`,
           {
             method: "POST",
             headers: {
@@ -247,7 +247,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         );
       } else {
         response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/candidate/update-profile`,
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/candidate/update-profile`,
           {
             method: "PUT",
             headers: {
@@ -317,7 +317,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/sectors",
         );
         const result = await response.json();
         // Extract data from wrapped response

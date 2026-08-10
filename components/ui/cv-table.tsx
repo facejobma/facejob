@@ -39,7 +39,7 @@ export function CVTable<TData, TValue>({
   useEffect(() => {
     setLoading(true);
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`, {
+    fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/sectors`, {
       headers: {
         'ngrok-skip-browser-warning': 'true'
       }

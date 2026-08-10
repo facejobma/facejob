@@ -90,7 +90,7 @@ export default function Sidebar() {
       try {
         const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/last`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/payments/${user.id}/last`,
           {
             method: "GET",
             headers: {

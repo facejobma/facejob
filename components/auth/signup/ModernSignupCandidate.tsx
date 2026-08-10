@@ -190,7 +190,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
 
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/candidate/register",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/auth/candidate/register",
         {
           method: "POST",
           body: JSON.stringify(formData),
@@ -241,7 +241,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
   const handleGoogleSignup = async () => {
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/candidate/google"
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/auth/candidate/google"
       );
       
       if (result.success) {
@@ -258,7 +258,7 @@ const ModernSignupCandidate: FC<ModernSignupCandidateProps> = ({ onNextStep }) =
   const handleLinkedinSignup = async () => {
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/candidate/linkedin"
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/auth/candidate/linkedin"
       );
       
       if (result.success) {

@@ -86,7 +86,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = () => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/sectors",
           {
             headers: { "Content-Type": "application/json" },
           },
@@ -164,7 +164,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = () => {
       formData.append("image", logoFile);
 
       const res = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/complete-enterprise",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/complete-enterprise",
         {
           method: "POST",
           headers: {

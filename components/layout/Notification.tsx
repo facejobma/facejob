@@ -90,7 +90,7 @@ const Notification: React.FC = () => {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/notifications`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -138,7 +138,7 @@ const Notification: React.FC = () => {
           cluster: "eu",
           forceTLS: true,
           encrypted: true,
-          authEndpoint: `${process.env.NEXT_PUBLIC_BACKEND_URL}/broadcasting/auth`,
+          authEndpoint: `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/broadcasting/auth`,
           auth: {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -220,7 +220,7 @@ const Notification: React.FC = () => {
       if (!authToken) return;
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications/mark-as-read`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/notifications/mark-as-read`,
         {
           method: "POST",
           headers: {
@@ -253,7 +253,7 @@ const Notification: React.FC = () => {
       if (!authToken) return;
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/notifications/${notificationId}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/notifications/${notificationId}`,
         {
           method: "DELETE",
           headers: {

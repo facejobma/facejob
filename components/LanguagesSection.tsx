@@ -42,7 +42,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({ languages, onUpdate
     setIsSaving(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/languages`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/languages`,
         {
           method: "PUT",
           headers: {

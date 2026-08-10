@@ -204,7 +204,7 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({
 
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL +
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) +
           "/api/v1/auth/entreprise/register",
         {
           method: "POST",
@@ -270,7 +270,7 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({
   const handleGoogleSignup = async () => {
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/entreprise/google",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/auth/entreprise/google",
       );
 
       if (result.success) {
@@ -287,7 +287,7 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({
   const handleLinkedinSignup = async () => {
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL +
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) +
           "/api/v1/auth/entreprise/linkedin",
       );
 

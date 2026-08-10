@@ -105,7 +105,7 @@ const CandidatsPage: React.FC = () => {
   const fetchSectors = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/sectors",
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       const result = await response.json();
@@ -118,7 +118,7 @@ const CandidatsPage: React.FC = () => {
   const fetchDiplomes = async () => {
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/diplomes",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/diplomes",
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       const result = await response.json();
@@ -133,7 +133,7 @@ const CandidatsPage: React.FC = () => {
     
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/last`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/payments/${user.id}/last`,
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       if (response.ok) {
@@ -163,7 +163,7 @@ const CandidatsPage: React.FC = () => {
       if (maxExperience) params.append('max_experience', maxExperience);
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postule/all?${params.toString()}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/postule/all?${params.toString()}`,
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       
@@ -299,7 +299,7 @@ const CandidatsPage: React.FC = () => {
     
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/consumations`,
         {
           method: "POST",
           headers: {
@@ -552,7 +552,7 @@ const CandidatsPage: React.FC = () => {
                   {/* Video Background */}
                   <video
                     ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
-                    src={candidate.link.startsWith('http') ? candidate.link : `${process.env.NEXT_PUBLIC_BACKEND_URL}/video/${candidate.link}`}
+                    src={candidate.link.startsWith('http') ? candidate.link : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/video/${candidate.link}`}
                     className="w-full h-full object-cover"
                     loop
                     muted={isMuted}
@@ -572,7 +572,7 @@ const CandidatsPage: React.FC = () => {
                       <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-lg flex-shrink-0">
                         {candidate.image ? (
                           <img 
-                            src={candidate.image.startsWith('http') ? candidate.image : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${candidate.image}`}
+                            src={candidate.image.startsWith('http') ? candidate.image : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${candidate.image}`}
                             alt={candidate.full_name || 'Candidat'}
                             className="w-full h-full object-cover"
                           />

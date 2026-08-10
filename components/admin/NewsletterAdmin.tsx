@@ -54,7 +54,7 @@ const NewsletterAdmin: FC = () => {
   const fetchStats = async () => {
     try {
       const result = await apiRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/admin/newsletter/stats`
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/admin/newsletter/stats`
       );
 
       if (result.success) {
@@ -80,7 +80,7 @@ const NewsletterAdmin: FC = () => {
       if (filters.source) params.append('source', filters.source);
 
       const result = await apiRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/admin/newsletter/subscriptions?${params}`
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/admin/newsletter/subscriptions?${params}`
       );
 
       if (result.success) {
@@ -120,7 +120,7 @@ const NewsletterAdmin: FC = () => {
       params.append('export', 'csv');
 
       const result = await apiRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/admin/newsletter/subscriptions?${params}`
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/admin/newsletter/subscriptions?${params}`
       );
 
       if (result.success) {

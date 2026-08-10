@@ -80,7 +80,7 @@ export const OfferCandidatActions: React.FC<{
   const checkIfConsumed = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/check-consumption-status`,
         {
           method: "POST",
           headers: {
@@ -104,7 +104,7 @@ export const OfferCandidatActions: React.FC<{
   const fetchLastPayment = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${companyId}/last`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/payments/${companyId}/last`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -135,7 +135,7 @@ export const OfferCandidatActions: React.FC<{
       if (isConsumed) {
         // If consumed, fetch from consumed-cvs endpoint which has complete data
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumed-cvs`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/consumed-cvs`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -180,7 +180,7 @@ export const OfferCandidatActions: React.FC<{
     // Call API directly without pre-checking payment
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/consumations`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/consumations`,
         {
           method: "POST",
           headers: {
@@ -228,7 +228,7 @@ export const OfferCandidatActions: React.FC<{
     if (postulerToConsume) {
       try {
         const checkResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-consumption-status`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/check-consumption-status`,
           {
             method: "POST",
             headers: {
@@ -253,7 +253,7 @@ export const OfferCandidatActions: React.FC<{
 
         // Proceed to consume the CV video if not already consumed
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/consume_cv_video",
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/consume_cv_video",
           {
             method: "POST",
             headers: {

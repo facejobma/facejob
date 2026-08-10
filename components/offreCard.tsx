@@ -136,7 +136,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
           
           // Fetch approved videos only - backend determines user from token
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video?status=Accepted`,
+            `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-video?status=Accepted`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -229,7 +229,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       setIsButtonDisabled(true);
   
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postuler-offre`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/postuler-offre`,
         {
           method: "POST",
           headers: {
@@ -341,7 +341,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
               {entreprise_logo ? (
                 <>
                   <img 
-                    src={entreprise_logo.startsWith('http') ? entreprise_logo : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${entreprise_logo}`}
+                    src={entreprise_logo.startsWith('http') ? entreprise_logo : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${entreprise_logo}`}
                     alt={entreprise_name}
                     className="w-full h-full object-contain p-1.5"
                     onError={(e) => {

@@ -31,7 +31,7 @@ export default function UsersPage() {
         try {
           setLoading(true);
           const response = await fetch(
-            process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/offres/by-owner/${user.id}`,
+            (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/offres/by-owner/${user.id}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,

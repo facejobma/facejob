@@ -40,7 +40,7 @@ const PublishOffer: React.FC = () => {
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/sectors`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch sectors");
@@ -64,7 +64,7 @@ const PublishOffer: React.FC = () => {
       const fetchOffer = async () => {
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres_by_id/${offreId}`,
+            `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres_by_id/${offreId}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -109,7 +109,7 @@ const PublishOffer: React.FC = () => {
         const user = JSON.parse(userData);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${offreId}`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/update_offre/${offreId}`,
           {
             method: "PUT",
             headers: {

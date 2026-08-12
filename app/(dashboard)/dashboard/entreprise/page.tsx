@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/entreprise-stats`, {
+        const response = await fetch((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/entreprise-stats`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
@@ -85,7 +85,7 @@ const Dashboard: React.FC = () => {
 
         // Fetch user info to get entreprise ID, then fetch active offers
         const userRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -99,7 +99,7 @@ const Dashboard: React.FC = () => {
           const entrepriseId = userData?.id ?? userData?.user?.id;
           if (entrepriseId) {
             const offresRes = await fetch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/${entrepriseId}`,
+              `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/${entrepriseId}`,
               {
                 headers: {
                   Authorization: `Bearer ${authToken}`,

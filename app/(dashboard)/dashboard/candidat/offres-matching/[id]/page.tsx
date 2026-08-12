@@ -67,7 +67,7 @@ export default function OfferMatchingDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const offerId = params.id as string;
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
+  const backendUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) ?? '';
 
   useEffect(() => {
     const fetchOfferDetail = async () => {

@@ -29,7 +29,7 @@ export default function Subscription({}: Props) {
     setIsLoading(true);
     try {
       const result = await apiRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/newsletter/subscribe`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/newsletter/subscribe`,
         {
           method: "POST",
           body: JSON.stringify({ 

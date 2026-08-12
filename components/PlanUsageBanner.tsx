@@ -33,7 +33,7 @@ export default function PlanUsageBanner() {
         const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/usage`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/payments/${user.id}/usage`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

@@ -82,7 +82,7 @@ export default function CompetencesPage() {
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`,
+      `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`,
       {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -114,7 +114,7 @@ export default function CompetencesPage() {
       const user = await fetchUserIfNeeded();
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -171,7 +171,7 @@ export default function CompetencesPage() {
       setBusySkill(normalizedTitle);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${candidatId}/skills`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/${candidatId}/skills`,
         {
           method: "POST",
           headers: {
@@ -208,7 +208,7 @@ export default function CompetencesPage() {
       setBusySkill(String(skill.id));
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/skill/delete/${skill.id}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/skill/delete/${skill.id}`,
         {
           method: "DELETE",
           headers: {

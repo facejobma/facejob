@@ -135,7 +135,7 @@ export default function CandidateDetailPage() {
   const [checkingUnlock, setCheckingUnlock] = useState(true);
 
   const candidateId = params.id as string;
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
+  const backendUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) ?? '';
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   const getRemainingCredits = (): number => {

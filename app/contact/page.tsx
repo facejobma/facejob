@@ -90,7 +90,7 @@ const ContactPage: React.FC = () => {
     setIsLoading(true);
     try {
       const result = await apiRequest(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/contact",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/contact",
         {
           method: "POST",
           body: JSON.stringify(formData),

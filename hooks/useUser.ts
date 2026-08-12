@@ -54,7 +54,7 @@ export function useUser(): UseUserReturn {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -75,7 +75,7 @@ export default function MatchingCandidates({ offreId, offreTitre }: MatchingCand
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
+  const backendUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) ?? '';
 
   useEffect(() => {
     const token = Cookies.get("authToken");

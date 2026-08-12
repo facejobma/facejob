@@ -59,7 +59,7 @@ export default function MatchingOffers() {
   useEffect(() => {
     const token = Cookies.get("authToken");
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/matching-offers`, {
+    fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate/matching-offers`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

@@ -64,7 +64,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
     try {
       const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL +
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) +
           `/api/${apiVersion}/auth/${props.loginFor}/login`,
         {
           method: "POST",
@@ -123,7 +123,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
         : '/api/v1/auth/entreprise/google';
         
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + endpoint,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ const LoginForm = (props: { loginFor: "candidate" | "entreprise" }) => {
       });
         
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + endpoint,
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + endpoint,
         {
           headers: {
             'Content-Type': 'application/json',

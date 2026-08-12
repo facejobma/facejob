@@ -10,6 +10,7 @@ interface VideoPlayerProps {
   width?: number | string;
   height?: number | string;
   poster?: string;
+  subtitlesVtt?: string;
 }
 
 export default function VideoPlayer({ 
@@ -19,11 +20,25 @@ export default function VideoPlayer({
   className = '',
   width,
   height,
-  poster 
+  poster,
+  subtitlesVtt
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [duration, setDuration] = useState<number | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [subtitlesUrl, setSubtitlesUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (subtitlesVtt) {
+      const blob = new Blob([subtitlesVtt], { type: 'text/vtt' });
+      const url = URL.createObjectURL(blob);
+      setSubtitlesUrl(url);
+      return () => {
+        URL.revokeObjectURL(url);
+        setSubtitlesUrl(null);
+      };
+    }
+  }, [subtitlesVtt]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -72,6 +87,15 @@ export default function VideoPlayer({
     >
       <source src={`${src}#t=0.1`} type="video/webm" />
       <source src={`${src}#t=0.1`} type="video/mp4" />
+      {subtitlesUrl && (
+        <track 
+          src={subtitlesUrl} 
+          kind="subtitles" 
+          srcLang="fr" 
+          label="Sous-titres IA" 
+          default 
+        />
+      )}
       Votre navigateur ne supporte pas la lecture de vidéos.
     </video>
   );

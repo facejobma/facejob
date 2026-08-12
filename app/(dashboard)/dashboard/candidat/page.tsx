@@ -34,6 +34,13 @@ const inFlightCounts: Map<string, number> = new Map();
 
 type ViewMode = 'cards' | 'table';
 
+interface SoftSkills {
+  communication?: number;
+  teamwork?: number;
+  adaptability?: number;
+  results_orientation?: number;
+}
+
 interface CV {
   id: number;
   link: string;
@@ -41,8 +48,71 @@ interface CV {
   secteur_name: string;
   is_verified: string;
   job_name: string;
-  comment?: string; // Add comment field for decline reason
-  created_at?: string; // Add created_at field
+  comment?: string;
+  created_at?: string;
+  // AI Analysis fields
+  transcript?: string;
+  duration?: number;
+  wpm?: number;
+  pace_feedback?: string;
+  summary?: string;
+  soft_skills?: SoftSkills;
+  coaching_feedback?: string;
+  subtitles_vtt?: string;
+  word_timestamps?: Array<{ word: string; raw_word: string; start: number; end: number }>;
+}
+
+interface AICardPanelProps {
+  cv: CV;
+}
+
+function AICardPanel({ cv }: AICardPanelProps) {
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 overflow-hidden mt-2">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-green-600">
+        <BiStats className="text-white text-xs" />
+        <span className="text-[10px] font-bold text-white tracking-wide uppercase">Coach IA & Débit Oral</span>
+      </div>
+
+      <div className="p-3 space-y-3">
+        {/* WPM / Pace */}
+        {cv.wpm && (
+          <div className="flex items-center gap-2">
+            <span className="text-base font-bold text-green-700">{cv.wpm}</span>
+            <div>
+              <p className="text-[10px] font-semibold text-green-800">mots/min</p>
+              <p className="text-[10px] text-gray-600 leading-tight">{cv.pace_feedback}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Coaching Feedback */}
+        {cv.coaching_feedback && (
+          <div className="p-1.5 bg-amber-50 border border-amber-200 rounded">
+            <p className="text-[10px] font-semibold text-amber-800 mb-0.5">💡 Conseils de Coaching</p>
+            <p className="text-[10px] text-amber-700 leading-relaxed">{cv.coaching_feedback}</p>
+          </div>
+        )}
+
+        {/* Transcript */}
+        {cv.transcript && (
+          <div className="bg-white/50 p-2 rounded border border-green-100/50">
+            <p className="text-[10px] font-semibold text-gray-700 mb-0.5">📝 Transcription de votre pitch</p>
+            <p className="text-[10px] text-gray-600 leading-relaxed italic max-h-[100px] overflow-y-auto">
+              "{cv.transcript}"
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function UsersPage() {
@@ -83,6 +153,100 @@ export default function UsersPage() {
     setCurrentPlayingVideo(videoId);
   }, [currentPlayingVideo]);
 
+  const [analyzingVideoId, setAnalyzingVideoId] = useState<number | null>(null);
+  const [showAiPanelMap, setShowAiPanelMap] = useState<Record<number, boolean>>({});
+
+  const toggleAiPanel = useCallback((videoId: number) => {
+    setShowAiPanelMap((prev) => ({ ...prev, [videoId]: !prev[videoId] }));
+  }, []);
+
+  const handleRequestAICoach = useCallback(async (videoId: number) => {
+    setAnalyzingVideoId(videoId);
+    toast.loading("Demande au Coach IA en cours...", { id: `ai-${videoId}` });
+
+    try {
+      const backendUrl = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_BACKEND_URL || '');
+      
+      // Try /api/ai-diagnostics/retrigger first, then /api/v1/ai-diagnostics/retrigger fallback
+      let response = await fetch(`${backendUrl}/api/ai-diagnostics/retrigger`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postuler_id: videoId }),
+      });
+
+      if (!response.ok) {
+        response = await fetch(`${backendUrl}/api/v1/ai-diagnostics/retrigger`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postuler_id: videoId }),
+        });
+      }
+
+      if (response.ok) {
+        toast.success("Analyse en cours ! Le Coach IA génère vos conseils...", { id: `ai-${videoId}` });
+        setShowAiPanelMap((prev) => ({ ...prev, [videoId]: true }));
+
+        const fetchLatest = async (): Promise<boolean> => {
+          try {
+            const res = await fetch(`${backendUrl}/api/v1/candidate-video?t=${Date.now()}`, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+              },
+              cache: 'no-store',
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              if (Array.isArray(data)) {
+                setUsers(data);
+                const updatedCv = data.find((item: CV) => Number(item.id) === Number(videoId));
+                const isReady = !!(updatedCv?.summary || updatedCv?.coaching_feedback || updatedCv?.wpm);
+                if (isReady) {
+                  setShowAiPanelMap((prev) => ({ ...prev, [videoId]: true }));
+                  setAnalyzingVideoId(null);
+                  toast.success("Vos conseils du Coach IA sont prêts !", { id: `ai-${videoId}` });
+                  return true;
+                }
+              }
+            }
+          } catch (err) {
+            console.error("Refresh error:", err);
+          }
+          return false;
+        };
+
+        const readyImmediately = await fetchLatest();
+        if (readyImmediately) return;
+
+        let attempts = 0;
+        const maxAttempts = 15;
+        const pollInterval = setInterval(async () => {
+          attempts++;
+          const done = await fetchLatest();
+          if (done || attempts >= maxAttempts) {
+            clearInterval(pollInterval);
+            setAnalyzingVideoId(null);
+          }
+        }, 2000);
+      } else {
+        toast.error("Échec de la demande d'analyse IA", { id: `ai-${videoId}` });
+        setAnalyzingVideoId(null);
+      }
+    } catch (error) {
+      console.error("AI Coach request error:", error);
+      toast.error("Erreur réseau lors de la demande d'analyse IA", { id: `ai-${videoId}` });
+      setAnalyzingVideoId(null);
+    }
+  }, [authToken]);
+
   const handleDelete = useCallback(async (id: number) => {
     const authToken = Cookies.get("authToken");
 
@@ -91,8 +255,22 @@ export default function UsersPage() {
     }
 
     try {
+      // Delete file from AWS S3 if it's an S3 URL
+      const targetCv = users.find((user) => user.id === id);
+      if (targetCv?.link && targetCv.link.includes("amazonaws.com")) {
+        try {
+          await fetch("/local-api/s3/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ videoUrl: targetCv.link }),
+          });
+        } catch (s3Err) {
+          console.error("S3 delete request failed:", s3Err);
+        }
+      }
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video/delete/${id}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-video/delete/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -115,7 +293,7 @@ export default function UsersPage() {
       console.error("Error deleting element:", error);
       toast.error("Erreur réseau lors de la suppression");
     }
-  }, []);
+  }, [users]);
 
   const columns: ColumnDef<CV>[] = useMemo(
     () => [
@@ -284,7 +462,7 @@ export default function UsersPage() {
     if (selectedJob) params.append("job", selectedJob);
 
     const queryString = params.toString();
-    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video`;
+    const baseUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-video`;
 
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
   }, [selectedStatus, selectedSector, selectedJob]);
@@ -606,7 +784,7 @@ export default function UsersPage() {
 
       {/* Cards View */}
       {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {users.length > 0 ? (
             users.map((cv) => {
               const statusConfig: Record<string, { bg: string; text: string; icon: React.ReactNode; label: string }> = {
@@ -632,9 +810,17 @@ export default function UsersPage() {
 
               const status = cv.is_verified === 'Accepted' || cv.is_verified === 'Declined' ? cv.is_verified : 'Pending';
               const config = statusConfig[status];
+              const hasAI = !!(cv.summary || cv.soft_skills || cv.wpm || cv.coaching_feedback);
+
+              const softSkillLabel: Record<string, string> = {
+                communication: 'Communication',
+                teamwork: 'Travail en équipe',
+                adaptability: 'Adaptabilité',
+                results_orientation: 'Orientation résultats',
+              };
 
               return (
-                <div key={cv.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                <div key={cv.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
                   {/* Video Preview */}
                   <div className="relative bg-gray-900" style={{ height: '200px' }}>
                     {cv.link && (
@@ -644,6 +830,7 @@ export default function UsersPage() {
                         onPlay={handleVideoPlay}
                         className="w-full h-full object-contain"
                         poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 400 225'%3E%3Crect width='400' height='225' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial, sans-serif' font-size='14'%3ECV Vidéo%3C/text%3E%3C/svg%3E"
+                        subtitlesVtt={cv.subtitles_vtt}
                       />
                     )}
                     <div className="absolute top-2 right-2">
@@ -652,23 +839,28 @@ export default function UsersPage() {
                         {config.label}
                       </span>
                     </div>
+                    {hasAI && (
+                      <div className="absolute top-2 left-2">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-600 text-white border border-purple-700">
+                          <BiStats className="text-xs" /> IA
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Card Content */}
-                  <div className="p-3">
-                    <div className="flex items-start justify-between mb-2">
+                  <div className="p-3 flex flex-col gap-2 flex-1">
+                    <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-sm text-gray-900 mb-0.5 truncate">{cv.job_name}</h3>
-                        <p className="text-xs text-gray-600 truncate">{cv.secteur_name}</p>
+                        <p className="text-xs text-gray-500 truncate">{cv.secteur_name}</p>
                       </div>
-                      <span className="text-xs text-gray-500 font-mono bg-gray-50 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">
-                        #{cv.id}
-                      </span>
+                      <span className="text-xs text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">#{cv.id}</span>
                     </div>
 
                     {/* Declined Reason */}
                     {status === 'Declined' && cv.comment && (
-                      <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded">
+                      <div className="p-2 bg-red-50 border border-red-200 rounded">
                         <div className="flex items-start gap-1.5">
                           <FaInfoCircle className="text-red-600 text-xs mt-0.5 flex-shrink-0" />
                           <p className="text-xs text-red-700 leading-tight line-clamp-2">{cv.comment}</p>
@@ -676,10 +868,60 @@ export default function UsersPage() {
                       </div>
                     )}
 
+                    {/* ── IN-PROGRESS AI COACHING BANNER ── */}
+                    {analyzingVideoId === cv.id && (
+                      <div className="p-3 bg-gradient-to-r from-emerald-50 to-green-50 border border-green-200 rounded-xl shadow-inner space-y-2 animate-pulse my-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+                          <span className="text-xs font-bold text-green-800">
+                            🤖 Coach IA en cours d'analyse...
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-green-700 leading-relaxed">
+                          Le Coach IA transcrit votre vidéo avec Whisper et prépare vos conseils personnalisés. Vos conseils s'afficheront dans quelques secondes...
+                        </p>
+                        <div className="w-full bg-green-200 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-green-600 h-1.5 rounded-full animate-pulse w-3/4"></div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── AI ANALYSIS PANEL (Rendered only when requested/expanded) ── */}
+                    {hasAI && showAiPanelMap[cv.id] && <AICardPanel cv={cv} />}
+
+                    {/* ── ALWAYS ON-DEMAND COACH IA BUTTON ── */}
+                    {hasAI ? (
+                      <button
+                        onClick={() => toggleAiPanel(cv.id)}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg shadow-sm transition-all my-1 cursor-pointer"
+                      >
+                        <BiStats className="text-sm text-green-600" />
+                        <span>{showAiPanelMap[cv.id] ? "🙈 Masquer les conseils du Coach IA" : "🤖 Afficher les conseils du Coach IA"}</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleRequestAICoach(cv.id)}
+                        disabled={analyzingVideoId === cv.id}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg shadow-sm hover:shadow transition-all disabled:opacity-50 my-1 cursor-pointer"
+                      >
+                        {analyzingVideoId === cv.id ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Analyse IA en cours...</span>
+                          </>
+                        ) : (
+                          <>
+                            <BiStats className="text-sm" />
+                            <span>🤖 Demander des conseils au Coach IA</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+
                     {/* Actions */}
                     <button
                       onClick={() => handleDelete(cv.id)}
-                      className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-medium text-red-600 hover:text-white hover:bg-red-600 border border-red-200 hover:border-red-600 rounded transition-all"
+                      className="mt-auto w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-medium text-red-600 hover:text-white hover:bg-red-600 border border-red-200 hover:border-red-600 rounded transition-all"
                     >
                       <FaTrashAlt className="text-xs" />
                       Supprimer

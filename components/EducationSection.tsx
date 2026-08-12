@@ -55,7 +55,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
     const fetchDegrees = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/diplomes`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/diplomes`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -166,7 +166,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       // Update existing education entry
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/formation/${selectedEducation.id}`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/${id}/formation/${selectedEducation.id}`,
           {
             method: "PUT",
             headers: {
@@ -197,7 +197,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
       // Add new education entry
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${id}/education`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/${id}/education`,
           {
             method: "POST",
             headers: {
@@ -247,7 +247,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/formation/delete/${education.id}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/formation/delete/${education.id}`,
         {
           method: "DELETE",
           headers: {

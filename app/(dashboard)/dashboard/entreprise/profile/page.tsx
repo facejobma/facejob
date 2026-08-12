@@ -22,7 +22,7 @@ const CompanyProfile: React.FC = () => {
     const companyId = user.id;
 
     if (companyId) {
-      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/enterprise/${companyId}`;
+      const apiUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/enterprise/${companyId}`;
 
       try {
         const response = await fetch(apiUrl, {

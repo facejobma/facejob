@@ -3,6 +3,14 @@ const nextConfig = {
     reactStrictMode: true,
     // Only use standalone output in production
     ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
+
+
+    env: {
+        FACEJOB_AWS_REGION: process.env.FACEJOB_AWS_REGION,
+        FACEJOB_AWS_ACCESS_KEY_ID: process.env.FACEJOB_AWS_ACCESS_KEY_ID,
+        FACEJOB_AWS_SECRET_ACCESS_KEY: process.env.FACEJOB_AWS_SECRET_ACCESS_KEY,
+        FACEJOB_AWS_S3_BUCKET_NAME: process.env.FACEJOB_AWS_S3_BUCKET_NAME,
+    },
     
     // Performance optimizations
     compiler: {
@@ -97,6 +105,16 @@ const nextConfig = {
         }
         
         return headers;
+    },
+
+    // Proxy API requests to the backend ALB to avoid Mixed Content (HTTP vs HTTPS)
+    async rewrites() {
+        return [
+            {
+                source: '/api/:path*',
+                destination: 'http://FaceJobALB-1148147173.eu-west-3.elb.amazonaws.com/api/:path*',
+            },
+        ];
     },
 }
 

@@ -1,10 +1,14 @@
-﻿"use client";
+"use client";
 
 import { useRef, useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import { FaVideo, FaStop, FaRedo, FaCheckCircle } from "react-icons/fa";
+import TeleprompterOverlay from "./TeleprompterOverlay";
 
 interface VideoRecorderProps {
   onVideoReady: (file: File) => void;
+  teleprompterScript?: string;
+  showTeleprompter?: boolean;
+  onCloseTeleprompter?: () => void;
 }
 
 export interface VideoRecorderHandle {
@@ -41,7 +45,7 @@ const DEFAULT_RESOLUTION = getOptimalResolution();
 const MAX_DURATION = 90;
 
 const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
-  ({ onVideoReady }, ref) => {
+  ({ onVideoReady, teleprompterScript, showTeleprompter, onCloseTeleprompter }, ref) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -439,6 +443,13 @@ const VideoRecorder = forwardRef<VideoRecorderHandle, VideoRecorderProps>(
                 </p>
               </div>
             </div>
+          )}
+          {showTeleprompter && teleprompterScript && (
+            <TeleprompterOverlay
+              script={teleprompterScript}
+              isRecording={recording}
+              onClose={onCloseTeleprompter}
+            />
           )}
         </div>
 

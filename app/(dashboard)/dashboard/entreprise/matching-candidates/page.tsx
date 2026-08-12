@@ -24,7 +24,7 @@ export default function MatchingCandidatesPage() {
     if (!userData) return;
     const user = JSON.parse(userData);
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/by-owner/${user.id}`, {
+    fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/by-owner/${user.id}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",

@@ -122,7 +122,7 @@ export default function ProfileCompletionModal({
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -186,7 +186,7 @@ export default function ProfileCompletionModal({
       const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/diplomes`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/diplomes`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -266,7 +266,7 @@ export default function ProfileCompletionModal({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/updateId/${candidatId}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate/updateId/${candidatId}`,
         {
           method: "PUT",
           headers: {
@@ -305,7 +305,7 @@ export default function ProfileCompletionModal({
       const skillsFormatted = skillsData.map((skill) => ({ title: skill }));
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${candidatId}/skills`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/${candidatId}/skills`,
         {
           method: "PUT",
           headers: {
@@ -341,7 +341,7 @@ export default function ProfileCompletionModal({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${candidatId}/projects`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/${candidatId}/projects`,
         {
           method: "POST",
           headers: {
@@ -397,7 +397,7 @@ export default function ProfileCompletionModal({
       });
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/${candidatId}/education`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/${candidatId}/education`,
         {
           method: "POST",
           headers: {
@@ -446,7 +446,7 @@ export default function ProfileCompletionModal({
     try {
       // Submit each valid experience
       const promises = validExperiences.map((experience) =>
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/experiences`, {
+        fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/experiences`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -489,7 +489,7 @@ export default function ProfileCompletionModal({
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidat/languages`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidat/languages`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },

@@ -34,7 +34,7 @@ const ModernForgetPassword: FC<ModernForgetPasswordProps> = ({ actor }) => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/forgot-password",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/auth/forgot-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

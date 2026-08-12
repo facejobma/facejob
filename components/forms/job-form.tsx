@@ -154,13 +154,13 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
       }
 
       console.log('Submitting offre update:', {
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${initialData.id}`,
+        url: `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/update_offre/${initialData.id}`,
         method: 'PUT',
         data: formData
       });
       
       const result = await apiRequest(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/update_offre/${initialData.id}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/update_offre/${initialData.id}`,
         {
           method: 'PUT',
           body: JSON.stringify({
@@ -227,7 +227,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
     const fetchSectors = async () => {
       try {
         const result = await apiRequest(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/sectors`
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/sectors`
         );
         
         if (result.success) {

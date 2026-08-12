@@ -92,7 +92,7 @@ const CandidatOfferDetailPage: React.FC = () => {
     const checkProfile = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`,
           { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
         );
         if (res.ok) {
@@ -114,7 +114,7 @@ const CandidatOfferDetailPage: React.FC = () => {
       
       // Fetch offer details
       const offerResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/${offerId}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/${offerId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -129,7 +129,7 @@ const CandidatOfferDetailPage: React.FC = () => {
         
         // Check application status
         const statusResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/check-application-status?offre_id=${offerId}`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/check-application-status?offre_id=${offerId}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -161,7 +161,7 @@ const CandidatOfferDetailPage: React.FC = () => {
     const userId = userStr ? JSON.parse(userStr)?.id : null;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/postuler-offre`, {
+      const res = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/postuler-offre`, {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
         body: JSON.stringify({ video_url: selectedVideo, candidat_id: userId, offre_id: offerId, postuler_id: selectedVideoId }),
@@ -201,7 +201,7 @@ const CandidatOfferDetailPage: React.FC = () => {
     try {
       const token = Cookies.get("authToken")?.replace(/["']/g, "");
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-video?status=Accepted`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-video?status=Accepted`,
         { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
       );
       if (res.ok) {
@@ -316,7 +316,7 @@ const CandidatOfferDetailPage: React.FC = () => {
                 {offer.company_logo ? (
                   <>
                     <img 
-                      src={offer.company_logo.startsWith('http') ? offer.company_logo : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${offer.company_logo}`}
+                      src={offer.company_logo.startsWith('http') ? offer.company_logo : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${offer.company_logo}`}
                       alt={offer.company_name}
                       className="w-full h-full object-contain p-2"
                       onError={(e) => {
@@ -589,7 +589,7 @@ const CandidatOfferDetailPage: React.FC = () => {
             {offer.company_logo ? (
               <>
                 <img 
-                  src={offer.company_logo.startsWith('http') ? offer.company_logo : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${offer.company_logo}`}
+                  src={offer.company_logo.startsWith('http') ? offer.company_logo : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${offer.company_logo}`}
                   alt={offer.company_name}
                   className="w-full h-full object-contain p-1.5"
                   onError={(e) => {

@@ -108,7 +108,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         data.append("logo", selectedLogoFile);
 
         response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/enterprise/updateId/${id}`,
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/enterprise/updateId/${id}`,
           {
             method: "POST",
             headers: {
@@ -120,7 +120,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
         );
       } else {
         response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/enterprise/updateId/${id}`,
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/enterprise/updateId/${id}`,
           {
             method: "PUT",
             headers: {
@@ -175,7 +175,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
     const fetchSectors = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/sectors",
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/sectors",
         );
         const result = await response.json();
         // Extract data from wrapped response
@@ -226,7 +226,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
     if (currentImage && currentImage.includes('/storage/profiles/')) {
       try {
         await fetch(
-          process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/enterprise/profile-image',
+          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + '/api/v1/enterprise/profile-image',
           {
             method: 'DELETE',
             headers: {
@@ -249,7 +249,7 @@ const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
 
     // Delete old image from server if stored locally
     if (formData.newImage && formData.newImage.includes('/storage/profiles/')) {
-      fetch(process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/enterprise/profile-image', {
+      fetch((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + '/api/v1/enterprise/profile-image', {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${authToken}`, 'ngrok-skip-browser-warning': 'true' },
       }).catch(() => {});

@@ -23,7 +23,7 @@ export default function EntrepriseBientotPage() {
     setIsLoading(true);
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/entreprise-waitlist/subscribe`, {
+      const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/entreprise-waitlist/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

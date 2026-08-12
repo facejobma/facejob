@@ -36,7 +36,7 @@ const ModernResetPassword: FC = () => {
     setIsLoadingToken(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/reset-token-info?token=${encodeURIComponent(tokenParam)}&actor=${encodeURIComponent(actorParam)}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/auth/reset-token-info?token=${encodeURIComponent(tokenParam)}&actor=${encodeURIComponent(actorParam)}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -105,7 +105,7 @@ const ModernResetPassword: FC = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/auth/reset-password",
+        (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/auth/reset-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

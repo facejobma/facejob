@@ -57,7 +57,7 @@ function CompanyLogo({ logo, name }: { logo: string | null; name: string }) {
   if (logo && !imgError) {
     return (
       <img
-        src={logo.startsWith("http") ? logo : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${logo}`}
+        src={logo.startsWith("http") ? logo : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${logo}`}
         alt={name}
         className="w-full h-full object-contain p-1"
         onError={() => setImgError(true)}
@@ -78,7 +78,7 @@ export default function OffresMatchingPage() {
 
   useEffect(() => {
     const token = Cookies.get("authToken");
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/matching-offers`, {
+    fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate/matching-offers`, {
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     })
       .then((res) => { if (!res.ok) throw new Error(); return res.json(); })

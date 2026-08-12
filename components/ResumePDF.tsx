@@ -252,11 +252,11 @@ const ResumePDFDocument: React.FC<{
     
     // If it's a relative path, prepend the backend URL
     if (imageUrl.startsWith('/')) {
-      return `${process.env.NEXT_PUBLIC_BACKEND_URL}${imageUrl}`;
+      return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}${imageUrl}`;
     }
     
     // Otherwise, assume it's a path without leading slash
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${imageUrl}`;
+    return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/${imageUrl}`;
   };
 
   const imageUrl = getImageUrl(userProfile.image);
@@ -412,7 +412,7 @@ export const downloadConsumedResumePDF = async (candidateData: any) => {
         
         if (isExternalImage) {
           // Use proxy for external images to avoid CORS with longer timeout
-          const proxyUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/proxy-image?url=${encodeURIComponent(candidateData.image)}`;
+          const proxyUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/proxy-image?url=${encodeURIComponent(candidateData.image)}`;
           
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
@@ -438,8 +438,8 @@ export const downloadConsumedResumePDF = async (candidateData: any) => {
         } else {
           // For local images, fetch directly
           const imageUrl = candidateData.image.startsWith('/') 
-            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${candidateData.image}`
-            : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${candidateData.image}`;
+            ? `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}${candidateData.image}`
+            : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/${candidateData.image}`;
           
           const imageResponse = await fetch(imageUrl);
           if (imageResponse.ok) {
@@ -513,7 +513,7 @@ export const downloadResumePDF = async (candidateId: number) => {
   try {
     // Fetch profile data (backend will automatically anonymize if needed)
     const profileResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${candidateId}`,
+      `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile/${candidateId}`,
       {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -537,7 +537,7 @@ export const downloadResumePDF = async (candidateId: number) => {
         
         if (isExternalImage) {
           // Use proxy for external images to avoid CORS with longer timeout
-          const proxyUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/proxy-image?url=${encodeURIComponent(userProfile.image)}`;
+          const proxyUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/proxy-image?url=${encodeURIComponent(userProfile.image)}`;
           
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
@@ -623,7 +623,7 @@ const ResumePDF: React.FC<{ candidateId: number }> = ({ candidateId }) => {
 
       try {
         const profileResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${candidateId}`,
+          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile/${candidateId}`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

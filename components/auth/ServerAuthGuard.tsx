@@ -24,7 +24,7 @@ async function getUserFromToken(token: string): Promise<AuthUser | null> {
   }
 
   try {
-    const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`;
+    const apiUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`;
     console.log('[ServerAuthGuard] Fetching user from:', apiUrl);
     
     const response = await fetch(apiUrl, {

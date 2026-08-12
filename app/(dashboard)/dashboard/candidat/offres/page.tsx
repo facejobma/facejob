@@ -44,7 +44,7 @@ const OffresPage: React.FC = () => {
       if (!authToken) return;
       
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`, {
+        const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
@@ -209,7 +209,7 @@ const OffresPage: React.FC = () => {
         if (selectedJob) params.append('job_id', selectedJob);
         if (selectedCity) params.append('location', selectedCity);
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?${params}`, {
+        const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres?${params}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
@@ -228,7 +228,7 @@ const OffresPage: React.FC = () => {
           // Fetch filter metadata only on first load
           try {
             // Fetch all filter metadata in one call
-            const metadataRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres/filter-metadata`, {
+            const metadataRes = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/filter-metadata`, {
               headers: { 
                 Authorization: `Bearer ${authToken}`,
                 "Content-Type": "application/json",
@@ -245,7 +245,7 @@ const OffresPage: React.FC = () => {
               // Fallback: load all cities from a separate call
               try {
                 const allOffersRes = await fetch(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?per_page=1000`,
+                  `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres?per_page=1000`,
                   { headers: { 
                     Authorization: `Bearer ${authToken}`,
                     "Content-Type": "application/json",

@@ -77,7 +77,7 @@ const Profile: React.FC = () => {
     if (!authToken) return;
 
     try {
-      const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`;
+      const apiUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`;
       const response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -122,7 +122,7 @@ const Profile: React.FC = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate/delete/${userProfile.id}`,
+        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate/delete/${userProfile.id}`,
         {
           method: "DELETE",
           headers: {
@@ -176,7 +176,7 @@ const Profile: React.FC = () => {
         if (!user) {
           console.log("📡 No user in sessionStorage, fetching from backend...");
           const userResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`,
+            `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -201,7 +201,7 @@ const Profile: React.FC = () => {
         }
 
         // Now fetch the profile data
-        const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile`;
+        const apiUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile`;
 
         const response = await fetch(apiUrl, {
           headers: {

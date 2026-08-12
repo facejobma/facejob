@@ -36,7 +36,7 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
   }
 
   try {
-    const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user`;
+    const apiUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`;
     
     const response = await fetch(apiUrl, {
       headers: {
@@ -268,7 +268,7 @@ export async function secureLogin(
     const roleEndpoint = expectedRole === "candidate" ? "candidate" : "entreprise";
     const endpoint = `/api/${apiVersion}/auth/${roleEndpoint}/login`;
 
-    const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + endpoint, {
+    const response = await fetch((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -398,9 +398,9 @@ export function performLogout(userRole?: string | null) {
   logout();
   
   // Call backend logout endpoint if we have a token
-  if (authToken && process.env.NEXT_PUBLIC_BACKEND_URL) {
+  if (authToken && (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)) {
     const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + `/api/${apiVersion}/logout`, {
+    fetch((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/${apiVersion}/logout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${authToken}`,

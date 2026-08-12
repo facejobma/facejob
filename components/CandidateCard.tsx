@@ -66,7 +66,7 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({ candidate }) => {
               <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-white">
                 {candidate.image ? (
                   <img 
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${candidate.image}`}
+                    src={`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${candidate.image}`}
                     alt={candidate.full_name}
                     className="w-full h-full object-cover"
                   />

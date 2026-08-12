@@ -37,7 +37,7 @@ const PaginatedOffersList: React.FC<PaginatedOffersListProps> = ({ className }) 
   // Fetch function for pagination hook
   const fetchOffers = async (page: number, perPage: number) => {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/offres?page=${page}&per_page=${perPage}`
+      `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres?page=${page}&per_page=${perPage}`
     );
     
     if (!response.ok) {

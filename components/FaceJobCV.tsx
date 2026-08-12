@@ -310,8 +310,8 @@ const resolveImageUrl = (image?: string) => {
   if (!raw || raw.includes("via.placeholder.com")) return "";
   if (raw.startsWith("data:")) return raw;
   if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
-  if (raw.startsWith("/")) return `${process.env.NEXT_PUBLIC_BACKEND_URL}${raw}`;
-  return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${raw}`;
+  if (raw.startsWith("/")) return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}${raw}`;
+  return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/${raw}`;
 };
 
 const imageToDataUrl = async (image?: string) => {
@@ -321,8 +321,8 @@ const imageToDataUrl = async (image?: string) => {
 
   try {
     const isExternal = imageUrl.startsWith("http://") || imageUrl.startsWith("https://");
-    const fetchUrl = isExternal && !imageUrl.startsWith(process.env.NEXT_PUBLIC_BACKEND_URL || "")
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/proxy-image?url=${encodeURIComponent(imageUrl)}`
+    const fetchUrl = isExternal && !imageUrl.startsWith((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) || "")
+      ? `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/proxy-image?url=${encodeURIComponent(imageUrl)}`
       : imageUrl;
 
     const response = await fetch(fetchUrl, { cache: "no-cache" });
@@ -517,7 +517,7 @@ export const downloadFaceJobCV = async (candidateId?: number) => {
 
   try {
     const profileResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/candidate-profile/${targetId}`,
+      `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/candidate-profile/${targetId}`,
       {
         headers: {
           Authorization: `Bearer ${authToken}`,

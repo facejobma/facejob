@@ -1,0 +1,74 @@
+name: Build and Deploy Admin to AWS Amplify
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-west-3
+  APP_NAME: facejob-main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          role-session-name: GitHubActionsAdminDeploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies & Build Next.js
+        env:
+          NEXT_PUBLIC_BACKEND_URL: http://facejobalb-1619101788.eu-west-3.elb.amazonaws.com/api
+          NEXT_PUBLIC_API_VERSION: v1
+          NODE_ENV: production
+        run: |
+          npm ci || npm install
+          npm run build
+
+      - name: Ensure Amplify App Exists & Deploy
+        run: |
+          # 1. Vérifie si l'application Amplify existe, sinon la crée
+          APP_ID=$(aws amplify list-apps --query "apps[?name=='$APP_NAME'].appId" --output text)
+          
+          if [ -z "$APP_ID" ]; then
+            echo "Création de l'application Amplify $APP_NAME..."
+            APP_ID=$(aws amplify create-app --name "$APP_NAME" --platform WEB_COMPUTE --query "app.appId" --output text)
+            aws amplify create-branch --app-id "$APP_ID" --branch-name main
+          fi
+          
+          echo "Amplify App ID : $APP_ID"
+
+          # 2. Package des fichiers pour Amplify SSR
+          cd .next/standalone
+          cp -r ../static .next/static 2>/dev/null || true
+          cp -r ../../public ./public 2>/dev/null || true
+          zip -q -r ../../deploy.zip .
+          cd ../..
+
+          # 3. Déploiement du bundle sur AWS Amplify
+          DEPLOY_DATA=$(aws amplify create-deployment --app-id "$APP_ID" --branch-name main)
+          JOB_ID=$(echo $DEPLOY_DATA | jq -r '.jobId')
+          UPLOAD_URL=$(echo $DEPLOY_DATA | jq -r '.zipUploadUrl')
+
+          curl -H "Content-Type: application/zip" -T deploy.zip "$UPLOAD_URL"
+          aws amplify start-deployment --app-id "$APP_ID" --branch-name main --job-id "$JOB_ID"
+
+          echo "✅ Déploiement lancé avec succès sur Amplify !"
+          echo "URL de l'application : https://main.$APP_ID.amplifyapp.com"

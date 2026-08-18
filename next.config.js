@@ -119,7 +119,8 @@ eslint: {
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://FaceJobALB-1148147173.eu-west-3.elb.amazonaws.com/api/:path*',
+                destination: 'http://facejobalb-1619101788.eu-west-3.elb.amazonaws.com/api/:path*',
+
             },
         ];
     },

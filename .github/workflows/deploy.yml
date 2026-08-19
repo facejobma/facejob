@@ -42,28 +42,73 @@ jobs:
           npm install --legacy-peer-deps --include=dev
           npm run build
 
-
-      - name: Ensure Amplify App Exists & Deploy
+      - name: Package for Amplify SSR & Deploy
         run: |
-          # 1. Vérifie si l'application Amplify existe, sinon la crée
+          # 1. Récupérer l'App ID
           APP_ID=$(aws amplify list-apps --query "apps[?name=='$APP_NAME'].appId" --output text)
-          
-          if [ -z "$APP_ID" ]; then
-            echo "Création de l'application Amplify $APP_NAME..."
-            APP_ID=$(aws amplify create-app --name "$APP_NAME" --platform WEB_COMPUTE --query "app.appId" --output text)
-            aws amplify create-branch --app-id "$APP_ID" --branch-name main
-          fi
-          
           echo "Amplify App ID : $APP_ID"
 
-          # 2. Package des fichiers pour Amplify SSR
-          cd .next/standalone
-          cp -r ../static .next/static 2>/dev/null || true
-          cp -r ../../public ./public 2>/dev/null || true
-          zip -q -r ../../deploy.zip .
-          cd ../..
+          # 2. Préparer la structure Amplify SSR
+          rm -rf .amplify-hosting deploy.zip
+          mkdir -p .amplify-hosting/compute/default
+          mkdir -p .amplify-hosting/static/_next
 
-          # 3. Déploiement du bundle sur AWS Amplify
+          # Copier les fichiers serveur standalone
+          cp -r .next/standalone/* .amplify-hosting/compute/default/
+          cp -r .next/standalone/.next .amplify-hosting/compute/default/ 2>/dev/null || true
+
+          # Copier les fichiers statiques et publics
+          cp -r .next/static .amplify-hosting/static/_next/
+          cp -r public/* .amplify-hosting/static/ 2>/dev/null || true
+          cp -r public .amplify-hosting/compute/default/ 2>/dev/null || true
+
+          # 3. Créer le manifest de routage Next.js SSR
+          cat << 'EOF' > .amplify-hosting/deploy-manifest.json
+          {
+            "version": 1,
+            "framework": { "name": "next", "version": "14.0.0" },
+            "routes": [
+              {
+                "path": "/_next/static/*",
+                "target": {
+                  "kind": "Static",
+                  "cacheControl": "public, max-age=31536000, immutable"
+                }
+              },
+              {
+                "path": "/*.*",
+                "target": {
+                  "kind": "Static"
+                },
+                "fallback": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              },
+              {
+                "path": "/*",
+                "target": {
+                  "kind": "Compute",
+                  "src": "default"
+                }
+              }
+            ],
+            "computeResources": [
+              {
+                "name": "default",
+                "entrypoint": "server.js",
+                "runtime": "nodejs20.x"
+              }
+            ]
+          }
+          EOF
+
+          # 4. Créer l'archive zip finale
+          cd .amplify-hosting
+          zip -q -r ../deploy.zip .
+          cd ..
+
+          # 5. Déployer sur AWS Amplify
           DEPLOY_DATA=$(aws amplify create-deployment --app-id "$APP_ID" --branch-name main)
           JOB_ID=$(echo $DEPLOY_DATA | jq -r '.jobId')
           UPLOAD_URL=$(echo $DEPLOY_DATA | jq -r '.zipUploadUrl')
@@ -71,5 +116,4 @@ jobs:
           curl -H "Content-Type: application/zip" -T deploy.zip "$UPLOAD_URL"
           aws amplify start-deployment --app-id "$APP_ID" --branch-name main --job-id "$JOB_ID"
 
-          echo "✅ Déploiement lancé avec succès sur Amplify !"
-          echo "URL de l'application : https://main.$APP_ID.amplifyapp.com"
+          echo "✅ Déploiement SSR envoyé avec succès à Amplify !"

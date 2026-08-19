@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     const region = process.env.FACEJOB_AWS_REGION || "eu-west-3";
     const accessKeyId = process.env.FACEJOB_AWS_ACCESS_KEY_ID;
     const secretAccessKey = process.env.FACEJOB_AWS_SECRET_ACCESS_KEY;
-    const bucketName = process.env.FACEJOB_AWS_S3_BUCKET_NAME || "facejob-videos-bucket";
+    const bucketName = process.env.FACEJOB_AWS_S3_BUCKET_NAME || "facejob-videos-storage-525426878142-eu-west-3";
 
     if (!accessKeyId || !secretAccessKey) {
       return NextResponse.json(

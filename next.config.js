@@ -1,16 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    typescript: {
-    ignoreBuildErrors: true,
-},
-eslint: {
-    ignoreDuringBuilds: true,
-},
-
     reactStrictMode: true,
+    typescript: {
+        ignoreBuildErrors: true,
+    },
     // Only use standalone output in production
     ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
-
 
     env: {
         FACEJOB_AWS_REGION: process.env.FACEJOB_AWS_REGION,
@@ -120,7 +115,6 @@ eslint: {
             {
                 source: '/api/:path*',
                 destination: 'http://facejobalb-1619101788.eu-west-3.elb.amazonaws.com/api/:path*',
-
             },
         ];
     },

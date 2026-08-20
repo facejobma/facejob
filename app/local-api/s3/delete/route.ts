@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const secretAccessKey = process.env.FACEJOB_AWS_SECRET_ACCESS_KEY;
     const bucketName =
       process.env.FACEJOB_AWS_S3_BUCKET_NAME ||
-      "facejob-videos-storage-883105811428-eu-west-3";
+      "facejob-videos-storage-525426878142-eu-west-3";
 
     if (!accessKeyId || !secretAccessKey) {
       console.error("AWS S3 credentials missing for delete route");

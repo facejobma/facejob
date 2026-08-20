@@ -46,7 +46,7 @@ export default function AboutUs({}: Props) {
             playsInline
             poster="/videos/videoImage.png"
           >
-            <source src="https://facejob-videos-storage-883105811428-eu-west-3.s3.eu-west-3.amazonaws.com/Facejob_VF_WEB.mp4" type="video/mp4" />
+            <source src="/videos/Facejob_VF_WEB.mp4" type="video/mp4" />
             Votre navigateur ne supporte pas la lecture de vidéos.
           </video>
         </div>

@@ -7,8 +7,8 @@ import Link from "next/link";
 
 export default function Hero() {
   const heroVideos = [
-    { src: "https://facejob-videos-storage-883105811428-eu-west-3.s3.eu-west-3.amazonaws.com/video1.webm", label: "Candidate 1" },
-    { src: "https://facejob-videos-storage-883105811428-eu-west-3.s3.eu-west-3.amazonaws.com/video2.webm", label: "Candidate 2" },
+    { src: "/videos/video1.webm", label: "Candidate 1" },
+    { src: "/videos/video2.webm", label: "Candidate 2" },
   ];
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [isSwitchingVideo, setIsSwitchingVideo] = useState(false);

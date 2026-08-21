@@ -51,7 +51,7 @@ export default function AIProfileScriptGenerator({ onScriptGenerated, initialScr
       }
     } catch (err) {
       console.error(err);
-      toast.error("Échec de la génération du script. Veuillez réessayer.", { id: toastId });
+      toast.error(err instanceof Error ? err.message : "Échec de la génération du script. Veuillez réessayer.", { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export default function AIProfileScriptGenerator({ onScriptGenerated, initialScr
       }
     } catch (err) {
       console.error(err);
-      toast.error("Échec de la lecture du PDF ou de la génération.", { id: toastId });
+      toast.error(err instanceof Error ? err.message : "Échec de la lecture du PDF ou de la génération.", { id: toastId });
     } finally {
       setLoading(false);
     }

@@ -60,6 +60,8 @@ interface CV {
   coaching_feedback?: string;
   subtitles_vtt?: string;
   word_timestamps?: Array<{ word: string; raw_word: string; start: number; end: number }>;
+  ai_status?: string;
+  ai_error_message?: string | null;
 }
 
 interface AICardPanelProps {
@@ -200,7 +202,7 @@ export default function UsersPage() {
                   toast.error(updatedCv?.ai_error_message || "L'analyse IA a échoué.", { id: `ai-${videoId}` });
                   return true;
                 }
-                const isReady = !!(updatedCv?.summary || updatedCv?.coaching_feedback || updatedCv?.wpm);
+                const isReady = updatedCv?.ai_status === 'completed';
                 if (isReady) {
                   setShowAiPanelMap((prev) => ({ ...prev, [videoId]: true }));
                   setAnalyzingVideoId(null);

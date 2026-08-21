@@ -453,7 +453,7 @@ export async function generateAIScriptFromText(cvText: string, isLocalTest: bool
   let detail = `HTTP ${response.status}`;
   try {
     const body = await response.json();
-    detail = body?.message || body?.detail || detail;
+    detail = body?.details?.detail || body?.detail || body?.message || detail;
   } catch {
     // response body wasn't JSON; keep the status-code message
   }
@@ -491,7 +491,7 @@ export async function generateAIScriptFromPdf(pdfFile: File, isLocalTest: boolea
   let detail = `HTTP ${response.status}`;
   try {
     const body = await response.json();
-    detail = body?.message || body?.detail || detail;
+    detail = body?.details?.detail || body?.detail || body?.message || detail;
   } catch {
     // response body wasn't JSON; keep the status-code message
   }

@@ -453,7 +453,10 @@ export async function generateAIScriptFromText(cvText: string, isLocalTest: bool
   let detail = `HTTP ${response.status}`;
   try {
     const body = await response.json();
-    detail = body?.details?.detail || body?.detail || body?.message || detail;
+    const firstValidationError = body?.errors && typeof body.errors === 'object'
+      ? (Object.values(body.errors)[0] as string[] | undefined)?.[0]
+      : undefined;
+    detail = firstValidationError || body?.details?.detail || body?.detail || body?.message || detail;
   } catch {
     // response body wasn't JSON; keep the status-code message
   }
@@ -491,7 +494,10 @@ export async function generateAIScriptFromPdf(pdfFile: File, isLocalTest: boolea
   let detail = `HTTP ${response.status}`;
   try {
     const body = await response.json();
-    detail = body?.details?.detail || body?.detail || body?.message || detail;
+    const firstValidationError = body?.errors && typeof body.errors === 'object'
+      ? (Object.values(body.errors)[0] as string[] | undefined)?.[0]
+      : undefined;
+    detail = firstValidationError || body?.details?.detail || body?.detail || body?.message || detail;
   } catch {
     // response body wasn't JSON; keep the status-code message
   }

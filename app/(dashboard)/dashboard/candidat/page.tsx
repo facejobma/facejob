@@ -221,10 +221,14 @@ export default function UsersPage() {
         if (readyImmediately) return;
 
         let attempts = 0;
+        let pollInFlight = false;
         const maxAttempts = 60; // 60 * 3s = 180s, matching the backend's Http::timeout(180) budget
         const pollInterval = setInterval(async () => {
+          if (pollInFlight) return; // skip this tick if the previous one is still resolving
+          pollInFlight = true;
           attempts++;
           const done = await fetchLatest();
+          pollInFlight = false;
           if (done || attempts >= maxAttempts) {
             clearInterval(pollInterval);
             setAnalyzingVideoId(null);

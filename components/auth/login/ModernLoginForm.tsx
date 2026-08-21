@@ -70,8 +70,6 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
 
     if (!password) {
       nextErrors.password = "Veuillez entrer votre mot de passe.";
-    } else if (password.length < 1) {
-      nextErrors.password = "Le mot de passe est requis.";
     }
 
     setErrors(nextErrors);

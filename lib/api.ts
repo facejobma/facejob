@@ -442,11 +442,16 @@ export async function logout() {
 
 export async function generateAIScriptFromText(cvText: string, isLocalTest: boolean = false) {
   const endpoint = isLocalTest ? '/test/generate-script-text' : '/candidate/generate-script-text';
-  const response = await apiCall(endpoint, {
-    method: 'POST',
-    requireAuth: !isLocalTest,
-    body: JSON.stringify({ cv_text: cvText })
-  });
+  let response: Response;
+  try {
+    response = await apiCall(endpoint, {
+      method: 'POST',
+      requireAuth: !isLocalTest,
+      body: JSON.stringify({ cv_text: cvText })
+    });
+  } catch {
+    throw new Error('Échec de la génération du pitch : impossible de contacter le serveur. Vérifiez votre connexion.');
+  }
 
   if (response.ok) return await response.json();
 
@@ -482,12 +487,17 @@ export async function generateAIScriptFromPdf(pdfFile: File, isLocalTest: boolea
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: formData,
-    credentials: 'include'
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+      credentials: 'include'
+    });
+  } catch {
+    throw new Error('Échec de la génération du pitch : impossible de contacter le serveur. Vérifiez votre connexion.');
+  }
 
   if (response.ok) return await response.json();
 

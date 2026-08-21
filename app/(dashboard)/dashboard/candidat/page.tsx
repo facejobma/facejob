@@ -167,26 +167,13 @@ export default function UsersPage() {
     try {
       const backendUrl = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_BACKEND_URL || '');
       
-      // Try /api/ai-diagnostics/retrigger first, then /api/v1/ai-diagnostics/retrigger fallback
-      let response = await fetch(`${backendUrl}/api/ai-diagnostics/retrigger`, {
+      const response = await fetch(`${backendUrl}/api/v1/candidate-video/${videoId}/request-coach`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ postuler_id: videoId }),
       });
-
-      if (!response.ok) {
-        response = await fetch(`${backendUrl}/api/v1/ai-diagnostics/retrigger`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ postuler_id: videoId }),
-        });
-      }
 
       if (response.ok) {
         toast.success("Analyse en cours ! Le Coach IA génère vos conseils...", { id: `ai-${videoId}` });
@@ -208,6 +195,11 @@ export default function UsersPage() {
               if (Array.isArray(data)) {
                 setUsers(data);
                 const updatedCv = data.find((item: CV) => Number(item.id) === Number(videoId));
+                if (updatedCv?.ai_status === 'failed') {
+                  setAnalyzingVideoId(null);
+                  toast.error(updatedCv?.ai_error_message || "L'analyse IA a échoué.", { id: `ai-${videoId}` });
+                  return true;
+                }
                 const isReady = !!(updatedCv?.summary || updatedCv?.coaching_feedback || updatedCv?.wpm);
                 if (isReady) {
                   setShowAiPanelMap((prev) => ({ ...prev, [videoId]: true }));
@@ -227,15 +219,18 @@ export default function UsersPage() {
         if (readyImmediately) return;
 
         let attempts = 0;
-        const maxAttempts = 15;
+        const maxAttempts = 60; // 60 * 3s = 180s, matching the backend's Http::timeout(180) budget
         const pollInterval = setInterval(async () => {
           attempts++;
           const done = await fetchLatest();
           if (done || attempts >= maxAttempts) {
             clearInterval(pollInterval);
             setAnalyzingVideoId(null);
+            if (!done) {
+              toast.error("L'analyse prend plus de temps que prévu. Réessayez dans quelques instants.", { id: `ai-${videoId}` });
+            }
           }
-        }, 2000);
+        }, 3000);
       } else {
         toast.error("Échec de la demande d'analyse IA", { id: `ai-${videoId}` });
         setAnalyzingVideoId(null);

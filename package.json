@@ -92,7 +92,7 @@
     "@uploadthing/react": "^7.3.3",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.26",
     "uuid": "^11.0.6",
     "zod": "^3.24.1",
     "zustand": "^5.0.10"

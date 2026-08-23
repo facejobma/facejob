@@ -877,8 +877,12 @@ export default function UsersPage() {
                       </div>
                     )}
 
-                    {/* ── IN-PROGRESS AI COACHING BANNER ── */}
-                    {analyzingVideoId === cv.id && (
+                    {/* ── IN-PROGRESS AI COACHING BANNER ──
+                        Gated on !hasAI too: once real results exist for this video,
+                        never show the "still analyzing" spinner over them — that
+                        combination reads as broken even if it's just a lagging
+                        polling loop that hasn't cleared analyzingVideoId yet. */}
+                    {analyzingVideoId === cv.id && !hasAI && (
                       <div className="p-3 bg-gradient-to-r from-emerald-50 to-green-50 border border-green-200 rounded-xl shadow-inner space-y-2 animate-pulse my-1">
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>

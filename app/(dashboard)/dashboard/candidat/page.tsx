@@ -177,8 +177,16 @@ export default function UsersPage() {
         },
       });
 
-      if (response.ok) {
-        toast.success("Analyse en cours ! Le Coach IA génère vos conseils...", { id: `ai-${videoId}` });
+      // A 429 here just means an analysis is already running for this video (e.g. an
+      // earlier click, or the auto-triggered upload job) — that's not a failure, so it
+      // should fall into the same "wait and poll" path as a fresh 202, not the error path.
+      if (response.ok || response.status === 429) {
+        toast.success(
+          response.status === 429
+            ? "Une analyse est déjà en cours pour cette vidéo, patientez..."
+            : "Analyse en cours ! Le Coach IA génère vos conseils...",
+          { id: `ai-${videoId}` }
+        );
         setShowAiPanelMap((prev) => ({ ...prev, [videoId]: true }));
 
         const fetchLatest = async (): Promise<boolean> => {

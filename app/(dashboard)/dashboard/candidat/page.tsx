@@ -894,6 +894,28 @@ export default function UsersPage() {
                       </div>
                     )}
 
+                    {/* ── FAILED ANALYSIS BANNER ──
+                        Without this, a failed analysis had no state that survived a
+                        page refresh — the error only ever showed as a transient toast
+                        during the live polling session, so reloading just showed the
+                        same "Demander des conseils" button as if nothing had been
+                        tried, with the reason lost. Persist it in the card instead so
+                        the candidate can see why it failed and decide whether to
+                        retry or delete the video, without wasting another attempt. */}
+                    {!analyzingVideoIds.has(cv.id) && !hasAI && cv.ai_status === 'failed' && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-xl space-y-1">
+                        <div className="flex items-center gap-2">
+                          <FaInfoCircle className="text-red-600 text-xs flex-shrink-0" />
+                          <span className="text-xs font-bold text-red-800">
+                            ❌ Analyse IA échouée
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-red-700 leading-relaxed">
+                          {cv.ai_error_message || "L'analyse n'a pas pu être effectuée."}
+                        </p>
+                      </div>
+                    )}
+
                     {/* ── IN-PROGRESS AI COACHING BANNER ──
                         Gated on !hasAI too: once real results exist for this video,
                         never show the "still analyzing" spinner over them — that
@@ -942,7 +964,7 @@ export default function UsersPage() {
                         ) : (
                           <>
                             <BiStats className="text-sm" />
-                            <span>🤖 Demander des conseils au Coach IA</span>
+                            <span>{cv.ai_status === 'failed' ? "🔄 Réessayer l'analyse" : "🤖 Demander des conseils au Coach IA"}</span>
                           </>
                         )}
                       </button>

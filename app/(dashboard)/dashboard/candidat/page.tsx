@@ -155,15 +155,32 @@ export default function UsersPage() {
     setCurrentPlayingVideo(videoId);
   }, [currentPlayingVideo]);
 
-  const [analyzingVideoId, setAnalyzingVideoId] = useState<number | null>(null);
+  // A Set, not a single id: multiple videos can be analyzing at once (e.g. the
+  // auto-triggered upload job on one video while the candidate requests coaching
+  // on another), and each needs its own independent spinner/polling state — a
+  // single shared id meant clicking video B silently hid video A's still-running
+  // spinner with zero indication anything was wrong.
+  const [analyzingVideoIds, setAnalyzingVideoIds] = useState<Set<number>>(new Set());
   const [showAiPanelMap, setShowAiPanelMap] = useState<Record<number, boolean>>({});
+
+  const markAnalyzing = useCallback((videoId: number, analyzing: boolean) => {
+    setAnalyzingVideoIds((prev) => {
+      const next = new Set(prev);
+      if (analyzing) {
+        next.add(videoId);
+      } else {
+        next.delete(videoId);
+      }
+      return next;
+    });
+  }, []);
 
   const toggleAiPanel = useCallback((videoId: number) => {
     setShowAiPanelMap((prev) => ({ ...prev, [videoId]: !prev[videoId] }));
   }, []);
 
   const handleRequestAICoach = useCallback(async (videoId: number) => {
-    setAnalyzingVideoId(videoId);
+    markAnalyzing(videoId, true);
     toast.loading("Demande au Coach IA en cours...", { id: `ai-${videoId}` });
 
     try {
@@ -206,14 +223,14 @@ export default function UsersPage() {
                 setUsers(data);
                 const updatedCv = data.find((item: CV) => Number(item.id) === Number(videoId));
                 if (updatedCv?.ai_status === 'failed') {
-                  setAnalyzingVideoId(null);
+                  markAnalyzing(videoId, false);
                   toast.error(updatedCv?.ai_error_message || "L'analyse IA a échoué.", { id: `ai-${videoId}` });
                   return true;
                 }
                 const isReady = updatedCv?.ai_status === 'completed';
                 if (isReady) {
                   setShowAiPanelMap((prev) => ({ ...prev, [videoId]: true }));
-                  setAnalyzingVideoId(null);
+                  markAnalyzing(videoId, false);
                   toast.success("Vos conseils du Coach IA sont prêts !", { id: `ai-${videoId}` });
                   return true;
                 }
@@ -239,7 +256,7 @@ export default function UsersPage() {
           pollInFlight = false;
           if (done || attempts >= maxAttempts) {
             clearInterval(pollInterval);
-            setAnalyzingVideoId(null);
+            markAnalyzing(videoId, false);
             if (!done) {
               toast.error("L'analyse prend plus de temps que prévu. Réessayez dans quelques instants.", { id: `ai-${videoId}` });
             }
@@ -247,14 +264,14 @@ export default function UsersPage() {
         }, 3000);
       } else {
         toast.error("Échec de la demande d'analyse IA", { id: `ai-${videoId}` });
-        setAnalyzingVideoId(null);
+        markAnalyzing(videoId, false);
       }
     } catch (error) {
       console.error("AI Coach request error:", error);
       toast.error("Erreur réseau lors de la demande d'analyse IA", { id: `ai-${videoId}` });
-      setAnalyzingVideoId(null);
+      markAnalyzing(videoId, false);
     }
-  }, [authToken]);
+  }, [authToken, markAnalyzing]);
 
   const handleDelete = useCallback(async (id: number) => {
     const authToken = Cookies.get("authToken");
@@ -881,8 +898,8 @@ export default function UsersPage() {
                         Gated on !hasAI too: once real results exist for this video,
                         never show the "still analyzing" spinner over them — that
                         combination reads as broken even if it's just a lagging
-                        polling loop that hasn't cleared analyzingVideoId yet. */}
-                    {analyzingVideoId === cv.id && !hasAI && (
+                        polling loop that hasn't cleared this video's analyzing state yet. */}
+                    {analyzingVideoIds.has(cv.id) && !hasAI && (
                       <div className="p-3 bg-gradient-to-r from-emerald-50 to-green-50 border border-green-200 rounded-xl shadow-inner space-y-2 animate-pulse my-1">
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
@@ -914,10 +931,10 @@ export default function UsersPage() {
                     ) : (
                       <button
                         onClick={() => handleRequestAICoach(cv.id)}
-                        disabled={analyzingVideoId === cv.id}
+                        disabled={analyzingVideoIds.has(cv.id)}
                         className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg shadow-sm hover:shadow transition-all disabled:opacity-50 my-1 cursor-pointer"
                       >
-                        {analyzingVideoId === cv.id ? (
+                        {analyzingVideoIds.has(cv.id) ? (
                           <>
                             <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             <span>Analyse IA en cours...</span>

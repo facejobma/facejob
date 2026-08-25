@@ -145,13 +145,19 @@ const CandidatsPage: React.FC = () => {
     return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${fixedUrl}`;
   };
 
+  // Point the <video> tag straight at the source (S3/UploadThing/backend) instead
+  // of routing it through /local-api/video-proxy. That proxy runs as an Amplify
+  // Lambda, which has a hard response-size limit — any real video file exceeds it
+  // and the request fails with 413, regardless of which storage host it's on. The
+  // admin panel never had this problem because it always used a direct src; this
+  // page is now doing the same.
   const getVideoUrl = (videoUrl: string | null): string => {
     if (!videoUrl) return '';
 
     const fixedUrl = fixImageUrl(videoUrl);
 
     if (fixedUrl.startsWith('http')) {
-      return `/local-api/video-proxy?url=${encodeURIComponent(fixedUrl)}`;
+      return fixedUrl;
     }
 
     const cleanPath = fixedUrl.replace(/^\/+/, '').replace(/^video\//, '');
@@ -159,9 +165,8 @@ const CandidatsPage: React.FC = () => {
       .split('/')
       .map((part) => encodeURIComponent(part))
       .join('/');
-    const backendVideoUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/video/${encodedPath}`;
 
-    return `/local-api/video-proxy?url=${encodeURIComponent(backendVideoUrl)}`;
+    return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/video/${encodedPath}`;
   };
   
   // Filters

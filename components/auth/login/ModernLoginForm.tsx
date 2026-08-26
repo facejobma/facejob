@@ -271,12 +271,14 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
               >
                 Fermer
               </button>
-              <Link
-                href="/auth/resend-verification"
-                className="inline-flex justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-1"
-              >
-                Renvoyer l'email
-              </Link>
+              {loginFor === "candidate" && (
+                <Link
+                  href="/auth/resend-verification"
+                  className="inline-flex justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-1"
+                >
+                  Renvoyer l'email
+                </Link>
+              )}
             </div>
           </div>
         </div>

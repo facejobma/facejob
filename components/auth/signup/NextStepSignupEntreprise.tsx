@@ -178,7 +178,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = () => {
       const result = await res.json();
 
       if (res.ok && result.status !== "error") {
-        toast.success("Votre profil a été complété avec succès!");
+        toast.success("Votre inscription a bien été envoyée.");
         setShowVerificationModal(true);
       } else {
         toast.error(
@@ -461,11 +461,11 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = () => {
               <Mail className="h-7 w-7 text-green-600" />
             </div>
             <h2 className="mb-2 text-center text-xl font-bold text-gray-900">
-              Vérifiez votre email
+              Inscription envoyée
             </h2>
             <p className="text-center text-sm text-gray-600">
-              Votre profil entreprise a été complété. Un email de vérification a
-              été envoyé à :
+              Votre compte entreprise a bien été créé. Notre équipe examinera
+              votre inscription dans les meilleurs délais.
             </p>
             <p className="mt-3 rounded-lg bg-gray-50 px-4 py-2 text-center text-sm font-semibold text-gray-900">
               {typeof window !== "undefined"
@@ -474,8 +474,9 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = () => {
             </p>
             <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
               <p className="text-center text-xs font-medium text-amber-800">
-                Vous devez valider votre inscription depuis votre boîte email
-                avant d'accéder au dashboard entreprise.
+                Consultez votre boîte e-mail. Nous vous avons envoyé une
+                confirmation et vous recevrez un second e-mail dès que votre
+                compte sera validé par notre équipe.
               </p>
             </div>
             <button
@@ -483,7 +484,7 @@ const NextStepSignupEntreprise: FC<NextStepSignupEntrepriseProps> = () => {
               onClick={handleVerificationRedirect}
               className="mt-5 w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-              Aller à la page de connexion
+              J’ai compris
             </button>
           </div>
         </div>

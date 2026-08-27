@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -21,11 +21,30 @@ const ModernAuthLayout: React.FC<ModernAuthLayoutProps> = ({
   backgroundImage = "/images/photo-login.jpg",
   showBackButton = true,
 }) => {
+  useEffect(() => {
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlHeight = document.documentElement.style.height;
+    const previousBodyHeight = document.body.style.height;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.height = "100%";
+    document.body.style.height = "100%";
+
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.height = previousHtmlHeight;
+      document.body.style.height = previousBodyHeight;
+    };
+  }, []);
+
   return (
     <AuthErrorBoundary>
-      <div className="min-h-screen bg-gray-50 lg:flex">
+      <div className="flex h-screen h-dvh overflow-hidden bg-gray-50">
         {/* Left Side - Form */}
-        <div className="flex-1 min-h-screen lg:h-screen lg:overflow-y-auto">
+        <div className="h-full flex-1 overflow-y-auto overscroll-contain">
           <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 lg:px-16 xl:px-20 py-6">
             {/* Back Button */}
             {showBackButton && (
@@ -61,7 +80,7 @@ const ModernAuthLayout: React.FC<ModernAuthLayoutProps> = ({
         </div>
 
         {/* Right Side - Image */}
-        <div className="hidden lg:block relative w-0 flex-1 lg:sticky top-0 h-screen">
+        <div className="relative hidden h-full w-0 flex-1 lg:block">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-green-600/20">
             <Image
               src={backgroundImage}

@@ -42,7 +42,7 @@ interface Candidat {
 
 interface Postuler {
   id: number;
-  link: string;
+  link?: string | null;
 }
 
 interface Payment {
@@ -55,7 +55,7 @@ export const OfferCandidatActions: React.FC<{
   candidat: Candidat;
   postuler: Postuler;
   applicationId: number;
-  videoLink?: string;
+  videoLink?: string | null;
   onVideoClick?: () => void;
 }> = ({ candidat, postuler, applicationId, videoLink, onVideoClick }) => {
   // const [loading, setLoading] = useState(false);

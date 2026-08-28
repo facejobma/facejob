@@ -339,7 +339,6 @@ export default function PublishVideo() {
         nb_experiences: experiences,
         job_id: selectedJob,
         sector_id: selectedSector,
-        candidat_id: user.id,
       });
       toast.success("Votre CV a bien été téléchargé. Dès que les administrateurs l'auront vérifié, il sera disponible sur votre Dashboard.");
       setUploadStatus("completed");

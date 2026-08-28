@@ -59,14 +59,16 @@ export default function PlanUsageBanner() {
   if (loading || !usage) return null;
 
   const isFreePlan = usage.plan_id === 1;
-  const hasLimitedJobs = typeof usage.jobs_limit === "number";
-  const hasLimitedCv = typeof usage.cv_limit === "number";
-  const jobsPercentage = hasLimitedJobs && usage.jobs_limit > 0
-    ? (usage.jobs_posted / usage.jobs_limit) * 100
-    : hasLimitedJobs ? 100 : 0;
-  const cvPercentage = hasLimitedCv && usage.cv_limit > 0
-    ? (usage.cv_consumed / usage.cv_limit) * 100
-    : hasLimitedCv ? 100 : 0;
+  const jobsLimit = typeof usage.jobs_limit === "number" ? usage.jobs_limit : null;
+  const cvLimit = typeof usage.cv_limit === "number" ? usage.cv_limit : null;
+  const hasLimitedJobs = jobsLimit !== null;
+  const hasLimitedCv = cvLimit !== null;
+  const jobsPercentage = jobsLimit !== null && jobsLimit > 0
+    ? (usage.jobs_posted / jobsLimit) * 100
+    : jobsLimit !== null ? 100 : 0;
+  const cvPercentage = cvLimit !== null && cvLimit > 0
+    ? (usage.cv_consumed / cvLimit) * 100
+    : cvLimit !== null ? 100 : 0;
   const isJobLimitReached = usage.jobs_remaining === 0 && hasLimitedJobs;
   const isCvLimitReached = usage.cv_remaining === 0 && hasLimitedCv;
   const hasNoActivePlan = !usage.plan_active;

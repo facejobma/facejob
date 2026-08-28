@@ -15,6 +15,7 @@ import skillsData from "@/data/skills.json";
 interface Sector {
   id: number;
   name: string;
+  jobs: Array<{ id: number; name: string }>;
 }
 
 type SelectOption = {
@@ -24,6 +25,7 @@ type SelectOption = {
 
 const AVAILABLE_LANGUAGES = languagesData.languages;
 const AVAILABLE_SKILLS = Object.values(skillsData).flat();
+const BENEFIT_OPTIONS = ["Assurance santé", "Formation", "Télétravail", "Horaires flexibles", "Primes", "Transport", "Tickets restaurant", "Mutuelle"];
 const AVAILABLE_LANGUAGE_SET = new Set(AVAILABLE_LANGUAGES);
 const AVAILABLE_SKILL_SET = new Set(AVAILABLE_SKILLS);
 const LANGUAGE_OPTIONS: SelectOption[] = AVAILABLE_LANGUAGES.map(
@@ -71,12 +73,18 @@ export default function PublierPage() {
     location: "",
     contractType: "",
     sector_id: "",
+    job_id: "",
     date_debut: "",
     date_fin: "",
+    experience_required: "",
+    salary_min: "",
+    salary_max: "",
+    currency: "MAD",
   });
 
   const [requiredLanguages, setRequiredLanguages] = useState<string[]>([]);
   const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  const [benefits, setBenefits] = useState<string[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleLanguagesChange = (options: MultiValue<SelectOption>) => {
@@ -216,12 +224,6 @@ export default function PublierPage() {
       return;
     }
 
-    // Check if job limit is reached BEFORE validation
-    if (planInfo && planInfo.jobLimit !== -1 && planInfo.jobRemaining <= 0) {
-      setIsLimitReachedModalOpen(true);
-      return;
-    }
-
     const nextErrors: Record<string, string> = {};
     const plainText = formData.description.replace(/<[^>]*>/g, "");
 
@@ -229,13 +231,15 @@ export default function PublierPage() {
       nextErrors.titre = "Veuillez entrer le titre de l'offre.";
     } else if (formData.titre.trim().length < 5) {
       nextErrors.titre = "Le titre doit contenir au moins 5 caractères.";
-    } else if (formData.titre.length > 255) {
-      nextErrors.titre = "Le titre ne peut pas dépasser 255 caractères.";
+    } else if (formData.titre.length > 200) {
+      nextErrors.titre = "Le titre ne peut pas dépasser 200 caractères.";
     }
 
     if (!formData.sector_id) {
       nextErrors.sector_id = "Veuillez sélectionner un secteur.";
     }
+
+    if (!formData.contractType) nextErrors.contractType = "Veuillez sélectionner un type de contrat.";
 
     if (!formData.location.trim()) {
       nextErrors.location = "Veuillez entrer la localisation.";
@@ -260,7 +264,14 @@ export default function PublierPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (formData.date_debut && startDate < today) {
-      nextErrors.date_debut = "La date de début doit être dans le futur.";
+      nextErrors.date_debut = "La date de début doit être aujourd’hui ou dans le futur.";
+    }
+
+    if (formData.date_fin && formData.date_fin <= formData.date_debut) {
+      nextErrors.date_fin = "La date de fin doit être postérieure à la date de début.";
+    }
+    if (formData.salary_min && formData.salary_max && Number(formData.salary_max) < Number(formData.salary_min)) {
+      nextErrors.salary_max = "Le salaire maximum doit être supérieur ou égal au minimum.";
     }
 
     if (
@@ -293,9 +304,12 @@ export default function PublierPage() {
       await createOffer({
         ...formData,
         description: sanitizedDescription,
-        entreprise_id: user.id,
         required_languages: requiredLanguages,
         required_skills: requiredSkills,
+        benefits,
+        experience_required: formData.experience_required === "" ? null : Number(formData.experience_required),
+        salary_min: formData.salary_min === "" ? null : Number(formData.salary_min),
+        salary_max: formData.salary_max === "" ? null : Number(formData.salary_max),
       });
 
       setFormData({
@@ -304,23 +318,41 @@ export default function PublierPage() {
         location: "",
         contractType: "",
         sector_id: "",
+        job_id: "",
         date_debut: "",
         date_fin: "",
+        experience_required: "",
+        salary_min: "",
+        salary_max: "",
+        currency: "MAD",
       });
       setRequiredLanguages([]);
       setRequiredSkills([]);
+      setBenefits([]);
 
       setIsSuccessModalOpen(true);
     } catch (error: any) {
       console.error("Error creating offer:", error);
 
       // Handle specific backend errors
-      if (error?.error === "JOB_LIMIT_REACHED") {
-        const limit = error?.limit || 3;
-        const used = error?.used || limit;
+      if (error?.code === "JOB_LIMIT_REACHED") {
+        const limit = Number(error?.errors?.limit?.[0] ?? 0);
+        const used = Number(error?.errors?.used?.[0] ?? limit);
         toast.error(
           `Limite de publication d'offres atteinte pour votre plan actuel. (${used}/${limit} offres utilisées)`,
         );
+      } else if (error?.status === 422 && error?.errors) {
+        const apiErrors = Object.fromEntries(
+          Object.entries(error.errors).map(([field, messages]) => [field, Array.isArray(messages) ? messages[0] : String(messages)]),
+        );
+        setIsLimitReachedModalOpen(true);
+        setFormErrors(apiErrors);
+        toast.error("Veuillez corriger les champs signalés.");
+      } else if (error?.code === "NO_ACTIVE_SUBSCRIPTION") {
+        setIsUpgradeModalOpen(true);
+        toast.error(error.message);
+      } else if (error?.status === 403) {
+        toast.error(error.message || "Vous n’êtes pas autorisé à publier cette offre.");
       } else if (error?.message) {
         toast.error(error.message);
       } else {
@@ -345,6 +377,7 @@ export default function PublierPage() {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+      ...(name === "sector_id" ? { job_id: "" } : {}),
     }));
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: "" }));
@@ -461,6 +494,7 @@ export default function PublierPage() {
               placeholder="Ex: Développeur Full Stack Senior"
               aria-invalid={!!formErrors.titre}
               aria-describedby={formErrors.titre ? "titre-error" : undefined}
+              maxLength={200}
             />
             {renderFieldError("titre")}
           </div>
@@ -491,16 +525,33 @@ export default function PublierPage() {
               {renderFieldError("sector_id")}
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Métier de référence <span className="font-normal text-gray-500">(facultatif)</span>
+              </label>
+              <select name="job_id" value={formData.job_id} onChange={handleInputChange}
+                disabled={!formData.sector_id} className={getFieldClassName("job_id")}>
+                <option value="">Autre métier / non répertorié</option>
+                {(sectors.find((sector) => sector.id === Number(formData.sector_id))?.jobs ?? []).map((job) => (
+                  <option key={job.id} value={job.id}>{job.name}</option>
+                ))}
+              </select>
+              <p className="mt-1.5 text-xs text-gray-500">
+                Améliore le matching lorsqu’un métier correspondant existe, sans bloquer la publication.
+              </p>
+              {renderFieldError("job_id")}
+            </div>
+
             {/* Type de contrat */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Type de contrat
+                Type de contrat <span className="text-red-500">*</span>
               </label>
               <select
                 name="contractType"
                 value={formData.contractType}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                className={getFieldClassName("contractType")}
               >
                 <option value="">Sélectionner un type</option>
                 <option value="CDI">CDI</option>
@@ -509,7 +560,50 @@ export default function PublierPage() {
                 <option value="Freelance">Freelance</option>
                 <option value="Alternance">Alternance</option>
               </select>
+              {renderFieldError("contractType")}
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Expérience minimale (années)</label>
+              <input type="number" name="experience_required" min="0" max="50" value={formData.experience_required}
+                onChange={handleInputChange} className={getFieldClassName("experience_required")} />
+              {renderFieldError("experience_required")}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Salaire minimum</label>
+              <input type="number" name="salary_min" min="0" step="0.01" value={formData.salary_min}
+                onChange={handleInputChange} className={getFieldClassName("salary_min")} />
+              {renderFieldError("salary_min")}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Salaire maximum</label>
+              <input type="number" name="salary_max" min="0" step="0.01" value={formData.salary_max}
+                onChange={handleInputChange} className={getFieldClassName("salary_max")} />
+              {renderFieldError("salary_max")}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Devise <span className="text-red-500">*</span></label>
+              <select name="currency" value={formData.currency} onChange={handleInputChange} className={getFieldClassName("currency")}>
+                {['MAD', 'EUR', 'USD'].map((currency) => <option key={currency} value={currency}>{currency}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Avantages</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+              {BENEFIT_OPTIONS.map((benefit) => (
+                <label key={benefit} className="flex items-center gap-2 rounded-lg border p-3 text-sm">
+                  <input type="checkbox" checked={benefits.includes(benefit)} onChange={() =>
+                    setBenefits((current) => current.includes(benefit) ? current.filter((item) => item !== benefit) : [...current, benefit])
+                  } />
+                  {benefit}
+                </label>
+              ))}
+            </div>
+            {renderFieldError("benefits")}
           </div>
 
           {/* Localisation */}
@@ -617,8 +711,10 @@ export default function PublierPage() {
                 name="date_fin"
                 value={formData.date_fin}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                min={formData.date_debut || new Date().toISOString().split("T")[0]}
+                className={getFieldClassName("date_fin")}
               />
+              {renderFieldError("date_fin")}
             </div>
           </div>
 
@@ -662,19 +758,9 @@ export default function PublierPage() {
             </button>
             <button
               type="submit"
-              disabled={
-                isLoading ||
-                !!(
-                  planInfo &&
-                  planInfo.jobLimit !== -1 &&
-                  planInfo.jobRemaining <= 0
-                )
-              }
+              disabled={isLoading}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 font-medium rounded-lg transition-colors ${
-                isLoading ||
-                (planInfo &&
-                  planInfo.jobLimit !== -1 &&
-                  planInfo.jobRemaining <= 0)
+                isLoading
                   ? "bg-gray-400 text-white cursor-not-allowed"
                   : "bg-green-600 text-white hover:bg-green-700"
               }`}
@@ -683,25 +769,6 @@ export default function PublierPage() {
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Publication en cours...</span>
-                </>
-              ) : planInfo &&
-                planInfo.jobLimit !== -1 &&
-                planInfo.jobRemaining <= 0 ? (
-                <>
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                  <span>Limite atteinte</span>
                 </>
               ) : (
                 <>

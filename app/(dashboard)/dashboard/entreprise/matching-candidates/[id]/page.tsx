@@ -40,7 +40,7 @@ interface MatchedCandidate {
   match_percentage: number;
   matched_criteria: {
     sector: boolean;
-    job_title: boolean;
+    job_title: boolean | null;
     experience: boolean;
     skills: string[];
     languages: string[];
@@ -55,6 +55,7 @@ interface MatchedCandidate {
     sector: string | null;
     years_of_experience: number | null;
     availability_status: string;
+    preferred_contract_type: string | null;
     skills: string[];
     languages: string[];
     bio?: string;
@@ -306,7 +307,7 @@ export default function CandidateDetailPage() {
       const response = await fetch(`${backendUrl}/api/v1/consumations`, {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ entreprise_id: user.id, postuler_id: selectedVideoId }),
+        body: JSON.stringify({ postuler_id: selectedVideoId }),
       });
 
       if (response.ok) {

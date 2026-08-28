@@ -28,14 +28,14 @@ interface OfferDetail {
   company_name: string;
   company_logo?: string;
   sector_name: string;
-  job_name: string;
+  job_name: string | null;
   location: string;
   contractType: string;
   date_debut: string;
-  date_fin: string;
+  date_fin: string | null;
   created_at: string;
   sector_id: number;
-  job_id: number;
+  job_id: number | null;
   entreprise_id: number;
   salary_min?: number;
   salary_max?: number;
@@ -55,7 +55,7 @@ interface OfferDetail {
 
 interface ApplicationStatus {
   has_applied: boolean;
-  application_status?: 'not_viewed' | 'viewed' | 'accepted' | 'rejected';
+  application_status?: 'submitted' | 'viewed' | 'accepted' | 'rejected' | 'withdrawn';
   applied_at?: string;
   viewed_at?: string;
 }
@@ -140,7 +140,7 @@ const CandidatOfferDetailPage: React.FC = () => {
         
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
-          setApplicationStatus(statusData);
+          setApplicationStatus(statusData.data ?? statusData);
         }
       } else {
         toast.error("Offre non trouvée");
@@ -157,14 +157,12 @@ const CandidatOfferDetailPage: React.FC = () => {
 
   const handleApply = async () => {
     if (!selectedVideo) return;
-    const userStr = typeof window !== "undefined" ? window.sessionStorage.getItem("user") : null;
-    const userId = userStr ? JSON.parse(userStr)?.id : null;
     setIsSubmitting(true);
     try {
       const res = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/postuler-offre`, {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ video_url: selectedVideo, candidat_id: userId, offre_id: offerId, postuler_id: selectedVideoId }),
+        body: JSON.stringify({ offre_id: offerId, postuler_id: selectedVideoId }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -357,9 +355,9 @@ const CandidatOfferDetailPage: React.FC = () => {
               <FaBriefcase className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Secteur & Métier</p>
+              <p className="text-sm text-gray-600">{offer.job_name ? "Secteur & métier" : "Secteur"}</p>
               <p className="font-semibold text-gray-900">{offer.sector_name}</p>
-              <p className="text-xs text-gray-600">{offer.job_name}</p>
+              {offer.job_name && <p className="text-xs text-gray-600">{offer.job_name}</p>}
             </div>
           </div>
           
@@ -559,7 +557,7 @@ const CandidatOfferDetailPage: React.FC = () => {
           
           <div>
             <h4 className="text-sm font-semibold text-gray-900 mb-2">Date de fin</h4>
-            <p className="text-gray-700">{formatDate(offer.date_fin)}</p>
+            <p className="text-gray-700">{offer.date_fin ? formatDate(offer.date_fin) : "Non renseignée"}</p>
           </div>
         </div>
 
@@ -568,9 +566,11 @@ const CandidatOfferDetailPage: React.FC = () => {
             <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50">
               Secteur: {offer.sector_name}
             </Badge>
-            <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
-              Métier: {offer.job_name}
-            </Badge>
+            {offer.job_name && (
+              <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50">
+                Métier : {offer.job_name}
+              </Badge>
+            )}
             {offer.experience_required && (
               <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
                 Expérience: {offer.experience_required}

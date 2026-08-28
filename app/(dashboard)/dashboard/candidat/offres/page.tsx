@@ -684,7 +684,7 @@ const OffresPage: React.FC = () => {
                   sector_name={offre.sector_name}
                   job_name={offre.job_name}
                   location={offre.location}
-                  contract_type={offre.contractType}
+                  contractType={offre.contractType}
                   date_debut={offre.date_debut}
                   date_fin={offre.date_fin}
                   description={offre.description}

@@ -8,11 +8,11 @@ interface JobPosting {
   description: string;
   company_name: string;
   sector_name: string;
-  job_name: string;
+  job_name: string | null;
   location: string;
   contractType: string;
   date_debut: string;
-  date_fin: string;
+  date_fin: string | null;
   created_at: string;
 }
 
@@ -32,7 +32,7 @@ export function JobListingStructuredData({ offers }: { offers: JobPosting[] }) {
       "title": offer.titre,
       "description": offer.description,
       "datePosted": offer.created_at,
-      "validThrough": offer.date_fin,
+      ...(offer.date_fin ? { "validThrough": offer.date_fin } : {}),
       "employmentType": offer.contractType === "CDI" ? "FULL_TIME" : 
                       offer.contractType === "CDD" ? "TEMPORARY" : 
                       offer.contractType === "Stage" ? "INTERN" : "OTHER",
@@ -49,12 +49,12 @@ export function JobListingStructuredData({ offers }: { offers: JobPosting[] }) {
         }
       },
       "industry": offer.sector_name,
-      "occupationalCategory": offer.job_name,
-      "url": `${baseUrl}/offres?offerId=${offer.id}`,
+      ...(offer.job_name ? { "occupationalCategory": offer.job_name } : {}),
+      "url": `${baseUrl}/offres/${offer.id}`,
       "applicationContact": {
         "@type": "ContactPoint",
         "contactType": "HR",
-        "url": `${baseUrl}/auth/login-candidate?returnUrl=/dashboard/candidat/offres&offerId=${offer.id}`
+        "url": `${baseUrl}/auth/login-candidate?returnUrl=/dashboard/candidat/offres/${offer.id}`
       }
     }))
   };

@@ -24,7 +24,7 @@ interface Offer {
   description: string;
   company_name: string;
   sector_name: string;
-  job_name: string;
+  job_name: string | null;
   location: string;
   contractType: string;
   created_at: string;

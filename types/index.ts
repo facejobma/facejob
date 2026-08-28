@@ -110,10 +110,12 @@ export type Job = {
   titre: string;
   description: string;
   date_debut: string;
-  date_fin: string;
+  date_fin: string | null;
   company_name: string;
   sector_name: string;
   is_verified: string;
+  status: "Pending" | "Accepted" | "Declined" | "Expired";
+  applications_count?: number;
 };
 export type CV = {
   id: number;

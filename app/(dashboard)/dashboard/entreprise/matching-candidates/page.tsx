@@ -10,6 +10,7 @@ interface Job {
   titre: string;
   sector?: { name: string };
   is_verified: string;
+  status: "Pending" | "Accepted" | "Declined" | "Expired";
 }
 
 export default function MatchingCandidatesPage() {
@@ -21,7 +22,10 @@ export default function MatchingCandidatesPage() {
 
   useEffect(() => {
     const userData = window.sessionStorage?.getItem("user");
-    if (!userData) return;
+    if (!userData) {
+      setLoading(false);
+      return;
+    }
     const user = JSON.parse(userData);
 
     fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/by-owner/${user.id}`, {
@@ -31,9 +35,10 @@ export default function MatchingCandidatesPage() {
       },
     })
       .then((res) => res.json())
-      .then((data) => {
+      .then((payload) => {
+        const data = payload?.data ?? payload;
         const accepted = Array.isArray(data)
-          ? data.filter((j: Job) => j.is_verified === "Accepted")
+          ? data.filter((j: Job) => j.status === "Accepted")
           : [];
         setJobs(accepted);
         if (accepted.length > 0) setSelectedJob(accepted[0]);

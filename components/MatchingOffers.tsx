@@ -6,7 +6,7 @@ import Link from "next/link";
 
 interface MatchedCriteria {
   sector: boolean;
-  job_title: boolean;
+  job_title: boolean | null;
   experience: boolean;
   skills: string[];
   languages: string[];
@@ -27,10 +27,10 @@ interface MatchedOffer {
     salary_min: number | null;
     salary_max: number | null;
     currency: string;
-    date_fin: string;
+    date_fin: string | null;
     entreprise: { id: number; company_name: string; logo: string | null };
     sector: { id: number; name: string };
-    job: { id: number; name: string };
+    job: { id: number | null; name: string | null };
   };
 }
 

@@ -32,11 +32,11 @@ interface OffreCardProps {
   entreprise_name: string;
   entreprise_logo?: string;
   sector_name: string;
-  job_name: string;
+  job_name: string | null;
   location: string;
-  contract_type: string;
+  contractType: string;
   date_debut: string;
-  date_fin: string;
+  date_fin: string | null;
   description: string;
   applications_count?: number;
   views_count?: number;
@@ -55,7 +55,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   sector_name,
   job_name,
   location,
-  contract_type,
+  contractType,
   date_debut,
   description,
   date_fin,
@@ -190,7 +190,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   const openModal = () => {
-    setModalData({ titre, entreprise_name, sector_name, job_name });
+    setModalData({ titre, entreprise_name, sector_name, job_name: job_name || titre });
     setModalIsOpen(true);
     setSelectedVideo("");
     setSelectedVideoId(null);
@@ -237,8 +237,6 @@ const OffreCard: React.FC<OffreCardProps> = ({
             Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify({
-            video_url: selectedVideo,
-            candidat_id: userId,
             offre_id: offreId,
             postuler_id: postulerId,
           }),
@@ -383,7 +381,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
               </div>
               <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200">
                 <Briefcase size={14} className="text-green-600" />
-                <span className="font-medium">{contract_type}</span>
+                <span className="font-medium">{contractType}</span>
               </div>
               {sector_name && (
                 <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200">

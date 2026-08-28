@@ -475,6 +475,7 @@ const Profile: React.FC = () => {
           currentJobId={userProfile.job?.id}
           currentSectorId={userProfile.job?.sector_id}
           preferredLocation={userProfile.preferred_location}
+          preferredContractType={userProfile.preferred_contract_type}
           onUpdate={refreshProfile}
         />
       </div>

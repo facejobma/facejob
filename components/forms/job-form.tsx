@@ -41,7 +41,7 @@ interface Candidat {
   bio: string;
   years_of_experience: number;
   is_completed: number;
-  job_id: number;
+  job_id: number | null;
   image: string | null;
   created_at: string;
   updated_at: string;
@@ -51,7 +51,7 @@ interface Candidat {
 
 interface Postuler {
   id: number;
-  link: string;
+  link?: string | null;
 }
 
 interface JobData {
@@ -59,33 +59,37 @@ interface JobData {
   titre: string;
   description: string;
   date_debut: string;
-  date_fin?: string;
+  date_fin?: string | null;
   company_name: string;
   sector_id: number;
-  job_id: number;
+  job_id: number | null;
   location: string;
   contractType: string;
   is_verified: string;
+  status: "Pending" | "Accepted" | "Declined" | "Expired";
   entreprise_id: number;
   salary_min?: number | null;
   salary_max?: number | null;
   currency?: string;
+  experience_required?: number | null;
+  benefits?: string[];
   required_languages?: string[];
   required_skills?: string[];
   applications: {
-    candidat: Candidat;
-    link: string;
+    id: number;
+    candidate: Candidat | null;
+    link: string | null;
     created_at: string;
-    postuler: Postuler;
+    postuler: Postuler | null;
+    status: "submitted" | "viewed" | "accepted" | "rejected";
+    viewed_by_recruiter?: boolean;
+    viewed_at?: string | null;
+    is_consumed?: boolean;
   }[];
-  candidats_count: number;
+  applications_count: number;
 }
 
 const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initialData, autoEdit = false }) => {
-  const isPending = initialData.is_verified === "Pending";
-  const isAccepted = initialData.is_verified === "Accepted";
-  const isDeclined = initialData.is_verified === "Declined";
-
   const [showAllCandidates, setShowAllCandidates] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [videoLink, setVideoLink] = useState<string | null>(null);
@@ -97,10 +101,16 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
   
   // Local state for updated data
   const [currentData, setCurrentData] = useState(initialData);
+  const currentStatus = currentData.status ?? currentData.is_verified;
+  const isPending = currentStatus === "Pending";
+  const isAccepted = currentStatus === "Accepted";
+  const isDeclined = currentStatus === "Declined";
+  const isExpired = currentStatus === "Expired";
 
   // Languages & skills state
   const [requiredLanguages, setRequiredLanguages] = useState<string[]>(initialData.required_languages ?? []);
   const [requiredSkills, setRequiredSkills] = useState<string[]>(initialData.required_skills ?? []);
+  const [benefits, setBenefits] = useState<string[]>(initialData.benefits ?? []);
   const [skillInput, setSkillInput] = useState("");
 
   const toggleLanguage = (lang: string) => {
@@ -120,9 +130,13 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
     location: initialData.location,
     contractType: initialData.contractType,
     date_debut: initialData.date_debut ? initialData.date_debut.split('T')[0] : '',
+    date_fin: initialData.date_fin ? initialData.date_fin.split('T')[0] : '',
     sector_id: initialData.sector_id,
     job_id: initialData.job_id,
-    entreprise_id: initialData.entreprise_id,
+    experience_required: initialData.experience_required?.toString() ?? '',
+    salary_min: initialData.salary_min?.toString() ?? '',
+    salary_max: initialData.salary_max?.toString() ?? '',
+    currency: initialData.currency ?? 'MAD',
   });
 
   const modalRef = useRef<HTMLDivElement>(null);
@@ -136,19 +150,33 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
     setIsSubmitting(true);
     
     try {
-      // Validate required fields
-      if (!formData.titre || !formData.description || !formData.date_debut || !formData.location) {
+      // Keep the edit form aligned with the backend validation rules.
+      const plainDescription = formData.description.replace(/<[^>]*>/g, "").trim();
+      if (!formData.titre.trim() || !plainDescription || !formData.date_debut || !formData.location.trim() || !formData.contractType || !formData.sector_id) {
         toast.error("Veuillez remplir tous les champs obligatoires");
         setIsSubmitting(false);
         return;
       }
 
-      // Validate date de début is in the future
-      const startDate = new Date(formData.date_debut);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (startDate < today) {
-        toast.error("La date de début doit être dans le futur");
+      if (formData.titre.trim().length < 5 || formData.titre.trim().length > 200) {
+        toast.error("Le titre doit contenir entre 5 et 200 caractères");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (plainDescription.length < 50 || plainDescription.length > 10000) {
+        toast.error("La description doit contenir entre 50 et 10000 caractères");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (formData.date_fin && formData.date_fin <= formData.date_debut) {
+        toast.error("La date de fin doit être postérieure à la date de début");
+        setIsSubmitting(false);
+        return;
+      }
+      if (formData.salary_min && formData.salary_max && Number(formData.salary_max) < Number(formData.salary_min)) {
+        toast.error("Le salaire maximum doit être supérieur ou égal au salaire minimum");
         setIsSubmitting(false);
         return;
       }
@@ -167,6 +195,10 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
             ...formData,
             required_languages: requiredLanguages,
             required_skills: requiredSkills,
+            benefits,
+            experience_required: formData.experience_required === '' ? null : Number(formData.experience_required),
+            salary_min: formData.salary_min === '' ? null : Number(formData.salary_min),
+            salary_max: formData.salary_max === '' ? null : Number(formData.salary_max),
           }),
         }
       );
@@ -174,15 +206,32 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
       console.log('Update result:', result);
       
       if (result.success) {
+        const payload = result.data as any;
+        const responseData = payload?.data ?? {};
+        const updatedOffer = responseData.offer ?? {};
+        if (payload?.message) {
+          toast.success(payload.message);
+        } else {
         toast.success('Offre mise à jour avec succès!');
+        }
         setIsEditing(false);
         // Update local state with new data
-        setCurrentData({
-          ...currentData,
-          ...formData
-        });
+        setCurrentData((previous) => ({
+          ...previous,
+          ...updatedOffer,
+          ...formData,
+          date_fin: formData.date_fin || null,
+          salary_min: formData.salary_min === '' ? null : Number(formData.salary_min),
+          salary_max: formData.salary_max === '' ? null : Number(formData.salary_max),
+          experience_required: formData.experience_required === '' ? null : Number(formData.experience_required),
+          required_languages: requiredLanguages,
+          required_skills: requiredSkills,
+          benefits,
+          is_verified: responseData.is_verified ?? updatedOffer.is_verified ?? previous.is_verified,
+          status: responseData.status ?? updatedOffer.status ?? previous.status,
+        }));
       } else {
-        toast.error(result.error || 'Une erreur est survenue');
+        handleApiError(result, toast);
         console.error('Update failed:', result);
       }
     } catch (error) {
@@ -198,9 +247,13 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const validApplications = (initialData.applications ?? []).filter(
+    (application): application is JobData["applications"][number] & { candidate: Candidat; postuler: Postuler } =>
+      Boolean(application.candidate && application.postuler),
+  );
   const displayedApplications = showAllCandidates
-    ? initialData.applications
-    : initialData?.applications?.slice(0, 4);
+    ? validApplications
+    : validApplications.slice(0, 4);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -262,7 +315,8 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
     return sector ? sector.name : "Secteur inconnu";
   };
 
-  const getJobName = (jobId: number) => {
+  const getJobName = (jobId: number | null) => {
+    if (!jobId) return "Autre métier / non répertorié";
     const sector = sectors.find((s) => s.id === initialData.sector_id);
     const job = sector?.jobs.find((j) => j.id === jobId);
     return job ? job.name : "Métier inconnu";
@@ -290,6 +344,14 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 rounded-full text-xs font-medium">
           <XCircle className="w-3.5 h-3.5" />
           Refusé
+        </span>
+      );
+    }
+    if (isExpired) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-xs font-medium">
+          <Calendar className="w-3.5 h-3.5" />
+          Expirée
         </span>
       );
     }
@@ -321,7 +383,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
           </div>
           <div className="flex items-center gap-2">
             <User className="w-4 h-4" />
-            <span>{currentData.candidats_count} Candidat{currentData.candidats_count !== 1 ? 's' : ''}</span>
+            <span>{currentData.applications_count} Candidat{currentData.applications_count !== 1 ? 's' : ''}</span>
           </div>
         </div>
       </div>
@@ -339,6 +401,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 name="titre"
                 value={formData.titre}
                 onChange={handleInputChange}
+                maxLength={200}
                 className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
                 required
               />
@@ -367,6 +430,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                   name="contractType"
                   value={formData.contractType}
                   onChange={handleInputChange}
+                  required
                   className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
                 >
                   <option value="">Sélectionner</option>
@@ -379,6 +443,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
               </div>
             </div>
             
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Date de début <span className="text-red-500">*</span>
@@ -388,9 +453,41 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 name="date_debut"
                 value={formData.date_debut}
                 onChange={handleInputChange}
-                min={new Date().toISOString().split('T')[0]}
                 className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Date de fin</label>
+              <input
+                type="date"
+                name="date_fin"
+                value={formData.date_fin}
+                min={formData.date_debut || undefined}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+              />
+            </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <input type="number" name="experience_required" min="0" max="50" value={formData.experience_required} onChange={handleInputChange} placeholder="Expérience (années)" className="px-4 py-2.5 border rounded-lg" />
+              <input type="number" name="salary_min" min="0" value={formData.salary_min} onChange={handleInputChange} placeholder="Salaire minimum" className="px-4 py-2.5 border rounded-lg" />
+              <input type="number" name="salary_max" min="0" value={formData.salary_max} onChange={handleInputChange} placeholder="Salaire maximum" className="px-4 py-2.5 border rounded-lg" />
+              <select name="currency" value={formData.currency} onChange={handleInputChange} className="px-4 py-2.5 border rounded-lg">
+                <option value="MAD">MAD</option><option value="EUR">EUR</option><option value="USD">USD</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Avantages</label>
+              <div className="flex flex-wrap gap-2">
+                {["Assurance santé", "Formation", "Télétravail", "Horaires flexibles", "Primes", "Transport", "Tickets restaurant", "Mutuelle"].map((benefit) => (
+                  <label key={benefit} className="flex items-center gap-2 border rounded-lg px-3 py-2 text-sm">
+                    <input type="checkbox" checked={benefits.includes(benefit)} onChange={() => setBenefits((current) => current.includes(benefit) ? current.filter((item) => item !== benefit) : [...current, benefit])} />
+                    {benefit}
+                  </label>
+                ))}
+              </div>
             </div>
             
             <div>
@@ -411,7 +508,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 <label className="block text-sm font-semibold text-gray-900 mb-2">Secteur d'activité</label>
                 <select
                   value={selectedSector}
-                  onChange={(e) => { setSelectedSector(e.target.value); setSelectedJob(""); setFormData(prev => ({ ...prev, sector_id: Number(e.target.value), job_id: 0 })); }}
+                  onChange={(e) => { setSelectedSector(e.target.value); setSelectedJob(""); setFormData(prev => ({ ...prev, sector_id: Number(e.target.value), job_id: null })); }}
                   className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
                 >
                   <option value="">Sélectionner un secteur</option>
@@ -419,14 +516,14 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Poste / Métier</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Métier de référence (facultatif)</label>
                 <select
                   value={selectedJob}
-                  onChange={(e) => { setSelectedJob(e.target.value); setFormData(prev => ({ ...prev, job_id: Number(e.target.value) })); }}
+                  onChange={(e) => { setSelectedJob(e.target.value); setFormData(prev => ({ ...prev, job_id: e.target.value ? Number(e.target.value) : null })); }}
                   disabled={!selectedSector}
                   className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 disabled:opacity-50"
                 >
-                  <option value="">Sélectionner un métier</option>
+                  <option value="">Autre métier / non répertorié</option>
                   {(sectors.find(s => s.id === Number(selectedSector))?.jobs ?? []).map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
                 </select>
               </div>
@@ -566,7 +663,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-green-600" />
-              <h2 className="text-lg font-semibold text-gray-800">Candidatures ({initialData.candidats_count})</h2>
+              <h2 className="text-lg font-semibold text-gray-800">Candidatures ({initialData.applications_count})</h2>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -577,11 +674,11 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
               >
                 {/* Header with Avatar and Name */}
                 <div className="flex items-start gap-3 mb-3">
-                  {application.candidat.image ? (
+                  {application.candidate.image ? (
                     <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-green-100 flex-shrink-0">
                       <img
-                        src={application.candidat.image.replace(/\\/g, '')}
-                        alt={`${application.candidat.first_name} ${application.candidat.last_name}`}
+                        src={application.candidate.image.replace(/\\/g, '')}
+                        alt={`${application.candidate.first_name} ${application.candidate.last_name}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
@@ -602,7 +699,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-800 truncate">
-                      {`${application.candidat.first_name} ${application.candidat.last_name}`}
+                      {`${application.candidate.first_name} ${application.candidate.last_name}`}
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {new Date(application.created_at).toLocaleDateString("fr-FR", {
@@ -615,18 +712,18 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 </div>
 
                 {/* Bio Preview */}
-                {application.candidat.bio && (
+                {application.candidate.bio && (
                   <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {application.candidat.bio}
+                    {application.candidate.bio}
                   </p>
                 )}
 
                 {/* Experience Badge */}
-                {application.candidat.years_of_experience > 0 && (
+                {application.candidate.years_of_experience > 0 && (
                   <div className="flex items-center gap-1.5 mb-3">
                     <Briefcase className="w-4 h-4 text-green-600" />
                     <span className="text-xs text-gray-600">
-                      {application.candidat.years_of_experience} an{application.candidat.years_of_experience > 1 ? 's' : ''} d'expérience
+                      {application.candidate.years_of_experience} an{application.candidate.years_of_experience > 1 ? 's' : ''} d'expérience
                     </span>
                   </div>
                 )}
@@ -634,7 +731,8 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                 {/* Actions */}
                 <div className="mt-auto pt-3 border-t border-gray-100">
                   <OfferCandidatActions
-                    candidat={application.candidat}
+                    applicationId={application.id}
+                    candidat={application.candidate}
                     postuler={application.postuler}
                     videoLink={application.link}
                     onVideoClick={() => {
@@ -669,12 +767,17 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                   location: initialData.location,
                   contractType: initialData.contractType,
                   date_debut: initialData.date_debut ? initialData.date_debut.split('T')[0] : '',
+                  date_fin: initialData.date_fin ? initialData.date_fin.split('T')[0] : '',
                   sector_id: initialData.sector_id,
                   job_id: initialData.job_id,
-                  entreprise_id: initialData.entreprise_id,
+                  experience_required: initialData.experience_required?.toString() ?? '',
+                  salary_min: initialData.salary_min?.toString() ?? '',
+                  salary_max: initialData.salary_max?.toString() ?? '',
+                  currency: initialData.currency ?? 'MAD',
                 });
                 setRequiredLanguages(initialData.required_languages ?? []);
                 setRequiredSkills(initialData.required_skills ?? []);
+                setBenefits(initialData.benefits ?? []);
               }}
               className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
               disabled={isSubmitting}

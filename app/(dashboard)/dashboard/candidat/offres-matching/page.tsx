@@ -7,7 +7,7 @@ import { ArrowLeft, Briefcase, MapPin, Calendar, Building2, DollarSign, Trending
 
 interface MatchedCriteria {
   sector: boolean;
-  job_title: boolean;
+  job_title: boolean | null;
   experience: boolean;
   skills: string[];
   languages: string[];
@@ -28,10 +28,13 @@ interface MatchedOffer {
     salary_min: number | null;
     salary_max: number | null;
     currency: string;
-    date_fin: string;
+    date_fin: string | null;
+    experience_required: number | null;
+    required_skills: string[];
+    required_languages: string[];
     entreprise: { id: number; company_name: string; logo: string | null };
     sector: { id: number; name: string };
-    job: { id: number; name: string };
+    job: { id: number | null; name: string | null };
   };
 }
 
@@ -211,6 +214,7 @@ export default function OffresMatchingPage() {
                         {matched_criteria.job_title && <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">✓ Poste</span>}
                         {matched_criteria.experience && <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">✓ Expérience</span>}
                         {matched_criteria.location && <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">✓ Localisation</span>}
+                        {matched_criteria.contract_type && <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">✓ Contrat</span>}
                         {matched_criteria.languages.length > 0 && <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-medium">✓ Langues</span>}
                       </div>
                     </div>

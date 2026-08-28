@@ -44,7 +44,8 @@ export default function UsersPage() {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           
-          const data = await response.json();
+          const payload = await response.json();
+          const data = payload?.data ?? payload;
           
           // Ensure data is an array
           if (Array.isArray(data)) {
@@ -80,7 +81,8 @@ export default function UsersPage() {
     const matchesSearch = job.titre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.sector?.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === "all" || 
-                         (filterStatus === "verified" && job.is_verified === "Accepted") ||
+                         (filterStatus === "verified" && job.status === "Accepted") ||
+                         (filterStatus === "expired" && job.status === "Expired") ||
                          (filterStatus === "pending" && job.is_verified === "Pending") ||
                          (filterStatus === "declined" && job.is_verified === "Declined");
     return matchesSearch && matchesStatus;
@@ -89,10 +91,11 @@ export default function UsersPage() {
   // Calculate statistics
   const stats = {
     total: jobs.length,
-    verified: jobs.filter(job => job.is_verified === "Accepted").length,
+    verified: jobs.filter(job => job.status === "Accepted").length,
+    expired: jobs.filter(job => job.status === "Expired").length,
     pending: jobs.filter(job => job.is_verified === "Pending").length,
     declined: jobs.filter(job => job.is_verified === "Declined").length,
-    totalApplications: jobs.reduce((sum, job) => sum + (job.postuler_offres_count || 0), 0),
+    totalApplications: jobs.reduce((sum, job) => sum + (job.applications_count || 0), 0),
   };
 
   if (loading) {
@@ -127,7 +130,7 @@ export default function UsersPage() {
         </div>
         
         {/* Statistics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 md:gap-4">
           <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -172,6 +175,18 @@ export default function UsersPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-base md:text-xl font-bold text-gray-900">{stats.declined}</p>
                 <p className="text-xs text-gray-600">Refusées</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border-2 border-slate-200 rounded-lg p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <Calendar className="text-slate-600 w-4 h-4 md:w-5 md:h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-base md:text-xl font-bold text-gray-900">{stats.expired}</p>
+                <p className="text-xs text-gray-600">Expirées</p>
               </div>
             </div>
           </div>
@@ -268,6 +283,15 @@ export default function UsersPage() {
               En attente
             </Button>
             <Button
+              variant={filterStatus === "expired" ? "default" : "outline"}
+              onClick={() => setFilterStatus("expired")}
+              size="sm"
+              className={`text-xs md:text-sm ${filterStatus === "expired" ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
+            >
+              <Calendar className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+              Expirées
+            </Button>
+            <Button
               variant={filterStatus === "declined" ? "default" : "outline"}
               onClick={() => setFilterStatus("declined")}
               size="sm"
@@ -338,14 +362,17 @@ export default function UsersPage() {
                       {/* Status Badge */}
                       <Badge 
                         className={`flex-shrink-0 text-xs whitespace-nowrap ${
-                          job.is_verified === "Accepted" 
+                          job.status === "Accepted"
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                            : job.status === "Expired"
+                            ? "bg-slate-100 text-slate-700 border-slate-300"
                             : job.is_verified === "Pending"
                             ? "bg-amber-50 text-amber-700 border-amber-200"
                             : "bg-red-50 text-red-700 border-red-200"
                         } border`}
                       >
-                        {job.is_verified === "Accepted" ? "Validée" : 
+                        {job.status === "Accepted" ? "Active" :
+                         job.status === "Expired" ? "Expirée" :
                          job.is_verified === "Pending" ? "En attente" : "Refusée"}
                       </Badge>
                     </div>
@@ -372,7 +399,7 @@ export default function UsersPage() {
                       <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
                         <Users className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
                         <span className="font-medium">
-                          {job.postuler_offres_count || 0} candidature{(job.postuler_offres_count || 0) !== 1 ? 's' : ''}
+                          {job.applications_count || 0} candidature{(job.applications_count || 0) !== 1 ? 's' : ''}
                         </span>
                       </div>
                     </div>

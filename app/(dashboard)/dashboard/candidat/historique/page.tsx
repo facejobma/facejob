@@ -31,7 +31,7 @@ interface Application {
   company: string;
   company_logo?: string;
   description: string;
-  status: 'not_viewed' | 'viewed' | 'accepted' | 'rejected';
+  status: 'submitted' | 'viewed' | 'accepted' | 'rejected' | 'withdrawn';
   viewed_by_recruiter?: boolean;
   viewed_at?: string;
   applied_at: string;
@@ -48,10 +48,11 @@ interface Application {
 
 interface Statistics {
   total: number;
-  not_viewed: number;
+  submitted: number;
   viewed: number;
   accepted: number;
   rejected: number;
+  withdrawn: number;
   job_offers: number;
   video_cvs: number;
 }
@@ -62,10 +63,11 @@ const ApplicationHistory: React.FC = () => {
   const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
     total: 0,
-    not_viewed: 0,
+    submitted: 0,
     viewed: 0,
     accepted: 0,
     rejected: 0,
+    withdrawn: 0,
     job_offers: 0,
     video_cvs: 0
   });
@@ -106,8 +108,8 @@ const ApplicationHistory: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setApplications(data.applications);
-        setStatistics(data.statistics);
+        setApplications(data.data?.applications ?? []);
+        setStatistics(data.data?.statistics ?? statistics);
       } else {
         toast.error("Erreur lors du chargement de l'historique");
       }
@@ -187,7 +189,9 @@ const ApplicationHistory: React.FC = () => {
             Refusée
           </Badge>
         );
-      default: // not_viewed
+      case 'withdrawn':
+        return <Badge className="bg-slate-100 text-slate-700 border-slate-200">Retirée</Badge>;
+      default: // submitted
         return (
           <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100 border-gray-200">
             <FaClock className="w-3 h-3 mr-1" />
@@ -195,6 +199,21 @@ const ApplicationHistory: React.FC = () => {
           </Badge>
         );
     }
+  };
+
+  const withdrawApplication = async (applicationId: number) => {
+    if (!window.confirm("Retirer cette candidature ? Vous pourrez postuler à nouveau ensuite.")) return;
+    const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/applications/${applicationId}/withdraw`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => null);
+      toast.error(error?.message || "Impossible de retirer la candidature");
+      return;
+    }
+    toast.success("Candidature retirée");
+    await fetchApplicationHistory();
   };
 
   const getTypeBadge = (type: string) => {
@@ -290,8 +309,8 @@ const ApplicationHistory: React.FC = () => {
               <FaClock className="h-5 w-5 text-gray-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{statistics.not_viewed}</p>
-              <p className="text-sm text-gray-600">Non vues</p>
+              <p className="text-2xl font-bold text-gray-900">{statistics.submitted}</p>
+              <p className="text-sm text-gray-600">Soumises</p>
             </div>
           </div>
         </div>
@@ -399,10 +418,10 @@ const ApplicationHistory: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="not_viewed">
+                <SelectItem value="submitted">
                   <div className="flex items-center gap-2">
                     <FaClock className="h-3 w-3 text-gray-600" />
-                    <span>Non vues</span>
+                    <span>Soumises</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="viewed">
@@ -423,6 +442,7 @@ const ApplicationHistory: React.FC = () => {
                     <span>Refusées</span>
                   </div>
                 </SelectItem>
+                <SelectItem value="withdrawn">Retirées</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -552,6 +572,12 @@ const ApplicationHistory: React.FC = () => {
                     >
                       <FaEye className="h-3 w-3" />
                       <span>Voir offre</span>
+                    </Button>
+                  )}
+                  {(application.status === 'submitted' || application.status === 'viewed') && (
+                    <Button variant="outline" size="sm" onClick={() => withdrawApplication(application.id)}
+                      className="border-red-200 text-red-700 hover:bg-red-50">
+                      Retirer
                     </Button>
                   )}
                 </div>

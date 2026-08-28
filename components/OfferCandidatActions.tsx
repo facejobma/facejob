@@ -32,7 +32,7 @@ interface Candidat {
   bio: string;
   years_of_experience: number;
   is_completed: number;
-  job_id: number;
+  job_id: number | null;
   image: string | null;
   created_at: string;
   updated_at: string;
@@ -54,9 +54,10 @@ interface Payment {
 export const OfferCandidatActions: React.FC<{
   candidat: Candidat;
   postuler: Postuler;
+  applicationId: number;
   videoLink?: string;
   onVideoClick?: () => void;
-}> = ({ candidat, postuler, videoLink, onVideoClick }) => {
+}> = ({ candidat, postuler, applicationId, videoLink, onVideoClick }) => {
   // const [loading, setLoading] = useState(false);
   const authToken = Cookies.get("authToken");
   const router = useRouter();
@@ -88,7 +89,8 @@ export const OfferCandidatActions: React.FC<{
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            candidat_id: candidat.id,
+            postuler_id: postuler.id,
+            application_id: applicationId,
             entreprise_id: companyId,
           }),
         },
@@ -189,6 +191,7 @@ export const OfferCandidatActions: React.FC<{
           },
           body: JSON.stringify({
             postuler_id: postuler.id,
+            application_id: applicationId,
             entreprise_id: companyId,
           }),
         },
@@ -221,6 +224,36 @@ export const OfferCandidatActions: React.FC<{
       toast.error("Erreur réseau. Veuillez réessayer.");
     }
   };
+
+  const handleVideoView = async () => {
+    try {
+      await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/applications/${applicationId}/viewed`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("Unable to mark application as viewed:", error);
+    } finally {
+      onVideoClick?.();
+    }
+  };
+
+  const decideApplication = async (decision: "accept" | "reject") => {
+    const endpoint = decision === "accept"
+      ? `/api/v1/offre/accept_cv/${applicationId}`
+      : `/api/v1/applications/${applicationId}/reject`;
+    const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}${endpoint}`, {
+      method: decision === "accept" ? "POST" : "PATCH",
+      headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => null);
+      toast.error(error?.message || "Impossible de mettre à jour la candidature");
+      return;
+    }
+    toast.success(decision === "accept" ? "Candidature acceptée" : "Candidature refusée");
+    window.location.reload();
+  };
   
 
 
@@ -236,7 +269,8 @@ export const OfferCandidatActions: React.FC<{
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              candidat_id: candidat.id,
+              postuler_id: postulerToConsume.id,
+              application_id: applicationId,
               entreprise_id: companyId,
             }),
           },
@@ -262,6 +296,7 @@ export const OfferCandidatActions: React.FC<{
             },
             body: JSON.stringify({
               postuler_id: postulerToConsume.id,
+              application_id: applicationId,
               entreprise_id: companyId,
             }),
           },
@@ -311,7 +346,7 @@ export const OfferCandidatActions: React.FC<{
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
       
           {videoLink && onVideoClick && (
-            <DropdownMenuItem onClick={onVideoClick}>
+            <DropdownMenuItem onClick={handleVideoView}>
               <View className="mr-2 h-4 w-4" />
               Voir CV vidéo
             </DropdownMenuItem>
@@ -325,6 +360,12 @@ export const OfferCandidatActions: React.FC<{
           <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
             <CheckSquare className="mr-2 h-4 w-4" /> 
             Débloquer
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => decideApplication("accept")}>
+            <CheckSquare className="mr-2 h-4 w-4 text-green-600" /> Accepter
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => decideApplication("reject")}>
+            <XSquare className="mr-2 h-4 w-4 text-red-600" /> Refuser
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

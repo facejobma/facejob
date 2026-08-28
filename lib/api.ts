@@ -423,13 +423,40 @@ export async function updateCandidate(data: any) {
   throw new Error(`Failed to update candidate: ${response.status}`);
 }
 
+export class OfferApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+    public readonly errors?: Record<string, string[]>,
+    public readonly details?: Record<string, unknown>,
+  ) {
+    super(message);
+    this.name = 'OfferApiError';
+  }
+}
+
 export async function createOffer(data: any) {
   const response = await authenticatedApiCall('/offre/create', {
     method: 'POST',
     body: JSON.stringify(data)
   });
   if (response.ok) return response.json();
-  throw new Error(`Failed to create offer: ${response.status}`);
+
+  let payload: any = {};
+  try {
+    payload = await response.json();
+  } catch {
+    // Preserve the HTTP status even if a proxy returns a non-JSON body.
+  }
+
+  throw new OfferApiError(
+    payload.message || `Échec de la création de l’offre (${response.status}).`,
+    response.status,
+    payload.errors?.code?.[0],
+    payload.errors,
+    payload,
+  );
 }
 
 export async function logout() {

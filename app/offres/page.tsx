@@ -75,14 +75,14 @@ interface Offer {
   description: string;
   company_name: string;
   sector_name: string;
-  job_name: string;
+  job_name: string | null;
   location: string;
   contractType: string;
   date_debut: string;
-  date_fin: string;
+  date_fin: string | null;
   created_at: string;
   sector_id: number;
-  job_id: number;
+  job_id: number | null;
   entreprise_id: number;
 }
 

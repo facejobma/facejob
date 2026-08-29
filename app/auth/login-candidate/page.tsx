@@ -3,6 +3,7 @@ import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { getSafeReturnUrl } from "@/lib/auth";
 import ModernLoginForm from "../../../components/auth/login/ModernLoginForm";
 import ModernAuthLayout from "../../../components/auth/ModernAuthLayout";
 import AuthLoadingSpinner from "../../../components/auth/AuthLoadingSpinner";
@@ -13,7 +14,7 @@ function LoginContent() {
   const { isLoading, user } = useAuthGuard({});
 
   // Get redirect parameters from URL
-  const returnUrl = searchParams.get('returnUrl');
+  const returnUrl = getSafeReturnUrl(searchParams.get('returnUrl'));
 
   // Redirect logged-in users to their dashboard or returnUrl
   useEffect(() => {

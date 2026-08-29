@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FullPageLoading } from "@/components/ui/loading";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import { getUserFromToken, redirectToDashboard } from "@/lib/auth";
+import { getSafeReturnUrl, getUserFromToken, redirectToDashboard, resetAuthCache } from "@/lib/auth";
 import { Suspense } from "react";
 
 function GoogleCallbackContent() {
@@ -17,13 +17,7 @@ function GoogleCallbackContent() {
     const handleGoogleCallback = async () => {
       try {
         const token = searchParams.get("token");
-        const userType = searchParams.get("user_type");
         const error = searchParams.get("error");
-        const provider = searchParams.get("provider");
-
-        console.log("Google callback - Token:", token);
-        console.log("Google callback - User Type:", userType);
-        console.log("Google callback - Error:", error);
 
         // Check if there was an OAuth error
         if (error) {
@@ -31,14 +25,13 @@ function GoogleCallbackContent() {
         }
 
         // Check if we have the required data from backend redirect
-        if (!token || !userType) {
+        if (!token) {
           throw new Error("Données d'authentification manquantes. Veuillez réessayer.");
         }
 
         // Store auth token
         Cookies.set("authToken", token, { expires: 7 });
-
-        console.log("Access Token OAuth:", token);
+        resetAuthCache();
 
         // Get user data from backend using the token
         const authenticatedUser = await getUserFromToken();
@@ -59,7 +52,7 @@ function GoogleCallbackContent() {
         console.log('🔐 Google OAuth successful - Redirecting to dashboard:', authenticatedUser.role);
 
         // Check if there's a returnUrl stored before OAuth redirect
-        const returnUrl = sessionStorage.getItem('oauthReturnUrl');
+        const returnUrl = getSafeReturnUrl(sessionStorage.getItem('oauthReturnUrl'));
         
         if (returnUrl) {
           console.log('🔄 Found returnUrl, redirecting to:', returnUrl);

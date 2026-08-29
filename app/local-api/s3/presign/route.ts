@@ -87,20 +87,34 @@ function generatePresignedUrl(params: {
 
 export async function POST(req: NextRequest) {
   try {
-    const region = process.env.FACEJOB_AWS_REGION || "eu-west-3";
-    const accessKeyId = process.env.FACEJOB_AWS_ACCESS_KEY_ID;
-    const secretAccessKey = process.env.FACEJOB_AWS_SECRET_ACCESS_KEY;
-    const bucketName = process.env.FACEJOB_AWS_S3_BUCKET_NAME || "facejob-videos-storage-525426878142-eu-west-3";
+    const authorization = req.headers.get("authorization");
+    if (!authorization?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    if (!accessKeyId || !secretAccessKey) {
+    const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+    const authResponse = await fetch(`${backendUrl}/api/v1/user`, {
+      headers: { Authorization: authorization, Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!authResponse.ok) {
+      return NextResponse.json({ error: "Invalid or expired candidate session" }, { status: 401 });
+    }
+
+    const region = process.env.FACEJOB_AWS_REGION || process.env.AWS_DEFAULT_REGION || "eu-west-3";
+    const accessKeyId = process.env.FACEJOB_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.FACEJOB_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
+    const bucketName = process.env.FACEJOB_AWS_S3_BUCKET_NAME || process.env.AWS_BUCKET;
+
+    if (!accessKeyId || !secretAccessKey || !bucketName) {
       return NextResponse.json(
-        { error: "Missing AWS credentials in environment variables" },
+        { error: "S3 upload is not configured on this server" },
         { status: 500 }
       );
     }
 
     const body = await req.json();
-    const { filename, contentType } = body;
+    const { filename, contentType, fileSize } = body;
 
     if (!filename || !contentType) {
       return NextResponse.json(
@@ -109,8 +123,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const allowedTypes: Record<string, { extension: string; maxBytes: number }> = {
+      "video/mp4": { extension: "mp4", maxBytes: 50 * 1024 * 1024 },
+      "video/webm": { extension: "webm", maxBytes: 50 * 1024 * 1024 },
+      "video/quicktime": { extension: "mov", maxBytes: 50 * 1024 * 1024 },
+      "image/jpeg": { extension: "jpg", maxBytes: 5 * 1024 * 1024 },
+      "image/png": { extension: "png", maxBytes: 5 * 1024 * 1024 },
+      "image/webp": { extension: "webp", maxBytes: 5 * 1024 * 1024 },
+    };
+    const uploadPolicy = allowedTypes[contentType];
+    if (!uploadPolicy) {
+      return NextResponse.json({ error: "Unsupported file format" }, { status: 422 });
+    }
+    if (!Number.isFinite(fileSize) || fileSize <= 0 || fileSize > uploadPolicy.maxBytes) {
+      return NextResponse.json({ error: "File size exceeds the allowed limit" }, { status: 422 });
+    }
+
     // Generate a secure random filename
-    const extension = filename.split(".").pop();
+    const extension = uploadPolicy.extension;
     const randomKey = `${crypto.randomUUID()}.${extension}`;
 
     // Generate presigned URL using pure Node.js crypto (no AWS SDK!)

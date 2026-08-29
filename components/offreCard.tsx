@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import Modal from "@/components/Modal";
 import Cookies from "js-cookie";
 import SafeHtmlDisplay from "@/components/SafeHtmlDisplay";
 import { useExperiencePromptContext } from "@/contexts/ExperiencePromptContext";
 import ProfileCompletionModal from "@/components/ProfileCompletionModal";
+import ApplicationSuccessModal from "@/components/ApplicationSuccessModal";
+import { getBrowserImageSrc } from "@/lib/images";
 import Link from "next/link";
 import {
   MapPin,
@@ -29,17 +31,25 @@ import { useRouter } from "next/navigation";
 interface OffreCardProps {
   offreId: number;
   titre: string;
-  entreprise_name: string;
+  entreprise_name?: string | null;
   entreprise_logo?: string;
-  sector_name: string;
-  job_name: string | null;
-  location: string;
-  contractType: string;
-  date_debut: string;
+  sector_name?: string | null;
+  job_name?: string | null;
+  location?: string | null;
+  contractType?: string | null;
+  date_debut?: string | null;
   date_fin: string | null;
+  created_at?: string | null;
   description: string;
   applications_count?: number;
   views_count?: number;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  currency?: string | null;
+  experience_required?: number | null;
+  required_skills?: string[] | null;
+  required_languages?: string[] | null;
+  benefits?: string[] | null;
   isProfileComplete: boolean;
   hasAlreadyApplied: boolean;
   onApplicationSuccess?: () => void;
@@ -59,8 +69,16 @@ const OffreCard: React.FC<OffreCardProps> = ({
   date_debut,
   description,
   date_fin,
+  created_at,
   applications_count = 0,
   views_count = 0,
+  salary_min,
+  salary_max,
+  currency = "MAD",
+  experience_required,
+  required_skills = [],
+  required_languages = [],
+  benefits = [],
   isProfileComplete,
   hasAlreadyApplied,
   onApplicationSuccess,
@@ -82,6 +100,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   const [selectedVideo, setSelectedVideo] = useState<string>("");
   const [selectedVideoId, setSelectedVideoId] = useState<number|null>(null);
   const [loading, setLoading] = useState(false);
+  const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
@@ -101,11 +120,17 @@ const OffreCard: React.FC<OffreCardProps> = ({
 
   const userId = user ? JSON.parse(user).id : null;
 
-  // Calculate days since posting using actual created_at or offer ID for consistency
-  const daysAgo = useMemo(() => {
-    // Use offer ID to generate a consistent "days ago" value
-    return (offreId % 7) + 1;
-  }, [offreId]);
+  const publicationLabel = (() => {
+    if (!created_at) return "Date non renseignée";
+    const date = new Date(created_at);
+    if (Number.isNaN(date.getTime())) return "Date non renseignée";
+    const days = Math.max(0, Math.floor((Date.now() - date.getTime()) / 86400000));
+    if (days === 0) return "Aujourd’hui";
+    if (days === 1) return "Hier";
+    if (days < 30) return `Il y a ${days} jours`;
+    return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  })();
+  const enterpriseLogoSrc = getBrowserImageSrc(entreprise_logo);
 
   // Auto-open modal when autoOpenModal prop is true
   useEffect(() => {
@@ -190,7 +215,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   const openModal = () => {
-    setModalData({ titre, entreprise_name, sector_name, job_name: job_name || titre });
+    setModalData({ titre, entreprise_name: entreprise_name || "Entreprise confidentielle", sector_name: sector_name || "", job_name: job_name || titre });
     setModalIsOpen(true);
     setSelectedVideo("");
     setSelectedVideoId(null);
@@ -225,7 +250,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
     }
   
     try {
-      setLoading(true);
+      setIsSubmittingApplication(true);
       setIsButtonDisabled(true);
   
       const response = await fetch(
@@ -271,7 +296,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       console.error("Error submitting application:", error);
       toast.error("Une erreur est survenue.");
     } finally {
-      setLoading(false);
+      setIsSubmittingApplication(false);
     }
   };
 
@@ -282,8 +307,8 @@ const OffreCard: React.FC<OffreCardProps> = ({
   };
 
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/offres/${offreId}`;
-  const shareTitle = `${titre} - ${entreprise_name}`;
-  const shareText = `Découvrez cette offre d'emploi: ${titre} chez ${entreprise_name}`;
+  const shareTitle = `${titre} - ${entreprise_name || "Entreprise confidentielle"}`;
+  const shareText = `Découvrez cette offre d'emploi: ${titre} chez ${entreprise_name || "Entreprise confidentielle"}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);
@@ -314,9 +339,10 @@ const OffreCard: React.FC<OffreCardProps> = ({
     <Link 
       href={`/dashboard/candidat/offres/${offreId}`}
       className="block h-full"
+      aria-label={`Voir l'offre ${titre}`}
     >
       <div 
-        className="bg-white rounded-2xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden group cursor-pointer"
+        className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-lg"
         onClick={(e) => {
           // Prevent navigation only if clicking on interactive elements
           const target = e.target as HTMLElement;
@@ -331,16 +357,16 @@ const OffreCard: React.FC<OffreCardProps> = ({
         }}
       >
       {/* Header Section */}
-      <div className="px-6 pt-6 pb-4 bg-gradient-to-br from-gray-50 to-white">
+      <div className="border-b border-slate-100 bg-gradient-to-br from-emerald-50/60 via-white to-white px-5 pb-4 pt-5">
         <div className="flex items-start gap-4">
           {/* Company Logo - Always show with fallback */}
           <div className="flex-shrink-0">
-            <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-gray-200 bg-white flex items-center justify-center shadow-sm group-hover:border-green-400 transition-colors">
-              {entreprise_logo ? (
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-colors group-hover:border-emerald-300">
+              {enterpriseLogoSrc ? (
                 <>
                   <img 
-                    src={entreprise_logo.startsWith('http') ? entreprise_logo : `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/storage/${entreprise_logo}`}
-                    alt={entreprise_name}
+                    src={enterpriseLogoSrc}
+                    alt={entreprise_name || "Entreprise"}
                     className="w-full h-full object-contain p-1.5"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
@@ -363,29 +389,29 @@ const OffreCard: React.FC<OffreCardProps> = ({
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-              <Building size={16} className="flex-shrink-0 text-green-600" />
-              <span className="font-semibold text-gray-700 truncate">{entreprise_name}</span>
-              <span className="text-gray-300">•</span>
-              <span className="whitespace-nowrap text-gray-500">Il y a {daysAgo}j</span>
+            <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-500">
+              <Building size={14} className="flex-shrink-0 text-emerald-600" />
+              <span className="truncate font-semibold text-slate-700">{entreprise_name || "Entreprise confidentielle"}</span>
+              <span className="text-slate-300">•</span>
+              <span className="whitespace-nowrap">{publicationLabel}</span>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-green-700 transition-colors">{titre}</h3>
+            <h3 className="line-clamp-2 text-lg font-bold leading-6 text-slate-950 transition-colors group-hover:text-emerald-700">{titre}</h3>
         
           </div>
           
         </div >
-            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 pt-2">
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200">
-                <MapPin size={14} className="text-green-600" />
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+              {location && <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5">
+                <MapPin size={13} className="text-emerald-600" />
                 <span className="font-medium">{location}</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200">
-                <Briefcase size={14} className="text-green-600" />
+              </div>}
+              {contractType && <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5">
+                <Briefcase size={13} className="text-emerald-600" />
                 <span className="font-medium">{contractType}</span>
-              </div>
+              </div>}
               {sector_name && (
-                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200">
-                  <Calendar size={14} className="text-green-600" />
+                <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5">
+                  <Calendar size={13} className="text-emerald-600" />
                   <span className="font-medium">{sector_name}</span>
                 </div>
               )}
@@ -393,13 +419,13 @@ const OffreCard: React.FC<OffreCardProps> = ({
       </div>
 
       {/* Content Section */}
-      <div className="px-6 pb-6 pt-0 flex-1 flex flex-col bg-white">
+      <div className="flex flex-1 flex-col bg-white px-5 pb-5 pt-4">
         {/* Description */}
         <div className="mb-4 flex-1">
           <div className="relative">
             <SafeHtmlDisplay
               html={description || "Aucune description disponible."}
-              className="text-gray-600 text-sm leading-relaxed line-clamp-1"
+              className="line-clamp-2 text-sm leading-6 text-slate-600"
             />
           </div>
           
@@ -416,6 +442,21 @@ const OffreCard: React.FC<OffreCardProps> = ({
               Voir plus
             </button>
           )}
+          <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
+            {(salary_min != null || salary_max != null) && (
+              <span className="rounded bg-green-50 px-2 py-1 text-green-700">
+                {salary_min != null && salary_max != null
+                  ? `${Number(salary_min).toLocaleString("fr-FR")} – ${Number(salary_max).toLocaleString("fr-FR")} ${currency || "MAD"}`
+                  : salary_min != null
+                  ? `Dès ${Number(salary_min).toLocaleString("fr-FR")} ${currency || "MAD"}`
+                  : `Jusqu’à ${Number(salary_max).toLocaleString("fr-FR")} ${currency || "MAD"}`}
+              </span>
+            )}
+            {experience_required != null && <span className="rounded bg-amber-50 px-2 py-1 text-amber-700">{experience_required} an(s) d’expérience</span>}
+            {(required_skills ?? []).slice(0, 2).map((skill) => <span key={`skill-${offreId}-${skill}`} className="rounded bg-blue-50 px-2 py-1 text-blue-700">{skill}</span>)}
+            {(required_languages ?? []).slice(0, 2).map((language) => <span key={`language-${offreId}-${language}`} className="rounded bg-purple-50 px-2 py-1 text-purple-700">{language}</span>)}
+            {(benefits ?? []).slice(0, 1).map((benefit) => <span key={`benefit-${offreId}-${benefit}`} className="rounded bg-emerald-50 px-2 py-1 text-emerald-700">{benefit}</span>)}
+          </div>
         </div>
 
         {/* Action Button */}
@@ -426,7 +467,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
           </div>
         ) : (
           <button
-            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -446,7 +487,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
       </div>
 
       {/* Footer Stats - Always at bottom */}
-      <div className="px-6 py-3 border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white mt-auto">
+      <div className="mt-auto border-t border-slate-100 bg-slate-50/70 px-5 py-3">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-4 text-gray-600">
         
@@ -567,6 +608,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
         videos={videos}
         selectedVideo={selectedVideo}
         selectedVideoId={selectedVideoId}
+        isSubmitting={isSubmittingApplication}
         onVideoChange={handleVideoChange}
       />
 
@@ -618,28 +660,7 @@ const OffreCard: React.FC<OffreCardProps> = ({
         </div>
       )}
 
-      {/* Success Modal */}
-      {isConfirmationVisible && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md text-center">
-            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="text-green-600" size={32} />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Candidature envoyée !
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Votre candidature a été soumise avec succès. L'entreprise examinera votre profil prochainement.
-            </p>
-            <button
-              className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-8 py-3 font-semibold transition-colors"
-              onClick={closeModal}
-            >
-              Parfait !
-            </button>
-          </div>
-        </div>
-      )}
+      <ApplicationSuccessModal isOpen={isConfirmationVisible} onClose={closeModal} />
       </div>
     </Link>
 

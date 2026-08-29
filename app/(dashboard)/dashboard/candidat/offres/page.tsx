@@ -6,7 +6,7 @@ import { FullPageLoading } from "@/components/ui/loading";
 import OffreCard from "@/components/offreCard";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X, Loader2, BriefcaseBusiness, SlidersHorizontal, Building2, Sparkles } from "lucide-react";
 import { fetchSectors } from "@/lib/api";
 import { useSearchParams } from "next/navigation";
 
@@ -101,22 +101,22 @@ const OffresPage: React.FC = () => {
   const customSelectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      borderRadius: '8px',
-      borderColor: state.isFocused ? '#4f46e5' : '#d1d5db',
+      borderRadius: '12px',
+      borderColor: state.isFocused ? '#10b981' : '#cbd5e1',
       borderWidth: '1px',
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(79, 70, 229, 0.1)' : 'none',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(16, 185, 129, 0.12)' : 'none',
       padding: '0px',
-      minHeight: '42px',
-      height: '42px',
+      minHeight: '46px',
+      height: '46px',
       backgroundColor: 'white',
       '&:hover': {
-        borderColor: '#4f46e5',
+        borderColor: '#10b981',
       },
     }),
     valueContainer: (base: any) => ({
       ...base,
       padding: '2px 12px',
-      height: '42px',
+      height: '46px',
     }),
     input: (base: any) => ({
       ...base,
@@ -125,19 +125,19 @@ const OffresPage: React.FC = () => {
     }),
     indicatorsContainer: (base: any) => ({
       ...base,
-      height: '42px',
+      height: '46px',
     }),
     option: (base: any, state: any) => ({
       ...base,
       backgroundColor: state.isSelected 
-        ? '#4f46e5' 
+        ? '#059669'
         : state.isFocused 
         ? '#f3f4f6' 
         : 'white',
       color: state.isSelected ? 'white' : '#1f2937',
       padding: '12px 16px',
       '&:active': {
-        backgroundColor: '#4f46e5',
+        backgroundColor: '#059669',
       },
     }),
     placeholder: (base: any) => ({
@@ -387,42 +387,49 @@ const OffresPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1500px] space-y-6 pb-12">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm md:p-8">
+        <div className="absolute inset-y-0 right-0 hidden w-64 bg-gradient-to-l from-emerald-50 to-transparent lg:block" />
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+          <div className="relative flex items-start gap-4">
+            <div className="hidden h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm sm:flex">
+              <BriefcaseBusiness size={23} />
+            </div>
+            <div>
+            <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700"><Sparkles size={14} /> Opportunités</div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
               Offres d'emploi
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="mt-1 text-sm text-slate-500 md:text-base">
               {(selectedSector || selectedJob || selectedCity || searchQuery || selectedApplicationStatus) ? 
                 `${totalOffers} offre${totalOffers > 1 ? 's' : ''} trouvée${totalOffers > 1 ? 's' : ''}` : 
                 `${totalOffers} offre${totalOffers > 1 ? 's' : ''} disponible${totalOffers > 1 ? 's' : ''}`
               }
             </p>
+            </div>
           </div>
-          <div className="hidden md:flex items-center gap-6">
-            <div className="text-center">
-              <div className="text-xl font-bold text-gray-900">
+          <div className="relative hidden items-center gap-3 md:flex">
+            <div className="min-w-28 rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-center shadow-sm">
+              <div className="text-xl font-bold text-slate-950">
                 {offres.filter(o => new Date(o.created_at) > new Date(Date.now() - 7*24*60*60*1000)).length}
               </div>
-              <div className="text-sm text-gray-600">Cette semaine</div>
+              <div className="text-xs font-medium text-slate-500">Cette semaine</div>
             </div>
-            <div className="text-center">
-              <div className="text-xl font-bold text-gray-900">
+            <div className="min-w-28 rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-center shadow-sm">
+              <div className="flex items-center justify-center gap-1 text-xl font-bold text-slate-950"><Building2 size={17} className="text-emerald-600" />
                 {new Set(offres.map(o => o.entreprise_id)).size}
               </div>
-              <div className="text-sm text-gray-600">Entreprises</div>
+              <div className="text-xs font-medium text-slate-500">Entreprises</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Filtres</h2>
+          <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900"><SlidersHorizontal size={18} className="text-emerald-600" /> Affiner les résultats</h2>
           {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
@@ -441,7 +448,7 @@ const OffresPage: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <input
                   type="text"
-                  placeholder="Rechercher..."
+                  placeholder="Métier, compétence ou mot-clé..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -450,7 +457,7 @@ const OffresPage: React.FC = () => {
                       handleSearch();
                     }
                   }}
-                  className="w-full pl-10 pr-10 md:pr-28 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                  className="h-[46px] w-full rounded-xl border border-slate-300 bg-white pl-10 pr-10 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 md:pr-32"
                 />
                 {/* Clear and Search buttons */}
                 {searchQuery && (
@@ -465,7 +472,7 @@ const OffresPage: React.FC = () => {
 
                 <button
                   onClick={handleSearch}
-                  className="absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-2 rounded-md bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700 md:flex"
+                  className="absolute right-1.5 top-1/2 hidden -translate-y-1/2 items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 md:flex"
                 >
                   <Search size={14} />
                   <span>Rechercher</span>
@@ -662,18 +669,22 @@ const OffresPage: React.FC = () => {
       </div>
 
       {/* Job Offers List */}
-      {displayedOffers.length > 0 ? (
-        <>
-          {/* Loading state for initial load */}
-          {loading && offres.length === 0 ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-green-600 mx-auto mb-4" />
-                <p className="text-gray-600">Chargement des offres...</p>
+      {loading && offres.length === 0 ? (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Chargement des offres">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="animate-pulse space-y-5 p-5">
+                <div className="flex gap-4"><div className="h-14 w-14 rounded-xl bg-slate-200" /><div className="flex-1 space-y-2"><div className="h-3 w-2/5 rounded bg-slate-200" /><div className="h-5 w-4/5 rounded bg-slate-200" /></div></div>
+                <div className="flex gap-2"><div className="h-7 w-24 rounded-lg bg-slate-100" /><div className="h-7 w-20 rounded-lg bg-slate-100" /></div>
+                <div className="space-y-2"><div className="h-3 w-full rounded bg-slate-100" /><div className="h-3 w-3/4 rounded bg-slate-100" /></div>
+                <div className="h-11 rounded-xl bg-slate-200" />
               </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          ))}
+        </div>
+      ) : displayedOffers.length > 0 ? (
+        <>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
               {displayedOffers.map((offre, index) => (
                 <OffreCard
                   key={`${offre.id}-${index}`}
@@ -687,9 +698,17 @@ const OffresPage: React.FC = () => {
                   contractType={offre.contractType}
                   date_debut={offre.date_debut}
                   date_fin={offre.date_fin}
+                  created_at={offre.created_at}
                   description={offre.description}
                   applications_count={offre.applications_count}
                   views_count={offre.views_count}
+                  salary_min={offre.salary_min ?? null}
+                  salary_max={offre.salary_max ?? null}
+                  currency={offre.currency || "MAD"}
+                  experience_required={offre.experience_required ?? null}
+                  required_skills={Array.isArray(offre.required_skills) ? offre.required_skills : []}
+                  required_languages={Array.isArray(offre.required_languages) ? offre.required_languages : []}
+                  benefits={Array.isArray(offre.benefits) ? offre.benefits : []}
                   isProfileComplete={isProfileComplete}
                   hasAlreadyApplied={offre.has_applied || false}
                   onApplicationSuccess={() => updateOfferApplicationStatus(offre.id, true)}
@@ -698,7 +717,6 @@ const OffresPage: React.FC = () => {
                 />
               ))}
             </div>
-          )}
 
           {/* Sentinel for infinite scroll */}
           {hasMore && (
@@ -715,9 +733,9 @@ const OffresPage: React.FC = () => {
           )}
         </>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="text-gray-400" size={32} />
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 ring-1 ring-emerald-100">
+            <Search className="text-emerald-600" size={28} />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Aucune offre trouvée
@@ -728,7 +746,7 @@ const OffresPage: React.FC = () => {
           {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="rounded-xl bg-emerald-600 px-6 py-3 font-medium text-white transition-colors hover:bg-emerald-700"
             >
               Réinitialiser les filtres
             </button>

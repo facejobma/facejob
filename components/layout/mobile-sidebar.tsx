@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { navItemsCandidat, navItemsEntreprise } from "@/constants/data";
 import { MenuIcon, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Logo } from "@/components/ui/logo";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   role?: "candidat" | "entreprise";
@@ -49,31 +50,32 @@ export function MobileSidebar({ className, role }: SidebarProps) {
     <>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <MenuIcon className="h-7 w-7 text-gray-700" />
+          <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700" aria-label="Ouvrir le menu">
+            <MenuIcon className="h-5 w-5" />
           </button>
         </SheetTrigger>
-        <SheetContent side="left" className="!px-0 w-80 [&>button]:hidden">
+        <SheetContent side="left" className="w-[min(88vw,320px)] !px-0 [&>button]:hidden">
           <div className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
           </div>
           <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+            <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+              <div className="flex h-10 items-center [&_img]:h-9 [&_img]:w-auto"><Logo /></div>
               <button 
                 onClick={() => setOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                aria-label="Fermer le menu"
               >
-                <X className="h-7 w-7 text-gray-700" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Navigation */}
-            <div className="flex-1 overflow-y-auto py-4">
-              <div className="px-4">
-                <h3 className="mb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Navigation
+            <div className="flex-1 overflow-y-auto bg-slate-50/50 py-5">
+              <div className="px-3">
+                <h3 className="mb-3 px-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Espace candidat
                 </h3>
                 <DashboardNav items={navItems} setOpen={setOpen} closeOnClick={true} />
               </div>

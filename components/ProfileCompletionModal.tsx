@@ -1,16 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Plus, X, Briefcase, Clock, GraduationCap, Lightbulb, FolderOpen, FileText, CheckCircle, AlertCircle, Globe, Search } from "lucide-react";
+import { Plus, X, Briefcase, Clock, GraduationCap, Lightbulb, FolderOpen, FileText, CheckCircle, AlertCircle, Globe, Search } from "lucide-react";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -74,13 +71,13 @@ export default function ProfileCompletionModal({
     titre: "",
     diplome: "",
     etablissement: "",
-    date_debut: null as Date | null,
     date_fin: null as Date | null,
     description: "",
   });
   const [degrees, setDegrees] = useState<Array<{ id: string; name: string; level: string }>>([]);
   const [degreeSearchTerm, setDegreeSearchTerm] = useState("");
   const [isDegreeDropdownOpen, setIsDegreeDropdownOpen] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const skillsByCategory = useMemo(
     () => ({
@@ -132,7 +129,8 @@ export default function ProfileCompletionModal({
         );
 
         if (response.ok) {
-          const profileData = await response.json();
+          const payload = await response.json();
+          const profileData = payload?.data ?? payload;
           
           const missing: string[] = [];
 
@@ -169,9 +167,14 @@ export default function ProfileCompletionModal({
             // No missing sections, close the modal
             onClose();
           }
+        } else {
+          const error = await response.json().catch(() => null);
+          throw new Error(error?.message || "Impossible d'analyser votre profil");
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
+        toast.error(error instanceof Error ? error.message : "Impossible d'analyser votre profil");
+        onClose();
       } finally {
         setLoading(false);
       }
@@ -194,8 +197,9 @@ export default function ProfileCompletionModal({
           }
         );
         if (response.ok) {
-          const data = await response.json();
-          setDegrees(data);
+          const payload = await response.json();
+          const data = payload?.data ?? payload;
+          setDegrees(Array.isArray(data) ? data : []);
         }
       } catch (error) {
         console.error("Error fetching degrees:", error);
@@ -206,6 +210,10 @@ export default function ProfileCompletionModal({
       fetchDegrees();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentSection]);
 
   const addExperience = () => {
     setExperiences([
@@ -231,6 +239,14 @@ export default function ProfileCompletionModal({
     const updated = [...experiences];
     updated[index] = { ...updated[index], [field]: value };
     setExperiences(updated);
+  };
+
+  const getApiError = async (response: Response, fallback: string) => {
+    const payload = await response.json().catch(() => null);
+    const validationErrors = payload?.errors && typeof payload.errors === "object"
+      ? Object.values(payload.errors).flat().find((message) => typeof message === "string")
+      : null;
+    return payload?.message || validationErrors || fallback;
   };
 
   const handleSubmit = async () => {
@@ -281,7 +297,7 @@ export default function ProfileCompletionModal({
         toast.success("Bio ajoutée avec succès!");
         moveToNextSection();
       } else {
-        toast.error("Erreur lors de l'enregistrement");
+        toast.error(await getApiError(response, "Erreur lors de l'enregistrement"));
       }
     } catch (error) {
       console.error("Error saving bio:", error);
@@ -320,7 +336,7 @@ export default function ProfileCompletionModal({
         toast.success("Compétences ajoutées avec succès!");
         moveToNextSection();
       } else {
-        toast.error("Erreur lors de l'enregistrement");
+        toast.error(await getApiError(response, "Erreur lors de l'enregistrement"));
       }
     } catch (error) {
       console.error("Error saving skills:", error);
@@ -359,7 +375,7 @@ export default function ProfileCompletionModal({
         toast.success("Projet ajouté avec succès!");
         moveToNextSection();
       } else {
-        toast.error("Erreur lors de l'enregistrement");
+        toast.error(await getApiError(response, "Erreur lors de l'enregistrement"));
       }
     } catch (error) {
       console.error("Error saving project:", error);
@@ -417,9 +433,7 @@ export default function ProfileCompletionModal({
         toast.success("Formation ajoutée avec succès!");
         moveToNextSection();
       } else {
-        const errorData = await response.json();
-        console.error("Error response:", errorData);
-        toast.error(errorData.message || "Erreur lors de l'enregistrement");
+        toast.error(await getApiError(response, "Erreur lors de l'enregistrement"));
       }
     } catch (error) {
       console.error("Error saving education:", error);
@@ -437,6 +451,17 @@ export default function ProfileCompletionModal({
 
     if (validExperiences.length === 0) {
       toast.error("Veuillez remplir au moins une expérience avec l'entreprise et le poste");
+      return;
+    }
+
+    const invalidDates = validExperiences.some(
+      (experience) =>
+        experience.date_debut &&
+        experience.date_fin &&
+        experience.date_fin < experience.date_debut,
+    );
+    if (invalidDates) {
+      toast.error("La date de fin doit être postérieure à la date de début");
       return;
     }
 
@@ -469,12 +494,17 @@ export default function ProfileCompletionModal({
         })
       );
 
-      await Promise.all(promises);
+      const responses = await Promise.all(promises);
+      const failedResponse = responses.find((response) => !response.ok);
+      if (failedResponse) {
+        const error = await failedResponse.json().catch(() => null);
+        throw new Error(error?.message || "Une expérience n'a pas pu être enregistrée");
+      }
       toast.success("Expériences ajoutées avec succès!");
       moveToNextSection();
     } catch (error) {
       console.error("Error saving experiences:", error);
-      toast.error("Erreur lors de l'enregistrement des expériences");
+      toast.error(error instanceof Error ? error.message : "Erreur lors de l'enregistrement des expériences");
     } finally {
       setIsSubmitting(false);
     }
@@ -500,7 +530,7 @@ export default function ProfileCompletionModal({
         toast.success("Langues ajoutées avec succès!");
         moveToNextSection();
       } else {
-        toast.error("Erreur lors de l'enregistrement");
+        toast.error(await getApiError(response, "Erreur lors de l'enregistrement"));
       }
     } catch {
       toast.error("Erreur réseau");
@@ -525,7 +555,6 @@ export default function ProfileCompletionModal({
         titre: "",
         diplome: "",
         etablissement: "",
-        date_debut: null,
         date_fin: null,
         description: "",
       });
@@ -596,13 +625,26 @@ export default function ProfileCompletionModal({
     }
   };
 
+  const sectionLabels: Record<string, string> = {
+    bio: "À propos",
+    experiences: "Expériences",
+    skills: "Compétences",
+    projects: "Projets",
+    education: "Formation",
+    languages: "Langues",
+  };
+  const currentStep = Math.max(0, missingSections.indexOf(currentSection));
+  const progress = missingSections.length
+    ? Math.min(100, ((currentStep + 1) / missingSections.length) * 100)
+    : 100;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100vw-1rem)] max-w-5xl max-h-[92dvh] overflow-y-auto !p-3 sm:w-[calc(100vw-2rem)] sm:!p-6" aria-describedby="experience-modal-description">
+      <DialogContent className="flex h-[min(92dvh,860px)] w-[calc(100vw-1rem)] max-w-4xl flex-col gap-0 overflow-hidden !p-0 sm:w-[calc(100vw-2rem)]" aria-describedby="experience-modal-description">
         {loading ? (
           // Loading state
           <>
-            <DialogHeader className="relative pb-3 sm:pb-4 border-b-2 border-gray-200">
+            <DialogHeader className="relative shrink-0 border-b border-slate-200 bg-white px-5 py-5 sm:px-7">
               <DialogTitle className="flex items-start gap-2 sm:gap-3 text-lg sm:text-2xl pr-8 text-left">
                 <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg sm:rounded-xl p-2 sm:p-3 shrink-0">
                   <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 animate-pulse" />
@@ -613,7 +655,7 @@ export default function ProfileCompletionModal({
                 Veuillez patienter pendant que nous analysons votre profil...
               </p>
             </DialogHeader>
-            <div className="flex items-center justify-center py-12">
+            <div className="flex flex-1 items-center justify-center bg-slate-50 py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
               <span className="ml-3 text-gray-600">Analyse en cours...</span>
             </div>
@@ -621,89 +663,65 @@ export default function ProfileCompletionModal({
         ) : (
           // Content after loading
           <>
-            <DialogHeader className="relative pb-3 sm:pb-4 border-b-2 border-gray-200">
-              <DialogTitle className="flex items-start gap-2 sm:gap-3 text-lg sm:text-2xl pr-8 text-left">
-                <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg sm:rounded-xl p-2 sm:p-3 shrink-0">
+            <DialogHeader className="relative shrink-0 border-b border-slate-200 bg-white px-5 py-4 sm:px-7 sm:py-5">
+              <DialogTitle className="flex items-center gap-3 pr-8 text-left text-lg sm:text-xl">
+                <div className="shrink-0 rounded-xl bg-emerald-50 p-2.5 ring-1 ring-emerald-100">
                   {getSectionIcon()}
                 </div>
                 <div className="min-w-0">
                   <div className="text-gray-900 break-words">{getSectionTitle()}</div>
                   {missingSections.length > 1 && (
-                    <div className="text-xs sm:text-sm font-normal text-amber-600 mt-1">
-                      Section {missingSections.indexOf(currentSection) + 1} sur {missingSections.length}
+                    <div className="mt-1 text-xs font-medium text-emerald-700">
+                      Étape {currentStep + 1} sur {missingSections.length}
                     </div>
                   )}
                 </div>
               </DialogTitle>
-              <p id="experience-modal-description" className="text-gray-600 mt-2 sm:mt-3 text-sm sm:text-base text-left">
+              <p id="experience-modal-description" className="mt-1.5 text-left text-sm text-slate-500">
                 {currentSection === "experiences" 
                   ? "Complétez votre profil en ajoutant vos expériences professionnelles."
                   : `Complétez votre profil en ajoutant: ${getSectionTitle()}`}
               </p>
             </DialogHeader>
 
+        <div ref={scrollContainerRef} className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 px-4 py-4 sm:px-7 sm:py-5">
+
         {/* Show missing sections alert if any */}
         {!loading && missingSections.length > 0 && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-3 sm:p-5 mb-4 sm:mb-6 shadow-sm">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="bg-amber-100 rounded-lg sm:rounded-xl p-2 sm:p-3 flex-shrink-0">
-                <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+          <div className="mb-5 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-800">
+                <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
+                <span>Progression du profil</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-amber-900 text-sm sm:text-base mb-3">
-                  Sections de profil à compléter
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {missingSections.includes("bio") && (
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
-                      <FileText className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                      <span className="font-medium">À propos de moi</span>
-                    </div>
-                  )}
-                  {missingSections.includes("experiences") && (
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
-                      <Briefcase className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                      <span className="font-medium">Expériences</span>
-                    </div>
-                  )}
-                  {missingSections.includes("skills") && (
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
-                      <Lightbulb className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                      <span className="font-medium">Compétences</span>
-                    </div>
-                  )}
-                  {missingSections.includes("projects") && (
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
-                      <FolderOpen className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                      <span className="font-medium">Projets</span>
-                    </div>
-                  )}
-                  {missingSections.includes("education") && (
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
-                      <GraduationCap className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                      <span className="font-medium">Formation</span>
-                    </div>
-                  )}
-                  {missingSections.includes("languages") && (
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-amber-800 bg-white rounded-lg p-2 border border-amber-200">
-                      <Globe className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                      <span className="font-medium">Langues parlées</span>
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs sm:text-sm text-amber-800 mt-3 sm:mt-4 flex items-start gap-2 bg-white rounded-lg p-2 border border-amber-200">
-                  <span className="text-lg">💡</span>
-                  <span>Complétez ces sections pour améliorer vos chances auprès des recruteurs.</span>
-                </p>
-              </div>
+              <span className="shrink-0 text-xs font-medium text-slate-500">
+                {currentStep + 1}/{missingSections.length}
+              </span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full rounded-full bg-emerald-500 transition-all duration-300" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              {missingSections.map((section, index) => (
+                <span
+                  key={section}
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
+                    index === currentStep
+                      ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200"
+                      : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {sectionLabels[section] || section}
+                </span>
+              ))}
             </div>
           </div>
         )}
 
-        <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+        <div className="space-y-4 sm:space-y-5">
           {currentSection === "bio" ? (
             // Bio Form
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <Label htmlFor="bio" className="text-sm font-semibold text-gray-700">
                 Description <span className="text-red-500">*</span>
               </Label>
@@ -721,7 +739,7 @@ export default function ProfileCompletionModal({
               </p>
             </div>
           ) : currentSection === "skills" && isMobile ? (
-            <div className="rounded-lg border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div className="flex items-start gap-3">
                 <div className="rounded-lg bg-white p-2 shadow-sm">
                   <Lightbulb className="h-5 w-5 text-green-600" />
@@ -738,7 +756,7 @@ export default function ProfileCompletionModal({
             </div>
           ) : currentSection === "skills" ? (
             // Skills Form - fixed list selection
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 sm:p-6 border-2 border-green-200 space-y-3 sm:space-y-4">
+            <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:space-y-4 sm:p-6">
               <div>
                 <Label className="text-sm font-semibold text-gray-700">
                   Sélectionnez vos compétences <span className="text-red-500">*</span>
@@ -851,7 +869,7 @@ export default function ProfileCompletionModal({
             </div>
           ) : false && currentSection === "skills" ? (
             // Skills Form
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200 space-y-4">
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div>
                 <Label htmlFor="newSkill" className="text-sm font-semibold text-gray-700">
                   Ajouter une compétence <span className="text-red-500">*</span>
@@ -897,7 +915,7 @@ export default function ProfileCompletionModal({
             </div>
           ) : currentSection === "projects" ? (
             // Projects Form
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200 space-y-4">
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div>
                 <Label htmlFor="projectTitle" className="text-sm font-semibold text-gray-700">
                   Titre du projet <span className="text-red-500">*</span>
@@ -956,7 +974,7 @@ export default function ProfileCompletionModal({
             </div>
           ) : currentSection === "education" ? (
             // Education Form
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200 space-y-4">
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               {/* Title */}
               <div>
                 <Label htmlFor="titre" className="text-sm font-semibold text-gray-700">
@@ -1066,57 +1084,28 @@ export default function ProfileCompletionModal({
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Date de début</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal mt-1"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {educationData.date_debut
-                          ? format(educationData.date_debut, "PPP", { locale: fr })
-                          : "Sélectionner une date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={educationData.date_debut || undefined}
-                        onSelect={(date) =>
-                          setEducationData({ ...educationData, date_debut: date || null })
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <Label>Date de fin (Obtention) <span className="text-red-500">*</span></Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal mt-1"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {educationData.date_fin
-                          ? format(educationData.date_fin, "PPP", { locale: fr })
-                          : "Sélectionner une date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={educationData.date_fin || undefined}
-                        onSelect={(date) =>
-                          setEducationData({ ...educationData, date_fin: date || null })
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+              <div>
+                <Label htmlFor="education_graduation_date" className="text-sm font-semibold text-gray-700">
+                  Date d'obtention <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  type="date"
+                  id="education_graduation_date"
+                  value={educationData.date_fin ? format(educationData.date_fin, "yyyy-MM-dd") : ""}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setEducationData({
+                      ...educationData,
+                      date_fin: value ? new Date(`${value}T00:00:00`) : null,
+                    });
+                  }}
+                  className="mt-2 border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                  required
+                  disabled={isSubmitting}
+                />
+                <p className="mt-1 text-xs text-green-700">
+                  💡 La date à laquelle vous avez obtenu ce diplôme
+                </p>
               </div>
               <div>
                 <Label htmlFor="edu_description" className="text-sm font-semibold text-gray-700">
@@ -1136,7 +1125,7 @@ export default function ProfileCompletionModal({
             </div>
           ) : currentSection === "languages" ? (
             // Languages Form
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-200 space-y-4">
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div>
                 <Label className="text-sm font-semibold text-gray-700">
                   Ajouter une langue <span className="text-red-500">*</span>
@@ -1204,8 +1193,14 @@ export default function ProfileCompletionModal({
           {experiences.map((experience, index) => (
             <div
               key={index}
-              className="border border-gray-200 rounded-lg p-4 bg-gray-50 relative"
+              className="relative rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
             >
+              <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-800">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-xs text-emerald-700">
+                  {index + 1}
+                </span>
+                Expérience professionnelle
+              </div>
               {experiences.length > 1 && (
                 <Button
                   type="button"
@@ -1265,8 +1260,9 @@ export default function ProfileCompletionModal({
                     id={`date-debut-${index}`}
                     type="date"
                     value={experience.date_debut ? format(experience.date_debut, "yyyy-MM-dd") : ""}
+                    max={experience.date_fin ? format(experience.date_fin, "yyyy-MM-dd") : undefined}
                     onChange={(e) => {
-                      const date = e.target.value ? new Date(e.target.value) : null;
+                      const date = e.target.value ? new Date(`${e.target.value}T00:00:00`) : null;
                       updateExperience(index, "date_debut", date);
                     }}
                     className="mt-1"
@@ -1283,8 +1279,9 @@ export default function ProfileCompletionModal({
                     id={`date-fin-${index}`}
                     type="date"
                     value={experience.date_fin ? format(experience.date_fin, "yyyy-MM-dd") : ""}
+                    min={experience.date_debut ? format(experience.date_debut, "yyyy-MM-dd") : undefined}
                     onChange={(e) => {
-                      const date = e.target.value ? new Date(e.target.value) : null;
+                      const date = e.target.value ? new Date(`${e.target.value}T00:00:00`) : null;
                       updateExperience(index, "date_fin", date);
                     }}
                     className="mt-1"
@@ -1346,29 +1343,32 @@ export default function ProfileCompletionModal({
           </>
           )}
 
-          <div className="sticky bottom-0 -mx-3 flex flex-col gap-2 border-t-2 border-gray-200 bg-white/95 px-3 pt-3 pb-1 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:gap-3 sm:bg-transparent sm:px-0 sm:pt-6 sm:pb-0 sm:mt-8">
+          <div className="sticky -bottom-px z-20 -mx-4 -mb-4 mt-6 grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(15,23,42,0.06)] backdrop-blur sm:-mx-7 sm:-mb-5 sm:flex sm:items-center sm:px-7 sm:py-4">
             <Button
+              type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 sm:flex-none border-2 border-gray-300 hover:bg-gray-50 font-semibold text-sm"
+              className="border-slate-300 text-sm font-medium hover:bg-slate-50 sm:flex-none"
               aria-label="Fermer sans enregistrer"
             >
               <X className="h-4 w-4 mr-2" />
               Fermer
             </Button>
             <Button
+              type="button"
               variant="outline"
               onClick={onSkip}
-              className="flex-1 sm:flex-none border-2 border-amber-300 text-amber-700 hover:bg-amber-50 font-semibold text-sm"
+              className="border-amber-200 text-sm font-medium text-amber-700 hover:bg-amber-50 sm:flex-none"
               aria-label="Passer l'ajout d'expériences pour le moment"
             >
               <Clock className="h-4 w-4 mr-2" />
               Passer pour le moment
             </Button>
             <Button
+              type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex-1 bg-[#16a34a] hover:bg-[#15803d] text-white font-semibold shadow-lg hover:shadow-xl text-sm"
+              className="col-span-2 bg-emerald-600 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 sm:ml-auto sm:min-w-36 sm:flex-none"
               aria-label="Enregistrer"
             >
               {isSubmitting ? (
@@ -1388,6 +1388,7 @@ export default function ProfileCompletionModal({
               )}
             </Button>
           </div>
+        </div>
         </div>
         </>
         )}

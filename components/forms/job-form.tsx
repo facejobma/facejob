@@ -806,34 +806,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
               )}
             </button>
           </div>
-        ) : (
-          <div className="flex justify-end gap-3 pt-2">
-          {isPending && (
-            <>
-              <button className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                Accepter
-              </button>
-              <button className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2">
-                <XCircle className="w-4 h-4" />
-                Refuser
-              </button>
-            </>
-          )}
-          {isAccepted && (
-            <button className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium shadow-md cursor-default flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Approuvé
-            </button>
-          )}
-          {isDeclined && (
-            <button className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium shadow-md cursor-default flex items-center gap-2">
-              <XCircle className="w-4 h-4" />
-              Refusé
-            </button>
-          )}
-        </div>
-        )}
+        ) : null}
       </form>
 
       {/* Modal */}

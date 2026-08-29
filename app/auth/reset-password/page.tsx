@@ -19,11 +19,14 @@ const ResetPasswordRedirectContent = () => {
     if (actor === 'enterprise') {
       actor = 'entreprise';
     }
+    if (actor !== 'candidat' && actor !== 'entreprise') {
+      actor = 'candidat';
+    }
     
     if (token) {
       // Redirect to the proper reset password page with token
       // Email will be fetched securely from the backend using the token
-      router.replace(`/auth/reset-password/${token}/${actor}`);
+      router.replace(`/auth/reset-password/${encodeURIComponent(token)}/${actor}`);
     } else {
       // No token provided, redirect to forgot password
       router.replace(`/auth/${actor}/forget-password`);

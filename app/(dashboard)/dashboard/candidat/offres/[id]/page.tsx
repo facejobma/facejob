@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Modal from "@/components/Modal";
 import ProfileCompletionModal from "@/components/ProfileCompletionModal";
+import ApplicationSuccessModal from "@/components/ApplicationSuccessModal";
 
 interface OfferDetail {
   id: number;
@@ -27,13 +28,13 @@ interface OfferDetail {
   description: string;
   company_name: string;
   company_logo?: string;
-  sector_name: string;
+  sector_name: string | null;
   job_name: string | null;
-  location: string;
-  contractType: string;
-  date_debut: string;
+  location: string | null;
+  contractType: string | null;
+  date_debut: string | null;
   date_fin: string | null;
-  created_at: string;
+  created_at: string | null;
   sector_id: number;
   job_id: number | null;
   entreprise_id: number;
@@ -41,7 +42,7 @@ interface OfferDetail {
   salary_max?: number;
   currency?: string;
   salaire?: string;
-  experience_required?: string;
+  experience_required?: number | null;
   education_level?: string;
   skills_required?: string[];
   required_skills?: string[];
@@ -52,6 +53,17 @@ interface OfferDetail {
   applications_count?: number;
   views_count?: number;
 }
+
+const normalizeStringList = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string" && item.trim() !== "");
+  if (typeof value !== "string" || value.trim() === "") return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string" && item.trim() !== "") : [];
+  } catch {
+    return [];
+  }
+};
 
 interface ApplicationStatus {
   has_applied: boolean;
@@ -124,8 +136,17 @@ const CandidatOfferDetailPage: React.FC = () => {
       );
       
       if (offerResponse.ok) {
-        const offerData = await offerResponse.json();
-        setOffer(offerData);
+        const payload = await offerResponse.json();
+        const offerData = payload?.data?.offer ?? payload?.data ?? payload;
+        setOffer({
+          ...offerData,
+          titre: offerData?.titre || "Offre sans titre",
+          description: offerData?.description || "Aucune description disponible.",
+          company_name: offerData?.company_name || "Entreprise confidentielle",
+          required_skills: normalizeStringList(offerData?.required_skills ?? offerData?.skills_required),
+          required_languages: normalizeStringList(offerData?.required_languages),
+          benefits: normalizeStringList(offerData?.benefits),
+        });
         
         // Check application status
         const statusResponse = await fetch(
@@ -166,8 +187,9 @@ const CandidatOfferDetailPage: React.FC = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setIsConfirmationVisible(true);
         setLocalHasApplied(true);
+        setModalIsOpen(false);
+        setIsConfirmationVisible(true);
         toast.success("Candidature envoyée avec succès!");
       } else if (data?.message?.toLowerCase().includes("déjà") || data?.message?.toLowerCase().includes("already")) {
         setLocalHasApplied(true);
@@ -228,8 +250,11 @@ const CandidatOfferDetailPage: React.FC = () => {
     setSelectedVideoId(data.id);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return "Non renseignée";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "Non renseignée";
+    return date.toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -294,23 +319,24 @@ const CandidatOfferDetailPage: React.FC = () => {
 
   return (
     <>
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-8">
+        <div className="absolute right-0 top-0 h-56 w-56 rounded-full bg-emerald-100/60 blur-3xl" />
         <Button
           variant="ghost"
           onClick={() => router.back()}
-          className="mb-4 text-green-600 hover:text-green-700 hover:bg-green-50"
+          className="relative mb-5 -ml-2 text-slate-600 hover:bg-slate-100 hover:text-slate-950"
         >
           <FaArrowLeft className="h-4 w-4 mr-2" />
           Retour
         </Button>
 
-        <div className="flex items-start justify-between gap-4">
+        <div className="relative flex flex-col items-start justify-between gap-5 md:flex-row">
           <div className="flex items-start gap-4 flex-1">
             {/* Company Logo */}
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 bg-white flex items-center justify-center shadow-sm">
+              <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 {offer.company_logo ? (
                   <>
                     <img 
@@ -338,8 +364,9 @@ const CandidatOfferDetailPage: React.FC = () => {
             </div>
             
             <div className="flex-1 min-w-0">
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">{offer.titre}</h1>
-              <div className="flex items-center gap-2 text-lg text-gray-700 mb-4">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Détail de l’offre</p>
+              <h1 className="mb-3 text-2xl font-bold tracking-tight text-slate-950 md:text-4xl">{offer.titre}</h1>
+              <div className="mb-4 flex items-center gap-2 text-base text-slate-600">
                 <FaBuilding className="h-5 w-5 text-green-600" />
                 <span className="font-semibold">{offer.company_name}</span>
               </div>
@@ -349,14 +376,14 @@ const CandidatOfferDetailPage: React.FC = () => {
         </div>
 
         {/* Quick Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+        <div className="relative mt-7 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-3 md:grid-cols-3 md:p-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
               <FaBriefcase className="h-5 w-5 text-green-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">{offer.job_name ? "Secteur & métier" : "Secteur"}</p>
-              <p className="font-semibold text-gray-900">{offer.sector_name}</p>
+              <p className="font-semibold text-gray-900">{offer.sector_name || "Non renseigné"}</p>
               {offer.job_name && <p className="text-xs text-gray-600">{offer.job_name}</p>}
             </div>
           </div>
@@ -367,7 +394,7 @@ const CandidatOfferDetailPage: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Localisation</p>
-              <p className="font-semibold text-gray-900">{offer.location}</p>
+              <p className="font-semibold text-gray-900">{offer.location || "Non renseignée"}</p>
             </div>
           </div>
           
@@ -377,7 +404,7 @@ const CandidatOfferDetailPage: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Type de contrat</p>
-              <p className="font-semibold text-gray-900">{offer.contractType}</p>
+              <p className="font-semibold text-gray-900">{offer.contractType || "Non renseigné"}</p>
             </div>
           </div>
         </div>
@@ -398,7 +425,7 @@ const CandidatOfferDetailPage: React.FC = () => {
                   openModal();
                 }
               }}
-              className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-8 py-3 font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 hover:shadow-md sm:w-auto"
             >
               <span>Postuler maintenant</span>
             </button>
@@ -442,7 +469,7 @@ const CandidatOfferDetailPage: React.FC = () => {
       )}
 
       {/* Description */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Description du poste</h2>
         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <SafeHtmlDisplay
@@ -453,26 +480,26 @@ const CandidatOfferDetailPage: React.FC = () => {
       </div>
 
       {/* Profil recherché - Matching Criteria */}
-      {((offer.salary_min || offer.salary_max) || 
+      {((offer.salary_min != null || offer.salary_max != null) ||
         (offer.required_languages && offer.required_languages.length > 0) || 
         (offer.required_skills && offer.required_skills.length > 0) ||
         (offer.benefits && offer.benefits.length > 0) ||
-        offer.experience_required) && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        offer.experience_required != null) && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Profil recherché</h2>
           
           <div className="space-y-4">
             {/* Salary */}
-            {(offer.salary_min || offer.salary_max) && (
+            {(offer.salary_min != null || offer.salary_max != null) && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
                   <span className="text-lg">💰</span>
                   Salaire proposé
                 </h4>
                 <p className="text-gray-700 font-medium">
-                  {offer.salary_min && offer.salary_max 
+                  {offer.salary_min != null && offer.salary_max != null
                     ? `${offer.salary_min.toLocaleString()} - ${offer.salary_max.toLocaleString()} ${offer.currency || 'MAD'}`
-                    : offer.salary_min 
+                    : offer.salary_min != null
                     ? `À partir de ${offer.salary_min.toLocaleString()} ${offer.currency || 'MAD'}`
                     : `Jusqu'à ${offer.salary_max?.toLocaleString()} ${offer.currency || 'MAD'}`
                   }
@@ -481,7 +508,7 @@ const CandidatOfferDetailPage: React.FC = () => {
             )}
 
             {/* Experience Required */}
-            {offer.experience_required && (
+            {offer.experience_required != null && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
                   <span className="text-lg">📅</span>
@@ -546,7 +573,7 @@ const CandidatOfferDetailPage: React.FC = () => {
       )}
 
       {/* Details */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Détails de l'offre</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -571,7 +598,7 @@ const CandidatOfferDetailPage: React.FC = () => {
                 Métier : {offer.job_name}
               </Badge>
             )}
-            {offer.experience_required && (
+            {offer.experience_required != null && (
               <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
                 Expérience: {offer.experience_required}
               </Badge>
@@ -581,7 +608,7 @@ const CandidatOfferDetailPage: React.FC = () => {
       </div>
 
       {/* Company Info */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4">À propos de l'entreprise</h2>
         
         <div className="flex items-center gap-4 mb-4">
@@ -668,27 +695,11 @@ const CandidatOfferDetailPage: React.FC = () => {
         videos={videos}
         selectedVideo={selectedVideo}
         selectedVideoId={selectedVideoId as number | null}
+        isSubmitting={isSubmitting}
         onVideoChange={handleVideoChange}
       />
 
-      {/* Success Modal */}
-      {isConfirmationVisible && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md text-center">
-            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <FaCheckCircle className="text-green-600 w-8 h-8" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Candidature envoyée !</h2>
-            <p className="text-gray-600 mb-6">Votre candidature a été soumise avec succès. L'entreprise examinera votre profil prochainement.</p>
-            <button
-              className="bg-green-600 hover:bg-green-700 text-white rounded-lg px-8 py-3 font-semibold transition-colors"
-              onClick={closeModal}
-            >
-              Parfait !
-            </button>
-          </div>
-        </div>
-      )}
+      <ApplicationSuccessModal isOpen={isConfirmationVisible} onClose={closeModal} />
     </div>
     <ProfileCompletionModal
       isOpen={showProfileModal}

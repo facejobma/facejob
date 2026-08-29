@@ -19,6 +19,7 @@ const SignupCandidatPage = () => {
       typeof window !== "undefined"
         ? window.sessionStorage?.getItem("userId") || ""
         : "";
+    const pendingSignupRole = sessionStorage.getItem("pendingSignupRole");
 
     if (authToken && userRole) {
       if (userRole === "candidat" && userId) {
@@ -36,7 +37,7 @@ const SignupCandidatPage = () => {
     }
 
     // If the userId already exists in session (means the user has created an account), skip to Step 2
-    if (userId) {
+    if (userId && pendingSignupRole === "candidat") {
       setStep(2);
     }
   }, [router]);
@@ -48,6 +49,7 @@ const SignupCandidatPage = () => {
   const handleSkip = () => {
     sessionStorage.removeItem("userId");
     sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem("pendingSignupRole");
     router.push("/dashboard/candidat");
   };
 

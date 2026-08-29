@@ -128,13 +128,6 @@ export async function apiRequest<T = any>(
         authToken = authToken.replace(/['"]/g, '');
       }
       
-      // Debug log
-      console.log('API Request Debug:', {
-        url,
-        hasToken: !!authToken,
-        tokenPreview: authToken ? `${authToken.substring(0, 20)}...` : 'none',
-        tokenLength: authToken?.length || 0
-      });
     }
 
     const headers: Record<string, string> = {

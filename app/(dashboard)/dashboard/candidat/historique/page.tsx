@@ -27,23 +27,30 @@ import { useRouter } from "next/navigation";
 interface Application {
   id: number;
   type: 'job_offer' | 'video_cv';
-  title: string;
-  company: string;
+  title?: string | null;
+  company?: string | null;
   company_logo?: string;
   description: string;
   status: 'submitted' | 'viewed' | 'accepted' | 'rejected' | 'withdrawn';
   viewed_by_recruiter?: boolean;
   viewed_at?: string;
-  applied_at: string;
+  applied_at?: string | null;
   video_link?: string;
   offre_id?: number;
   job_name?: string;
   sector_name?: string;
   experiences?: number;
-  location?: string;
-  contractType?: string;
-  date_debut?: string;
-  date_fin?: string;
+  location?: string | null;
+  contractType?: string | null;
+  date_debut?: string | null;
+  date_fin?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  currency?: string | null;
+  experience_required?: number | null;
+  required_skills?: string[] | null;
+  required_languages?: string[] | null;
+  benefits?: string[] | null;
 }
 
 interface Statistics {
@@ -133,7 +140,9 @@ const ApplicationHistory: React.FC = () => {
     if (dateFilter !== "all") {
       const now = new Date();
       filtered = filtered.filter(app => {
+        if (!app.applied_at) return false;
         const appliedDate = new Date(app.applied_at);
+        if (Number.isNaN(appliedDate.getTime())) return false;
         const diffDays = Math.floor((now.getTime() - appliedDate.getTime()) / (1000 * 60 * 60 * 24));
         
         switch (dateFilter) {
@@ -155,8 +164,8 @@ const ApplicationHistory: React.FC = () => {
     if (appliedSearchQuery.trim()) {
       const query = appliedSearchQuery.toLowerCase();
       filtered = filtered.filter(app => 
-        app.title.toLowerCase().includes(query) ||
-        app.company.toLowerCase().includes(query) ||
+        (app.title || "").toLowerCase().includes(query) ||
+        (app.company || "").toLowerCase().includes(query) ||
         app.description?.toLowerCase().includes(query) ||
         app.job_name?.toLowerCase().includes(query) ||
         app.sector_name?.toLowerCase().includes(query)
@@ -230,14 +239,27 @@ const ApplicationHistory: React.FC = () => {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return "Date indisponible";
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "Date indisponible";
+    return date.toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const formatSalary = (application: Application) => {
+    const currency = application.currency || "MAD";
+    if (application.salary_min != null && application.salary_max != null) {
+      return `${Number(application.salary_min).toLocaleString("fr-FR")} – ${Number(application.salary_max).toLocaleString("fr-FR")} ${currency}`;
+    }
+    if (application.salary_min != null) return `Dès ${Number(application.salary_min).toLocaleString("fr-FR")} ${currency}`;
+    if (application.salary_max != null) return `Jusqu’à ${Number(application.salary_max).toLocaleString("fr-FR")} ${currency}`;
+    return null;
   };
 
   const handleVideoPreview = (videoUrl: string) => {
@@ -282,16 +304,23 @@ const ApplicationHistory: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Historique des candidatures</h1>
-        <p className="text-gray-600 mt-1">Suivez toutes vos candidatures et leur statut</p>
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm md:p-8">
+        <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-emerald-100/60 blur-3xl" />
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm"><FaClock className="h-5 w-5" /></div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Suivi personnel</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">Historique des candidatures</h1>
+            <p className="mt-1 text-sm text-slate-500">Retrouvez chaque candidature et suivez son évolution.</p>
+          </div>
+        </div>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
               <FaBriefcase className="h-5 w-5 text-green-600" />
@@ -303,7 +332,7 @@ const ApplicationHistory: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
               <FaClock className="h-5 w-5 text-gray-600" />
@@ -315,7 +344,7 @@ const ApplicationHistory: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
               <FaEye className="h-5 w-5 text-blue-600" />
@@ -327,7 +356,7 @@ const ApplicationHistory: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
               <FaTimesCircle className="h-5 w-5 text-red-600" />
@@ -341,7 +370,7 @@ const ApplicationHistory: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
         <div className="flex items-center gap-2 mb-4">
           <FaFilter className="h-5 w-5 text-green-600" />
           <h2 className="text-lg font-semibold text-gray-900">Filtres</h2>
@@ -505,14 +534,14 @@ const ApplicationHistory: React.FC = () => {
           {filteredApplications.map((application) => (
             <div 
               key={`${application.type}-${application.id}`} 
-              className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md hover:border-green-200 transition-all duration-200"
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg md:p-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
                     {getTypeBadge(application.type)}
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {application.title}
+                      {application.title || "Offre supprimée"}
                     </h3>
                     {getStatusBadge(application.status)}
                   </div>
@@ -520,7 +549,7 @@ const ApplicationHistory: React.FC = () => {
                   <div className="flex items-center gap-4 text-sm text-gray-600 mb-3 flex-wrap">
                     <div className="flex items-center gap-1.5">
                       <FaBuilding className="h-4 w-4 text-green-600" />
-                      <span className="font-medium">{application.company}</span>
+                      <span className="font-medium">{application.company || "Entreprise inconnue"}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <FaCalendarAlt className="h-4 w-4 text-blue-600" />
@@ -574,6 +603,16 @@ const ApplicationHistory: React.FC = () => {
                       <span>Voir offre</span>
                     </Button>
                   )}
+
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-600">
+                    {application.location && <span className="rounded bg-gray-100 px-2 py-1">{application.location}</span>}
+                    {application.contractType && <span className="rounded bg-gray-100 px-2 py-1">{application.contractType}</span>}
+                    {formatSalary(application) && <span className="rounded bg-green-50 px-2 py-1 text-green-700">{formatSalary(application)}</span>}
+                    {application.experience_required != null && <span className="rounded bg-amber-50 px-2 py-1 text-amber-700">{application.experience_required} an(s) d’expérience</span>}
+                    {(application.required_skills ?? []).map((skill) => <span key={`skill-${application.id}-${skill}`} className="rounded bg-blue-50 px-2 py-1 text-blue-700">{skill}</span>)}
+                    {(application.required_languages ?? []).map((language) => <span key={`language-${application.id}-${language}`} className="rounded bg-purple-50 px-2 py-1 text-purple-700">{language}</span>)}
+                    {(application.benefits ?? []).map((benefit) => <span key={`benefit-${application.id}-${benefit}`} className="rounded bg-emerald-50 px-2 py-1 text-emerald-700">{benefit}</span>)}
+                  </div>
                   {(application.status === 'submitted' || application.status === 'viewed') && (
                     <Button variant="outline" size="sm" onClick={() => withdrawApplication(application.id)}
                       className="border-red-200 text-red-700 hover:bg-red-50">

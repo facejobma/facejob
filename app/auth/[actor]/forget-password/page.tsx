@@ -17,7 +17,8 @@ const ForgetPasswordForm = () => {
     actor = "entreprise";
   }
 
-  const actorString = Array.isArray(actor) ? actor[0] : actor || "candidat";
+  const actorValue = Array.isArray(actor) ? actor[0] : actor;
+  const actorString = actorValue === "entreprise" ? "entreprise" : "candidat";
 
   return (
     <ModernAuthLayout

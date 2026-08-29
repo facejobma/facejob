@@ -15,6 +15,10 @@ export function normalizeImageUrl(
     return fallback;
   }
 
+  if (/^[a-zA-Z]:[\\/]/.test(imageUrl) || imageUrl.startsWith("\\\\")) {
+    return fallback;
+  }
+
   if (
     imageUrl.startsWith("data:") ||
     imageUrl.startsWith("blob:") ||

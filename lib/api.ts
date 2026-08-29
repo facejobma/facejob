@@ -129,8 +129,9 @@ export async function verifyEmail(token: string, email: string) {
   const response = await publicApiCall(`/auth/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`, {
     method: 'POST'
   });
-  if (response.ok) return response.json();
-  throw new Error(`Failed to verify email: ${response.status}`);
+  const data = await response.json().catch(() => ({}));
+  if (response.ok) return data;
+  throw new Error(data.message || "Le lien de vérification est invalide ou a expiré.");
 }
 
 export async function resendVerification(email: string) {
@@ -141,8 +142,9 @@ export async function resendVerification(email: string) {
       user_type: 'candidat',
     })
   });
-  if (response.ok) return response.json();
-  throw new Error(`Failed to resend verification: ${response.status}`);
+  const data = await response.json().catch(() => ({}));
+  if (response.ok) return data;
+  throw new Error(data.message || "Impossible de renvoyer l’email de vérification.");
 }
 
 export async function resetPassword(token: string, password: string, passwordConfirmation: string, actor: string) {
@@ -155,8 +157,10 @@ export async function resetPassword(token: string, password: string, passwordCon
       actor,
     })
   });
-  if (response.ok) return response.json();
-  throw new Error(`Failed to reset password: ${response.status}`);
+  const data = await response.json().catch(() => ({}));
+  if (response.ok) return data;
+  const firstError = data.errors ? Object.values(data.errors).flat()[0] : null;
+  throw new Error(typeof firstError === "string" ? firstError : data.message || "Impossible de réinitialiser le mot de passe.");
 }
 
 export async function confirmAvailability(token: string, email: string, status: string = 'available') {
@@ -197,7 +201,11 @@ export async function submitCandidateApplication(data: any) {
     body: JSON.stringify(data)
   });
   if (response.ok) return response.json();
-  throw new Error(`Failed to submit candidate application: ${response.status}`);
+  const payload = await response.json().catch(() => null);
+  const validationMessage = payload?.errors
+    ? Object.values(payload.errors).flat().join(" ")
+    : null;
+  throw new Error(validationMessage || payload?.message || `Échec de la publication du CV (${response.status})`);
 }
 
 export async function fetchCandidateApplicationHistory() {

@@ -22,11 +22,11 @@ export const metadata: Metadata = {
 
 const Blog3Page: React.FC = () => {
   return (
-    <div className="min-h-screen bg-optional1">
+    <div className="blog-article-page min-h-screen bg-slate-50">
       <NavBar />
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-16 overflow-hidden">
+      <header className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-white via-emerald-50/50 to-white pb-14 pt-20">
         {/* Background decorations */}
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
         <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
@@ -57,11 +57,11 @@ const Blog3Page: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Article Content */}
-      <article className="container mx-auto px-6 py-16">
-        <div className="max-w-4xl mx-auto">
+      <article className="container mx-auto px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-3xl">
           {/* Featured Image */}
           <div className="mb-12 rounded-2xl overflow-hidden shadow-2xl">
             <img
@@ -72,7 +72,7 @@ const Blog3Page: React.FC = () => {
           </div>
 
           {/* Article Body */}
-          <div className="prose prose-lg max-w-none">
+          <div className="blog-article-content prose prose-lg max-w-none">
             <div className="bg-primary-light border-l-4 border-primary p-6 mb-8 rounded-r-lg">
               <p className="text-lg text-gray-700 leading-relaxed font-medium">
                 Imaginez la scène : un recruteur à Casablanca ou Tanger reçoit 200 CVs pour une seule offre d'emploi. 199 sont des documents PDF en noir et blanc, souvent identiques. Le vôtre est une vidéo. En moins d'une minute, vous avez souri, vous avez montré votre énergie et prouvé votre motivation.

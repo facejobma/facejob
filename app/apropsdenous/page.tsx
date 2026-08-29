@@ -26,49 +26,39 @@ export default function AProposPage() {
   const [activeTab, setActiveTab] = useState<"fr" | "ar">("fr");
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
-  // Auto-play video when page loads
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.muted = false;
-        videoRef.current.play().catch(err => console.log("Autoplay prevented:", err));
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.play().catch(() => undefined);
+  }, [activeTab]);
 
   const handleTabChange = (tab: "fr" | "ar") => {
     setActiveTab(tab);
-    // Play video with sound after tab change
-    setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.muted = false;
-        videoRef.current.play().catch(err => console.log("Autoplay prevented:", err));
-      }
-    }, 100);
   };
 
   return (
-    <div className="min-h-screen bg-optional1 flex flex-col">
+    <div className="flex min-h-screen flex-col bg-slate-50">
       <NavBar />
       
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-16 overflow-hidden">
+      <header className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-white via-emerald-50/50 to-white pb-16 pt-20">
         {/* Background decorations */}
-        <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
         <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
         
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-6 shadow-sm">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
               <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               <span className="text-sm font-medium text-primary">Notre Histoire</span>
             </div>
 
-            <h1 className="font-heading text-4xl md:text-5xl font-extrabold text-secondary mb-4 leading-tight tracking-tight">
+            <h1 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
               À propos de{" "}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-primary via-green-600 to-primary-1 bg-clip-text text-transparent">
@@ -84,18 +74,21 @@ export default function AProposPage() {
             </p>
           </div>
         </div>
-      </div>
+      </header>
 
-      <main className="flex-1 pb-20  px-4">
-        <div className="max-w-3xl mx-auto">
+      <main className="flex-1 px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-4xl">
           {/* Video */}
-          <div className="rounded-2xl overflow-hidden shadow-xl mb-10 border-2 border-gray-100 bg-white">
+          <div className="mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-black shadow-[0_18px_50px_rgba(15,23,42,0.10)]">
             <video
               ref={videoRef}
               key={activeTab}
               className="w-full h-auto"
               controls
+              autoPlay
+              muted
               playsInline
+              preload="metadata"
               poster="/videos/videoImage.png"
             >
               <source
@@ -107,23 +100,23 @@ export default function AProposPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-3 justify-center mb-10">
+          <div className="mb-8 flex justify-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm mx-auto w-fit">
             <button
               onClick={() => handleTabChange("fr")}
-              className={`px-8 py-3 rounded-xl font-accent font-semibold transition-all duration-300 ${
+              className={`rounded-xl px-6 py-2.5 text-sm font-semibold transition ${
                 activeTab === "fr"
-                  ? "bg-gradient-to-r from-primary to-green-600 text-white shadow-lg scale-105"
-                  : "bg-white border-2 border-gray-200 text-gray-600 hover:border-primary hover:text-primary hover:shadow-md"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-emerald-700"
               }`}
             >
               Français
             </button>
             <button
               onClick={() => handleTabChange("ar")}
-              className={`px-8 py-3 rounded-xl font-accent font-semibold transition-all duration-300 ${
+              className={`rounded-xl px-6 py-2.5 text-sm font-semibold transition ${
                 activeTab === "ar"
-                  ? "bg-gradient-to-r from-primary to-green-600 text-white shadow-lg scale-105"
-                  : "bg-white border-2 border-gray-200 text-gray-600 hover:border-primary hover:text-primary hover:shadow-md"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-emerald-700"
               }`}
             >
               العربية
@@ -132,13 +125,13 @@ export default function AProposPage() {
 
           {/* Content */}
           <div
-            className={`bg-white rounded-2xl border-2 border-gray-100 shadow-lg p-8 sm:p-10 space-y-6 ${
+            className={`space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10 ${
               activeTab === "ar" ? "text-right" : "text-left"
             }`}
             dir={activeTab === "ar" ? "rtl" : "ltr"}
           >
             {(activeTab === "fr" ? contentFR : contentAR).map((para, i) => (
-              <p key={i} className="font-body text-gray-700 leading-relaxed text-base">
+              <p key={i} className="text-base leading-8 text-slate-600">
                 {i === 0 && activeTab === "fr" && (
                   <span className="text-primary font-bold font-heading">FaceJob — </span>
                 )}
@@ -148,10 +141,10 @@ export default function AProposPage() {
           </div>
 
           {/* CTA */}
-          <div className="text-center mt-10">
+          <div className="mt-10 text-center">
             <Link
               href="/auth/signup-candidate"
-              className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              className="group inline-flex items-center justify-center rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
             >
               Rejoindre FaceJob gratuitement
               <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

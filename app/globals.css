@@ -620,3 +620,96 @@ div[class*="__menu-portal"],
 div[class*="__menu"] {
   z-index: 99999 !important;
 }
+
+/* Public blog articles */
+.blog-article-page header h1 {
+  max-width: 52rem;
+  margin-inline: auto;
+  color: #0f172a;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.blog-article-page header > div:first-of-type,
+.blog-article-page header > div:nth-of-type(2) {
+  animation: none !important;
+}
+
+.blog-article-page article > div > div:first-child {
+  overflow: hidden;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08) !important;
+}
+
+.blog-article-content {
+  color: #475569;
+}
+
+.blog-article-content > p {
+  color: #475569 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.85 !important;
+}
+
+.blog-article-content > div {
+  border-radius: 1rem !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
+}
+
+.blog-article-content h2,
+.blog-article-content h3 {
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.blog-article-content li {
+  color: #475569;
+  line-height: 1.7;
+}
+
+@media (max-width: 640px) {
+  .blog-article-content > div {
+    padding: 1.25rem !important;
+  }
+
+  .blog-article-content h2 {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* Shared authentication forms */
+.auth-content input:not([type="checkbox"]):not([type="radio"]),
+.auth-content select,
+.auth-content textarea {
+  border-color: #e2e8f0;
+  border-radius: 0.75rem;
+  background-color: #fff;
+}
+
+.auth-content input:not([type="checkbox"]):not([type="radio"]):focus,
+.auth-content select:focus,
+.auth-content textarea:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+.auth-content button[type="submit"] {
+  border-radius: 0.75rem;
+  border-color: #0f172a;
+  background: #0f172a;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.auth-content button[type="submit"]:hover:not(:disabled) {
+  border-color: #047857;
+  background: #047857;
+}
+
+.auth-content form > div > button[type="button"],
+.auth-content form + div a {
+  border-radius: 0.75rem;
+}

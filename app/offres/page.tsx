@@ -74,16 +74,23 @@ interface Offer {
   titre: string;
   description: string;
   company_name: string;
-  sector_name: string;
+  sector_name: string | null;
   job_name: string | null;
-  location: string;
-  contractType: string;
-  date_debut: string;
+  location: string | null;
+  contractType: string | null;
+  date_debut: string | null;
   date_fin: string | null;
   created_at: string;
   sector_id: number;
   job_id: number | null;
   entreprise_id: number;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  currency?: string | null;
+  experience_required?: number | null;
+  required_skills?: string[] | null;
+  required_languages?: string[] | null;
+  benefits?: string[] | null;
 }
 
 interface Sector { id: number; name: string; }
@@ -650,14 +657,14 @@ const PublicOffersPage: React.FC = () => {
       <JobListingStructuredData offers={allOffers} />
       <WebSiteStructuredData />
       <NavBar />
-      <div className="min-h-screen bg-optional1">
+      <div className="min-h-screen bg-slate-50">
         {/* Hero */}
-        <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-20 overflow-hidden">
+        <div className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-white via-emerald-50/50 to-white pb-16 pt-20">
           <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
           <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
           <div className="container mx-auto px-4 max-w-7xl relative">
             <div className="text-center">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-6 shadow-sm">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -672,7 +679,7 @@ const PublicOffersPage: React.FC = () => {
                   )}
                 </span>
               </div>
-              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-secondary mb-6 leading-tight tracking-tight">
+              <h1 className="mb-5 text-3xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 Trouvez votre{" "}
                 <span className="relative inline-block">
                   <span className="bg-gradient-to-r from-primary via-green-600 to-primary-1 bg-clip-text text-transparent">emploi idéal</span>
@@ -681,7 +688,7 @@ const PublicOffersPage: React.FC = () => {
                   </svg>
                 </span>
               </h1>
-              <p className="font-body text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+              <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
                 Découvrez des opportunités de qualité au Maroc et postulez avec votre CV vidéo
               </p>
               <div className="max-w-2xl mx-auto">
@@ -692,7 +699,7 @@ const PublicOffersPage: React.FC = () => {
                     placeholder="Rechercher par titre, entreprise, secteur..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-14 pr-6 py-6 text-base border-2 border-gray-200 focus:border-primary shadow-lg hover:shadow-xl bg-white text-gray-900 placeholder-gray-500 rounded-2xl transition-all duration-300 font-body"
+                    className="h-14 rounded-2xl border border-slate-200 bg-white py-4 pl-14 pr-6 text-base text-slate-900 shadow-[0_10px_35px_rgba(15,23,42,0.08)] placeholder:text-slate-400 focus:border-emerald-500 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -700,16 +707,16 @@ const PublicOffersPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 pb-16 max-w-7xl">
+        <div className="container mx-auto max-w-7xl px-4 pb-16 sm:px-6">
           {/* Filters */}
-          <Card className="mb-8 border-gray-200 shadow-sm">
-            <CardHeader className="border-b border-gray-100">
+          <Card className="relative -mt-7 mb-9 rounded-2xl border-slate-200 shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
+            <CardHeader className="border-b border-slate-100 px-5 py-4">
               <CardTitle className="flex items-center font-heading text-xl">
                 <Filter className="h-5 w-5 mr-2 text-primary" />
                 Filtres de recherche
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 font-body">Secteur</label>
@@ -783,7 +790,7 @@ const PublicOffersPage: React.FC = () => {
           {!loading && (
             <>
               {allOffers.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                   {allOffers.map((offer, index) => (
                     <Link
                       key={`${offer.id}-${index}`}
@@ -797,47 +804,63 @@ const PublicOffersPage: React.FC = () => {
                           city: selectedCity
                         });
                       }}
-                      className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-primary/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                      className="group relative flex min-h-[330px] cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_6px_24px_rgba(15,23,42,0.04)] transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_16px_36px_rgba(15,23,42,0.09)]"
                     >
-                      <div className="p-6 flex flex-col flex-1 gap-4">
+                      <div className="h-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-lime-400" />
+                      <div className="flex flex-1 flex-col gap-4 p-5">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-green-100/50 flex items-center justify-center flex-shrink-0 border border-primary/20 group-hover:scale-110 transition-transform duration-300">
-                            <Building className="h-6 w-6 text-primary" />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 transition group-hover:bg-emerald-600">
+                            <Building className="h-5 w-5 text-emerald-700 group-hover:text-white" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-heading text-base font-bold text-secondary line-clamp-2 group-hover:text-primary transition-colors leading-snug mb-1">
+                            <h3 className="line-clamp-2 text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-emerald-700">
                               {offer.titre}
                             </h3>
-                            <p className="font-body text-sm text-gray-600 truncate">{offer.company_name}</p>
+                            <p className="mt-1 truncate text-xs font-medium text-slate-500">{offer.company_name || "Entreprise confidentielle"}</p>
                           </div>
-                          <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-1 font-body">
-                            {daysAgoMap[offer.id] ?? 0}j
+                          <span className="shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+                            Il y a {daysAgoMap[offer.id] ?? 0}j
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {offer.location && (
-                            <span className="inline-flex items-center gap-1.5 text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full font-medium font-body border border-purple-100">
-                              <MapPin className="h-3.5 w-3.5" />{offer.location}
+                            <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600">
+                              <MapPin className="h-3.5 w-3.5 text-emerald-600" />{offer.location}
                             </span>
                           )}
                           {offer.contractType && (
-                            <span className="inline-flex items-center gap-1.5 text-xs bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full font-medium font-body border border-orange-100">
-                              <Calendar className="h-3.5 w-3.5" />{offer.contractType}
+                            <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600">
+                              <Calendar className="h-3.5 w-3.5 text-emerald-600" />{offer.contractType}
                             </span>
                           )}
                           {offer.sector_name && (
-                            <span className="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium font-body border border-blue-100">
-                              <Briefcase className="h-3.5 w-3.5" />{offer.sector_name}
+                            <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600">
+                              <Briefcase className="h-3.5 w-3.5 text-emerald-600" />{offer.sector_name}
                             </span>
                           )}
+                          {(offer.salary_min != null || offer.salary_max != null) && (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
+                              {offer.salary_min != null && offer.salary_max != null
+                                ? `${Number(offer.salary_min).toLocaleString("fr-FR")} – ${Number(offer.salary_max).toLocaleString("fr-FR")} ${offer.currency || "MAD"}`
+                                : offer.salary_min != null
+                                ? `Dès ${Number(offer.salary_min).toLocaleString("fr-FR")} ${offer.currency || "MAD"}`
+                                : `Jusqu’à ${Number(offer.salary_max).toLocaleString("fr-FR")} ${offer.currency || "MAD"}`}
+                            </span>
+                          )}
+                          {offer.experience_required != null && (
+                            <span className="inline-flex items-center rounded-full border border-amber-100 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">{offer.experience_required} an(s) d’expérience</span>
+                          )}
+                          {(Array.isArray(offer.required_skills) ? offer.required_skills : []).slice(0, 2).map((skill) => (
+                            <span key={`${offer.id}-skill-${skill}`} className="inline-flex items-center rounded-full border border-sky-100 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700">{skill}</span>
+                          ))}
                         </div>
-                        <p className="font-body text-sm text-gray-600 line-clamp-2 leading-relaxed flex-1">
-                          {stripHtmlTags(offer.description)}
+                        <p className="line-clamp-2 flex-1 text-sm leading-5 text-slate-500">
+                          {offer.description ? stripHtmlTags(offer.description) : "Consultez cette offre pour découvrir les missions et le profil recherché."}
                         </p>
                         <button
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleApply(offer.id); }}
                           disabled={applyingOfferId === offer.id}
-                          className="group/btn w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold text-sm py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="group/btn flex w-full items-center justify-between rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {applyingOfferId === offer.id ? (
                             <>
@@ -846,7 +869,7 @@ const PublicOffersPage: React.FC = () => {
                             </>
                           ) : (
                             <>
-                              Postuler
+                              Consulter et postuler
                               <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                             </>
                           )}

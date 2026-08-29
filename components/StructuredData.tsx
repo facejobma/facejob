@@ -7,13 +7,13 @@ interface JobPosting {
   titre: string;
   description: string;
   company_name: string;
-  sector_name: string;
+  sector_name: string | null;
   job_name: string | null;
-  location: string;
-  contractType: string;
-  date_debut: string;
+  location: string | null;
+  contractType: string | null;
+  date_debut: string | null;
   date_fin: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 export function JobListingStructuredData({ offers }: { offers: JobPosting[] }) {
@@ -31,7 +31,7 @@ export function JobListingStructuredData({ offers }: { offers: JobPosting[] }) {
       "position": index + 1,
       "title": offer.titre,
       "description": offer.description,
-      "datePosted": offer.created_at,
+      ...(offer.created_at ? { "datePosted": offer.created_at } : {}),
       ...(offer.date_fin ? { "validThrough": offer.date_fin } : {}),
       "employmentType": offer.contractType === "CDI" ? "FULL_TIME" : 
                       offer.contractType === "CDD" ? "TEMPORARY" : 
@@ -40,15 +40,15 @@ export function JobListingStructuredData({ offers }: { offers: JobPosting[] }) {
         "@type": "Organization",
         "name": offer.company_name
       },
-      "jobLocation": {
+      ...(offer.location ? { "jobLocation": {
         "@type": "Place",
         "address": {
           "@type": "PostalAddress",
           "addressLocality": offer.location,
           "addressCountry": "MA"
         }
-      },
-      "industry": offer.sector_name,
+      }} : {}),
+      ...(offer.sector_name ? { "industry": offer.sector_name } : {}),
       ...(offer.job_name ? { "occupationalCategory": offer.job_name } : {}),
       "url": `${baseUrl}/offres/${offer.id}`,
       "applicationContact": {

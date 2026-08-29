@@ -1,158 +1,78 @@
-'use client';
+"use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { toast } from 'react-hot-toast';
-import Cookies from 'js-cookie';
-import { getCsrfCookie, authenticatedApiCall } from '@/lib/api';
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
+import { toast } from "react-hot-toast";
+import { getAuthenticatedUser, getSafeReturnUrl, resetAuthCache } from "@/lib/auth";
+import { FullPageLoading } from "@/components/ui/loading";
 
 function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isProcessing, setIsProcessing] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     const processCallback = async () => {
       try {
-        const token = searchParams.get('token');
-        const userType = searchParams.get('user_type');
-        const provider = searchParams.get('provider');
-        const error = searchParams.get('error');
+        const token = searchParams.get("token");
+        const provider = searchParams.get("provider");
+        const oauthError = searchParams.get("error");
 
-        if (error) {
-          console.error('❌ OAuth Callback - Error received:', error);
-          toast.error('Erreur lors de la connexion: ' + error);
-          router.push('/auth/login');
-          return;
-        }
+        if (oauthError) throw new Error(oauthError);
+        if (!token) throw new Error("Données d’authentification manquantes.");
 
-        if (!token || !userType) {
-          console.error('❌ OAuth Callback - Missing data:', { token: !!token, userType });
-          toast.error('Données d\'authentification manquantes');
-          router.push('/auth/login');
-          return;
-        }
+        Cookies.set("authToken", token, { expires: 7, sameSite: "lax", secure: window.location.protocol === "https:" });
+        resetAuthCache();
+        const user = await getAuthenticatedUser();
+        if (!user) throw new Error("Impossible de récupérer le compte authentifié.");
+        if (cancelled) return;
 
-        console.log('✅ OAuth Callback - Success:', {
-          userType,
-          provider,
-          hasToken: !!token
-        });
+        Cookies.set("userRole", user.role, { expires: 7, sameSite: "lax", secure: window.location.protocol === "https:" });
+        sessionStorage.setItem("user", JSON.stringify(user));
+        sessionStorage.setItem("userRole", user.role);
+        sessionStorage.setItem("authToken", token);
+        if (user.id) sessionStorage.setItem("userId", String(user.id));
 
-        // Store authentication data in both localStorage and cookies for compatibility
-        localStorage.setItem('access_token', token);
-        localStorage.setItem('user_type', userType);
-        localStorage.setItem('auth_provider', provider || 'unknown');
-        
-        // Also store in cookies for component compatibility
-        Cookies.set('authToken', token, { expires: 7 });
-        Cookies.set('user_type', userType, { expires: 7 });
-
-        // Create user object from OAuth response data
-        const userData = {
-          id: Date.now(), // temporary ID, will be replaced when we fetch real user data
-          user_type: userType,
-          provider: provider,
-          authenticated: true
-        };
-
-        // Store user data in sessionStorage for dashboard layouts
-        sessionStorage.setItem('user', JSON.stringify(userData));
-
-        // Get CSRF cookie first, then fetch user data
-        console.log('🍪 Getting CSRF cookie...');
-        
-        try {
-          // First, get CSRF cookie
-          await getCsrfCookie();
-          
-          // Now fetch user data with both Bearer token and cookies
-          console.log('🔍 Fetching user data with token:', token.substring(0, 20) + '...');
-          
-          const userResponse = await authenticatedApiCall('/api/user');
-          
-          if (userResponse.ok) {
-            const fullUserData = await userResponse.json();
-            console.log('✅ Full user data received:', fullUserData);
-            // Update with real user data if available
-            sessionStorage.setItem('user', JSON.stringify(fullUserData));
-          } else {
-            console.warn('⚠️ User data API failed:', userResponse.status, userResponse.statusText);
-          }
-          
-        } catch (error) {
-          console.warn('❌ Could not fetch user data:', error);
-          // Keep the minimal user data we already stored
-        }
-
-        // Show success message
-        toast.success(`Connexion réussie via ${provider === 'linkedin' ? 'LinkedIn' : 'Google'}!`);
-
-        // Check if there's a returnUrl stored before OAuth redirect
-        const returnUrl = sessionStorage.getItem('oauthReturnUrl');
-        
+        toast.success(`Connexion réussie via ${provider === "linkedin" ? "LinkedIn" : "Google"}.`);
+        const returnUrl = getSafeReturnUrl(sessionStorage.getItem("oauthReturnUrl"));
+        sessionStorage.removeItem("oauthReturnUrl");
         if (returnUrl) {
-          console.log('🔄 Found returnUrl, redirecting to:', returnUrl);
-          sessionStorage.removeItem('oauthReturnUrl'); // Clean up
-          router.push(returnUrl);
-        } else {
-          // Redirect based on user type
-          if (userType === 'candidate') {
-            router.push('/dashboard/candidat');
-          } else if (userType === 'entreprise') {
-            router.push('/dashboard/entreprise');
-          } else {
-            router.push('/');
-          }
+          router.replace(returnUrl);
+          return;
         }
 
+        const dashboardMap = { candidat: "/dashboard/candidat", entreprise: "/dashboard/entreprise", admin: "/dashboard/admin" } as const;
+        router.replace(dashboardMap[user.role] || "/");
       } catch (error) {
-        console.error('Error processing callback:', error);
-        toast.error('Erreur lors du traitement de la connexion');
-        router.push('/auth/login');
-      } finally {
-        setIsProcessing(false);
+        if (cancelled) return;
+        const message = error instanceof Error ? error.message : "Erreur lors du traitement de la connexion.";
+        setErrorMessage(message);
+        toast.error(message);
       }
     };
 
     processCallback();
-  }, [searchParams, router]);
+    return () => { cancelled = true; };
+  }, [router, searchParams]);
 
-  if (isProcessing) {
+  if (errorMessage) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Finalisation de la connexion...
-          </h2>
-          <p className="text-gray-600">
-            Veuillez patienter pendant que nous vous connectons.
-          </p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+        <div className="max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-bold text-slate-900">Connexion impossible</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">{errorMessage}</p>
+          <button onClick={() => router.replace("/auth/login-candidate")} className="mt-6 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Retour à la connexion</button>
         </div>
       </div>
     );
   }
 
-  return null;
+  return <FullPageLoading message="Finalisation de la connexion" submessage="Nous vérifions votre compte…" showLogo />;
 }
 
 export default function AuthCallback() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Chargement...
-          </h2>
-          <p className="text-gray-600">
-            Préparation de la connexion.
-          </p>
-        </div>
-      </div>
-    }>
-      <AuthCallbackContent />
-    </Suspense>
-  );
+  return <Suspense fallback={<FullPageLoading message="Connexion en cours" submessage="Veuillez patienter…" showLogo />}><AuthCallbackContent /></Suspense>;
 }

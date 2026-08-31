@@ -71,10 +71,14 @@ export default function PublishVideo() {
       // 1. Get presigned URL
       const presignRes = await fetch('/local-api/s3/presign', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
         body: JSON.stringify({
           filename: file.name,
           contentType: file.type,
+          fileSize: file.size,
         }),
       });
 
@@ -339,7 +343,6 @@ export default function PublishVideo() {
         nb_experiences: experiences,
         job_id: selectedJob,
         sector_id: selectedSector,
-        candidat_id: user.id,
       });
       toast.success("Votre CV a bien été téléchargé. Dès que les administrateurs l'auront vérifié, il sera disponible sur votre Dashboard.");
       setUploadStatus("completed");
@@ -350,7 +353,7 @@ export default function PublishVideo() {
       router.push("/dashboard/candidat");
     } catch (error: any) {
       console.error("Error publishing video:", error);
-      toast.error("Une erreur est survenue lors de la publication de votre CV vidéo.");
+      toast.error(error?.message || "Une erreur est survenue lors de la publication de votre CV vidéo.");
       setUploadStatus("failed");
     }
   };

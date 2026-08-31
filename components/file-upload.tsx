@@ -6,6 +6,7 @@ import Image from "next/image";
 import { IMG_MAX_LIMIT } from "./forms/product-form";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
+import Cookies from "js-cookie";
 
 type UploadFileResponse = {
     url: string;
@@ -49,10 +50,14 @@ export default function FileUpload({
                 // 1. Get presigned URL
                 const response = await fetch('/local-api/s3/presign', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${Cookies.get("authToken")?.replace(/["']/g, "") || ""}`,
+                    },
                     body: JSON.stringify({
                         filename: file.name,
                         contentType: file.type,
+                        fileSize: file.size,
                     }),
                 });
 

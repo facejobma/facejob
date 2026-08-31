@@ -57,11 +57,10 @@ export default function Hero() {
   }, [isVideoModalOpen]);
 
   return (
-    <header className="relative w-full min-h-screen bg-gradient-to-br from-white via-optional1 to-green-50/30 overflow-hidden">
+    <header className="relative w-full overflow-hidden bg-gradient-to-br from-white via-emerald-50/50 to-white">
       {/* Enhanced animated background elements */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-70 pointer-events-none animate-pulse" />
+      <div className="pointer-events-none absolute -right-40 -top-40 h-96 w-96 rounded-full bg-emerald-200/40 blur-3xl" />
       <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-tr from-green-300/20 to-primary/10 rounded-full blur-3xl opacity-60 pointer-events-none" />
-      <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none animate-bounce-slow" />
       
       {/* Decorative dots pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
@@ -71,8 +70,8 @@ export default function Hero() {
 
       <NavBar />
 
-      <div className="relative container mx-auto px-4 sm:px-6 max-w-7xl pt-20 sm:pt-32 pb-16 flex items-center min-h-[calc(100vh-80px)]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center w-full">
+      <div className="relative container mx-auto flex max-w-7xl items-center px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:min-h-[680px]">
+        <div className="grid w-full grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
 
           <h1 className="order-1 lg:hidden font-heading text-4xl sm:text-5xl font-extrabold text-secondary leading-[1.1] tracking-tight text-center animate-fade-in">
             Votre talent<br/>mérite{" "}
@@ -101,7 +100,7 @@ export default function Hero() {
             </h1>
 
             <p className="font-body text-lg sm:text-xl text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
-              En un instant, créez votre CV vidéo, rapide, impactant et prêt à séduire les recruteurs…
+              Créez un profil qui vous ressemble, présentez votre parcours en vidéo et trouvez les opportunités adaptées à vos ambitions.
             </p>
 
             {/* CTAs */}
@@ -146,9 +145,9 @@ export default function Hero() {
             {/* Trust badges */}
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 text-sm pt-4">
               {[
-                { label: "100% Gratuit", color: "text-green-600", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
-                { label: "Inscription en 2 min", color: "text-blue-600", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
-                { label: "783+ recrutés", color: "text-green-600", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
+                { label: "Profil professionnel", color: "text-emerald-600", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+                { label: "CV vidéo guidé", color: "text-blue-600", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
+                { label: "Matching personnalisé", color: "text-violet-600", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
               ].map(({ label, color, icon }) => (
                 <span
                   key={label}
@@ -167,7 +166,7 @@ export default function Hero() {
           <div className="order-2 lg:order-2 animate-fade-in-delayed">
             <div className="relative max-w-lg mx-auto lg:max-w-none">
               {/* Decorative elements */}
-              <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-green-400/20 to-green-600/20 rounded-[2rem] blur-3xl opacity-30 sm:opacity-60 animate-pulse" />
+              <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-emerald-200/50 via-green-100/40 to-transparent blur-3xl" />
               <div className="absolute -top-6 -right-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl opacity-60 sm:opacity-100" />
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-green-400/10 rounded-full blur-2xl opacity-60 sm:opacity-100" />
               

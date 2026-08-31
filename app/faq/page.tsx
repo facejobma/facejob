@@ -1,191 +1,92 @@
 "use client";
-import React, { useState } from "react";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { ArrowRight, ChevronDown, HelpCircle, MessageCircle, Search, X } from "lucide-react";
 import NavBar from "../../components/NavBar";
 import Footer from "../../components/Footer";
 
 const tabs = [
-  {
-    label: "Général",
-    faqs: [
-      {
-        question: "Qu'est-ce que FaceJob ?",
-        answer: "FaceJob est la première plateforme d'emploi au Maroc qui permet aux candidats de créer leur CV vidéo gratuitement et aux entreprises de découvrir les talents cachés. Notre solution met le pouvoir des réseaux sociaux et du digital entre les mains des recruteurs et des chercheurs d'emploi."
-      },
-      {
-        question: "Dans quelles villes du Maroc FaceJob est-il disponible ?",
-        answer: "FaceJob est disponible dans tout le Maroc. Nous avons des offres d'emploi dans toutes les principales villes : Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda, Kenitra, Tétouan et bien d'autres. Notre plateforme couvre tous les secteurs d'activité au niveau national."
-      },
-      {
-        question: "Comment contacter le support FaceJob ?",
-        answer: "Vous pouvez nous contacter via la page Contact de notre site. Notre équipe répond généralement dans les 24h ouvrées."
-      }
-    ]
-  },
-  {
-    label: "Candidats",
-    faqs: [
-      {
-        question: "Comment créer un CV vidéo sur FaceJob ?",
-        answer: "C'est simple en 3 étapes : 1) Créez votre compte candidat gratuitement en 2 minutes, 2) Enregistrez votre vidéo de présentation de 2 minutes maximum où vous parlez de votre parcours et motivations, 3) Publiez votre profil et postulez aux offres qui vous intéressent."
-      },
-      {
-        question: "Quels sont les avantages du CV vidéo pour les candidats ?",
-        answer: "Démarquez-vous des autres candidats avec votre personnalité, montrez votre aisance orale et communication non verbale, créez une connexion directe avec les recruteurs, et testez vos compétences linguistiques."
-      },
-      {
-        question: "Puis-je modifier mon CV vidéo après l'avoir créé ?",
-        answer: "Oui, vous pouvez modifier votre CV vidéo à tout moment depuis votre espace candidat. Cliquez sur 'Ma liste des vidéos' puis sur 'Modifier' pour la vidéo concernée."
-      },
-      {
-        question: "Comment suivre mes candidatures ?",
-        answer: "Toutes vos candidatures sont visibles dans votre espace candidat. Vous recevrez également des notifications par email pour les mises à jour importantes."
-      }
-    ]
-  },
-  {
-    label: "Entreprises",
-    faqs: [
-      {
-        question: "Comment publier une offre d'emploi sur FaceJob ?",
-        answer: "Créez votre compte entreprise, accédez à votre espace recruteur, puis cliquez sur 'Publier une offre'. Remplissez les informations du poste et votre offre sera visible par tous les candidats."
-      },
-      {
-        question: "Quels sont les avantages du CV vidéo pour les entreprises ?",
-        answer: "Évitez les piles interminables de CV traditionnels, rencontrez les candidats en avant-première, dénichez les talents cachés plus facilement et réduisez le nombre d'entretiens physiques."
-      },
-      {
-        question: "Comment accéder aux profils des candidats ?",
-        answer: "Depuis votre espace entreprise, vous pouvez parcourir les profils candidats, visionner leurs CV vidéo et les contacter directement via la plateforme."
-      }
-    ]
-  },
-  {
-    label: "Tarifs",
-    faqs: [
-      {
-        question: "FaceJob est-il gratuit ?",
-        answer: "Oui, FaceJob est 100% gratuit pour les candidats. Vous pouvez créer votre compte, enregistrer votre CV vidéo, postuler aux offres et être contacté par les recruteurs sans aucun frais."
-      },
-      {
-        question: "Y a-t-il des frais cachés ?",
-        answer: "Non, il n'y a aucun frais caché. L'inscription ne prend que 2 minutes et vous avez accès à toutes les fonctionnalités gratuitement."
-      },
-      {
-        question: "Quels sont les tarifs pour les entreprises ?",
-        answer: "Contactez notre équipe commerciale via la page Contact pour obtenir nos offres adaptées à vos besoins de recrutement."
-      }
-    ]
-  }
+  { label: "Général", faqs: [
+    { question: "Qu’est-ce que FaceJob ?", answer: "FaceJob est une plateforme d’emploi au Maroc qui permet aux candidats de créer un profil avec CV vidéo et aux entreprises de découvrir des talents au-delà du CV traditionnel." },
+    { question: "Dans quelles villes FaceJob est-il disponible ?", answer: "FaceJob est accessible partout au Maroc. Les offres peuvent concerner Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda, Kénitra, Tétouan et d’autres villes." },
+    { question: "Comment contacter le support FaceJob ?", answer: "Vous pouvez nous écrire depuis la page Contact. Notre équipe vous répondra dès que possible pendant les jours ouvrés." },
+  ]},
+  { label: "Candidats", faqs: [
+    { question: "Comment créer un CV vidéo sur FaceJob ?", answer: "Créez votre compte candidat, complétez votre profil, puis enregistrez votre vidéo de présentation depuis votre espace. Vous pourrez ensuite l’utiliser pour vos candidatures." },
+    { question: "Quels sont les avantages du CV vidéo ?", answer: "Le CV vidéo permet de présenter votre personnalité, votre aisance orale, vos motivations et certaines compétences que le CV traditionnel montre difficilement." },
+    { question: "Puis-je modifier mon CV vidéo après sa création ?", answer: "Oui. Vous pouvez gérer vos vidéos depuis votre espace candidat et mettre à jour votre présentation lorsque cela est nécessaire." },
+    { question: "Comment suivre mes candidatures ?", answer: "L’historique de vos candidatures est disponible dans votre tableau de bord candidat, avec leur statut et les principales étapes de suivi." },
+  ]},
+  { label: "Entreprises", faqs: [
+    { question: "Comment publier une offre d’emploi ?", answer: "Créez ou connectez-vous à votre compte entreprise, ouvrez la rubrique de publication, complétez les informations du poste puis envoyez l’offre pour validation." },
+    { question: "Quels sont les avantages du CV vidéo pour une entreprise ?", answer: "Le CV vidéo aide à mieux comprendre la communication, la motivation et la personnalité d’un candidat avant les premières étapes d’entretien." },
+    { question: "Comment accéder aux profils des candidats ?", answer: "Depuis votre espace entreprise, les profils et CV vidéo accessibles dépendent de vos offres, candidatures reçues et droits d’accès." },
+  ]},
+  { label: "Tarifs", faqs: [
+    { question: "FaceJob est-il gratuit pour les candidats ?", answer: "La création du compte candidat, du profil et l’envoi de candidatures sont proposés sans frais aux candidats." },
+    { question: "Y a-t-il des frais cachés ?", answer: "Les éventuelles conditions d’un service sont affichées avant son utilisation. Aucun paiement ne doit être effectué en dehors des parcours officiels de FaceJob." },
+    { question: "Quels sont les tarifs pour les entreprises ?", answer: "Les formules entreprise dépendent des besoins de publication et de recrutement. Contactez notre équipe pour identifier l’offre adaptée." },
+  ]},
 ];
 
-function Accordion({ faqs }: { faqs: { question: string; answer: string }[] }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+type FAQ = { question: string; answer: string };
+
+function Accordion({ faqs }: { faqs: FAQ[] }) {
+  const [openQuestion, setOpenQuestion] = useState<string | null>(faqs[0]?.question ?? null);
   return (
-    <div className="space-y-4">
-      {faqs.map((faq, i) => (
-        <div key={i} className="bg-white border-2 border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300">
-          <button
-            className="flex w-full items-center justify-between py-5 px-6 text-left font-heading font-bold text-secondary hover:bg-gradient-to-r hover:from-primary/5 hover:to-green-50/50 transition-all duration-300 focus:outline-none group"
-            onClick={() => setOpenIndex(openIndex === i ? null : i)}
-            aria-expanded={openIndex === i}
-          >
-            <span className="pr-4 group-hover:text-primary transition-colors">{faq.question}</span>
-            <div className={`w-8 h-8 bg-gradient-to-br from-primary/10 to-green-100/50 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300 ${openIndex === i ? "rotate-180 bg-primary" : ""}`}>
-              <svg
-                className={`w-5 h-5 transition-colors ${openIndex === i ? "text-white" : "text-primary"}`}
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </button>
-          <div className={`transition-all duration-300 ease-in-out ${openIndex === i ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
-            <p className="px-6 pb-6 font-body text-gray-600 leading-relaxed">{faq.answer}</p>
-          </div>
-        </div>
-      ))}
+    <div className="space-y-3">
+      {faqs.map((faq) => {
+        const isOpen = openQuestion === faq.question;
+        return (
+          <article key={faq.question} className={`overflow-hidden rounded-2xl border bg-white transition ${isOpen ? "border-emerald-200 shadow-[0_10px_30px_rgba(15,23,42,0.06)]" : "border-slate-200 hover:border-emerald-200"}`}>
+            <button type="button" onClick={() => setOpenQuestion(isOpen ? null : faq.question)} aria-expanded={isOpen} className="flex w-full items-center justify-between gap-5 px-5 py-4 text-left sm:px-6 sm:py-5">
+              <span className={`text-sm font-semibold leading-6 sm:text-base ${isOpen ? "text-emerald-800" : "text-slate-800"}`}>{faq.question}</span>
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${isOpen ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-500"}`}><ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} /></span>
+            </button>
+            <div className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}><div className="overflow-hidden"><p className="border-t border-slate-100 px-5 pb-5 pt-4 text-sm leading-7 text-slate-600 sm:px-6">{faq.answer}</p></div></div>
+          </article>
+        );
+      })}
     </div>
   );
 }
 
 export default function FAQPage() {
   const [activeTab, setActiveTab] = useState(0);
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLocaleLowerCase("fr");
+  const visibleFaqs = useMemo(() => normalizedQuery ? tabs.flatMap((tab) => tab.faqs).filter((faq) => `${faq.question} ${faq.answer}`.toLocaleLowerCase("fr").includes(normalizedQuery)) : tabs[activeTab].faqs, [activeTab, normalizedQuery]);
 
   return (
-    <div className="min-h-screen bg-optional1 flex flex-col">
+    <div className="flex min-h-screen flex-col bg-slate-50">
       <NavBar />
-      
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-16 overflow-hidden">
-        {/* Background decorations */}
-        <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
-        <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
-        
-        <div className="container mx-auto px-6 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-6 shadow-sm">
-              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-sm font-medium text-primary">Support & Aide</span>
-            </div>
-
-            <h1 className="font-heading text-4xl md:text-5xl font-extrabold text-secondary mb-4 leading-tight tracking-tight">
-              Questions fréquentes
-            </h1>
-            <p className="font-body text-lg text-gray-600 leading-relaxed">
-              Trouvez rapidement les réponses à vos questions sur FaceJob
-            </p>
+      <header className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-white via-emerald-50/50 to-white pb-16 pt-20">
+        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
+        <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"><HelpCircle className="h-4 w-4" /> Centre d’aide</span>
+          <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">Comment pouvons-nous vous aider ?</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">Retrouvez les réponses essentielles sur les comptes, les candidatures, les offres et les services FaceJob.</p>
+          <div className="relative mx-auto mt-8 max-w-2xl text-left">
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} type="search" placeholder="Rechercher une question…" className="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-12 text-sm text-slate-900 shadow-[0_10px_35px_rgba(15,23,42,0.08)] outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+            {query && <button type="button" onClick={() => setQuery("")} aria-label="Effacer la recherche" className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X className="h-4 w-4" /></button>}
           </div>
         </div>
-      </div>
+      </header>
 
-      <main className="flex-1 pb-20 px-4">
-        <div className="max-w-3xl mx-auto -mt-8">
-          {/* Tabs */}
-          <div className="flex flex-wrap gap-3 justify-center mb-10">
-            {tabs.map((tab, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveTab(i)}
-                className={`px-6 py-3 rounded-xl font-accent font-semibold transition-all duration-300 ${
-                  activeTab === i
-                    ? "bg-gradient-to-r from-primary to-green-600 text-white shadow-lg scale-105"
-                    : "bg-white border-2 border-gray-200 text-gray-600 hover:border-primary hover:text-primary hover:shadow-md"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
+        {!normalizedQuery && <nav aria-label="Catégories de questions" className="mb-8 flex gap-2 overflow-x-auto pb-2 sm:justify-center">{tabs.map((tab, index) => <button key={tab.label} type="button" onClick={() => setActiveTab(index)} className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${activeTab === index ? "bg-slate-900 text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:text-emerald-700"}`}>{tab.label}</button>)}</nav>}
+        {normalizedQuery && <p className="mb-5 text-sm text-slate-500"><span className="font-semibold text-slate-800">{visibleFaqs.length}</span> résultat(s) pour « {query.trim()} »</p>}
+        {visibleFaqs.length ? <Accordion key={`${activeTab}-${normalizedQuery}`} faqs={visibleFaqs} /> : <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center"><Search className="mx-auto h-8 w-8 text-slate-300" /><h2 className="mt-4 font-semibold text-slate-900">Aucune réponse trouvée</h2><p className="mt-2 text-sm text-slate-500">Essayez avec des termes plus courts ou contactez notre équipe.</p></div>}
 
-          {/* FAQ Accordion */}
-          <Accordion faqs={tabs[activeTab].faqs} />
-
-          {/* CTA */}
-          <div className="text-center mt-12 p-8 bg-gradient-to-br from-white to-optional1 rounded-2xl border-2 border-gray-100 shadow-lg">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-green-100/50 rounded-2xl flex items-center justify-center mx-auto mb-6 border-2 border-primary/20">
-              <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-            </div>
-            <h3 className="font-heading text-2xl font-bold text-secondary mb-3">Vous avez d'autres questions ?</h3>
-            <p className="font-body text-gray-600 mb-6">Notre équipe est là pour vous aider.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contact" className="group inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
-                Nous contacter
-                <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-              <Link href="/auth/signup-candidate" className="inline-flex items-center justify-center px-6 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white font-accent font-semibold rounded-xl transition-all duration-300 shadow-sm hover:shadow-md">
-                Commencer maintenant
-              </Link>
-            </div>
-          </div>
-        </div>
+        <section className="relative mt-12 overflow-hidden rounded-3xl bg-slate-900 px-6 py-9 text-center sm:px-10">
+          <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl" />
+          <MessageCircle className="relative mx-auto h-7 w-7 text-emerald-400" />
+          <h2 className="relative mt-4 text-2xl font-bold text-white">Vous n’avez pas trouvé votre réponse ?</h2>
+          <p className="relative mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">Notre équipe peut vous accompagner pour toute question liée à votre compte ou à l’utilisation de la plateforme.</p>
+          <Link href="/contact" className="relative mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">Nous contacter <ArrowRight className="h-4 w-4" /></Link>
+        </section>
       </main>
       <Footer />
     </div>

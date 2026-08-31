@@ -16,14 +16,14 @@ interface Offer {
   description: string;
   company_name: string;
   sector_name: string;
-  job_name: string;
+  job_name: string | null;
   location: string;
   contractType: string;
   date_debut: string;
-  date_fin: string;
+  date_fin: string | null;
   created_at: string;
   sector_id: number;
-  job_id: number;
+  job_id: number | null;
   entreprise_id: number;
 }
 
@@ -158,7 +158,9 @@ const PaginatedOffersList: React.FC<PaginatedOffersListProps> = ({ className }) 
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center text-sm text-gray-600">
                       <Briefcase className="h-4 w-4 mr-2 text-primary-1 flex-shrink-0" />
-                      <span className="truncate">{offer.sector_name} • {offer.job_name}</span>
+                      <span className="truncate">
+                        {offer.sector_name}{offer.job_name ? ` • ${offer.job_name}` : ""}
+                      </span>
                     </div>
                     
                     <div className="flex items-center text-sm text-gray-600">

@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import JobForm from "@/components/forms/job-form";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { Edit } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface Sector {
   id: number;
@@ -21,7 +22,7 @@ interface Candidat {
   bio: string;
   years_of_experience: number;
   is_completed: number;
-  job_id: number;
+  job_id: number | null;
   image: string | null;
   created_at: string;
   updated_at: string;
@@ -31,7 +32,7 @@ interface Candidat {
 
 interface Postuler {
   id: number;
-  link: string
+  link?: string | null;
 }
 
 interface JobData {
@@ -39,26 +40,34 @@ interface JobData {
   titre: string;
   description: string;
   date_debut: string;
-  date_fin?: string;
+  date_fin?: string | null;
   company_name: string;
   sector_id: number;
-  job_id: number;
+  job_id: number | null;
   location: string;
   contractType: string;
   is_verified: string;
+  status: "Pending" | "Accepted" | "Declined" | "Expired";
   entreprise_id: number;
   salary_min?: number | null;
   salary_max?: number | null;
   currency?: string;
+  experience_required?: number | null;
+  benefits?: string[];
   required_languages?: string[];
   required_skills?: string[];
   applications: {
-    candidat: Candidat;
-    link: string;
+    id: number;
+    candidate: Candidat | null;
+    link: string | null;
     created_at: string;
-    postuler: Postuler;
+    postuler: Postuler | null;
+    status: "submitted" | "viewed" | "accepted" | "rejected";
+    viewed_by_recruiter?: boolean;
+    viewed_at?: string | null;
+    is_consumed?: boolean;
   }[];
-  candidats_count: number;
+  applications_count: number;
 }
 
 export default function Page() {
@@ -86,13 +95,19 @@ export default function Page() {
             }
           );
           
-          const data = await response.json();
-          console.log("data du response : ", data);
+          const payload = await response.json().catch(() => null);
+          if (!response.ok) {
+            throw new Error(payload?.message || "Impossible de charger cette offre.");
+          }
+          const data = payload?.data ?? payload;
+          if (!data) throw new Error("Réponse invalide du serveur.");
           setJobData(data);
-          setLoading(false);
         } catch (error) {
-          setLoading(false);
           console.error("Error fetching job data:", error);
+          toast.error(error instanceof Error ? error.message : "Impossible de charger cette offre.");
+          setJobData(null);
+        } finally {
+          setLoading(false);
         }
       };
 

@@ -29,6 +29,12 @@ yarn-error.log*
 .env
 .env*.local
 
+# Machine-specific development overrides
+.env.development.local
+
+# Local test media (not part of the deployed application)
+/public/videos/Comment faire un CV vidéo _ Exemple.mp4
+
 # vercel
 .vercel
 

@@ -33,12 +33,13 @@ export type Job = {
   titre: string;
   description: string;
   date_debut: string;
-  date_fin: string;
+  date_fin: string | null;
   company_name: string;
   sector: Sector;
   contractType: string;
   is_verified: string;
-  postuler_offres_count: number;
+  status: "Pending" | "Accepted" | "Declined" | "Expired";
+  applications_count: number;
   created_at:string;
 
 };

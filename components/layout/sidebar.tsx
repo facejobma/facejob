@@ -2,7 +2,7 @@
 import { DashboardNav } from "@/components/dashboard-nav";
 import { navItemsCandidat, navItemsEntreprise } from "@/constants/data";
 import { cn } from "@/lib/utils";
-import { Star, Video, User, Crown } from "lucide-react";
+import { Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -21,42 +21,34 @@ export default function Sidebar() {
     
     // Try to get userRole from sessionStorage first
     let role = window.sessionStorage?.getItem("userRole");
-    console.log("🔍 Sidebar - Initial userRole from sessionStorage:", role);
 
     // Fallback: try to get user data and determine role from it
     if (!role) {
       const userData = window.sessionStorage?.getItem("user");
-      console.log("🔍 Sidebar - No userRole found, checking user data");
       if (userData) {
         try {
           const parsedUser = JSON.parse(userData);
-          console.log("🔍 Sidebar - Parsed user data:", parsedUser);
           
           // Check if user object has role property
           if (parsedUser.role) {
             role = parsedUser.role;
-            console.log("✅ Sidebar - Found role in user data:", role);
             // Store it for next time
             window.sessionStorage.setItem("userRole", parsedUser.role);
           }
           // Fallback: detect from user data structure
           else if (parsedUser.company_name || parsedUser.sector_id) {
             role = "entreprise";
-            console.log("✅ Sidebar - Detected entreprise from user structure");
             window.sessionStorage.setItem("userRole", "entreprise");
           } else if (parsedUser.first_name || parsedUser.last_name || parsedUser.job_id !== undefined) {
             role = "candidat";
-            console.log("✅ Sidebar - Detected candidat from user structure");
             window.sessionStorage.setItem("userRole", "candidat");
           } else {
-            console.warn("⚠️ Sidebar - Could not determine role from user data");
           }
           setUser(parsedUser);
         } catch (e) {
           console.error("❌ Sidebar - Error parsing user data:", e);
         }
       } else {
-        console.warn("⚠️ Sidebar - No user data found in sessionStorage");
       }
     } else {
       // If we have role, also get user data
@@ -70,7 +62,6 @@ export default function Sidebar() {
       }
     }
 
-    console.log("🎯 Sidebar - Final determined role:", role);
     setUserRole(role);
   }, []);
 
@@ -122,20 +113,20 @@ export default function Sidebar() {
 
   return (
     <nav className={cn(
-      'fixed left-0 top-0 h-screen border-r pt-16 hidden md:block bg-gradient-to-b from-white to-gray-50 z-30 transition-all duration-300 shadow-sm',
+      'fixed left-0 top-16 z-30 hidden h-[calc(100dvh-4rem)] border-r border-slate-200 bg-white md:block transition-all duration-300',
       isOpen ? 'w-64' : 'w-20'
     )}>
       <div className={cn(
-        "space-y-4 py-6 px-3 h-full flex flex-col transition-opacity duration-300"
+        "flex h-full flex-col px-3 py-5 transition-opacity duration-300"
       )}>
         {/* Navigation Section */}
         <div className="flex-1">
           <div className={cn("px-2", !isOpen && "px-1")}>
             {isOpen && (
-              <div className="mb-4 px-3 flex items-center gap-2">
-                <div className="h-1 w-1 rounded-full bg-green-600"></div>
-                <h2 className="text-xs font-bold text-gray-700 uppercase tracking-wider whitespace-nowrap">
-                  Navigation
+              <div className="mb-3 flex items-center gap-2 px-2.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
+                <h2 className="whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Espace de travail
                 </h2>
               </div>
             )}

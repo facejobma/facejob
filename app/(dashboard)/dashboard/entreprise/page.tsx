@@ -99,7 +99,7 @@ const Dashboard: React.FC = () => {
           const entrepriseId = userData?.id ?? userData?.user?.id;
           if (entrepriseId) {
             const offresRes = await fetch(
-              `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/${entrepriseId}`,
+              `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/offres/by-owner/${entrepriseId}`,
               {
                 headers: {
                   Authorization: `Bearer ${authToken}`,

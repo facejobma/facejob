@@ -65,7 +65,7 @@ export const columns: ColumnDef<Job>[] = [
     ),
   },
   {
-    accessorKey: "postuler_offres_count",
+    accessorKey: "applications_count",
     header: ({ column }) => (
       <div className="flex items-center gap-2 font-semibold">
         <Users className="w-4 h-4" />
@@ -73,7 +73,7 @@ export const columns: ColumnDef<Job>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const count = 0; // Default value since postuler_offres_count doesn't exist in this Job type
+      const count = row.original.applications_count || 0;
       return (
         <div className="flex items-center gap-2">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
@@ -140,10 +140,10 @@ export const columns: ColumnDef<Job>[] = [
     },
   },
   {
-    accessorKey: "is_verified",
+    accessorKey: "status",
     header: "STATUT",
     cell: ({ row }) => {
-      const status = row.original.is_verified;
+      const status = row.original.status;
       const getStatusConfig = (status: string) => {
         switch (status) {
           case "Accepted":
@@ -152,6 +152,13 @@ export const columns: ColumnDef<Job>[] = [
               label: "Validée",
               className: "bg-emerald-50 text-emerald-700 border-emerald-200",
               iconColor: "text-emerald-600"
+            };
+          case "Expired":
+            return {
+              icon: Calendar,
+              label: "Expirée",
+              className: "bg-slate-100 text-slate-700 border-slate-200",
+              iconColor: "text-slate-600"
             };
           case "Pending":
             return {

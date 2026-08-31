@@ -10,6 +10,19 @@ export interface AuthUser {
   [key: string]: any;
 }
 
+const AUTH_REQUEST_TIMEOUT_MS = 8000;
+
+export function getSafeReturnUrl(value?: string | null): string | null {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/auth/")) return null;
+
+  try {
+    const parsed = new URL(value, "http://facejob.local");
+    return parsed.origin === "http://facejob.local" ? `${parsed.pathname}${parsed.search}${parsed.hash}` : null;
+  } catch {
+    return null;
+  }
+}
+
 export function clearInvalidAuthSession() {
   Cookies.remove("authToken");
   Cookies.remove("userRole");
@@ -38,12 +51,21 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
   try {
     const apiUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/user`;
     
+    const controller = new AbortController();
+    const timeoutId = globalThis.setTimeout(
+      () => controller.abort(),
+      AUTH_REQUEST_TIMEOUT_MS
+    );
+
     const response = await fetch(apiUrl, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
       },
+      signal: controller.signal,
+    }).finally(() => {
+      globalThis.clearTimeout(timeoutId);
     });
 
     if (!response.ok) {
@@ -111,7 +133,12 @@ export async function getUserFromToken(): Promise<AuthUser | null> {
 // Cache for authentication check to prevent multiple simultaneous calls
 let authCheckPromise: Promise<AuthUser | null> | null = null;
 let lastAuthCheck: { timestamp: number; result: AuthUser | null } | null = null;
-const AUTH_CACHE_DURATION = 30000; // 30 secondes (augmenté de 5s à 30s)
+const AUTH_CACHE_DURATION = 30000;
+
+export function resetAuthCache() {
+  authCheckPromise = null;
+  lastAuthCheck = null;
+}
 
 // Track redirect attempts to prevent loops
 let lastRedirectAttempt: { path: string; timestamp: number } | null = null;
@@ -313,7 +340,8 @@ export async function secureLogin(
     // Store the auth token from the nested data structure
     const authToken = data.data?.token || data.token || data.access_token;
     if (authToken) {
-      Cookies.set("authToken", authToken, { expires: 7 }); // 7 days
+      Cookies.set("authToken", authToken, { expires: 7, sameSite: "lax", secure: window.location.protocol === "https:" });
+      resetAuthCache();
     } else {
       console.error("No token received from login response");
       return {
@@ -352,7 +380,7 @@ export async function secureLogin(
     }
     
     // Store role for quick access in both cookies and sessionStorage
-    Cookies.set("userRole", userRole, { expires: 7 });
+    Cookies.set("userRole", userRole, { expires: 7, sameSite: "lax", secure: window.location.protocol === "https:" });
     sessionStorage.setItem("userRole", userRole); // IMPORTANT: For sidebar navigation
     sessionStorage.setItem("authToken", authToken);
 
@@ -364,9 +392,10 @@ export async function secureLogin(
     console.log('🔐 Login successful - Checking for custom redirect:', { returnUrl });
     
     // Handle custom redirection if returnUrl is provided
-    if (returnUrl) {
+    const safeReturnUrl = getSafeReturnUrl(returnUrl);
+    if (safeReturnUrl) {
       console.log('🔄 Redirecting to custom URL:', returnUrl);
-      window.location.href = returnUrl;
+      window.location.href = safeReturnUrl;
     } else if (userRole === "candidat" && authenticatedUser?.is_completed === false) {
       console.log('Redirecting incomplete candidate to profile completion');
       window.location.href = '/auth/signup-candidate';

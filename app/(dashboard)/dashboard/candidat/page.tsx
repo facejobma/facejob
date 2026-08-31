@@ -26,6 +26,7 @@ import { FaTrashAlt, FaVideo, FaFilter, FaPlay, FaEye, FaCheckCircle, FaTimesCir
 import { HiOutlineVideoCamera, HiOutlineCollection } from "react-icons/hi";
 import { BiStats } from "react-icons/bi";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 // In-memory map to deduplicate concurrent identical fetches (survives remounts)
 const inFlightFetches: Map<string, Promise<any>> = new Map();
@@ -218,7 +219,8 @@ export default function UsersPage() {
             });
 
             if (res.ok) {
-              const data = await res.json();
+              const payload = await res.json();
+              const data = payload?.data ?? payload;
               if (Array.isArray(data)) {
                 setUsers(data);
                 const updatedCv = data.find((item: CV) => Number(item.id) === Number(videoId));
@@ -555,7 +557,8 @@ export default function UsersPage() {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          return await response.json();
+          const payload = await response.json();
+          return payload?.data ?? payload;
         })();
 
         inFlightFetches.set(url, fetchPromise);
@@ -633,44 +636,57 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-220px)]">
-        <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+      <div className="mx-auto max-w-[1500px] space-y-6" aria-label="Chargement des CV vidéo">
+        <div className="h-36 animate-pulse rounded-2xl border border-slate-200 bg-white" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-24 animate-pulse rounded-2xl border border-slate-200 bg-white" />)}
+        </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => <div key={index} className="h-80 animate-pulse rounded-2xl border border-slate-200 bg-white" />)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Simple */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md p-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            <HiOutlineCollection className="text-white text-xl" />
+    <div className="mx-auto max-w-[1500px] space-y-6 pb-12">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm md:p-8">
+        <div className="absolute inset-y-0 right-0 hidden w-72 bg-gradient-to-l from-emerald-50 to-transparent lg:block" />
+        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+              <HiOutlineCollection className="text-xl" />
+            </div>
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Mon espace vidéo</p>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">Mes CV vidéo</h1>
+              <p className="mt-1 text-sm text-slate-500 md:text-base">Créez, suivez et améliorez vos présentations vidéo.</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Mes CV vidéos</h1>
-            <p className="text-green-50 text-sm">Gérez vos candidatures vidéo</p>
-          </div>
+          <Link href="/dashboard/candidat/postuler" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md">
+            <FaVideo className="text-sm" /> Créer un CV vidéo
+          </Link>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
         {/* Total Card */}
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-emerald-200 hover:shadow-md sm:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
               <FaVideo className="text-green-600 text-base md:text-lg" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xl md:text-3xl font-bold text-gray-900 leading-none mb-1">{stats.total}</p>
-              <p className="text-xs md:text-sm text-gray-600">Total</p>
+              <p className="mb-1 text-2xl font-bold leading-none text-slate-950 md:text-3xl">{stats.total}</p>
+              <p className="text-xs font-medium text-slate-500 md:text-sm">Total</p>
             </div>
           </div>
         </div>
         
         {/* Accepted Card */}
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-emerald-200 hover:shadow-md sm:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
               <FaCheckCircle className="text-emerald-600 text-base md:text-lg" />
@@ -683,7 +699,7 @@ export default function UsersPage() {
         </div>
         
         {/* Pending Card */}
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-amber-200 hover:shadow-md sm:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
               <FaClock className="text-amber-600 text-base md:text-lg" />
@@ -696,7 +712,7 @@ export default function UsersPage() {
         </div>
         
         {/* Declined Card */}
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-rose-200 hover:shadow-md sm:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
               <FaTimesCircle className="text-red-600 text-base md:text-lg" />
@@ -710,8 +726,8 @@ export default function UsersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
@@ -729,7 +745,7 @@ export default function UsersPage() {
                 </button>
               )}
               {/* View Mode Toggle */}
-              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1">
                 <button
                   onClick={() => setViewMode('cards')}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
@@ -739,7 +755,7 @@ export default function UsersPage() {
                   }`}
                 >
                   <FaThLarge className="text-sm" />
-                  Cards
+                  Cartes
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
@@ -750,21 +766,21 @@ export default function UsersPage() {
                   }`}
                 >
                   <FaList className="text-sm" />
-                  Table
+                  Tableau
                 </button>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Statut</label>
               <select
                 value={selectedStatus}
                 onChange={handleStatusChange}
-                className="w-full border border-gray-300 bg-white text-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="">Tous les statuts</option>
                 <option value="Pending">En attente</option>
@@ -778,7 +794,7 @@ export default function UsersPage() {
               <select
                 value={selectedSector}
                 onChange={handleSectorChange}
-                className="w-full border border-gray-300 bg-white text-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="">Tous les secteurs</option>
                 {allSectors.map((option) => (
@@ -794,7 +810,7 @@ export default function UsersPage() {
               <select
                 value={selectedJob}
                 onChange={handleJobChange}
-                className="w-full border border-gray-300 bg-white text-gray-700 px-3 py-2 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
               >
                 <option value="">Tous les postes</option>
                 {allJobs.map((option) => (
@@ -810,7 +826,7 @@ export default function UsersPage() {
 
       {/* Cards View */}
       {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {users.length > 0 ? (
             users.map((cv) => {
               const statusConfig: Record<string, { bg: string; text: string; icon: React.ReactNode; label: string }> = {
@@ -846,9 +862,9 @@ export default function UsersPage() {
               };
 
               return (
-                <div key={cv.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+                <article key={cv.id} className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg">
                   {/* Video Preview */}
-                  <div className="relative bg-gray-900" style={{ height: '200px' }}>
+                  <div className="relative aspect-video max-h-64 bg-slate-950">
                     {cv.link && (
                       <VideoPlayer
                         src={cv.link}
@@ -859,15 +875,15 @@ export default function UsersPage() {
                         subtitlesVtt={cv.subtitles_vtt}
                       />
                     )}
-                    <div className="absolute top-2 right-2">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${config.bg} ${config.text}`}>
+                    <div className="absolute right-3 top-3">
+                      <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur ${config.bg} ${config.text}`}>
                         {config.icon}
                         {config.label}
                       </span>
                     </div>
                     {hasAI && (
-                      <div className="absolute top-2 left-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-600 text-white border border-purple-700">
+                      <div className="absolute left-3 top-3">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-500 bg-violet-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
                           <BiStats className="text-xs" /> IA
                         </span>
                       </div>
@@ -875,11 +891,11 @@ export default function UsersPage() {
                   </div>
 
                   {/* Card Content */}
-                  <div className="p-3 flex flex-col gap-2 flex-1">
+                  <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm text-gray-900 mb-0.5 truncate">{cv.job_name}</h3>
-                        <p className="text-xs text-gray-500 truncate">{cv.secteur_name}</p>
+                        <h3 className="mb-1 truncate text-base font-bold text-slate-900">{cv.job_name || "CV vidéo"}</h3>
+                        <p className="truncate text-xs font-medium text-slate-500">{cv.secteur_name || "Secteur non renseigné"}</p>
                       </div>
                       <span className="text-xs text-gray-400 font-mono bg-gray-50 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">#{cv.id}</span>
                     </div>
@@ -973,24 +989,25 @@ export default function UsersPage() {
                     {/* Actions */}
                     <button
                       onClick={() => handleDelete(cv.id)}
-                      className="mt-auto w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-medium text-red-600 hover:text-white hover:bg-red-600 border border-red-200 hover:border-red-600 rounded transition-all"
+                      className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl border border-rose-200 px-3 py-2.5 text-xs font-semibold text-rose-600 transition hover:border-rose-600 hover:bg-rose-600 hover:text-white"
                     >
                       <FaTrashAlt className="text-xs" />
                       Supprimer
                     </button>
                   </div>
-                </div>
+                </article>
               );
             })
           ) : (
             <div className="col-span-full">
-              <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-                <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <FaVideo className="text-2xl text-gray-400" />
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 ring-1 ring-emerald-100">
+                  <FaVideo className="text-2xl text-emerald-600" />
                 </div>
                 <p className="text-gray-600">
                   {hasActiveFilters ? "Aucun résultat trouvé" : "Aucun CV vidéo"}
                 </p>
+                {!hasActiveFilters && <Link href="/dashboard/candidat/postuler" className="mt-5 inline-flex rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Créer mon premier CV vidéo</Link>}
               </div>
             </div>
           )}
@@ -999,7 +1016,7 @@ export default function UsersPage() {
 
       {/* Table View */}
       {viewMode === 'table' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ScrollArea className="h-[calc(80vh-200px)]">
             <Table>
               <TableHeader className="bg-gray-50 sticky top-0 z-10">
@@ -1061,7 +1078,7 @@ export default function UsersPage() {
 
       {/* Pagination - Only show for table view */}
       {viewMode === 'table' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
               <span className="font-semibold text-gray-900">

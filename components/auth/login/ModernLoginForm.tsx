@@ -284,20 +284,20 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
         </div>
       )}
 
-      <div className="w-full max-w-md mx-auto">
+      <div className="mx-auto w-full max-w-md">
       {/* Header */}
-      <div className="text-center mb-6">
-        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${currentTheme.iconBg}`}>
+      <div className="mb-7 text-left">
+        <div className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl ${currentTheme.iconBg}`}>
           {loginFor === "candidate" ? (
-            <User className={`w-8 h-8 ${currentTheme.iconColor}`} />
+            <User className={`h-5 w-5 ${currentTheme.iconColor}`} />
           ) : (
-            <Building2 className={`w-8 h-8 ${currentTheme.iconColor}`} />
+            <Building2 className={`h-5 w-5 ${currentTheme.iconColor}`} />
           )}
         </div>
-        <h1 className="text-2xl font-bold text-secondary mb-2">
+        <h1 className="mb-2 text-2xl font-bold text-slate-950">
           {loginFor === "candidate" ? "Espace Candidat" : "Espace Entreprise"}
         </h1>
-        <p className="text-third">
+        <p className="text-sm leading-6 text-slate-500">
           {loginFor === "candidate" 
             ? "Connectez-vous pour accéder à votre tableau de bord" 
             : "Gérez vos offres d'emploi et candidatures"
@@ -311,7 +311,7 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
           type="button"
           onClick={handleGoogleLogin}
           disabled={isLoading}
-          className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-secondary hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Image src={google} alt="Google" className="w-5 h-5 mr-3" />
           Continuer avec Google
@@ -321,7 +321,7 @@ const ModernLoginForm = ({ loginFor, returnUrl }: ModernLoginFormProps) => {
           type="button"
           onClick={handleLinkedinLogin}
           disabled={isLoading}
-          className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-secondary hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Image src={linkedin} alt="LinkedIn" className="w-5 h-5 mr-3" />
           Continuer avec LinkedIn

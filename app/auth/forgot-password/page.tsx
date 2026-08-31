@@ -9,7 +9,8 @@ const ForgotPasswordRedirectContent = () => {
 
   useEffect(() => {
     // Get actor from query params, default to candidat
-    const actor = searchParams.get('actor') || 'candidat';
+    const requestedActor = searchParams.get('actor');
+    const actor = requestedActor === 'entreprise' || requestedActor === 'enterprise' ? 'entreprise' : 'candidat';
     
     // Redirect to the proper forgot password page
     router.replace(`/auth/${actor}/forget-password`);

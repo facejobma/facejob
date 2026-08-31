@@ -1,18 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   Briefcase, 
   Building, 
   MapPin, 
   Calendar, 
-  ArrowRight, 
-  TrendingUp,
-  Users,
-  Clock
+  Banknote,
+  ChevronRight
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -21,13 +17,18 @@ import { stripHtmlTags } from "@/lib/textUtils";
 interface Offer {
   id: number;
   titre: string;
-  description: string;
-  company_name: string;
-  sector_name: string;
-  job_name: string;
-  location: string;
-  contractType: string;
-  created_at: string;
+  description?: string | null;
+  company_name?: string | null;
+  sector_name: string | null;
+  job_name: string | null;
+  location: string | null;
+  contractType: string | null;
+  created_at: string | null;
+  entreprise_id?: number | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  currency?: string | null;
+  experience_required?: number | null;
 }
 
 const FeaturedOffers: React.FC = () => {
@@ -51,8 +52,8 @@ const FeaturedOffers: React.FC = () => {
         // Use cache if less than 5 minutes old
         if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 300000) {
           const cached = JSON.parse(cachedData);
-          setOffers(cached.offers);
-          setStats(cached.stats);
+          setOffers(Array.isArray(cached?.offers) ? cached.offers.filter((offer: any) => offer?.id) : []);
+          if (cached?.stats && typeof cached.stats === "object") setStats(cached.stats);
           setLoading(false);
           return;
         }
@@ -71,11 +72,15 @@ const FeaturedOffers: React.FC = () => {
         
         if (response.ok) {
           const result = await response.json();
-          const data = result.data;
+          const data: Offer[] = Array.isArray(result?.data) ? result.data.filter((offer: any) => offer?.id) : [];
           
           // Get latest 6 offers for featured section
           const sortedOffers = data
-            .sort((a: Offer, b: Offer) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .sort((a: Offer, b: Offer) => {
+              const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+              const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+              return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0);
+            })
             .slice(0, 6);
           
           setOffers(sortedOffers);
@@ -83,14 +88,16 @@ const FeaturedOffers: React.FC = () => {
           // Calculate stats
           const now = new Date();
           const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          const newThisWeek = data.filter((offer: Offer) => 
-            new Date(offer.created_at) >= oneWeekAgo
-          ).length;
+          const newThisWeek = data.filter((offer: Offer) => {
+            if (!offer.created_at) return false;
+            const created = new Date(offer.created_at);
+            return !Number.isNaN(created.getTime()) && created >= oneWeekAgo;
+          }).length;
           
-          const uniqueCompanies = Array.from(new Set(data.map((offer: Offer) => offer.company_name))).length;
+          const uniqueCompanies = new Set(data.map((offer) => offer.entreprise_id).filter((id) => id != null)).size;
           
           const statsData = {
-            totalOffers: data.length,
+            totalOffers: Number(result?.pagination?.total ?? data.length),
             newThisWeek,
             totalCompanies: uniqueCompanies
           };
@@ -158,12 +165,15 @@ const FeaturedOffers: React.FC = () => {
     }
   };
 
-  const getDaysAgo = (dateString: string) => {
+  const getPublicationLabel = (dateString?: string | null) => {
+    if (!dateString) return "Date indisponible";
     const now = new Date();
     const created = new Date(dateString);
-    const diffTime = Math.abs(now.getTime() - created.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    if (Number.isNaN(created.getTime())) return "Date indisponible";
+    const diffDays = Math.max(0, Math.floor((now.getTime() - created.getTime()) / 86400000));
+    if (diffDays === 0) return "Aujourd’hui";
+    if (diffDays === 1) return "Hier";
+    return `Il y a ${diffDays} jours`;
   };
 
   if (loading) {
@@ -190,7 +200,7 @@ const FeaturedOffers: React.FC = () => {
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-gray-50 ">
+    <section className="border-y border-slate-100 bg-slate-50 py-16 sm:py-20">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
@@ -238,94 +248,101 @@ const FeaturedOffers: React.FC = () => {
         {/* Featured Offers Grid */}
         {offers.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8 sm:mb-12">
+            <div className="mx-auto mb-10 grid max-w-6xl grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {offers.map((offer) => (
-                <div
+                <article
                   key={offer.id}
-                  className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+                  className="group relative flex min-h-[330px] cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_6px_24px_rgba(15,23,42,0.04)] transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_16px_36px_rgba(15,23,42,0.09)]"
                   onClick={() => router.push(`/offres/${offer.id}`)}
                 >
-                  {/* Top color band */}
-
-                  <div className="p-5 flex flex-col flex-1 gap-4">
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-3">
-                      {/* Company avatar */}
-                      <div className="h-11 w-11 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0 border border-green-100">
-                        <Building className="h-5 w-5 text-green-600" />
+                  <div className="h-1 w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-lime-400" />
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 transition group-hover:bg-emerald-600 group-hover:text-white">
+                          <Building className="h-5 w-5" aria-hidden="true" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-slate-700">{offer.company_name || "Entreprise confidentielle"}</p>
+                          <p className="mt-0.5 truncate text-xs text-slate-400">{offer.sector_name || offer.job_name || "Recrutement"}</p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors leading-snug mb-0.5">
-                          {offer.titre}
-                        </h3>
-                        <p className="text-xs text-gray-500 truncate">{offer.company_name}</p>
-                      </div>
-                      <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
-                        {getDaysAgo(offer.created_at)}j
+                      <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+                        {getPublicationLabel(offer.created_at)}
                       </span>
                     </div>
 
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="mt-5">
+                      {offer.job_name && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{offer.job_name}</p>}
+                      <h3 className="line-clamp-2 text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-emerald-700">{offer.titre || "Opportunité professionnelle"}</h3>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
                       {offer.location && (
-                        <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full font-medium">
-                          <MapPin className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600">
+                          <MapPin className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
                           {offer.location}
                         </span>
                       )}
                       {offer.contractType && (
-                        <span className="inline-flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full font-medium">
-                          <Calendar className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600">
+                          <Calendar className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
                           {offer.contractType}
                         </span>
                       )}
-                      {offer.sector_name && (
-                        <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">
-                          <Briefcase className="h-3 w-3" />
-                          {offer.sector_name}
+                      {offer.experience_required != null && (
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600">
+                          <Briefcase className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
+                          {offer.experience_required} an(s) d’expérience
                         </span>
                       )}
                     </div>
 
-                    {/* Description */}
-                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed flex-1">
-                      {stripHtmlTags(offer.description)}
+                    <p className="mt-4 line-clamp-2 flex-1 text-sm leading-5 text-slate-500">
+                      {offer.description ? stripHtmlTags(offer.description) : "Consultez cette offre pour découvrir les missions et le profil recherché."}
                     </p>
 
-                    {/* CTA */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleApply(offer.id); }}
-                      className="w-full flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200"
-                    >
-                      Postuler
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </button>
+                    <div className="mt-4 border-t border-slate-100 pt-4">
+                      <div className="mb-3 flex min-h-6 items-center gap-2 text-sm">
+                        <Banknote className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                        <span className="font-semibold text-slate-800">
+                          {offer.salary_min != null && offer.salary_max != null
+                            ? `${Number(offer.salary_min).toLocaleString("fr-FR")} – ${Number(offer.salary_max).toLocaleString("fr-FR")} ${offer.currency || "MAD"}`
+                            : offer.salary_min != null
+                            ? `À partir de ${Number(offer.salary_min).toLocaleString("fr-FR")} ${offer.currency || "MAD"}`
+                            : offer.salary_max != null
+                            ? `Jusqu’à ${Number(offer.salary_max).toLocaleString("fr-FR")} ${offer.currency || "MAD"}`
+                            : "Salaire à discuter"}
+                        </span>
+                      </div>
+                      <button onClick={(event) => { event.stopPropagation(); handleApply(offer.id); }} className="flex w-full items-center justify-between rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
+                        Consulter et postuler
+                        <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
 
             {/* Call to Action */}
-            <div className="text-center">
-              <div className="bg-gradient-to-r from-primary to-primary-1 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-white">
-                <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-                  Plus de {stats.totalOffers} offres vous attendent !
+            <div className="mx-auto max-w-6xl">
+              <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 px-6 py-7 text-white sm:flex sm:items-center sm:justify-between sm:px-8">
+                <div className="absolute -right-12 -top-20 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl" />
+                <div className="relative text-center sm:text-left">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">Votre prochaine opportunité</p>
+                <h3 className="text-xl font-bold sm:text-2xl">
+                  {stats.totalOffers > 0 ? `${stats.totalOffers} offres à découvrir` : "Découvrez les opportunités disponibles"}
                 </h3>
-                <p className="text-green-100 mb-4 sm:mb-6 max-w-2xl mx-auto text-sm sm:text-base">
-                  Explorez toutes nos offres d'emploi et trouvez l'opportunité parfaite pour votre carrière. 
-                  Postulez facilement avec votre CV vidéo.
+                <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                  Explorez les offres disponibles et postulez simplement avec votre profil FaceJob.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                </div>
+                <div className="relative mt-5 flex flex-col gap-3 sm:ml-8 sm:mt-0 sm:flex-row">
                   <Link href="/offres">
-                    <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100 w-full sm:w-auto">
+                    <Button size="lg" className="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400 sm:w-auto">
                       <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Voir toutes les offres
-                    </Button>
-                  </Link>
-                  <Link href="/auth/signup-candidate">
-                    <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary w-full sm:w-auto">
-                      <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                      Créer mon profil
                     </Button>
                   </Link>
                 </div>

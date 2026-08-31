@@ -100,7 +100,8 @@ const Notification: React.FC = () => {
       );
 
       if (response.ok) {
-        const data = await response.json();
+        const payload = await response.json();
+        const data = payload?.data ?? payload;
         // Trier les notifications par date (plus récentes en premier)
         const sortedData = Array.isArray(data)
           ? data.sort((a, b) => 
@@ -121,7 +122,15 @@ const Notification: React.FC = () => {
 
   // Configuration de Laravel Echo pour les notifications en temps réel
   useEffect(() => {
-    if (!userId || echoInitialized.current) return;
+    if (!userId || !userRole || echoInitialized.current) return;
+
+    const model = userRole === "entreprise"
+      ? "Entreprise"
+      : userRole === "candidat"
+        ? "Candidat"
+        : null;
+
+    if (!model) return;
 
     const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
     if (!authToken) return;
@@ -148,23 +157,15 @@ const Notification: React.FC = () => {
         });
 
         // Écoute des notifications pour les entreprises
-        window.Echo.private(`App.Models.Entreprise.${userId}`).notification(
+        window.Echo.private(`App.Models.${model}.${userId}`).notification(
           (notification: Notification) => {
-            console.log("Nouvelle notification (Entreprise):", notification);
+            console.log(`Nouvelle notification (${model}):`, notification);
             fetchNotifications();
             toast.success("Vous avez une nouvelle notification");
           }
         );
 
         // Écoute des notifications pour les candidats
-        window.Echo.private(`App.Models.Candidat.${userId}`).notification(
-          (notification: Notification) => {
-            console.log("Nouvelle notification (Candidat):", notification);
-            fetchNotifications();
-            toast.success("Vous avez une nouvelle notification");
-          }
-        );
-
         echoInitialized.current = true;
       }
     } catch (error) {
@@ -182,7 +183,7 @@ const Notification: React.FC = () => {
         window.Echo.leave(`App.Models.Candidat.${userId}`);
       }
     };
-  }, [userId, fetchNotifications]);
+  }, [userId, userRole, fetchNotifications]);
 
   // Gestion du clic en dehors du composant
   useEffect(() => {
@@ -286,11 +287,11 @@ const Notification: React.FC = () => {
     return (
       <div className="relative">
         <button
-          className="relative p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
           aria-label="Notifications"
           disabled
         >
-          <Bell size={24} className="text-gray-600" />
+          <Bell size={19} />
         </button>
       </div>
     );
@@ -300,21 +301,21 @@ const Notification: React.FC = () => {
     <div className="relative" ref={notificationRef}>
       <button
         onClick={toggleVisibility}
-        className="relative p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
         aria-label="Notifications"
       >
-        <Bell size={24} className="text-gray-600" />
+        <Bell size={19} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">
+          <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-rose-500 px-1 text-[10px] font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {isVisible && (
-        <div className="fixed top-20 right-4 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-[60] overflow-hidden">
+        <div className="fixed right-4 top-20 z-[60] w-[calc(100vw-2rem)] max-w-96 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
           {/* En-tête */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+          <div className="flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white px-4 py-3.5">
             <h3 className="text-base font-semibold text-gray-900">
               Notifications
               {unreadCount > 0 && (
@@ -335,8 +336,8 @@ const Notification: React.FC = () => {
           {/* Liste des notifications */}
           <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
             {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="flex items-center justify-center py-10">
+                <div className="h-7 w-7 animate-spin rounded-full border-2 border-emerald-100 border-t-emerald-600"></div>
               </div>
             ) : notifications.length === 0 ? (
               <div className="text-center py-8 px-4">

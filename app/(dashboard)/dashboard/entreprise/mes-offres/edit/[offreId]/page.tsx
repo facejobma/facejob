@@ -16,6 +16,8 @@ interface Sector {
   jobs: Job[];
 }
 
+const BENEFIT_OPTIONS = ["Assurance santé", "Formation", "Télétravail", "Horaires flexibles", "Primes", "Transport", "Tickets restaurant", "Mutuelle"];
+
 const PublishOffer: React.FC = () => {
   //get the param from the url
   const { offreId } = useParams();
@@ -24,9 +26,17 @@ const PublishOffer: React.FC = () => {
   const [location, setLocation] = useState("");
   const [contractType, setContractType] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [description, setDescription] = useState("");
   const [selectedSector, setSelectedSector] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<string>("");
+  const [experienceRequired, setExperienceRequired] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
+  const [currency, setCurrency] = useState("MAD");
+  const [benefits, setBenefits] = useState<string[]>([]);
+  const [requiredLanguages, setRequiredLanguages] = useState("");
+  const [requiredSkills, setRequiredSkills] = useState("");
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [uploadStatus, setUploadStatus] = useState("idle");
 
@@ -75,15 +85,23 @@ const PublishOffer: React.FC = () => {
           if (!response.ok) {
             throw new Error("Failed to fetch offer");
           }
-          const data = await response.json();
-          console.log("data", data);
+          const payload = await response.json();
+          const data = payload.data ?? payload;
           setTitle(data.titre || "");
           setLocation(data.location || "");
           setContractType(data.contractType || "");
-          setStartDate(data.date_debut?.split(" ")[0] || "");
+          setStartDate(data.date_debut?.split("T")[0] || "");
+          setEndDate(data.date_fin?.split("T")[0] || "");
           setDescription(data.description || "");
           setSelectedSector(data.sector_id ? data.sector_id.toString() : "");
           setSelectedJob(data.job_id ? data.job_id.toString() : "");
+          setExperienceRequired(data.experience_required?.toString() || "");
+          setSalaryMin(data.salary_min?.toString() || "");
+          setSalaryMax(data.salary_max?.toString() || "");
+          setCurrency(data.currency || "MAD");
+          setBenefits(Array.isArray(data.benefits) ? data.benefits : []);
+          setRequiredLanguages(Array.isArray(data.required_languages) ? data.required_languages.join(", ") : "");
+          setRequiredSkills(Array.isArray(data.required_skills) ? data.required_skills.join(", ") : "");
         } catch (error) {
           console.error("Error fetching offer:", error);
           toast.error("Error fetching offer!");
@@ -102,12 +120,23 @@ const PublishOffer: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!title.trim() || !location.trim() || !contractType || !startDate || !selectedSector) {
+      toast.error("Veuillez remplir tous les champs obligatoires.");
+      return;
+    }
+    if (endDate && endDate <= startDate) {
+      toast.error("La date de fin doit être postérieure à la date de début.");
+      return;
+    }
+    if (salaryMin && salaryMax && Number(salaryMax) < Number(salaryMin)) {
+      toast.error("Le salaire maximum doit être supérieur ou égal au salaire minimum.");
+      return;
+    }
+
     setUploadStatus("uploading");
 
     try {
       if (userData) {
-        const user = JSON.parse(userData);
-
         const response = await fetch(
           `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/update_offre/${offreId}`,
           {
@@ -121,19 +150,31 @@ const PublishOffer: React.FC = () => {
               location,
               contractType,
               date_debut: startDate,
+              date_fin: endDate || null,
               description,
               sector_id: selectedSector,
-              job_id: selectedJob,
-              entreprise_id: user.id,
+              job_id: selectedJob || null,
+              experience_required: experienceRequired === "" ? null : Number(experienceRequired),
+              salary_min: salaryMin === "" ? null : Number(salaryMin),
+              salary_max: salaryMax === "" ? null : Number(salaryMax),
+              currency,
+              benefits,
+              required_languages: requiredLanguages.split(",").map((item) => item.trim()).filter(Boolean),
+              required_skills: requiredSkills.split(",").map((item) => item.trim()).filter(Boolean),
             }),
           },
         );
 
         if (response.ok) {
-          toast.success("Offer updated successfully!");
+          const payload = await response.json().catch(() => null);
+          toast.success(payload?.message || "Offre mise à jour avec succès.");
           setUploadStatus("completed");
         } else {
-          toast.error("Failed to update offer!");
+          const errorData = await response.json().catch(() => null);
+          const validationMessage = errorData?.errors
+            ? Object.values(errorData.errors).flat().join(" ")
+            : errorData?.message;
+          toast.error(validationMessage || "Impossible de mettre à jour l’offre.");
           setUploadStatus("failed");
         }
       }
@@ -166,6 +207,8 @@ const PublishOffer: React.FC = () => {
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Entrez le titre du poste"
+              maxLength={200}
+              required
             />
           </div>
 
@@ -183,6 +226,7 @@ const PublishOffer: React.FC = () => {
               onChange={(e) => setLocation(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Entrez le lieu"
+              required
             />
           </div>
 
@@ -197,17 +241,23 @@ const PublishOffer: React.FC = () => {
               id="contractType"
               value={contractType}
               onChange={(e) => setContractType(e.target.value)}
+              required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Sélectionnez le type de contrat</option>
               <option value="CDI">CDI</option>
               <option value="CDD">CDD</option>
-              {/* <option value="Temps plein">Temps plein</option>
-              <option value="Temps partiel">Temps partiel</option> */}
-              <option value="Intérim ">Intérim</option>
-              <option value="Contrat de chantier">Contrat de chantier</option>
+              <option value="Stage">Stage</option>
               <option value="Freelance">Freelance</option>
+              <option value="Alternance">Alternance</option>
             </select>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2 text-gray-700" htmlFor="endDate">Date de fin</label>
+            <input type="date" id="endDate" value={endDate} min={startDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
           </div>
 
           <div className="mb-6">
@@ -222,6 +272,7 @@ const PublishOffer: React.FC = () => {
               id="startDate"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
+              required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Sélectionnez la date de début"
             />
@@ -241,6 +292,7 @@ const PublishOffer: React.FC = () => {
                 setSelectedSector(e.target.value);
                 setSelectedJob(""); // Reset job selection when sector changes
               }}
+              required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Sélectionnez le secteur</option>
@@ -257,7 +309,7 @@ const PublishOffer: React.FC = () => {
               className="block text-sm font-bold mb-2 text-gray-700"
               htmlFor="metier"
             >
-              Métier
+              Métier de référence <span className="font-normal text-gray-500">(facultatif)</span>
             </label>
             <select
               id="metier"
@@ -266,13 +318,66 @@ const PublishOffer: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               disabled={!selectedSector}
             >
-              <option value="">Sélectionnez le métier</option>
+              <option value="">Autre métier / non répertorié</option>
               {filteredJobs.map((job) => (
                 <option key={job.id} value={job.id.toString()}>
                   {job.name}
                 </option>
               ))}
             </select>
+            <p className="mt-1.5 text-xs text-gray-500">
+              Si aucun métier ne correspond, le matching utilisera les autres critères de l’offre.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-bold mb-2 text-gray-700">Expérience (années)</label>
+              <input type="number" min="0" max="50" value={experienceRequired} onChange={(e) => setExperienceRequired(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2 text-gray-700">Salaire minimum</label>
+              <input type="number" min="0" value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2 text-gray-700">Salaire maximum</label>
+              <input type="number" min="0" value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2 text-gray-700">Devise</label>
+              <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                <option value="MAD">MAD</option><option value="EUR">EUR</option><option value="USD">USD</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-bold mb-2 text-gray-700">Langues requises</label>
+              <input value={requiredLanguages} onChange={(e) => setRequiredLanguages(e.target.value)} placeholder="Français, Arabe, Anglais"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold mb-2 text-gray-700">Compétences requises</label>
+              <input value={requiredSkills} onChange={(e) => setRequiredSkills(e.target.value)} placeholder="React, Laravel, Communication"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-2 text-gray-700">Avantages</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {BENEFIT_OPTIONS.map((benefit) => (
+                <label key={benefit} className="flex items-center gap-2 rounded-md border p-2 text-sm">
+                  <input type="checkbox" checked={benefits.includes(benefit)} onChange={() => setBenefits((current) =>
+                    current.includes(benefit) ? current.filter((item) => item !== benefit) : [...current, benefit])} />
+                  {benefit}
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="mb-14">

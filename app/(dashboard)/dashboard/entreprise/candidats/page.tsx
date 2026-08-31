@@ -307,7 +307,6 @@ const CandidatsPage: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            entreprise_id: user.id,
             postuler_id: selectedCandidate.cv_id,
           }),
         },

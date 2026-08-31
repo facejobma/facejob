@@ -8,7 +8,7 @@ interface MatchedCandidate {
   match_percentage: number;
   matched_criteria: {
     sector: boolean;
-    job_title: boolean;
+    job_title: boolean | null;
     experience: boolean;
     skills: string[];
     languages: string[];
@@ -23,6 +23,7 @@ interface MatchedCandidate {
     sector: string | null;
     years_of_experience: number | null;
     availability_status: string;
+    preferred_contract_type: string | null;
     skills: string[];
     languages: string[];
   };
@@ -173,6 +174,14 @@ export default function MatchingCandidates({ offreId, offreTitre }: MatchingCand
                         </p>
                       </div>
                       <AvailabilityBadge status={candidate.availability_status} />
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {item.matched_criteria.contract_type && candidate.preferred_contract_type && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                          ✓ Contrat {candidate.preferred_contract_type}
+                        </span>
+                      )}
                     </div>
 
                     {candidate.skills.length > 0 && (

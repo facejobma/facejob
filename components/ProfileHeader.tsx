@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
 import { Edit, Key } from "lucide-react";
-import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser, FaUpload } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaMapPin, FaTrash, FaUser, FaUpload, FaBriefcase } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { getBrowserImageSrc, normalizeImageUrl, PROFILE_PLACEHOLDER_IMAGE } from "@/lib/images";
 
@@ -21,6 +21,7 @@ interface ProfileHeaderProps {
   currentJobId?: number;
   currentSectorId?: number;
   preferredLocation?: string;
+  preferredContractType?: string;
   onUpdate?: () => Promise<void> | void;
 }
 
@@ -61,6 +62,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   currentJobId,
   currentSectorId,
   preferredLocation,
+  preferredContractType,
   onUpdate,
 }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
@@ -92,6 +94,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     newHeadline: headline ?? "",
     newAddress: address ?? "",
     newPreferredLocation: preferredLocation ?? "",
+    newPreferredContractType: preferredContractType ?? "",
     newCompanyName: companyName ?? "",
     newTel: tel ?? "",
     newEmail: email ?? "",
@@ -107,6 +110,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       newHeadline: headline ?? "",
       newAddress: address ?? "",
       newPreferredLocation: preferredLocation ?? "",
+      newPreferredContractType: preferredContractType ?? "",
       newCompanyName: companyName ?? "",
       newTel: tel ?? "",
       newEmail: email ?? "",
@@ -118,6 +122,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     headline,
     address,
     preferredLocation,
+    preferredContractType,
     companyName,
     tel,
     email,
@@ -229,6 +234,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         data.append("job_id", selectedJob || "");
         data.append("address", formData.newAddress);
         data.append("preferred_location", formData.newPreferredLocation || "");
+        data.append("preferred_contract_type", formData.newPreferredContractType || "");
         data.append("company", formData.newCompanyName);
         data.append("tel", formData.newTel);
         data.append("email", formData.newEmail);
@@ -260,6 +266,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               job_id: selectedJob || undefined,
               address: formData.newAddress,
               preferred_location: formData.newPreferredLocation || undefined,
+              preferred_contract_type: formData.newPreferredContractType || undefined,
               company: formData.newCompanyName,
               tel: formData.newTel,
               email: formData.newEmail,
@@ -493,6 +500,13 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 : <span className="text-amber-500 italic text-xs break-words">Ville préférée non renseignée — important pour le matching</span>
               }
             </div>
+            <div className="flex items-center gap-2 text-gray-700 min-w-0">
+              <FaBriefcase className="text-green-600 w-4 h-4 flex-shrink-0" />
+              {formData.newPreferredContractType
+                ? <span className="truncate">Contrat préféré : {formData.newPreferredContractType}</span>
+                : <span className="text-amber-500 italic text-xs break-words">Contrat préféré non renseigné — utilisé pour le matching</span>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -693,6 +707,26 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     aria-invalid={!!errors.newPreferredLocation}
                   />
                   {renderFieldError("newPreferredLocation")}
+                </div>
+
+                {/* Profile Picture - Full Width */}
+                <div className="md:col-span-2">
+                  <label htmlFor="newPreferredContractType" className="block text-sm font-medium text-gray-700 mb-2">
+                    Type de contrat préféré
+                    <span className="ml-1 text-xs text-green-600 font-normal">✦ utilisé pour le matching d'offres</span>
+                  </label>
+                  <select
+                    id="newPreferredContractType"
+                    name="newPreferredContractType"
+                    value={formData.newPreferredContractType}
+                    onChange={(event) => setFormData((previous) => ({ ...previous, newPreferredContractType: event.target.value }))}
+                    className="w-full border-2 rounded-lg py-2.5 px-4 outline-none transition-all border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                  >
+                    <option value="">Aucune préférence</option>
+                    {['CDI', 'CDD', 'Stage', 'Freelance', 'Alternance'].map((contract) => (
+                      <option key={contract} value={contract}>{contract}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Profile Picture - Full Width */}

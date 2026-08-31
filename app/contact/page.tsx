@@ -106,11 +106,12 @@ const ContactPage: React.FC = () => {
         setTimeout(() => setIsSubmitted(false), 5000);
       } else {
         // Handle backend validation errors
-        if (result.error === 'validation' && result.details) {
+        if ((result.error === 'validation' || result.errors) && (result.errors || result.details)) {
           const backendErrors: ValidationErrors = {};
-          Object.keys(result.details).forEach(field => {
-            if (result.details?.[field] && result.details[field].length > 0) {
-              backendErrors[field as keyof FormData] = result.details[field][0];
+          const apiErrors = result.errors || result.details || {};
+          Object.keys(apiErrors).forEach(field => {
+            if (apiErrors?.[field] && apiErrors[field].length > 0) {
+              backendErrors[field as keyof FormData] = apiErrors[field][0];
             }
           });
           setValidationErrors(backendErrors);
@@ -144,37 +145,42 @@ const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-optional1">
+    <div className="min-h-screen bg-slate-50">
       <NavBar />
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-12 overflow-hidden">
+      <header className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-white via-emerald-50/50 to-white pb-14 pt-20">
         {/* Background decorations */}
-        <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
         <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
         
         <div className="container mx-auto px-6 relative">
           <div className="max-w-3xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-green-100/50 backdrop-blur-sm border border-primary/20 rounded-full px-4 py-2 mb-6 shadow-sm">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
               <MessageSquare className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-primary">Support & Contact</span>
             </div>
 
-            <h1 className="font-heading text-4xl md:text-5xl font-extrabold text-secondary mb-4 leading-tight tracking-tight">
+            <h1 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
               Contactez-nous
             </h1>
-            <p className="font-body text-lg text-gray-600 leading-relaxed">
+            <p className="mx-auto max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
               Nous aimerions avoir de vos nouvelles ! Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.
             </p>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-20">
-        <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-start">
+      <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
           {/* Left Side - Form */}
-          <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-xl p-8 lg:p-12">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_35px_rgba(15,23,42,0.06)] sm:p-8 lg:p-10">
+            <div className="mb-8">
+              <p className="text-sm font-semibold text-emerald-700">Écrivez-nous</p>
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">Parlez-nous de votre demande</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-500">Les champs marqués d’un astérisque sont obligatoires.</p>
+            </div>
 
             {/* Success Message */}
             {isSubmitted && (
@@ -202,10 +208,10 @@ const ContactPage: React.FC = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => updateFormData("name", e.target.value)}
-                    className={`font-body block w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 ${
+                    className={`block w-full rounded-xl border py-3.5 pl-12 pr-4 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 ${
                       validationErrors.name 
                         ? "border-red-300 bg-red-50" 
-                        : "border-gray-200 hover:border-gray-300"
+                        : "border-slate-200 hover:border-slate-300"
                     }`}
                     placeholder="Votre nom complet"
                     disabled={isLoading}
@@ -236,10 +242,10 @@ const ContactPage: React.FC = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => updateFormData("email", e.target.value)}
-                    className={`font-body block w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 ${
+                    className={`block w-full rounded-xl border py-3.5 pl-12 pr-4 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 ${
                       validationErrors.email 
                         ? "border-red-300 bg-red-50" 
-                        : "border-gray-200 hover:border-gray-300"
+                        : "border-slate-200 hover:border-slate-300"
                     }`}
                     placeholder="votre@email.com"
                     disabled={isLoading}
@@ -267,10 +273,10 @@ const ContactPage: React.FC = () => {
                     rows={6}
                     value={formData.message}
                     onChange={(e) => updateFormData("message", e.target.value)}
-                    className={`font-body block w-full px-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 resize-none ${
+                    className={`block w-full resize-none rounded-xl border px-4 py-3.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 ${
                       validationErrors.message 
                         ? "border-red-300 bg-red-50" 
-                        : "border-gray-200 hover:border-gray-300"
+                        : "border-slate-200 hover:border-slate-300"
                     }`}
                     placeholder="Décrivez votre demande ou votre question en détail..."
                     disabled={isLoading}
@@ -291,7 +297,7 @@ const ContactPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="group w-full flex justify-center items-center py-4 px-6 border-0 rounded-xl shadow-lg font-accent font-bold text-white bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+                className="group flex w-full items-center justify-center rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isLoading ? (
                   <div className="flex items-center">
@@ -322,12 +328,12 @@ const ContactPage: React.FC = () => {
           </div>
 
           {/* Right Side - Image and Info */}
-          <div className="mt-12 lg:mt-0">
-            <div className="relative rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
+          <aside>
+            <div className="relative h-full min-h-[520px] overflow-hidden rounded-2xl border border-slate-200 shadow-[0_10px_35px_rgba(15,23,42,0.08)]">
               <Image
                 src="/img1.jpg"
                 alt="Contact FaceJob"
-                className="w-full h-96 lg:h-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 width={600}
                 height={800}
                 priority
@@ -361,9 +367,9 @@ const ContactPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
-      </div>
+      </main>
       
       <Footer />
     </div>

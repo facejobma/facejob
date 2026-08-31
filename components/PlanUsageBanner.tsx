@@ -7,13 +7,13 @@ import Link from "next/link";
 
 interface PlanUsage {
   plan_name: string;
-  plan_id: number;
+  plan_id?: number | null;
   jobs_posted: number;
-  jobs_limit: number;
-  jobs_remaining: number;
+  jobs_limit: number | "unlimited";
+  jobs_remaining: number | "unlimited";
   cv_consumed: number;
-  cv_limit: number;
-  cv_remaining: number | string;
+  cv_limit: number | "unlimited";
+  cv_remaining: number | "unlimited";
   plan_active: boolean;
   plan_expired: boolean;
   unlimited_cv_viewing: boolean;
@@ -59,10 +59,19 @@ export default function PlanUsageBanner() {
   if (loading || !usage) return null;
 
   const isFreePlan = usage.plan_id === 1;
-  const jobsPercentage = usage.jobs_limit > 0 ? (usage.jobs_posted / usage.jobs_limit) * 100 : 0;
-  const cvPercentage = usage.cv_limit > 0 ? (usage.cv_consumed / usage.cv_limit) * 100 : 0;
-  const isJobLimitReached = usage.jobs_remaining === 0 && usage.jobs_limit > 0;
-  const isCvLimitReached = usage.cv_remaining === 0 && usage.cv_limit > 0;
+  const jobsLimit = typeof usage.jobs_limit === "number" ? usage.jobs_limit : null;
+  const cvLimit = typeof usage.cv_limit === "number" ? usage.cv_limit : null;
+  const hasLimitedJobs = jobsLimit !== null;
+  const hasLimitedCv = cvLimit !== null;
+  const jobsPercentage = jobsLimit !== null && jobsLimit > 0
+    ? (usage.jobs_posted / jobsLimit) * 100
+    : jobsLimit !== null ? 100 : 0;
+  const cvPercentage = cvLimit !== null && cvLimit > 0
+    ? (usage.cv_consumed / cvLimit) * 100
+    : cvLimit !== null ? 100 : 0;
+  const isJobLimitReached = usage.jobs_remaining === 0 && hasLimitedJobs;
+  const isCvLimitReached = usage.cv_remaining === 0 && hasLimitedCv;
+  const hasNoActivePlan = !usage.plan_active;
 
   return (
     <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mb-6 shadow-sm">
@@ -87,17 +96,17 @@ export default function PlanUsageBanner() {
                   <span className="text-sm font-medium text-gray-700">Offres d'emploi</span>
                 </div>
                 <span className="text-sm font-bold text-gray-900">
-                  {usage.jobs_posted} / {usage.jobs_limit}
+                  {usage.jobs_posted} / {usage.jobs_limit === "unlimited" ? "∞" : usage.jobs_limit}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              {hasLimitedJobs ? <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all ${
                     isJobLimitReached ? "bg-red-500" : "bg-green-500"
                   }`}
                   style={{ width: `${Math.min(jobsPercentage, 100)}%` }}
                 ></div>
-              </div>
+              </div> : <p className="text-xs text-green-600 mt-1">Publications illimitées</p>}
               {isJobLimitReached && (
                 <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
@@ -114,10 +123,10 @@ export default function PlanUsageBanner() {
                   <span className="text-sm font-medium text-gray-700">Accès CV</span>
                 </div>
                 <span className="text-sm font-bold text-gray-900">
-                  {usage.cv_consumed} / {usage.cv_limit > 0 ? usage.cv_limit : "∞"}
+                  {usage.cv_consumed} / {hasLimitedCv ? usage.cv_limit : "∞"}
                 </span>
               </div>
-              {usage.cv_limit > 0 ? (
+              {hasLimitedCv ? (
                 <>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
@@ -142,7 +151,7 @@ export default function PlanUsageBanner() {
         </div>
 
         {/* Upgrade Button */}
-        {(isFreePlan || isJobLimitReached || isCvLimitReached) && (
+        {(hasNoActivePlan || isFreePlan || isJobLimitReached || isCvLimitReached) && (
           <Link
             href="/dashboard/entreprise/services"
             className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-lg text-sm transition-all shadow-md hover:shadow-lg whitespace-nowrap"

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAuthenticatedUser, type UserRole } from '@/lib/auth';
 
@@ -24,8 +24,6 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [user, setUser] = useState<any | null>(null);
-  const hasChecked = useRef(false);
-  const isMounted = useRef(true);
 
   const buildLoginRedirect = (loginPath: string) => {
     if (typeof window === 'undefined') {
@@ -43,14 +41,7 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
   };
 
   useEffect(() => {
-    // Mark as mounted
-    isMounted.current = true;
-
-    // Prevent multiple checks
-    if (hasChecked.current) {
-      return;
-    }
-    hasChecked.current = true;
+    let cancelled = false;
 
     const checkAuth = async () => {
       try {
@@ -59,7 +50,7 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
           console.log('🔄 Using cached auth guard result');
           const cachedUser = globalAuthResult.user;
           
-          if (!isMounted.current) return;
+          if (cancelled) return;
           
           if (!cachedUser) {
             setIsLoading(false);
@@ -101,7 +92,7 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
           console.log('⏳ Auth guard check already in progress, waiting...');
           const result = await globalAuthCheck;
           
-          if (!isMounted.current) return;
+          if (cancelled) return;
           
           handleAuthResult(result);
           return;
@@ -119,14 +110,14 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
         };
         globalAuthCheck = null;
 
-        if (!isMounted.current) return;
+        if (cancelled) return;
         
         handleAuthResult(result);
       } catch (error) {
         console.error('❌ Auth guard error:', error);
         globalAuthCheck = null;
         
-        if (!isMounted.current) return;
+        if (cancelled) return;
         
         setIsLoading(false);
         setIsAuthorized(false);
@@ -174,9 +165,9 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}): UseAuthGuardRet
     checkAuth();
 
     return () => {
-      isMounted.current = false;
+      cancelled = true;
     };
-  }, []); // Empty deps - only run once
+  }, [requiredRole, redirectTo, router]);
 
   return { isLoading, isAuthorized, user };
 }

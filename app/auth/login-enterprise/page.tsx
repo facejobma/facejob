@@ -1,66 +1,39 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getAuthenticatedUser } from "@/lib/auth";
+
+import { Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { getSafeReturnUrl } from "@/lib/auth";
 import ModernLoginForm from "../../../components/auth/login/ModernLoginForm";
 import ModernAuthLayout from "../../../components/auth/ModernAuthLayout";
 import AuthLoadingSpinner from "../../../components/auth/AuthLoadingSpinner";
 
-const LoginEntreprisePage = () => {
+function LoginEnterpriseContent() {
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
+  const searchParams = useSearchParams();
+  const { isLoading, user } = useAuthGuard({});
+  const returnUrl = getSafeReturnUrl(searchParams.get("returnUrl"));
 
   useEffect(() => {
-    let isMounted = true;
-    
-    const checkAuth = async () => {
-      try {
-        const user = await getAuthenticatedUser();
-        
-        if (!isMounted) return;
-        
-        if (user) {
-          // User is already logged in, redirect to their dashboard
-          if (user.role === "candidat") {
-            router.push("/dashboard/candidat");
-          } else if (user.role === "entreprise") {
-            router.push("/dashboard/entreprise");
-          } else if (user.role === "admin") {
-            router.push("/dashboard/admin");
-          }
-        } else {
-          // No user, show login form
-          setIsChecking(false);
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-        if (isMounted) {
-          setIsChecking(false);
-        }
-      }
-    };
+    if (isLoading || !user) return;
+    if (returnUrl) {
+      router.replace(returnUrl);
+      return;
+    }
+    const dashboardMap: Record<string, string> = { candidat: "/dashboard/candidat", entreprise: "/dashboard/entreprise", admin: "/dashboard/admin" };
+    router.replace(dashboardMap[user.role] || "/");
+  }, [isLoading, user, returnUrl, router]);
 
-    checkAuth();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router]);
-
-  // Show loading spinner while checking authentication
-  if (isChecking) {
-    return <AuthLoadingSpinner message="Vérification de votre session..." />;
-  }
+  if (isLoading) return <AuthLoadingSpinner message="Vérification de votre session..." />;
+  if (user) return <AuthLoadingSpinner message="Redirection..." />;
 
   return (
-    <ModernAuthLayout
-      title="Recrutez les meilleurs talents"
-      subtitle="Accédez à des milliers de profils qualifiés et trouvez vos futurs collaborateurs"
-      backgroundImage="/img6.jpg"
-    >
-      <ModernLoginForm loginFor="entreprise" />
+    <ModernAuthLayout title="Recrutez les meilleurs talents" subtitle="Gérez vos offres et découvrez les profils adaptés à vos besoins" backgroundImage="/img6.jpg">
+      <ModernLoginForm loginFor="entreprise" returnUrl={returnUrl} />
     </ModernAuthLayout>
   );
-};
+}
 
-export default LoginEntreprisePage;
+export default function LoginEnterprisePage() {
+  return <Suspense fallback={<AuthLoadingSpinner message="Chargement de la page..." />}><LoginEnterpriseContent /></Suspense>;
+}

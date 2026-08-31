@@ -7,13 +7,14 @@ const nextConfig = {
     // Only use standalone output in production
     ...(process.env.NODE_ENV === 'production' && { output: 'standalone' }),
 
+    // Preserve the existing AWS runtime variables used by the current deployment.
     env: {
         FACEJOB_AWS_REGION: process.env.FACEJOB_AWS_REGION,
         FACEJOB_AWS_ACCESS_KEY_ID: process.env.FACEJOB_AWS_ACCESS_KEY_ID,
         FACEJOB_AWS_SECRET_ACCESS_KEY: process.env.FACEJOB_AWS_SECRET_ACCESS_KEY,
         FACEJOB_AWS_S3_BUCKET_NAME: process.env.FACEJOB_AWS_S3_BUCKET_NAME,
     },
-    
+
     // Performance optimizations
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production' ? {
@@ -111,10 +112,19 @@ const nextConfig = {
 
     // Proxy API requests to the backend ALB to avoid Mixed Content (HTTP vs HTTPS)
     async rewrites() {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ||
+            (process.env.NODE_ENV === 'development'
+                ? 'http://127.0.0.1:8000'
+                : 'http://facejobalb-1619101788.eu-west-3.elb.amazonaws.com');
+
         return [
             {
+                source: '/broadcasting/auth',
+                destination: `${backendUrl.replace(/\/$/, '')}/broadcasting/auth`,
+            },
+            {
                 source: '/api/:path*',
-                destination: 'http://facejobalb-1619101788.eu-west-3.elb.amazonaws.com/api/:path*',
+                destination: `${backendUrl.replace(/\/$/, '')}/api/:path*`,
             },
         ];
     },

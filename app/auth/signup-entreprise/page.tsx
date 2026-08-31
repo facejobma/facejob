@@ -29,9 +29,10 @@ const SignupEntreprisePage = () => {
       typeof window !== "undefined"
         ? window.sessionStorage?.getItem("userId") || ""
         : "";
+    const pendingSignupRole = sessionStorage.getItem("pendingSignupRole");
 
     // If the userId already exists in session storage, skip to Step 2
-    if (userId) {
+    if (userId && pendingSignupRole === "entreprise") {
       setStep(2);
     }
   }, [router]);

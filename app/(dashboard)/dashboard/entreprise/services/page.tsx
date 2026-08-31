@@ -13,13 +13,33 @@ import { fetchPlans } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { useUser } from "@/hooks/useUser";
 
+type QuotaValue = number | "unlimited";
+
+interface LastPayment {
+  plan_id?: number;
+  plan_name?: string;
+  status?: string;
+  payment_period?: string;
+  start_date?: string;
+  end_date?: string;
+  job_posted?: number;
+  job_remaining?: QuotaValue;
+  contact_access_consumed?: number;
+  contact_access_remaining?: QuotaValue;
+  has_pending?: boolean;
+  pending_plan?: string;
+}
+
+const displayQuota = (value: QuotaValue | undefined, fallback = "-") =>
+  value === "unlimited" ? "Illimité" : value ?? fallback;
+
 function ServicePlanPage() {
   const { user, isLoading: userLoading } = useUser();
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState("Mensuel");
-  const [lastPayment, setLastPayment] = useState<any>(null);
+  const [lastPayment, setLastPayment] = useState<LastPayment | null>(null);
   const [currentPlanId, setCurrentPlanId] = useState(null);
   const [hasNoPayment, setHasNoPayment] = useState(false);
   const [isLoadingPayment, setIsLoadingPayment] = useState(true);
@@ -188,7 +208,7 @@ function ServicePlanPage() {
     const currentDate = new Date().toISOString().split("T")[0];
     const endDate = lastPayment?.end_date;
 
-    return currentDate <= endDate;
+    return Boolean(endDate && currentDate <= endDate);
   };
 
 
@@ -372,7 +392,7 @@ function ServicePlanPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-base md:text-xl font-bold text-gray-900">
-                      {isLoadingPayment ? "..." : (lastPayment ? lastPayment.contact_access_remaining : hasNoPayment ? "0" : "-")}
+                      {isLoadingPayment ? "..." : (lastPayment ? displayQuota(lastPayment.contact_access_remaining) : hasNoPayment ? "0" : "-")}
                     </p>
                     <p className="text-xs text-gray-600">Contacts</p>
                   </div>
@@ -386,7 +406,7 @@ function ServicePlanPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-base md:text-xl font-bold text-gray-900">
-                      {isLoadingPayment ? "..." : (lastPayment ? lastPayment.job_remaining : hasNoPayment ? "0" : "-")}
+                      {isLoadingPayment ? "..." : (lastPayment ? displayQuota(lastPayment.job_remaining) : hasNoPayment ? "0" : "-")}
                     </p>
                     <p className="text-xs text-gray-600">Offres</p>
                   </div>
@@ -606,7 +626,7 @@ function ServicePlanPage() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-gray-700 text-center">
-                        {lastPayment ? lastPayment.job_remaining : "-"}
+                        {lastPayment ? displayQuota(lastPayment.job_remaining) : "-"}
                       </p>
                     </CardContent>
                   </Card>

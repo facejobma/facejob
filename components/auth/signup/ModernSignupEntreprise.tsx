@@ -221,6 +221,7 @@ const ModernSignupEntreprise: FC<ModernSignupEntrepriseProps> = ({
 
         if (userId) {
           sessionStorage.setItem("userId", userId.toString());
+          sessionStorage.setItem("pendingSignupRole", "entreprise");
         }
         if (token) {
           sessionStorage.setItem("authToken", token.replace(/['"]/g, ""));

@@ -28,7 +28,7 @@ export const JobRequests: FC<JobProps> = ({ data }) => {
       });
   }, [data]);
 
-  const totalApplications = sortedData.reduce((sum, job) => sum + (job.postuler_offres_count || 0), 0);
+  const totalApplications = sortedData.reduce((sum, job) => sum + (job.applications_count || 0), 0);
   const averageApplications = sortedData.length > 0 ? Math.round(totalApplications / sortedData.length) : 0;
 
   return (

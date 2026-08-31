@@ -40,7 +40,7 @@ export function DashboardNav({ items, setOpen, closeOnClick = true, isOpen = tru
   }
 
   return (
-    <nav className={cn("grid items-start gap-1.5", !isOpen && "px-1")}>
+    <nav className={cn("grid items-start gap-1", !isOpen && "px-1")}>
       {items.map((item, index) => {
         const Icon = Icons[item.icon || "arrowRight"];
         
@@ -74,31 +74,31 @@ export function DashboardNav({ items, setOpen, closeOnClick = true, isOpen = tru
             onClick={() => handleItemClick(item)}
             title={!isOpen ? item.title : undefined}
             className={cn(
-              "group flex items-center rounded-lg text-sm font-medium transition-all duration-200 relative",
-              isOpen ? "px-3 py-2" : "px-2 py-2 justify-center",
+              "group relative flex min-h-11 items-center rounded-xl text-sm font-medium transition duration-200",
+              isOpen ? "px-2.5 py-1.5" : "justify-center px-2 py-1.5",
               isActive
-                ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md shadow-green-200"
-                : "text-gray-700 hover:bg-green-50 hover:text-green-700 hover:shadow-sm",
+                ? "bg-emerald-600 text-white shadow-sm shadow-emerald-200"
+                : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-800",
               item.disabled && "cursor-not-allowed opacity-50",
             )}
           >
             <div className={cn(
-              "h-8 w-8 rounded-lg flex items-center justify-center transition-all duration-200",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition duration-200",
               isOpen && "mr-2.5",
               isActive 
                 ? "bg-white/20" 
-                : "bg-gray-100 group-hover:bg-green-100"
+                : "bg-slate-100 group-hover:bg-white"
             )}>
               <Icon className={cn(
                 "h-4 w-4 transition-all duration-200",
-                isActive ? "text-white" : "text-gray-600 group-hover:text-green-600"
+                isActive ? "text-white" : "text-slate-500 group-hover:text-emerald-700"
               )} />
             </div>
-            {isOpen && <span className="font-semibold">{item.title}</span>}
+            {isOpen && <span className="truncate font-semibold">{item.title}</span>}
             
             {/* Tooltip for collapsed state */}
             {!isOpen && (
-              <div className="absolute left-full ml-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap min-w-max z-50 pointer-events-none">
+              <div className="pointer-events-none invisible absolute left-full z-50 ml-3 min-w-max rounded-lg bg-slate-900 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-xl transition group-hover:visible group-hover:opacity-100">
                 {item.title}
                 <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
               </div>

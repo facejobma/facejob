@@ -12,13 +12,12 @@ import EducationSection from "@/components/EducationSection";
 import Cookies from "js-cookie";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { FaUser, FaBriefcase, FaGraduationCap, FaCog, FaDownload, FaFileAlt, FaTrash, FaExclamationTriangle } from "react-icons/fa";
-import { Globe } from "lucide-react";
+import { Eye, EyeOff, Globe, Loader2 } from "lucide-react";
 import { HiOutlineUser, HiOutlineCollection, HiOutlineLightBulb } from "react-icons/hi";
 import { downloadFaceJobCV } from "@/components/FaceJobCV";
 import toast from "react-hot-toast";
 import { useUser } from "@/hooks/useUser";
-import ProfileReactivationButton from "@/components/ProfileReactivationButton";
-import { fetchAvailabilityStatus } from "@/lib/api";
+import { fetchAvailabilityStatus, updateAvailabilityStatus } from "@/lib/api";
 import { normalizeImageUrl, PROFILE_PLACEHOLDER_IMAGE } from "@/lib/images";
 
 const buildCompleteProfile = (user: any, profileData: any) => {
@@ -69,7 +68,8 @@ const Profile: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [downloadingCV, setDownloadingCV] = useState(false);
-  const [availabilityStatus, setAvailabilityStatus] = useState<'disponible' | 'indisponible' | null>(null);
+  const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'unavailable' | null>(null);
+  const [updatingAvailability, setUpdatingAvailability] = useState(false);
 
   // Function to refresh profile data
   const refreshProfile = useCallback(async () => {
@@ -108,6 +108,28 @@ const Profile: React.FC = () => {
       await downloadFaceJobCV(userProfile?.id);
     } finally {
       setDownloadingCV(false);
+    }
+  };
+
+  const handleAvailabilityChange = async () => {
+    if (!availabilityStatus || updatingAvailability) return;
+
+    const nextStatus = availabilityStatus === 'available' ? 'unavailable' : 'available';
+    setUpdatingAvailability(true);
+
+    try {
+      const result = await updateAvailabilityStatus(nextStatus);
+      setAvailabilityStatus(result.status ?? nextStatus);
+      toast.success(
+        nextStatus === 'available'
+          ? "Votre profil est maintenant visible par les recruteurs."
+          : "Votre profil n'est plus visible dans le catalogue des recruteurs."
+      );
+    } catch (error) {
+      console.error("Error updating availability:", error);
+      toast.error("Impossible de modifier votre disponibilité. Veuillez réessayer.");
+    } finally {
+      setUpdatingAvailability(false);
     }
   };
 
@@ -282,16 +304,16 @@ const Profile: React.FC = () => {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">Mon Profil</h1>
               {availabilityStatus && (
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs md:text-sm font-medium ${
-                  availabilityStatus === 'disponible' 
+                  availabilityStatus === 'available'
                     ? 'bg-primary/10 text-primary' 
                     : 'bg-amber-100 text-amber-800'
                 }`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${
-                    availabilityStatus === 'disponible' 
+                    availabilityStatus === 'available'
                       ? 'bg-primary' 
                       : 'bg-primary/20'
                   }`}></span>
-                  {availabilityStatus === 'disponible' ? 'Actif' : 'Suspendu'}
+                  {availabilityStatus === 'available' ? 'Disponible' : 'Indisponible'}
                 </span>
               )}
             </div>
@@ -313,6 +335,53 @@ const Profile: React.FC = () => {
                 <span>Télécharger CV</span>
               </>
             )}
+          </button>
+        </div>
+      </div>
+
+      {/* Recruiter visibility */}
+      <div className={`rounded-xl border p-4 md:p-5 transition-colors ${
+        availabilityStatus === 'available'
+          ? 'border-emerald-200 bg-emerald-50/70'
+          : 'border-amber-200 bg-amber-50/70'
+      }`}>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+              availabilityStatus === 'available'
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-amber-100 text-amber-700'
+            }`}>
+              {availabilityStatus === 'available' ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+            </div>
+            <div className="min-w-0">
+              <h2 className="font-semibold text-gray-900">Visibilité auprès des recruteurs</h2>
+              <p className="mt-1 text-sm leading-5 text-gray-600">
+                {availabilityStatus === 'available'
+                  ? "Votre profil et vos CV validés peuvent apparaître dans la recherche des recruteurs."
+                  : "Votre profil reste enregistré, mais il est masqué du catalogue et du matching des recruteurs."}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            role="switch"
+            aria-checked={availabilityStatus === 'available'}
+            aria-label="Modifier la disponibilité du profil"
+            onClick={handleAvailabilityChange}
+            disabled={!availabilityStatus || updatingAvailability}
+            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${
+              availabilityStatus === 'available' ? 'bg-emerald-600' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`absolute top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm transition-transform ${
+                availabilityStatus === 'available' ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            >
+              {updatingAvailability && <Loader2 className="h-3 w-3 animate-spin text-gray-500" />}
+            </span>
           </button>
         </div>
       </div>
@@ -587,13 +656,6 @@ const Profile: React.FC = () => {
           />
         </div>
       </div>
-
-      {/* Profile Reactivation Banner (shown only when suspended) */}
-      {availabilityStatus === 'indisponible' && (
-        <ProfileReactivationButton
-          onReactivated={() => setAvailabilityStatus('disponible')}
-        />
-      )}
 
       {/* Delete Account Section */}
       <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">

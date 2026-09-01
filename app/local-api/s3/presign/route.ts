@@ -92,13 +92,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+    const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ||
+      (process.env.NODE_ENV === "development"
+        ? "http://127.0.0.1:8000"
+        : "http://facejobalb-1619101788.eu-west-3.elb.amazonaws.com");
+    // Amplify has historically used both a bare backend origin and a value
+    // ending in /api. Always reduce it to the origin before appending routes.
+    const backendUrl = rawBackendUrl
+      .replace(/\/$/, "")
+      .replace(/\/api(?:\/v1)?$/, "");
     const authResponse = await fetch(`${backendUrl}/api/v1/user`, {
       headers: { Authorization: authorization, Accept: "application/json" },
       cache: "no-store",
     });
     if (!authResponse.ok) {
-      return NextResponse.json({ error: "Invalid or expired candidate session" }, { status: 401 });
+      if (authResponse.status === 401) {
+        return NextResponse.json({ error: "Invalid or expired candidate session" }, { status: 401 });
+      }
+      if (authResponse.status === 403) {
+        return NextResponse.json(
+          { error: "Candidate account is not authorized to upload a video" },
+          { status: 403 },
+        );
+      }
+
+      console.error("Candidate session validation failed", {
+        backendStatus: authResponse.status,
+        backendUrl: new URL(backendUrl).origin,
+      });
+      return NextResponse.json(
+        { error: "Unable to validate candidate session with the backend" },
+        { status: 502 },
+      );
     }
 
     const region = process.env.FACEJOB_AWS_REGION || process.env.AWS_DEFAULT_REGION || "eu-west-3";

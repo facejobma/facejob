@@ -26,7 +26,7 @@ function DashboardLayoutInner({ children, params }: LayoutProps) {
   // No need for client-side auth check here to avoid redirect loops
 
   return (
-    <div className="dashboard-layout min-h-screen font-sans bg-gray-50 flex flex-col">
+    <div className="dashboard-layout flex min-h-screen flex-col bg-slate-50/80 font-sans text-slate-900">
       <HeaderEntreprise />
 
       <div className="flex flex-1 pt-16">

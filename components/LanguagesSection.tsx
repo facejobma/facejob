@@ -68,7 +68,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({ languages, onUpdate
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="min-w-0 border-t border-slate-200 pt-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Globe className="w-5 h-5 text-primary" />
@@ -104,6 +104,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({ languages, onUpdate
           onClose={handleClose} 
           title="Modifier les langues" 
           description="Sélectionnez les langues que vous parlez"
+          size="profile"
         >
           <div className="space-y-4">
             {/* Select langues avec checkboxes */}

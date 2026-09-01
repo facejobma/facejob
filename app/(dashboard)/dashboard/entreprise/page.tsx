@@ -6,6 +6,8 @@ import Cookies from "js-cookie";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from "chart.js";
 import { FaBriefcase, FaUsers, FaChartBar, FaEye } from "react-icons/fa";
 import MatchingCandidates from "@/components/MatchingCandidates";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
@@ -224,23 +226,28 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-7">
       {/* Header Simple et Élégant */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md p-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-5 shadow-lg shadow-emerald-100 sm:p-7">
+        <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10" />
+        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 backdrop-blur-sm">
             <FaChartBar className="text-white text-xl" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Tableau de bord</h1>
-            <p className="text-green-50 text-sm">Vue d'ensemble de vos statistiques</p>
+            <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-emerald-100">Espace recruteur</p>
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">Tableau de bord</h1>
+            <p className="mt-1 text-sm text-emerald-50">Pilotez vos offres et suivez vos candidatures en un coup d'œil.</p>
           </div>
+          </div>
+          <Link href="/dashboard/entreprise/publier" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-bold text-emerald-700 shadow-sm transition hover:bg-emerald-50"><Plus className="h-4 w-4" />Nouvelle offre</Link>
         </div>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md md:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
               <FaBriefcase className="text-green-600 text-base md:text-lg" />
@@ -252,7 +259,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md md:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
               <FaUsers className="text-blue-600 text-base md:text-lg" />
@@ -264,7 +271,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md md:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
               <FaChartBar className="text-purple-600 text-base md:text-lg" />
@@ -276,7 +283,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 hover:shadow-lg transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-md md:p-5">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
               <FaEye className="text-amber-600 text-base md:text-lg" />
@@ -293,7 +300,7 @@ const Dashboard: React.FC = () => {
 
       {/* Charts Section - Design épuré */}
       <div className="grid gap-5 lg:grid-cols-3">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
           <div className="flex items-center gap-2 mb-4">
             <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
               <FaBriefcase className="text-green-600 text-sm" />
@@ -305,7 +312,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
           <div className="flex items-center gap-2 mb-4">
             <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
               <FaUsers className="text-blue-600 text-sm" />
@@ -317,7 +324,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
           <div className="flex items-center gap-2 mb-4">
             <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
               <FaChartBar className="text-purple-600 text-sm" />

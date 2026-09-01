@@ -113,7 +113,7 @@ export default function Sidebar() {
 
   return (
     <nav className={cn(
-      'fixed left-0 top-16 z-30 hidden h-[calc(100dvh-4rem)] border-r border-slate-200 bg-white md:block transition-all duration-300',
+      'fixed left-0 top-16 z-30 hidden h-[calc(100dvh-4rem)] border-r border-slate-200/80 bg-white/95 shadow-[8px_0_30px_-28px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-all duration-300 md:block',
       isOpen ? 'w-64' : 'w-20'
     )}>
       <div className={cn(
@@ -136,14 +136,14 @@ export default function Sidebar() {
 
         {/* Bottom Section for Enterprise Plan */}
         {userRole === 'entreprise' && isOpen && (
-          <div className="mx-2 px-4 py-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 shadow-sm">
+          <div className="mx-2 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center flex-shrink-0 shadow-md">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md shadow-emerald-200">
                 <Crown className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-900 truncate">{currentPlan}</p>
-                <p className="text-xs text-green-700 font-medium whitespace-nowrap">Plan actuel</p>
+                <p className="truncate text-sm font-bold text-slate-900">{isLoadingPlan ? "Chargement..." : currentPlan}</p>
+                <p className="whitespace-nowrap text-xs font-medium text-emerald-700">Plan actuel</p>
               </div>
             </div>
           </div>

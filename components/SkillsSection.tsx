@@ -39,7 +39,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ id, skills, onUpdate }) =
             {skills.map((skill: Skill) => (
               <span
                 key={skill.id}
-                className="bg-primary/5 text-primary border border-primary/20 rounded-lg px-3 py-1.5 text-sm font-medium"
+                className="max-w-full break-words rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-sm font-medium text-emerald-800 [overflow-wrap:anywhere]"
               >
                 {skill.title}
               </span>

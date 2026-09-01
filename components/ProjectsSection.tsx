@@ -214,12 +214,12 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
           editedProjects.map((project: Project) => (
             <div
               key={project.id}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all"
+              className="min-w-0 rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-slate-300"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-base text-gray-900 mb-2">{project.title}</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">{project.description}</p>
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <h3 className="mb-2 break-words [overflow-wrap:anywhere] text-base font-semibold text-gray-900">{project.title}</h3>
+                  <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm leading-relaxed text-gray-700">{project.description}</p>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
                   <button
@@ -262,6 +262,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
         isOpen={isEditing}
         onClose={handleCloseModal}
         title={selectedProject ? "Modifier le Projet" : "Ajouter un Projet"}
+        size="profile"
         description={
           selectedProject ? "Modifier les détails du projet" : "Ajouter un nouveau projet à votre profil"
         }
@@ -269,7 +270,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
         <form onSubmit={handleProjectUpdate}>
           <div className="space-y-6">
             {/* Project Form Section */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
                   <HiOutlineCollection className="text-green-600 text-sm" />
@@ -288,7 +289,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
                     value={formData.title}
                     onChange={(e) => handleInputChange("title", e.target.value)}
                     maxLength={150}
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                     placeholder="Ex: Application mobile e-commerce, Site web portfolio..."
                     required
                   />
@@ -306,7 +307,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
                     value={formData.description}
                     onChange={(e) => handleInputChange("description", e.target.value)}
                     maxLength={1000}
-                    className="w-full border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-lg py-2.5 px-4 outline-none transition-all resize-none"
+                    className="w-full resize-none rounded-lg border border-slate-300 bg-white px-4 py-2.5 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                     placeholder="Décrivez votre projet, les technologies utilisées, votre rôle et les résultats obtenus..."
                     rows={5}
                     required
@@ -319,7 +320,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({ id, projects, onUpdat
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row">
               <button
                 type="button"
                 onClick={handleCloseModal}

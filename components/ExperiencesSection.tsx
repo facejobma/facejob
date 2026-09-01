@@ -345,12 +345,12 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
               onDragStart={() => handleDragStart(index)}
               onDragOver={(e) => handleDragOver(e, index)}
               onDragEnd={handleDragEnd}
-              className={`bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all cursor-move ${
+              className={`min-w-0 rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-slate-300 ${
                 draggedIndex === index ? 'opacity-50' : ''
               }`}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3 flex-1">
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-1 items-start gap-3">
                   <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mt-1">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <circle cx="7" cy="5" r="1.5"/>
@@ -418,6 +418,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
       <Modal
         isOpen={isEditing}
         onClose={handleCloseModal}
+        size="profile"
         title={
           selectedExperience
             ? "Modifier l'expérience"
@@ -569,7 +570,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           </div>
 
           {/* Checkbox Poste actuel */}
-          <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <input
               type="checkbox"
               id="current_job"
@@ -608,7 +609,7 @@ const ExperiencesSection: React.FC<ExperiencesSectionProps> = ({
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col gap-3 border-t border-gray-200 pt-4 sm:flex-row">
             <button
               type="button"
               onClick={handleCloseModal}

@@ -295,9 +295,9 @@ const Profile: React.FC = () => {
   const completionPercentage = Math.round((profileStats.completed / profileStats.total) * 100);
 
   return (
-    <div className="space-y-6">
+    <div className="candidate-profile-page mx-auto min-w-0 max-w-7xl space-y-5 overflow-x-hidden pb-10">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -340,26 +340,36 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Recruiter visibility */}
-      <div className={`rounded-xl border p-4 md:p-5 transition-colors ${
-        availabilityStatus === 'available'
-          ? 'border-emerald-200 bg-emerald-50/70'
-          : 'border-amber-200 bg-amber-50/70'
+      <div className={`rounded-2xl border bg-white p-4 shadow-sm transition-colors md:p-5 ${
+        availabilityStatus === null
+          ? 'border-slate-200'
+          : availabilityStatus === 'available'
+            ? 'border-emerald-200'
+            : 'border-amber-200'
       }`}>
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              availabilityStatus === 'available'
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-amber-100 text-amber-700'
+              availabilityStatus === null
+                ? 'bg-slate-100 text-slate-500'
+                : availabilityStatus === 'available'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-amber-100 text-amber-700'
             }`}>
-              {availabilityStatus === 'available' ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              {availabilityStatus === null
+                ? <Loader2 className="h-5 w-5 animate-spin" />
+                : availabilityStatus === 'available'
+                  ? <Eye className="h-5 w-5" />
+                  : <EyeOff className="h-5 w-5" />}
             </div>
             <div className="min-w-0">
               <h2 className="font-semibold text-gray-900">Visibilité auprès des recruteurs</h2>
               <p className="mt-1 text-sm leading-5 text-gray-600">
-                {availabilityStatus === 'available'
-                  ? "Votre profil et vos CV validés peuvent apparaître dans la recherche des recruteurs."
-                  : "Votre profil reste enregistré, mais il est masqué du catalogue et du matching des recruteurs."}
+                {availabilityStatus === null
+                  ? "Vérification de la visibilité de votre profil..."
+                  : availabilityStatus === 'available'
+                    ? "Votre profil et vos CV validés peuvent apparaître dans la recherche des recruteurs."
+                    : "Votre profil reste enregistré, mais il est masqué du catalogue et du matching des recruteurs."}
               </p>
             </div>
           </div>
@@ -387,8 +397,8 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
               <FaUser className="h-5 w-5 text-primary" />
@@ -400,7 +410,7 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
               <FaBriefcase className="h-5 w-5 text-primary" />
@@ -412,7 +422,7 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
               <FaCog className="h-5 w-5 text-primary" />
@@ -424,7 +434,7 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 overflow-hidden">
+        <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
               <HiOutlineCollection className="h-5 w-5 text-primary" />
@@ -439,7 +449,7 @@ const Profile: React.FC = () => {
 
       {/* Progress Bar with Missing Items */}
       {completionPercentage < 100 && (
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
               <HiOutlineLightBulb className="text-primary" />
@@ -515,7 +525,7 @@ const Profile: React.FC = () => {
       )}
 
       {/* Profile Header Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -550,9 +560,9 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Two Column Layout for Desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-4 md:gap-5 lg:grid-cols-2">
         {/* Bio Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -571,7 +581,7 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Skills Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -593,7 +603,7 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Experience Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -615,9 +625,9 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Two Column Layout for Projects and Education */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-4 md:gap-5 lg:grid-cols-2">
         {/* Projects Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -635,7 +645,7 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Education Section */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
+        <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -658,7 +668,7 @@ const Profile: React.FC = () => {
       </div>
 
       {/* Delete Account Section */}
-      <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6">
+      <div className="rounded-2xl border border-red-200 bg-white p-5 shadow-sm md:p-6">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">

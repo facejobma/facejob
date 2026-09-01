@@ -248,8 +248,8 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
   };
 
   const validApplications = (initialData.applications ?? []).filter(
-    (application): application is JobData["applications"][number] & { candidate: Candidat; postuler: Postuler } =>
-      Boolean(application.candidate && application.postuler),
+    (application): application is JobData["applications"][number] & { candidate: Candidat } =>
+      Boolean(application.candidate),
   );
   const displayedApplications = showAllCandidates
     ? validApplications
@@ -622,7 +622,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
         </div>
 
         {/* Description Section */}
-        <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <FileText className="w-5 h-5 text-green-600" />
             <h2 className="text-lg font-semibold text-gray-800">Description</h2>
@@ -666,11 +666,17 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
               <h2 className="text-lg font-semibold text-gray-800">Candidatures ({initialData.applications_count})</h2>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {displayedApplications.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-10 text-center">
+              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100"><User className="h-5 w-5 text-slate-500" /></div>
+              <p className="font-semibold text-slate-800">Aucune candidature pour le moment</p>
+              <p className="mt-1 text-sm text-slate-500">Les candidats ayant postulé à cette offre apparaîtront ici.</p>
+            </div>
+          ) : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {displayedApplications?.map((application, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all p-4 flex flex-col"
+                className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
               >
                 {/* Header with Avatar and Name */}
                 <div className="flex items-start gap-3 mb-3">
@@ -730,7 +736,7 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
 
                 {/* Actions */}
                 <div className="mt-auto pt-3 border-t border-gray-100">
-                  <OfferCandidatActions
+                  {application.postuler ? <OfferCandidatActions
                     applicationId={application.id}
                     candidat={application.candidate}
                     postuler={application.postuler}
@@ -739,17 +745,17 @@ const JobForm: React.FC<{ initialData: JobData; autoEdit?: boolean }> = ({ initi
                       setVideoLink(application.link);
                       setShowModal(true);
                     }}
-                  />
+                  /> : <p className="text-xs text-slate-500">Le CV vidéo associé n'est plus disponible.</p>}
                 </div>
               </div>
             ))}
-          </div>
-          {initialData?.applications?.length > 4 && (
+          </div>}
+          {validApplications.length > 4 && (
             <button
               onClick={toggleShowAllCandidates}
               className="w-full mt-4 py-2.5 text-green-600 hover:bg-green-50 rounded-lg font-medium transition-colors"
             >
-              {showAllCandidates ? "Voir moins" : `Voir tous les candidats (${initialData.applications.length})`}
+              {showAllCandidates ? "Voir moins" : `Voir tous les candidats (${validApplications.length})`}
             </button>
           )}
         </div>

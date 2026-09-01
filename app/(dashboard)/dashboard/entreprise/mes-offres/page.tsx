@@ -113,7 +113,7 @@ export default function UsersPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Simple Header */}
-      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-4 md:p-6">
+      <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 shadow-sm md:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
           <div className="flex-1 min-w-0">
             <h1 className="text-lg md:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">Mes offres d'emploi</h1>
@@ -122,7 +122,7 @@ export default function UsersPage() {
           
           <Button 
             onClick={() => router.push('/dashboard/entreprise/publier')}
-            className="bg-green-600 hover:bg-green-700 text-white transition-colors text-sm md:text-base w-full lg:w-auto"
+            className="w-full rounded-xl bg-emerald-600 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md md:text-base lg:w-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle offre
@@ -131,7 +131,7 @@ export default function UsersPage() {
         
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 md:gap-4">
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+          <div className="rounded-xl border border-emerald-200 bg-white p-3 shadow-sm md:p-4">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
                 <Briefcase className="text-green-600 w-4 h-4 md:w-5 md:h-5" />
@@ -143,7 +143,7 @@ export default function UsersPage() {
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+          <div className="rounded-xl border border-emerald-200 bg-white p-3 shadow-sm md:p-4">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
                 <CheckCircle className="text-green-600 w-4 h-4 md:w-5 md:h-5" />
@@ -155,7 +155,7 @@ export default function UsersPage() {
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+          <div className="rounded-xl border border-emerald-200 bg-white p-3 shadow-sm md:p-4">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
                 <Clock className="text-green-600 w-4 h-4 md:w-5 md:h-5" />
@@ -167,7 +167,7 @@ export default function UsersPage() {
             </div>
           </div>
           
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
+          <div className="rounded-xl border border-emerald-200 bg-white p-3 shadow-sm md:p-4">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
                 <XCircle className="text-green-600 w-4 h-4 md:w-5 md:h-5" />

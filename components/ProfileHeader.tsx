@@ -418,7 +418,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     `w-full border-2 rounded-lg py-2.5 px-4 outline-none transition-all ${
       errors[field]
         ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-        : "border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+        : "border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
     }`;
 
   const renderFieldError = (field: ProfileField) =>
@@ -517,6 +517,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         onClose={handleCloseModal}
         title="Modifier le Profil"
         description="Mettre à jour vos informations personnelles"
+        size="profile"
       >
         <form onSubmit={handleProfileUpdate} noValidate>
           <div className="space-y-6">
@@ -527,7 +528,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             )}
 
             {/* Profile Information Section */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
                   <FaUser className="text-green-600 text-sm" />
@@ -720,7 +721,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     name="newPreferredContractType"
                     value={formData.newPreferredContractType}
                     onChange={(event) => setFormData((previous) => ({ ...previous, newPreferredContractType: event.target.value }))}
-                    className="w-full border-2 rounded-lg py-2.5 px-4 outline-none transition-all border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                   >
                     <option value="">Aucune préférence</option>
                     {['CDI', 'CDD', 'Stage', 'Freelance', 'Alternance'].map((contract) => (
@@ -783,7 +784,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row">
               <button
                 type="button"
                 onClick={handleCloseModal}

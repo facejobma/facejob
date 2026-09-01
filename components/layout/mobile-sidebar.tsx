@@ -75,7 +75,7 @@ export function MobileSidebar({ className, role }: SidebarProps) {
             <div className="flex-1 overflow-y-auto bg-slate-50/50 py-5">
               <div className="px-3">
                 <h3 className="mb-3 px-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
-                  Espace candidat
+                  Espace {detectedRole === "entreprise" ? "entreprise" : "candidat"}
                 </h3>
                 <DashboardNav items={navItems} setOpen={setOpen} closeOnClick={true} />
               </div>

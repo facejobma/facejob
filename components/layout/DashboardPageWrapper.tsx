@@ -12,7 +12,7 @@ export const DashboardPageWrapper: React.FC<DashboardPageWrapperProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`min-w-0 max-w-full overflow-x-hidden ${noPadding ? '' : 'p-4 sm:p-6'} ${className}`}>
+    <div className={`mx-auto min-w-0 w-full max-w-[1600px] overflow-x-hidden ${noPadding ? '' : 'p-4 sm:p-6 lg:p-7'} ${className}`}>
       {children}
     </div>
   );

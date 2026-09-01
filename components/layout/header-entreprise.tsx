@@ -1,63 +1,45 @@
 "use client";
-import { cn } from "@/lib/utils";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Menu, Plus, Sparkles } from "lucide-react";
 import { MobileSidebar } from "./mobile-sidebar";
 import { Logo } from "@/components/ui/logo";
 import Notification from "@/components/layout/Notification";
-import { useRouter } from "next/navigation";
-import { Plus, Star, Menu } from "lucide-react";
-import Link from "next/link";
 import { useSidebar } from "@/contexts/SidebarContext";
+
+type EnterpriseUser = { company_name?: string; email?: string };
 
 export default function HeaderEntreprise() {
   const router = useRouter();
   const { toggle } = useSidebar();
+  const [user, setUser] = useState<EnterpriseUser | null>(null);
+
+  useEffect(() => {
+    try {
+      const storedUser = window.sessionStorage.getItem("user");
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+    } catch { setUser(null); }
+  }, []);
+
+  const companyName = user?.company_name || "Mon entreprise";
+  const initials = companyName.trim().slice(0, 2).toUpperCase() || "EN";
 
   return (
-    <div className="fixed top-0 left-0 right-0 border-b bg-white z-40 shadow-sm">
-      <nav className="h-16 flex items-center justify-between px-4 md:px-6">
-        <div className="flex items-center gap-2 md:gap-6">
-          {/* Mobile Sidebar - Left on mobile */}
-          <div className="block md:hidden">
-            <div className="bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-              <MobileSidebar role="entreprise" />
-            </div>
-          </div>
-
-          {/* Toggle Sidebar Button - Desktop */}
-          <button
-            onClick={toggle}
-            className="hidden md:flex p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="w-5 h-5 text-gray-600" />
-          </button>
-
-          <div className="hidden md:block">
-            <Logo />
-          </div>
-          
-          {/* Publish Offer Button - Responsive */}
-          <button
-            className="flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg transition-colors text-sm md:text-base whitespace-nowrap"
-            onClick={() => router.push("/dashboard/entreprise/publier")}
-          >
-            <Plus className="w-4 h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Publier une offre</span>
-            <span className="sm:hidden">Publier</span>
-          </button>
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
+      <nav className="flex h-16 items-center justify-between gap-3 px-3 sm:px-5 md:px-6" aria-label="Navigation entreprise">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div className="md:hidden"><MobileSidebar role="entreprise" /></div>
+          <button type="button" onClick={toggle} className="hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 md:flex" aria-label="Réduire ou ouvrir le menu latéral"><Menu className="h-5 w-5" /></button>
+          <div className="hidden h-10 items-center border-r border-slate-200 pr-4 [&_img]:h-9 [&_img]:w-auto md:flex"><Logo /></div>
+          <button type="button" onClick={() => router.push("/dashboard/entreprise/publier")} className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md sm:px-4"><Plus className="h-4 w-4 shrink-0" /><span className="hidden sm:inline">Publier une offre</span><span className="sm:hidden">Publier</span></button>
         </div>
-        
-        <div className="flex items-center gap-2 md:gap-4">
-          <button
-            className="hidden sm:flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-gray-700 hover:text-gray-900 font-medium border border-gray-300 hover:border-gray-400 rounded-lg transition-colors whitespace-nowrap"
-            onClick={() => router.push("/dashboard/entreprise/services")}
-          >
-            <Star className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-            <span>Mise à niveau</span>
-          </button>
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <button type="button" onClick={() => router.push("/dashboard/entreprise/services")} className="hidden h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800 lg:flex"><Sparkles className="h-4 w-4" /><span>Améliorer mon plan</span></button>
           <Notification />
+          <button type="button" onClick={() => router.push("/dashboard/entreprise/profile")} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 pr-2 transition hover:border-emerald-200 hover:bg-emerald-50 sm:pr-3" aria-label="Ouvrir le profil de l'entreprise"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-xs font-bold text-white shadow-sm">{initials}</span><span className="hidden max-w-40 text-left sm:block"><span className="block truncate text-xs font-semibold text-slate-800">{companyName}</span><span className="block text-[11px] text-slate-500">Entreprise</span></span></button>
         </div>
       </nav>
-    </div>
+    </header>
   );
 }

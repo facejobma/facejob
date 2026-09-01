@@ -58,10 +58,10 @@ export default function MatchingCandidatesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-5">
+      <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm sm:p-6">
         <div className="flex items-center gap-3 mb-1">
-          <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <Users className="w-5 h-5 text-green-600" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 shadow-sm shadow-emerald-200">
+            <Users className="h-5 w-5 text-white" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Candidats correspondants</h1>
@@ -71,7 +71,7 @@ export default function MatchingCandidatesPage() {
       </div>
 
       {jobs.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <Briefcase className="w-8 h-8 text-gray-400" />
           </div>
@@ -90,7 +90,7 @@ export default function MatchingCandidatesPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Jobs list */}
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden h-fit">
+          <div className="h-fit overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div className="px-4 py-3 border-b border-gray-200">
               <h2 className="text-sm font-semibold text-gray-700">Vos offres validées</h2>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Edit } from "lucide-react";
 import { FaPlus } from "react-icons/fa";
 import { Modal } from "@/components/ui/modal";
@@ -17,9 +17,28 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
   const [isEditing, setIsEditing] = useState(false);
-  const [currentBio, setCurrentBio] = useState(bio);
-  const [newBio, setNewBio] = useState(bio);
+  const [currentBio, setCurrentBio] = useState(() => bio?.startsWith("eyJpdiI6") ? "" : bio);
+  const [newBio, setNewBio] = useState(() => bio?.startsWith("eyJpdiI6") ? "" : bio);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getDisplayBio = (value?: string) => {
+    if (!value) return "";
+
+    try {
+      const decoded = JSON.parse(window.atob(value));
+      if (decoded?.iv && decoded?.value && decoded?.mac) return "";
+    } catch {
+      // Plain text biographies are expected and need no transformation.
+    }
+
+    return value;
+  };
+
+  useEffect(() => {
+    const displayBio = getDisplayBio(bio);
+    setCurrentBio(displayBio);
+    setNewBio(displayBio);
+  }, [bio]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -100,8 +119,8 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
       </div>
       <div>
         {currentBio && currentBio.trim().length > 0 ? (
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <p className="text-gray-800 text-sm leading-relaxed">{currentBio}</p>
+          <div className="min-w-0 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+            <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm leading-6 text-slate-700">{currentBio}</p>
           </div>
         ) : (
           <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
@@ -122,9 +141,10 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
         onClose={handleCloseModal}
         title="Editer Description"
         description="Mettre à jour votre description"
+        size="profile"
       >
         <form onSubmit={handleBioUpdate} className="space-y-4 sm:space-y-5">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 sm:p-6 border-2 border-primary/20">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
             <label htmlFor="newBio" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
               Votre Description <span className="text-red-500">*</span>
             </label>
@@ -136,7 +156,7 @@ const BioSection: React.FC<BioSectionProps> = ({ id, bio, onUpdate }) => {
               placeholder="Parlez de vous, votre parcours, vos objectifs professionnels..."
               rows={6}
               maxLength={1000}
-              className="w-full text-sm sm:text-base border-2 border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg py-2 sm:py-2.5 px-3 sm:px-4 outline-none transition-all resize-none"
+              className="w-full resize-none rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 sm:px-4 sm:text-base"
             />
             <p className="text-xs text-gray-500 mt-2">
               {newBio.length}/1000 caractères

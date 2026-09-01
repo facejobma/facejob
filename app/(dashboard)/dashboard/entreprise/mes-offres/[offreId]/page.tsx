@@ -124,11 +124,11 @@ export default function Page() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-6xl space-y-5">
       {/* Back Button */}
       <button
         onClick={() => router.push("/dashboard/entreprise/mes-offres")}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+        className="inline-flex items-center gap-2 rounded-lg px-1 py-1 text-sm font-semibold text-slate-600 transition hover:text-emerald-700"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -137,10 +137,10 @@ export default function Page() {
       </button>
 
       {/* Header Simple */}
-      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-6 mb-6">
+      <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm sm:p-6">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <Edit className="text-green-600 w-5 h-5" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 shadow-sm shadow-emerald-200">
+            <Edit className="h-5 w-5 text-white" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Modifier l'offre d'emploi</h1>
@@ -150,7 +150,7 @@ export default function Page() {
       </div>
 
       {/* Main Form Card */}
-      <div className="bg-white rounded-lg border border-gray-200">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {jobData ? (
           <JobForm initialData={jobData} key={offreId as string} autoEdit={editMode} />
         ) : (

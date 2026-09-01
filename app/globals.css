@@ -5,6 +5,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Candidate profile: keep user-provided content inside responsive cards. */
+.candidate-profile-page,
+.candidate-profile-page * {
+  min-width: 0;
+}
+
+.candidate-profile-page :where(h1, h2, h3, p, li, span, a) {
+  overflow-wrap: anywhere;
+}
+
+.candidate-profile-page :where(input, select, textarea) {
+  max-width: 100%;
+  color: #0f172a;
+}
+
 @layer base {
   :root {
     color-scheme: light;

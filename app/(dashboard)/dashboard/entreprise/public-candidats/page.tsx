@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
 import Select from "react-select";
@@ -9,7 +9,7 @@ import { LANGUAGE_OPTIONS } from "@/constants/languages";
 import { useUser } from "@/hooks/useUser";
 import { 
   MapPin, Briefcase, GraduationCap, Code, Building2, 
-  Calendar, Check, User, Filter, X, ChevronDown, Volume2, VolumeX, Eye, FileText
+  Calendar, Check, User, Filter, X, Eye, FileText, RefreshCw, SlidersHorizontal, Video
 } from "lucide-react";
 
 interface Formation {
@@ -88,6 +88,7 @@ const CandidatsPage: React.FC = () => {
   const { user, isLoading: userLoading } = useUser();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -101,6 +102,7 @@ const CandidatsPage: React.FC = () => {
   const [detailCandidate, setDetailCandidate] = useState<Candidate | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [candidateToConsume, setCandidateToConsume] = useState<Candidate | null>(null);
+  const [isConsuming, setIsConsuming] = useState(false);
   const detailVideoRef = useRef<HTMLVideoElement | null>(null);
   
   const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
@@ -284,13 +286,21 @@ const CandidatsPage: React.FC = () => {
     }
   };
 
-  const fetchCandidates = async (
+  const fetchCandidates = useCallback(async (
     page: number,
     append: boolean = false,
     filters: CandidateFilters = appliedFilters
   ) => {
     try {
-      if (!append) setLoading(true);
+      if (!authToken) {
+        setCandidates([]);
+        setLoadError("Votre session entreprise n'est pas disponible. Reconnectez-vous puis réessayez.");
+        return;
+      }
+      if (!append) {
+        setLoading(true);
+        setLoadError(null);
+      }
       else setLoadingMore(true);
       
       const params = new URLSearchParams({
@@ -311,34 +321,42 @@ const CandidatsPage: React.FC = () => {
         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
       );
       
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        const error = await response.json().catch(() => null);
+        throw new Error(error?.message || error?.error || `Erreur serveur (${response.status})`);
+      }
       
       const result = await response.json();
       
-      if (result.data && Array.isArray(result.data)) {
+      const candidateData = Array.isArray(result?.data?.data) ? result.data.data : result?.data;
+      const pagination = result?.pagination ?? result?.data?.pagination;
+      if (Array.isArray(candidateData)) {
         if (append) {
-          setCandidates(prev => [...prev, ...result.data]);
+          setCandidates(prev => [...prev, ...candidateData.filter((candidate: Candidate) => !prev.some((item) => item.cv_id === candidate.cv_id))]);
         } else {
-          setCandidates(result.data);
+          setCandidates(candidateData);
         }
         
-        setHasMore(result.pagination?.has_more_pages || false);
+        setHasMore(Boolean(pagination?.has_more_pages));
       } else {
         if (!append) setCandidates([]);
+        setHasMore(false);
       }
     } catch (error) {
       console.error("Error fetching candidates:", error);
-      toast.error("Erreur lors du chargement");
+      setLoadError(error instanceof Error ? error.message : "Impossible de charger les candidats.");
+      if (!append) setCandidates([]);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }, [authToken, appliedFilters]);
 
   useEffect(() => {
+    if (userLoading || !user?.id) return;
     setCurrentPage(1);
     fetchCandidates(1, false, appliedFilters);
-  }, []);
+  }, [userLoading, user?.id, authToken]);
 
   useEffect(() => {
     if (user?.id) {
@@ -366,7 +384,7 @@ const CandidatsPage: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentPage, loadingMore, hasMore, appliedFilters]);
+  }, [currentPage, loadingMore, hasMore, appliedFilters, fetchCandidates]);
 
   const handleGenerateCV = async (candidateId: number) => {
     try {
@@ -409,6 +427,7 @@ const CandidatsPage: React.FC = () => {
     if (!candidateToConsume || !user?.id) return;
 
     setIsConfirmModalOpen(false);
+    setIsConsuming(true);
 
     try {
       const response = await fetch(
@@ -499,6 +518,7 @@ const CandidatsPage: React.FC = () => {
       toast.error("Erreur réseau. Veuillez réessayer.");
     } finally {
       setCandidateToConsume(null);
+      setIsConsuming(false);
     }
   };
 
@@ -532,6 +552,11 @@ const CandidatsPage: React.FC = () => {
     setCurrentPage(1);
     fetchCandidates(1, false, EMPTY_FILTERS);
     setShowFilters(false);
+  };
+
+  const retryLoad = () => {
+    setCurrentPage(1);
+    fetchCandidates(1, false, appliedFilters);
   };
 
   const toggleMute = () => {
@@ -592,12 +617,12 @@ const CandidatsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 relative" style={{ zIndex: 0 }}>
+    <div className="relative space-y-5 md:space-y-6" style={{ zIndex: 0 }}>
       {/* Header Simple */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md p-4 md:p-6 relative" style={{ zIndex: 0 }}>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-5 shadow-lg shadow-emerald-100 md:p-7" style={{ zIndex: 0 }}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div className="flex items-center gap-2 md:gap-3">
-            <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 backdrop-blur-sm md:h-12 md:w-12">
               <User className="text-white text-lg md:text-xl" />
             </div>
             <div className="flex-1 min-w-0">
@@ -607,7 +632,7 @@ const CandidatsPage: React.FC = () => {
           </div>
           
           {lastPayment && lastPayment.status === "completed" && (
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 md:px-4 py-2 border border-white/30 self-start sm:self-auto">
+            <div className="self-start rounded-xl border border-white/25 bg-white/15 px-3 py-2.5 backdrop-blur-sm sm:self-auto">
               <p className="text-green-50 text-xs font-medium">Crédits restants</p>
               <p className="text-xl md:text-2xl font-bold text-white">
                 {getRemainingCredits() === 999 ? '∞' : getRemainingCredits()}
@@ -617,17 +642,16 @@ const CandidatsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Filter Button */}
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="fixed bottom-6 right-4 md:right-6 z-40 flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow-lg transition-colors text-sm md:text-base"
-      >
-        <Filter className="w-4 h-4 md:w-5 md:h-5" />
-        <span>Filtres</span>
-        {hasActiveFilters && (
-          <span className="w-2 h-2 bg-white rounded-full"></span>
-        )}
-      </button>
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><Video className="h-5 w-5" /></span>
+          <div><p className="text-sm font-bold text-slate-900">{loading ? "Recherche des profils..." : `${candidates.length} profil${candidates.length > 1 ? "s" : ""} affiché${candidates.length > 1 ? "s" : ""}`}</p><p className="text-xs text-slate-500">Les profils déverrouillés n'apparaissent plus ici.</p></div>
+        </div>
+        <div className="flex gap-2">
+          {hasActiveFilters && <button onClick={clearFilters} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"><X className="h-4 w-4" />Effacer</button>}
+          <button onClick={() => setShowFilters(true)} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"><SlidersHorizontal className="h-4 w-4" />Filtres{hasActiveFilters && <span className="h-1.5 w-1.5 rounded-full bg-white" />}</button>
+        </div>
+      </div>
 
       {/* Filters Modal */}
       {showFilters && (
@@ -800,6 +824,13 @@ const CandidatsPage: React.FC = () => {
               <p className="text-gray-600">Chargement des candidats...</p>
             </div>
           </div>
+        ) : loadError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-8 text-center shadow-sm sm:p-12">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600"><X className="h-7 w-7" /></div>
+            <h2 className="text-xl font-bold text-slate-900">Chargement impossible</h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm text-slate-600">{loadError}</p>
+            <button onClick={retryLoad} className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"><RefreshCw className="h-4 w-4" />Réessayer</button>
+          </div>
         ) : candidates.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12">
             <div className="flex flex-col items-center justify-center gap-4 text-center">
@@ -823,16 +854,16 @@ const CandidatsPage: React.FC = () => {
         ) : (
           <>
             {/* Grid View - Desktop and Mobile */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative" style={{ zIndex: 0 }}>
+            <div className="relative grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" style={{ zIndex: 0 }}>
               {candidates.map((candidate) => (
                 <div
                   key={candidate.cv_id}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-green-300 hover:shadow-lg transition-all flex flex-col relative"
+                  className="relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg"
                   style={{ zIndex: 0 }}
                 >
                   {/* Video Preview */}
                   <div 
-                    className="relative h-48 bg-black overflow-hidden cursor-pointer group"
+                    className="group relative h-52 cursor-pointer overflow-hidden bg-slate-950"
                     onClick={() => handleVideoClick(candidate)}
                     onMouseEnter={() => {
                       const video = videoRefs.current[candidate.cv_id];
@@ -861,19 +892,19 @@ const CandidatsPage: React.FC = () => {
                       preload="metadata"
                       controlsList="nodownload"
                     />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="rounded-full bg-white/20 p-4 backdrop-blur-sm ring-1 ring-white/40">
                         <Eye className="w-8 h-8 text-white" />
                       </div>
                     </div>
                   </div>
 
                   {/* Card Content */}
-                  <div className="p-4 flex flex-col flex-1">
+                  <div className="flex flex-1 flex-col p-4">
                     <div className="space-y-2 flex-1">
                       {/* Profile Header */}
                       <div className="flex items-center gap-2">
-                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-500 flex-shrink-0">
+                        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border-2 border-emerald-200 bg-emerald-50">
                           {candidate.image ? (
                             <img 
                               src={getImageUrl(candidate.image)}
@@ -924,10 +955,10 @@ const CandidatsPage: React.FC = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2 pt-3 mt-auto border-t border-gray-100">
+                    <div className="mt-auto flex gap-2 border-t border-slate-100 pt-3">
                       <button
                         onClick={() => handleGenerateCV(candidate.id)}
-                        className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-[10px] font-medium flex items-center justify-center gap-1.5 transition-colors"
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                         title="Télécharger le CV anonyme gratuitement"
                       >
                         <FileText className="w-4 h-4" />
@@ -936,7 +967,8 @@ const CandidatsPage: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleConsumeClick(candidate)}
-                        className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[10px] font-medium flex items-center justify-center gap-1.5 transition-colors"
+                        disabled={isConsuming}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-[10px] font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
                         title="Débloquer les coordonnées du candidat"
                       >
                         <Eye className="w-4 h-4" />
@@ -962,21 +994,21 @@ const CandidatsPage: React.FC = () => {
       {isUpgradeModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsUpgradeModalOpen(false)}></div>
-          <div className="bg-white p-8 rounded-2xl shadow-2xl relative z-[70] max-w-md w-full border border-gray-200">
+          <div className="relative z-[70] w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-2xl">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Limite atteinte</h2>
             <p className="text-gray-600 mb-6">
               Vous avez atteint votre limite de consultations. Mettez à niveau votre forfait pour consulter plus de CVs.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 border-t border-slate-100 pt-5">
               <button
                 onClick={() => setIsUpgradeModalOpen(false)}
-                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
+                className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Annuler
               </button>
               <button
                 onClick={() => window.location.href = "/dashboard/entreprise/services"}
-                className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"
+                className="flex-1 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
               >
                 Mettre à niveau
               </button>
@@ -996,9 +1028,9 @@ const CandidatsPage: React.FC = () => {
           
           {/* Modal Content - Centered and Responsive */}
           <div className="relative z-[70] min-h-screen flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col my-4">
+            <div className="my-4 flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
               {/* Header */}
-              <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-gray-200 bg-gradient-to-r from-green-600 to-emerald-600 flex-shrink-0">
+              <div className="flex flex-shrink-0 items-center justify-between border-b border-emerald-500/30 bg-gradient-to-r from-emerald-700 to-teal-600 px-4 py-3 md:px-6 md:py-4">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white flex-shrink-0">
                     {detailCandidate.image ? (
@@ -1036,10 +1068,10 @@ const CandidatsPage: React.FC = () => {
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 p-3 md:p-4">
+                <div className="grid grid-cols-1 gap-5 p-4 md:p-6 lg:grid-cols-2">
                   {/* Left Column - Video */}
                   <div className="space-y-2 md:space-y-3">
-                    <div className="relative bg-black rounded-xl overflow-hidden aspect-video">
+                    <div className="relative aspect-video overflow-hidden rounded-2xl bg-slate-950 shadow-lg">
                       <video
                         ref={detailVideoRef}
                         src={getVideoUrl(detailCandidate.link)}
@@ -1185,7 +1217,8 @@ const CandidatsPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => handleConsumeClick(detailCandidate)}
-                  className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 text-xs md:text-sm"
+                  disabled={isConsuming}
+                  className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-green-600 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 text-xs md:text-sm"
                 >
                   <Check className="w-4 h-4" />
                   <span className="leading-tight text-center">Débloquer<br/><span className="text-[11px] opacity-80">(1 crédit)</span></span>
@@ -1199,21 +1232,21 @@ const CandidatsPage: React.FC = () => {
       {/* Confirmation Modal */}
       {isConfirmModalOpen && candidateToConsume && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 p-6">
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6">
               <h3 className="text-2xl font-bold text-white">Confirmer le déblocage</h3>
             </div>
             
-            <div className="p-6">
+            <div className="p-6 sm:p-7">
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-orange-100">
                   <Eye className="w-6 h-6 text-orange-600" />
                 </div>
                 <div className="flex-1">
                   <p className="text-gray-700 mb-3">
                     Vous êtes sur le point de débloquer les coordonnées de ce candidat.
                   </p>
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
                     <p className="text-sm font-semibold text-orange-900 mb-1">
                       Cette action débloquera 1 crédit
                     </p>
@@ -1224,22 +1257,23 @@ const CandidatsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 border-t border-slate-100 pt-5">
                 <button
                   onClick={() => {
                     setIsConfirmModalOpen(false);
                     setCandidateToConsume(null);
                   }}
-                  className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors"
+                  className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={confirmConsume}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  disabled={isConsuming}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
                   <Check className="w-5 h-5" />
-                  Confirmer
+                  {isConsuming ? "Déblocage..." : "Confirmer"}
                 </button>
               </div>
             </div>

@@ -1,8 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import {
+  ArrowRight,
+  Briefcase,
+  Check,
+  MapPin,
+  RefreshCw,
+  Sparkles,
+  Users,
+} from "lucide-react";
 
 interface MatchedCandidate {
   match_percentage: number;
@@ -29,182 +38,273 @@ interface MatchedCandidate {
   };
 }
 
-function MatchBadge({ percentage }: { percentage: number }) {
-  let colorClass = "bg-red-100 text-red-700 border-red-200";
-  if (percentage >= 70) {
-    colorClass = "bg-emerald-100 text-emerald-700 border-emerald-200";
-  } else if (percentage >= 40) {
-    colorClass = "bg-orange-100 text-orange-700 border-orange-200";
-  }
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase() || "?";
+const cleanList = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter(
+        (item): item is string =>
+          typeof item === "string" && item.trim() !== "",
+      )
+    : [];
+
+function MatchScore({ value }: { value: number }) {
+  const score = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+  const tone =
+    score >= 70
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : score >= 40
+        ? "border-amber-200 bg-amber-50 text-amber-700"
+        : "border-slate-200 bg-slate-50 text-slate-600";
   return (
-    <span className={`inline-flex items-center justify-center w-14 h-14 rounded-full border-2 text-lg font-bold flex-shrink-0 ${colorClass}`}>
-      {percentage}%
-    </span>
+    <div
+      className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border ${tone}`}
+    >
+      <strong className="text-base leading-none">{score}%</strong>
+      <span className="mt-1 text-[9px] font-semibold uppercase tracking-wide">
+        match
+      </span>
+    </div>
   );
 }
 
-function AvailabilityBadge({ status }: { status: string }) {
-  const getStatusInFrench = (s: string): string => {
-    switch (s) {
-      case 'available':
-        return 'Disponible';
-      case 'unavailable':
-        return 'Non disponible';
-      default:
-        return s;
-    }
-  };
-  
-  const frenchStatus = getStatusInFrench(status);
-  const isAvailable = status === "available" || status === "disponible";
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isAvailable ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-50 text-gray-500 border border-gray-200"}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${isAvailable ? "bg-emerald-500" : "bg-gray-400"}`} />
-      {frenchStatus}
-    </span>
-  );
-}
-
-interface MatchingCandidatesProps {
+export default function MatchingCandidates({
+  offreId,
+  offreTitre,
+}: {
   offreId: number;
   offreTitre?: string;
-}
-
-export default function MatchingCandidates({ offreId, offreTitre }: MatchingCandidatesProps) {
+}) {
   const router = useRouter();
   const [candidates, setCandidates] = useState<MatchedCandidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const backendUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) ?? '';
+  const loadCandidates = useCallback(
+    async (signal: AbortSignal) => {
+      setLoading(true);
+      setError(null);
+      setCandidates([]);
+      try {
+        const token = Cookies.get("authToken")?.replace(/["']/g, "");
+        if (!token)
+          throw new Error("Votre session a expiré. Veuillez vous reconnecter.");
+        const response = await fetch(
+          `/api/v1/entreprise/matching-candidates?offre_id=${offreId}`,
+          {
+            signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          },
+        );
+        const payload = await response.json().catch(() => null);
+        if (!response.ok)
+          throw new Error(
+            payload?.message ||
+              "Impossible de charger les profils correspondants.",
+          );
+        const rows = Array.isArray(payload?.data) ? payload.data : [];
+        setCandidates(
+          rows
+            .filter((row: MatchedCandidate) => row?.candidate?.id)
+            .map((row: MatchedCandidate) => ({
+              ...row,
+              candidate: {
+                ...row.candidate,
+                skills: cleanList(row.candidate.skills),
+                languages: cleanList(row.candidate.languages),
+              },
+            })),
+        );
+      } catch (caught) {
+        if (caught instanceof DOMException && caught.name === "AbortError")
+          return;
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : "Une erreur inattendue est survenue.",
+        );
+      } finally {
+        if (!signal.aborted) setLoading(false);
+      }
+    },
+    [offreId],
+  );
 
   useEffect(() => {
-    const token = Cookies.get("authToken");
-    fetch(
-      `${backendUrl}/api/v1/entreprise/matching-candidates?offre_id=${offreId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((res) => {
-        if (!res.ok) throw new Error(`Erreur ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        setCandidates(data.data ?? []);
-      })
-      .catch(() => {
-        setError("Impossible de charger les candidats correspondants.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [offreId, backendUrl]);
-
-  const handleCandidateClick = (candidateId: number) => {
-    router.push(`/dashboard/entreprise/matching-candidates/${candidateId}?offre_id=${offreId}`);
-  };
+    const controller = new AbortController();
+    void loadCandidates(controller.signal);
+    return () => controller.abort();
+  }, [loadCandidates, reloadKey]);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-3">
-        <div className="h-9 w-9 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <header className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+            <Users className="h-5 w-5 text-emerald-600" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="font-semibold text-slate-900">
+              Profils recommandés
+            </h2>
+            <p className="truncate text-xs text-slate-500">
+              {offreTitre || "Offre sélectionnée"}
+            </p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-gray-900">Candidats correspondants</h2>
-          {offreTitre && (
-            <p className="text-xs text-gray-500 truncate">Pour l'offre : {offreTitre}</p>
-          )}
-        </div>
-      </div>
+        {!loading && !error && (
+          <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+            {candidates.length} résultat{candidates.length > 1 ? "s" : ""}
+          </span>
+        )}
+      </header>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-5">
         {loading && (
-          <div className="flex items-center justify-center py-10">
-            <div className="w-8 h-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+          <div className="space-y-3" role="status">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="h-28 animate-pulse rounded-2xl bg-slate-100"
+              />
+            ))}
+            <span className="sr-only">Chargement des candidats</span>
           </div>
         )}
-
         {!loading && error && (
-          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-            {error}
+          <div className="rounded-2xl border border-red-200 bg-red-50/50 p-6 text-center">
+            <p className="text-sm text-red-700">{error}</p>
+            <button
+              type="button"
+              onClick={() => setReloadKey((key) => key + 1)}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-sm ring-1 ring-red-200 hover:bg-red-50"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Réessayer
+            </button>
           </div>
         )}
-
         {!loading && !error && candidates.length === 0 && (
-          <div className="text-center py-10 text-gray-500">
-            <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <p className="text-sm">Aucun candidat correspondant pour le moment.</p>
+          <div className="py-12 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
+              <Sparkles className="h-6 w-6 text-slate-400" />
+            </div>
+            <h3 className="mt-4 font-semibold text-slate-900">
+              Aucun profil disponible
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+              Aucun candidat actif, disponible et suffisamment renseigné ne
+              correspond actuellement à cette offre.
+            </p>
           </div>
         )}
-
         {!loading && !error && candidates.length > 0 && (
           <div className="space-y-3">
-            {candidates.map((item) => {
-              const { candidate, match_percentage } = item;
-              const visibleSkills = candidate.skills.slice(0, 3);
-              const extraSkills = candidate.skills.length - 3;
-
-              return (
-                <button
-                  key={candidate.id}
-                  onClick={() => handleCandidateClick(candidate.id)}
-                  className="w-full text-left flex items-center gap-4 p-4 rounded-lg border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors cursor-pointer"
-                >
-                  <MatchBadge percentage={match_percentage} />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 flex-wrap">
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm truncate">{candidate.full_name}</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {[candidate.job_title, candidate.sector].filter(Boolean).join(" · ")}
-                        </p>
+            {candidates.map(
+              ({ candidate, match_percentage, matched_criteria }) => {
+                const skills = candidate.skills.slice(0, 3);
+                const available =
+                  candidate.availability_status === "available" ||
+                  candidate.availability_status === "disponible";
+                return (
+                  <button
+                    type="button"
+                    key={candidate.id}
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/entreprise/matching-candidates/${candidate.id}?offre_id=${offreId}`,
+                      )
+                    }
+                    className="group w-full rounded-2xl border border-slate-200 p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  >
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-sm font-bold text-white shadow-sm">
+                        {initials(candidate.full_name)}
                       </div>
-                      <AvailabilityBadge status={candidate.availability_status} />
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {item.matched_criteria.contract_type && candidate.preferred_contract_type && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                          ✓ Contrat {candidate.preferred_contract_type}
-                        </span>
-                      )}
-                    </div>
-
-                    {candidate.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {visibleSkills.map((skill) => (
-                          <span key={skill} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                            {skill}
-                          </span>
-                        ))}
-                        {extraSkills > 0 && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-500 border border-gray-100">
-                            +{extraSkills}
-                          </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <h3 className="truncate font-semibold text-slate-900">
+                              {candidate.full_name || "Candidat"}
+                            </h3>
+                            <p className="mt-0.5 truncate text-sm text-slate-500">
+                              {[candidate.job_title, candidate.sector]
+                                .filter(Boolean)
+                                .join(" · ") || "Profil professionnel"}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${available ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}
+                            >
+                              <span
+                                className={`h-1.5 w-1.5 rounded-full ${available ? "bg-emerald-500" : "bg-slate-400"}`}
+                              />
+                              {available ? "Disponible" : "Indisponible"}
+                            </span>
+                            <MatchScore value={match_percentage} />
+                          </div>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
+                          {candidate.years_of_experience != null && (
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-slate-50 px-2 py-1">
+                              <Briefcase className="h-3 w-3" />
+                              {candidate.years_of_experience} an
+                              {candidate.years_of_experience > 1 ? "s" : ""}{" "}
+                              d’expérience
+                            </span>
+                          )}
+                          {matched_criteria.location && (
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700">
+                              <MapPin className="h-3 w-3" />
+                              Localisation compatible
+                            </span>
+                          )}
+                          {matched_criteria.contract_type &&
+                            candidate.preferred_contract_type && (
+                              <span className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-1 text-blue-700">
+                                <Check className="h-3 w-3" />
+                                {candidate.preferred_contract_type}
+                              </span>
+                            )}
+                        </div>
+                        {skills.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-1.5">
+                            {skills.map((skill) => (
+                              <span
+                                key={skill}
+                                className="max-w-[180px] truncate rounded-full border border-emerald-100 bg-emerald-50/70 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {candidate.skills.length > 3 && (
+                              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-500">
+                                +{candidate.skills.length - 3}
+                              </span>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                      <ArrowRight className="mt-4 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-1 group-hover:text-emerald-600 sm:mt-0" />
+                    </div>
+                  </button>
+                );
+              },
+            )}
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

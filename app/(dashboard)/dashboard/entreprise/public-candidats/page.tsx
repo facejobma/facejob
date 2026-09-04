@@ -170,6 +170,8 @@ const CandidatsPage: React.FC = () => {
 
     return `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/video/${encodedPath}`;
   };
+
+  const hasPlayableVideo = (candidate: Candidate) => Boolean(candidate.link && getVideoUrl(candidate.link));
   
   // Filters
   const [sectors, setSectors] = useState<any[]>([]);
@@ -353,7 +355,12 @@ const CandidatsPage: React.FC = () => {
   }, [authToken, appliedFilters]);
 
   useEffect(() => {
-    if (userLoading || !user?.id) return;
+    if (userLoading) return;
+    if (!user?.id) {
+      setLoading(false);
+      setLoadError("Impossible d'identifier votre session entreprise. Veuillez vous reconnecter.");
+      return;
+    }
     setCurrentPage(1);
     fetchCandidates(1, false, appliedFilters);
   }, [userLoading, user?.id, authToken]);
@@ -413,7 +420,7 @@ const CandidatsPage: React.FC = () => {
       return;
     }
     
-    if (!lastPayment || lastPayment.status === "pending" || getRemainingCredits() <= 0) {
+    if (!lastPayment || lastPayment.status?.toLowerCase() === "pending" || getRemainingCredits() <= 0) {
       setIsUpgradeModalOpen(true);
       return;
     }
@@ -426,7 +433,6 @@ const CandidatsPage: React.FC = () => {
   const confirmConsume = async () => {
     if (!candidateToConsume || !user?.id) return;
 
-    setIsConfirmModalOpen(false);
     setIsConsuming(true);
 
     try {
@@ -445,6 +451,7 @@ const CandidatsPage: React.FC = () => {
       );
 
       if (response.ok) {
+        setIsConfirmModalOpen(false);
         // Remove from list
         setCandidates(prev => prev.filter(c => c.cv_id !== candidateToConsume.cv_id));
         
@@ -453,7 +460,7 @@ const CandidatsPage: React.FC = () => {
           const currentCredits = getRemainingCredits();
           setLastPayment({
             ...lastPayment,
-            contact_access_remaining: currentCredits - 1
+            contact_access_remaining: currentCredits === 999 ? 'unlimited' : Math.max(0, currentCredits - 1)
           });
         }
         
@@ -482,6 +489,7 @@ const CandidatsPage: React.FC = () => {
         
         // Handle already consumed - show the candidate info directly
         if (response.status === 409 && errorData.error === "Video already consumed") {
+          setIsConfirmModalOpen(false);
           setCandidates(prev => prev.filter(c => c.cv_id !== candidateToConsume.cv_id));
           
           // Show a toast with button to navigate to consumed CVs
@@ -517,7 +525,6 @@ const CandidatsPage: React.FC = () => {
       console.error("Error consuming CV:", error);
       toast.error("Erreur réseau. Veuillez réessayer.");
     } finally {
-      setCandidateToConsume(null);
       setIsConsuming(false);
     }
   };
@@ -533,6 +540,14 @@ const CandidatsPage: React.FC = () => {
   });
 
   const applyFilters = () => {
+    if (
+      minExperience?.value !== undefined &&
+      maxExperience?.value !== undefined &&
+      Number(minExperience.value) > Number(maxExperience.value)
+    ) {
+      toast.error("L'expérience minimum ne peut pas dépasser l'expérience maximum.");
+      return;
+    }
     const nextFilters = buildDraftFilters();
     setAppliedFilters(nextFilters);
     setCurrentPage(1);
@@ -553,6 +568,32 @@ const CandidatsPage: React.FC = () => {
     fetchCandidates(1, false, EMPTY_FILTERS);
     setShowFilters(false);
   };
+
+  useEffect(() => {
+    if (!isDetailModalOpen && !isConfirmModalOpen && !isUpgradeModalOpen && !showFilters) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (isConfirmModalOpen) {
+        setIsConfirmModalOpen(false);
+        setCandidateToConsume(null);
+      } else if (isUpgradeModalOpen) {
+        setIsUpgradeModalOpen(false);
+      } else if (isDetailModalOpen) {
+        closeDetailModal();
+      } else {
+        setShowFilters(false);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isDetailModalOpen, isConfirmModalOpen, isUpgradeModalOpen, showFilters]);
 
   const retryLoad = () => {
     setCurrentPage(1);
@@ -575,6 +616,10 @@ const CandidatsPage: React.FC = () => {
   };
 
   const handleVideoClick = (candidate: Candidate) => {
+    if (!hasPlayableVideo(candidate)) {
+      toast.error("La vidéo de ce profil n'est pas disponible actuellement.");
+      return;
+    }
     setDetailCandidate(candidate);
     setIsDetailModalOpen(true);
     // Pause all other videos
@@ -603,6 +648,22 @@ const CandidatsPage: React.FC = () => {
     appliedFilters.maxExperience
   );
   const hasDraftFilters = Boolean(selectedSector || selectedJob || selectedCity || selectedEducation || selectedLanguage || minExperience || maxExperience);
+  const activeFilterCount = [
+    appliedFilters.sector,
+    appliedFilters.job,
+    appliedFilters.city,
+    appliedFilters.education,
+    appliedFilters.language,
+    appliedFilters.minExperience,
+    appliedFilters.maxExperience,
+  ].filter(Boolean).length;
+  const hasDetailSections = Boolean(
+    detailCandidate && (
+      detailCandidate.formations?.length ||
+      detailCandidate.experiences?.length ||
+      detailCandidate.skills?.some((skill) => Boolean(skill.name?.trim()))
+    )
+  );
 
   // Show loading state while user data is being fetched
   if (userLoading) {
@@ -617,9 +678,9 @@ const CandidatsPage: React.FC = () => {
   }
 
   return (
-    <div className="relative space-y-5 md:space-y-6" style={{ zIndex: 0 }}>
+    <div className="relative space-y-5 md:space-y-6">
       {/* Header Simple */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-5 shadow-lg shadow-emerald-100 md:p-7" style={{ zIndex: 0 }}>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-5 shadow-lg shadow-emerald-100 md:p-7">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 backdrop-blur-sm md:h-12 md:w-12">
@@ -631,7 +692,7 @@ const CandidatsPage: React.FC = () => {
             </div>
           </div>
           
-          {lastPayment && lastPayment.status === "completed" && (
+          {lastPayment && lastPayment.status?.toLowerCase() === "accepted" && (
             <div className="self-start rounded-xl border border-white/25 bg-white/15 px-3 py-2.5 backdrop-blur-sm sm:self-auto">
               <p className="text-green-50 text-xs font-medium">Crédits restants</p>
               <p className="text-xl md:text-2xl font-bold text-white">
@@ -649,7 +710,7 @@ const CandidatsPage: React.FC = () => {
         </div>
         <div className="flex gap-2">
           {hasActiveFilters && <button onClick={clearFilters} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"><X className="h-4 w-4" />Effacer</button>}
-          <button onClick={() => setShowFilters(true)} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"><SlidersHorizontal className="h-4 w-4" />Filtres{hasActiveFilters && <span className="h-1.5 w-1.5 rounded-full bg-white" />}</button>
+          <button onClick={() => setShowFilters(true)} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"><SlidersHorizontal className="h-4 w-4" />Filtres{activeFilterCount > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-emerald-700">{activeFilterCount}</span>}</button>
         </div>
       </div>
 
@@ -658,26 +719,30 @@ const CandidatsPage: React.FC = () => {
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 z-[90] bg-slate-950/45 backdrop-blur-sm"
             onClick={() => setShowFilters(false)}
           ></div>
           
           {/* Filters Panel */}
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-xl md:rounded-2xl shadow-2xl w-[calc(100%-2rem)] md:w-full max-w-4xl max-h-[85vh] md:max-h-[80vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between rounded-t-xl md:rounded-t-2xl z-10">
+          <div role="dialog" aria-modal="true" aria-label="Filtres de recherche" className="fixed left-1/2 top-1/2 z-[100] flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:max-h-[calc(100dvh-4rem)]">
+            <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 md:px-6">
               <div className="flex-1 min-w-0">
-                <h2 className="text-base md:text-lg font-bold text-gray-900">Filtres de recherche</h2>
-                <p className="text-xs md:text-sm text-gray-500">Cliquez sur rechercher pour appliquer les filtres</p>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">Talentothèque</p>
+                <h2 className="text-lg font-bold text-slate-900">Filtres de recherche</h2>
+                <p className="mt-0.5 text-xs text-slate-500">Affinez les profils disponibles sans modifier vos offres.</p>
               </div>
               <button
                 onClick={() => setShowFilters(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0 ml-2"
+                className="ml-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-800"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
             
-            <div className="p-4 md:p-6">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6">
+              <div className="mb-5 rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-xs leading-5 text-emerald-900">
+                Le secteur et le métier correspondent au <strong>CV vidéo publié</strong>. La ville, la formation, les langues et l'expérience proviennent du profil candidat.
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {/* Secteur */}
                 <div>
@@ -767,7 +832,7 @@ const CandidatsPage: React.FC = () => {
                   <Select
                     value={minExperience}
                     onChange={setMinExperience}
-                    options={[0, 1, 2, 3, 5, 7, 10].map(y => ({ value: y, label: `${y} an${y > 1 ? 's' : ''}` }))}
+                    options={[0, 1, 2, 3, 5, 7, 10].filter(y => maxExperience?.value === undefined || y <= Number(maxExperience.value)).map(y => ({ value: y, label: `${y} an${y > 1 ? 's' : ''}` }))}
                     styles={selectStyles}
                     placeholder="Minimum..."
                     isClearable
@@ -782,7 +847,7 @@ const CandidatsPage: React.FC = () => {
                   <Select
                     value={maxExperience}
                     onChange={setMaxExperience}
-                    options={[1, 2, 3, 5, 7, 10, 15, 20].map(y => ({ value: y, label: `${y} an${y > 1 ? 's' : ''}` }))}
+                    options={[1, 2, 3, 5, 7, 10, 15, 20].filter(y => minExperience?.value === undefined || y >= Number(minExperience.value)).map(y => ({ value: y, label: `${y} an${y > 1 ? 's' : ''}` }))}
                     styles={selectStyles}
                     placeholder="Maximum..."
                     isClearable
@@ -792,10 +857,10 @@ const CandidatsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
+              <div className="mt-6 flex flex-col-reverse gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
                 <button
                   onClick={applyFilters}
-                  className="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
+                  className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto sm:min-w-36"
                 >
                   <Filter className="w-4 h-4" />
                   Rechercher
@@ -803,7 +868,7 @@ const CandidatsPage: React.FC = () => {
                 {(hasDraftFilters || hasActiveFilters) && (
                   <button
                     onClick={clearFilters}
-                    className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:w-auto"
                   >
                     <X className="w-4 h-4" />
                     Réinitialiser tous les filtres
@@ -818,7 +883,7 @@ const CandidatsPage: React.FC = () => {
       {/* Content Area */}
       <div>
         {loading ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12">
+          <div className="rounded-2xl border border-slate-200 bg-white p-12 shadow-sm">
             <div className="flex flex-col items-center justify-center gap-4">
               <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
               <p className="text-gray-600">Chargement des candidats...</p>
@@ -832,9 +897,9 @@ const CandidatsPage: React.FC = () => {
             <button onClick={retryLoad} className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"><RefreshCw className="h-4 w-4" />Réessayer</button>
           </div>
         ) : candidates.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-12">
             <div className="flex flex-col items-center justify-center gap-4 text-center">
-              <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
                 <User className="w-8 h-8 text-gray-400" />
               </div>
               <div>
@@ -854,16 +919,17 @@ const CandidatsPage: React.FC = () => {
         ) : (
           <>
             {/* Grid View - Desktop and Mobile */}
-            <div className="relative grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" style={{ zIndex: 0 }}>
+            <div className="relative grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {candidates.map((candidate) => (
                 <div
                   key={candidate.cv_id}
                   className="relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg"
-                  style={{ zIndex: 0 }}
                 >
                   {/* Video Preview */}
-                  <div 
-                    className="group relative h-52 cursor-pointer overflow-hidden bg-slate-950"
+                  <button
+                    type="button"
+                    aria-label={`Consulter le profil de ${candidate.full_name || "ce candidat"}`}
+                    className="group relative h-40 w-full overflow-hidden bg-slate-950 text-left focus:outline-none focus:ring-4 focus:ring-emerald-200 sm:h-44"
                     onClick={() => handleVideoClick(candidate)}
                     onMouseEnter={() => {
                       const video = videoRefs.current[candidate.cv_id];
@@ -879,31 +945,29 @@ const CandidatsPage: React.FC = () => {
                         video.currentTime = 0;
                       }
                     }}
-                    style={{ zIndex: 0 }}
                   >
-                    <video
+                    {hasPlayableVideo(candidate) ? <video
                       ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
                       src={getVideoUrl(candidate.link)}
                       className="w-full h-full object-cover"
-                      style={{ zIndex: 0, position: 'relative' }}
+                      style={{ position: 'relative' }}
                       loop
                       muted
                       playsInline
                       preload="metadata"
                       controlsList="nodownload"
-                    />
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100">
-                      <div className="rounded-full bg-white/20 p-4 backdrop-blur-sm ring-1 ring-white/40">
-                        <Eye className="w-8 h-8 text-white" />
-                      </div>
+                    /> : <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-900 to-slate-800 px-5 text-center text-white"><Video className="h-7 w-7 text-emerald-300" /><span className="text-sm font-semibold">Aperçu vidéo indisponible</span><span className="text-xs text-slate-300">Le profil reste consultable.</span></div>}
+                    <div className="pointer-events-none absolute inset-0 flex items-end justify-between bg-gradient-to-t from-slate-950/85 via-slate-950/5 to-transparent p-3">
+                      <span className="rounded-lg bg-slate-950/55 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">Profil anonyme</span>
+                      {hasPlayableVideo(candidate) && <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm ring-1 ring-white/40 transition group-hover:scale-110"><Eye className="h-5 w-5" /></span>}
                     </div>
-                  </div>
+                  </button>
 
                   {/* Card Content */}
-                  <div className="flex flex-1 flex-col p-4">
-                    <div className="space-y-2 flex-1">
+                  <div className="flex flex-1 flex-col p-4 sm:p-5">
+                    <div className="flex-1 space-y-3">
                       {/* Profile Header */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border-2 border-emerald-200 bg-emerald-50">
                           {candidate.image ? (
                             <img 
@@ -925,14 +989,14 @@ const CandidatsPage: React.FC = () => {
                             {candidate.full_name?.[0] || 'C'}
                           </div>
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-sm text-gray-900 truncate">{candidate.full_name || 'Candidat'}</h3>
                           <p className="text-xs text-gray-600 truncate">{candidate.job?.name || 'Non spécifié'}</p>
                         </div>
                       </div>
 
                       {/* Quick Info */}
-                      <div className="flex flex-wrap gap-1.5 text-xs">
+                      <div className="flex flex-wrap gap-1.5 pt-1 text-xs">
                         {candidate.city && (
                           <span className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
@@ -947,7 +1011,7 @@ const CandidatsPage: React.FC = () => {
 
                       {/* CV Upload Date */}
                       {candidate.created_at && (
-                        <p className="text-xs text-gray-400 flex items-center gap-1">
+                        <p className="flex items-center gap-1 text-xs text-slate-400">
                           <Calendar className="w-3 h-3" />
                           CV mis en ligne le {new Date(candidate.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </p>
@@ -955,10 +1019,10 @@ const CandidatsPage: React.FC = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="mt-auto flex gap-2 border-t border-slate-100 pt-3">
+                    <div className="mt-auto grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
                       <button
                         onClick={() => handleGenerateCV(candidate.id)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                        className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800"
                         title="Télécharger le CV anonyme gratuitement"
                       >
                         <FileText className="w-4 h-4" />
@@ -968,7 +1032,7 @@ const CandidatsPage: React.FC = () => {
                       <button
                         onClick={() => handleConsumeClick(candidate)}
                         disabled={isConsuming}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-[10px] font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2.5 py-2 text-[11px] font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
                         title="Débloquer les coordonnées du candidat"
                       >
                         <Eye className="w-4 h-4" />
@@ -992,7 +1056,7 @@ const CandidatsPage: React.FC = () => {
 
       {/* Modals */}
       {isUpgradeModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4" role="dialog" aria-modal="true" aria-label="Mise à niveau du plan">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsUpgradeModalOpen(false)}></div>
           <div className="relative z-[70] w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-2xl">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Limite atteinte</h2>
@@ -1019,20 +1083,20 @@ const CandidatsPage: React.FC = () => {
 
       {/* Detail Modal - Large Popup with Video and All Info */}
       {isDetailModalOpen && detailCandidate && (
-        <div className="fixed inset-0 z-[60] overflow-y-auto">
+        <div className="fixed inset-0 z-[100] overflow-y-auto" role="dialog" aria-modal="true" aria-label="Détails du profil candidat">
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+            className="fixed inset-0 bg-slate-950/55 backdrop-blur-md"
             onClick={closeDetailModal}
           ></div>
           
           {/* Modal Content - Centered and Responsive */}
-          <div className="relative z-[70] min-h-screen flex items-center justify-center p-4">
-            <div className="my-4 flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+          <div className="relative z-[110] flex min-h-dvh items-center justify-center px-4 py-10 sm:py-14">
+            <div className={`flex max-h-[calc(100dvh-5rem)] w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:max-h-[calc(100dvh-7rem)] ${hasDetailSections ? "max-w-5xl" : "max-w-3xl"}`}>
               {/* Header */}
-              <div className="flex flex-shrink-0 items-center justify-between border-b border-emerald-500/30 bg-gradient-to-r from-emerald-700 to-teal-600 px-4 py-3 md:px-6 md:py-4">
+              <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 md:px-6">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white flex-shrink-0">
+                  <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50 md:h-11 md:w-11">
                     {detailCandidate.image ? (
                       <img 
                         src={getImageUrl(detailCandidate.image)}
@@ -1047,32 +1111,34 @@ const CandidatsPage: React.FC = () => {
                       />
                     ) : null}
                     <div 
-                      className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-sm md:text-base font-bold"
+                      className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-bold text-white md:text-base"
                       style={{ display: detailCandidate.image ? 'none' : 'flex' }}
                     >
                       {detailCandidate.full_name?.[0] || 'C'}
                     </div>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h2 className="text-sm md:text-lg font-bold text-white truncate">{detailCandidate.full_name || 'Candidat'}</h2>
-                    <p className="text-green-50 text-xs truncate">{detailCandidate.job?.name || 'Non spécifié'}</p>
+                    <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">Profil candidat</p>
+                    <h2 className="truncate text-base font-bold text-slate-900 md:text-lg">{detailCandidate.full_name || 'Candidat'}</h2>
+                    <p className="truncate text-xs text-slate-500">{detailCandidate.job?.name || 'Non spécifié'}</p>
                   </div>
                 </div>
-                <button
+                <button type="button"
                   onClick={closeDetailModal}
-                  className="p-1 md:p-1.5 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0 ml-2"
+                  className="ml-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  aria-label="Fermer les détails du candidat"
                 >
-                  <X className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto">
-                <div className="grid grid-cols-1 gap-5 p-4 md:p-6 lg:grid-cols-2">
+                <div className={`grid grid-cols-1 gap-5 p-4 md:p-6 ${hasDetailSections ? "lg:grid-cols-2" : "mx-auto w-full max-w-2xl"}`}>
                   {/* Left Column - Video */}
-                  <div className="space-y-2 md:space-y-3">
+                  <div className="space-y-3">
                     <div className="relative aspect-video overflow-hidden rounded-2xl bg-slate-950 shadow-lg">
-                      <video
+                      {hasPlayableVideo(detailCandidate) ? <video
                         ref={detailVideoRef}
                         src={getVideoUrl(detailCandidate.link)}
                         className="w-full h-full object-contain"
@@ -1080,19 +1146,19 @@ const CandidatsPage: React.FC = () => {
                         controlsList="nodownload"
                         autoPlay
                         loop
-                      />
+                      /> : <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center text-white"><Video className="h-8 w-8 text-emerald-300" /><p className="text-sm font-semibold">Vidéo indisponible</p><p className="text-xs text-slate-300">Le CV anonyme peut tout de même être consulté.</p></div>}
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <div className="flex items-center gap-1.5 text-gray-600 mb-0.5">
                           <MapPin className="w-3 h-3" />
                           <span className="text-xs font-medium">Localisation</span>
                         </div>
                         <p className="text-xs md:text-sm text-gray-900 font-semibold truncate">{detailCandidate.city || 'Non spécifié'}</p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <div className="flex items-center gap-1.5 text-gray-600 mb-0.5">
                           <Calendar className="w-3 h-3" />
                           <span className="text-xs font-medium">Expérience</span>
@@ -1103,7 +1169,7 @@ const CandidatsPage: React.FC = () => {
 
                     {/* CV Upload Date */}
                     {detailCandidate.created_at && (
-                      <div className="bg-gray-50 rounded-lg p-2 md:p-3 flex items-center gap-2">
+                      <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <Calendar className="w-3 h-3 text-gray-400 flex-shrink-0" />
                         <span className="text-xs text-gray-500">
                           CV mis en ligne le{' '}
@@ -1116,7 +1182,7 @@ const CandidatsPage: React.FC = () => {
 
                     {/* Bio */}
                     {detailCandidate.bio && (
-                      <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                         <h3 className="font-semibold text-gray-900 mb-1.5 flex items-center gap-1.5 text-xs md:text-sm">
                           <User className="w-3 h-3 md:w-4 md:h-4" />
                           À propos
@@ -1206,10 +1272,10 @@ const CandidatsPage: React.FC = () => {
               </div>
 
               {/* Footer Actions */}
-              <div className="border-t border-gray-200 px-3 md:px-4 py-2 md:py-3 bg-gray-50 flex flex-col sm:flex-row gap-2 flex-shrink-0">
+              <div className="flex flex-shrink-0 flex-col gap-2 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:justify-end md:px-6">
                 <button
                   onClick={() => handleGenerateCV(detailCandidate.id)}
-                  className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-white hover:bg-gray-50 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 text-xs md:text-sm"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800 sm:w-auto sm:min-w-48"
                 >
                   <FileText className="w-4 h-4" />
                   <span className="hidden sm:inline">CV anonyme (gratuit)</span>
@@ -1218,7 +1284,7 @@ const CandidatsPage: React.FC = () => {
                 <button
                   onClick={() => handleConsumeClick(detailCandidate)}
                   disabled={isConsuming}
-                  className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-green-600 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5 text-xs md:text-sm"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-44"
                 >
                   <Check className="w-4 h-4" />
                   <span className="leading-tight text-center">Débloquer<br/><span className="text-[11px] opacity-80">(1 crédit)</span></span>
@@ -1231,22 +1297,23 @@ const CandidatsPage: React.FC = () => {
 
       {/* Confirmation Modal */}
       {isConfirmModalOpen && candidateToConsume && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Confirmer le déblocage">
+          <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="unlock-confirmation border-b border-slate-200 bg-white p-5 sm:p-6">
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Accès au profil</p>
               <h3 className="text-2xl font-bold text-white">Confirmer le déblocage</h3>
             </div>
             
-            <div className="p-6 sm:p-7">
+            <div className="confirmation-body p-6 sm:p-7">
               <div className="flex items-start gap-4 mb-6">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-orange-100">
-                  <Eye className="w-6 h-6 text-orange-600" />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-50 ring-1 ring-emerald-100">
+                  <Eye className="w-6 h-6 text-emerald-700" />
                 </div>
                 <div className="flex-1">
                   <p className="text-gray-700 mb-3">
                     Vous êtes sur le point de débloquer les coordonnées de ce candidat.
                   </p>
-                  <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-sm font-semibold text-orange-900 mb-1">
                       Cette action débloquera 1 crédit
                     </p>
@@ -1257,7 +1324,7 @@ const CandidatsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 border-t border-slate-100 pt-5">
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row">
                 <button
                   onClick={() => {
                     setIsConfirmModalOpen(false);
@@ -1282,6 +1349,9 @@ const CandidatsPage: React.FC = () => {
       )}
 
       <style jsx global>{`
+        .unlock-confirmation h3 { color: #0f172a; font-size: 1.25rem; line-height: 1.75rem; }
+        .confirmation-body .text-orange-900 { color: #0f172a; }
+        .confirmation-body .text-orange-700 { color: #475569; }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }

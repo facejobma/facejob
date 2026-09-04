@@ -1,470 +1,480 @@
 "use client";
-import React, { useEffect, useState, useRef, ChangeEvent } from "react";
+
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
-import { Edit, Key, Upload, Camera } from "lucide-react";
-import { FaTrash } from "react-icons/fa";
-import toast from "react-hot-toast";
+import {
+  Building2,
+  Camera,
+  Edit3,
+  ExternalLink,
+  KeyRound,
+  MapPin,
+  Save,
+  Trash2,
+  Upload,
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface ProfileEntrepHeaderProps {
   id: number;
   company_name: string;
   sector_name: string;
   image?: string;
-  // coverImageUrl?: string;
   siegeSocial?: string;
   companyLogoUrl?: string;
   website?: string;
   creationDate: string;
-  onProfileUpdate?: () => void; // Callback to refresh parent data
+  onProfileUpdate?: () => void;
 }
 
-interface SecteurOptions {
+interface SectorOption {
   id: number;
   name: string;
 }
 
-const ProfileEntrepHeader: React.FC<ProfileEntrepHeaderProps> = ({
+const fieldClassName =
+  "min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100";
+
+const ProfileEntrepHeader = ({
   id,
   company_name,
   sector_name,
-  image,
-  // coverImageUrl,
   siegeSocial,
   companyLogoUrl,
   website,
   creationDate,
   onProfileUpdate,
-}) => {
-  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-  const router = useRouter(); // Using useRouter from next/router
-
-  const [secteur, setSecteur] = useState("");
-  const [secteurOptions, setSecteurOptions] = useState<SecteurOptions[]>([]);
-  const [logoUrl, setLogoUrl] = useState<string>("");
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
+}: ProfileEntrepHeaderProps) => {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [sectorOptions, setSectorOptions] = useState<SectorOption[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
+  const [removeLogo, setRemoveLogo] = useState(false);
   const [formData, setFormData] = useState({
-    newCompanyName: company_name,
-    newSector: "",
-    newSiegeSocial: siegeSocial || "",
-    newWebsite: website || "",
-    newCreationDate: creationDate || "",
-    newImage: image || "", 
+    companyName: company_name,
+    sectorId: "",
+    address: siegeSocial || "",
+    website: website || "",
   });
-  const [localCompanyName, setLocalCompanyName] = useState(company_name);
-  const [localSectorName, setLocalSectorName] = useState(sector_name);
-  const [localSiegeSocial, setLocalSiegeSocial] = useState(siegeSocial);
-  const [localWebsite, setLocalWebsite] = useState(website);
-  const [localCreationDate, setLocalCreationDate] = useState(creationDate);
-  const [localImage, setLocalImage] = useState(companyLogoUrl);
-    const [isUploading, setIsUploading] = useState(false);
 
-  const handleEditClick = () => {
-    // Réinitialiser les données du formulaire avec les valeurs actuelles
+  const selectedLogoPreview = useMemo(
+    () => (selectedLogoFile ? URL.createObjectURL(selectedLogoFile) : null),
+    [selectedLogoFile],
+  );
+  useEffect(
+    () => () => {
+      if (selectedLogoPreview) URL.revokeObjectURL(selectedLogoPreview);
+    },
+    [selectedLogoPreview],
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadSectors = async () => {
+      try {
+        const response = await fetch("/api/v1/sectors", {
+          signal: controller.signal,
+        });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) throw new Error("Impossible de charger les secteurs");
+        const data = payload?.data ?? payload;
+        setSectorOptions(Array.isArray(data) ? data : []);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
+        console.error("Error fetching sectors:", error);
+        setSectorOptions([]);
+      }
+    };
+    void loadSectors();
+    return () => controller.abort();
+  }, []);
+
+  const openEditor = () => {
+    const currentSector = sectorOptions.find(
+      (option) => option.name === sector_name,
+    );
     setFormData({
-      newCompanyName: localCompanyName,
-      newSector: "",
-      newSiegeSocial: localSiegeSocial || "",
-      newWebsite: localWebsite || "",
-      newCreationDate: localCreationDate || "",
-      newImage: localImage || "",
+      companyName: company_name,
+      sectorId: currentSector ? String(currentSector.id) : "",
+      address: siegeSocial || "",
+      website: website || "",
     });
-    
-    // Trouver le secteur actuel dans les options
-    const currentSector = secteurOptions.find(option => option.name === localSectorName);
-    if (currentSector) {
-      setSecteur(currentSector.id.toString());
-    } else {
-      setSecteur("");
-    }
-    
+    setSelectedLogoFile(null);
+    setRemoveLogo(false);
     setIsEditing(true);
   };
 
-  const handleCloseModal = () => {
+  const closeEditor = () => {
+    if (isSubmitting) return;
     setIsEditing(false);
+    setSelectedLogoFile(null);
+    setRemoveLogo(false);
   };
 
-  const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Formats autorisés : PNG, JPG et WEBP.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 5 Mo.");
+      return;
+    }
+    setSelectedLogoFile(file);
+    setRemoveLogo(false);
+  };
 
+  const handleProfileUpdate = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const companyName = formData.companyName.trim();
+    if (companyName.length < 2 || companyName.length > 255) {
+      toast.error(
+        "Le nom de l'entreprise doit contenir entre 2 et 255 caractères.",
+      );
+      return;
+    }
+    if (!formData.sectorId) {
+      toast.error("Veuillez sélectionner un secteur.");
+      return;
+    }
+    if (formData.website) {
+      try {
+        const url = new URL(formData.website);
+        if (!["http:", "https:"].includes(url.protocol)) throw new Error();
+      } catch {
+        toast.error(
+          "Veuillez saisir une adresse de site valide, avec https://.",
+        );
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
     try {
-      const creationDate = new Date(formData.newCreationDate);
-      const formattedCreationDate = creationDate.toISOString().split("T")[0];
-
-      let response: Response;
+      const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+      const commonValues = {
+        company_name: companyName,
+        sector_id: formData.sectorId,
+        adresse: formData.address.trim(),
+        site_web: formData.website.trim(),
+        remove_logo: removeLogo,
+      };
+      let body: BodyInit;
+      let method: "POST" | "PUT";
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${authToken}`,
+        "ngrok-skip-browser-warning": "true",
+      };
 
       if (selectedLogoFile) {
         const data = new FormData();
-        data.append("company_name", formData.newCompanyName);
-        data.append("sector_id", secteur || "");
-        data.append("adresse", formData.newSiegeSocial);
-        data.append("site_web", formData.newWebsite);
-        data.append("created_at", formattedCreationDate);
-        data.append("logo", selectedLogoFile);
-
-        response = await fetch(
-          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/enterprise/updateId/${id}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-            body: data,
-          }
+        Object.entries(commonValues).forEach(([key, value]) =>
+          data.append(
+            key,
+            typeof value === "boolean" ? (value ? "1" : "0") : String(value),
+          ),
         );
+        data.append("logo", selectedLogoFile);
+        body = data;
+        method = "POST";
       } else {
-        response = await fetch(
-          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + `/api/v1/enterprise/updateId/${id}`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              company_name: formData.newCompanyName,
-              sector_id: secteur || "",
-              adresse: formData.newSiegeSocial,
-              site_web: formData.newWebsite,
-              created_at: formattedCreationDate,
-              logo: formData.newImage || localImage || "",
-            }),
-          }
+        headers["Content-Type"] = "application/json";
+        body = JSON.stringify(commonValues);
+        method = "PUT";
+      }
+
+      const response = await fetch(`/api/v1/enterprise/updateId/${id}`, {
+        method,
+        headers,
+        body,
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        const firstValidationError = payload?.errors
+          ? (Object.values(payload.errors)[0] as string[] | undefined)?.[0]
+          : null;
+        throw new Error(
+          firstValidationError ||
+            payload?.message ||
+            "Impossible de mettre à jour le profil.",
         );
       }
 
-        if (response.ok) {
-          const updatedData = await response.json();
-          console.log("Update response:", updatedData);
-          
-          toast.success("Profil mis à jour avec succès!");
-          
-          // Update local states with the new data
-          setLocalCompanyName(formData.newCompanyName);
-          const selectedSector = secteurOptions.find(opt => opt.id === Number(secteur));
-          setLocalSectorName(selectedSector?.name || "");
-          setLocalSiegeSocial(formData.newSiegeSocial);
-          setLocalWebsite(formData.newWebsite);
-          setLocalCreationDate(formattedCreationDate);
-          setLocalImage(formData.newImage || localImage);
-
-          setIsEditing(false);
-          
-          // Call parent callback to refresh data if provided
-          if (onProfileUpdate) {
-            onProfileUpdate();
-          }
-        } else {
-            const errorData = await response.json();
-            console.error("Failed to update profile data:", errorData);
-            toast.error("Erreur lors de la mise à jour du profil");
-        }
+      toast.success("Profil mis à jour avec succès");
+      setIsEditing(false);
+      setSelectedLogoFile(null);
+      setRemoveLogo(false);
+      onProfileUpdate?.();
     } catch (error) {
       console.error("Error updating profile data:", error);
-      toast.error("Erreur lors de la mise à jour du profil");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de la mise à jour.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    const fetchSectors = async () => {
-      try {
-        const response = await fetch(
-          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/sectors",
-        );
-        const result = await response.json();
-        // Extract data from wrapped response
-        const data = result.data || result;
-        setSecteurOptions(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Error fetching sectors:", error);
-        setSecteurOptions([]); // Set empty array on error
-        // toast.error("Erreur de récupération des secteurs!");
-      }
-    };
-
-    fetchSectors().then(() => {
-      console.log("sectors fetched");
-    });
-  }, []);
-
-  // Synchroniser formData.newImage avec l'image actuelle
-  useEffect(() => {
-    setFormData(prevData => ({
-      ...prevData,
-      newImage: localImage || ""
-    }));
-  }, [localImage]);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSecteur(e.target.value);
-    };
-
-  const handlePasswordChangeClick = () => {
-    router.push("/dashboard/entreprise/change-password"); // Adjust the route according to your project structure
-  };
-  const handleRemoveImage = async () => {
-    const currentImage = formData.newImage;
-    setFormData((prevData) => ({ ...prevData, newImage: "" }));
-    setSelectedLogoFile(null);
-
-    if (currentImage && currentImage.includes('/storage/profiles/')) {
-      try {
-        await fetch(
-          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + '/api/v1/enterprise/profile-image',
-          {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              'ngrok-skip-browser-warning': 'true',
-            },
-          }
-        );
-      } catch {
-        // Silent fail
-      }
+  const initials =
+    company_name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0]?.toUpperCase())
+      .join("") || "EN";
+  const visibleLogo =
+    selectedLogoPreview || (!removeLogo ? companyLogoUrl : undefined);
+  const safeWebsite = (() => {
+    if (!website) return null;
+    try {
+      const url = new URL(website);
+      return ["http:", "https:"].includes(url.protocol) ? url.toString() : null;
+    } catch {
+      return null;
     }
-  };
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { toast.error("Veuillez sélectionner une image"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("L'image ne doit pas dépasser 5 Mo"); return; }
-
-    // Delete old image from server if stored locally
-    if (formData.newImage && formData.newImage.includes('/storage/profiles/')) {
-      fetch((typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + '/api/v1/enterprise/profile-image', {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${authToken}`, 'ngrok-skip-browser-warning': 'true' },
-      }).catch(() => {});
-    }
-
-    setSelectedLogoFile(file);
-    setFormData((prevData) => ({ ...prevData, newImage: URL.createObjectURL(file) }));
-    toast.success("Logo sélectionné");
-  };
+  })();
 
   return (
-    <div className="relative">
-      <div className="flex items-start gap-4">
-        {/* Logo */}
-        {localImage && (
-          <div className="flex-shrink-0">
+    <>
+      <div className="flex min-w-0 flex-col gap-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:p-5">
+        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white text-xl font-bold text-emerald-700 shadow-sm">
+          <span>{initials}</span>
+          {companyLogoUrl && (
             <img
-              src={localImage}
-              alt="Logo entreprise"
-              className="w-16 h-16 rounded-lg border-2 border-gray-200 object-contain"
+              src={companyLogoUrl}
+              alt={`Logo de ${company_name}`}
+              className="absolute inset-0 h-full w-full bg-white object-contain p-1.5"
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
             />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="break-words text-xl font-bold text-slate-950 sm:text-2xl">
+            {company_name}
+          </h2>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600">
+            <span className="inline-flex items-center gap-1.5">
+              <Building2 className="h-4 w-4 text-emerald-600" />
+              {sector_name}
+            </span>
+            {siegeSocial && (
+              <span className="inline-flex min-w-0 items-center gap-1.5">
+                <MapPin className="h-4 w-4 shrink-0 text-emerald-600" />
+                <span className="break-words">{siegeSocial}</span>
+              </span>
+            )}
           </div>
-        )}
-        
-        {/* Company Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">{localCompanyName}</h2>
-              <p className="text-sm text-gray-600 mb-1">{localSectorName}</p>
-              {localSiegeSocial && (
-                <p className="text-sm text-gray-600 mb-1">{localSiegeSocial}</p>
-              )}
-              {localWebsite && (
-                <a
-                  href={localWebsite}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-green-600 hover:text-green-700 inline-block"
-                >
-                  {localWebsite}
-                </a>
-              )}
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex gap-2 flex-shrink-0">
-              <button
-                className="text-gray-400 hover:text-green-600 transition-colors"
-                onClick={handleEditClick}
-                title="Modifier le profil"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                className="text-gray-400 hover:text-green-600 transition-colors"
-                title="Modifier le mot de passe"
-                onClick={handlePasswordChangeClick}
-              >
-                <Key className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          
-          {/* Creation Date */}
-          {localCreationDate && (
-            <p className="text-xs text-gray-500 mt-2">
-              Créée le {new Date(localCreationDate).toLocaleDateString()}
+          {safeWebsite && (
+            <a
+              href={safeWebsite}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex max-w-full items-center gap-1.5 break-all text-sm font-medium text-emerald-700 hover:text-emerald-800"
+            >
+              {website}
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+            </a>
+          )}
+          {creationDate && (
+            <p className="mt-2 text-xs text-slate-500">
+              Compte créé le{" "}
+              {new Date(`${creationDate}T12:00:00`).toLocaleDateString("fr-FR")}
             </p>
           )}
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={openEditor}
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700"
+          >
+            <Edit3 className="h-4 w-4" />
+            Modifier
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard/entreprise/change-password")}
+            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          >
+            <KeyRound className="h-4 w-4" />
+            <span className="hidden sm:inline">Mot de passe</span>
+          </button>
         </div>
       </div>
 
       <Modal
         isOpen={isEditing}
-        onClose={handleCloseModal}
-        title="Modifier le Profil"
-        description="Mettre à jour vos informations"
+        onClose={closeEditor}
+        title="Modifier le profil"
+        description="Actualisez l’identité et le logo de votre entreprise."
+        size="profile"
       >
-        <form onSubmit={handleProfileUpdate} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="newCompanyName" className="block text-sm font-semibold text-gray-700">
-            Nom de l’Entreprise
-          </label>
-          <input
-            type="text"
-            id="newCompanyName"
-            name="newCompanyName"
-            value={formData.newCompanyName}
-            onChange={handleInputChange}
-            placeholder="Entrez le nom de l'entreprise"
-            className="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-          />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700" htmlFor="secteur">
-            Secteur
-          </label>
-            <select
-                id="secteur"
-                value={secteur}
-                onChange={handleSelectChange}
-                className="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            >
-                <option value="">Sélectionnez le secteur</option>
-                {secteurOptions.map((option, index) => (
-                    <option key={index} value={option.id}>
-                        {option.name}
-                    </option>
-                ))}
-            </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="newWebsite" className="block text-sm font-semibold text-gray-700">
-            Site Internet
-          </label>
-          <input
-            type="text"
-            id="newWebsite"
-            name="newWebsite"
-            value={formData.newWebsite}
-            onChange={handleInputChange}
-            placeholder="Entrez l'URL du site web"
-            className="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-          />
-            </div>
-
-            {/* <label htmlFor="newCreationDate" className="block mb-2 font-bold">
-                Date de Création de l’Entreprise
+        <form onSubmit={handleProfileUpdate} className="space-y-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="text-sm font-semibold text-slate-800">
+              Nom de l'entreprise <span className="text-red-500">*</span>
+              <input
+                type="text"
+                value={formData.companyName}
+                onChange={(event) =>
+                  setFormData((current) => ({
+                    ...current,
+                    companyName: event.target.value,
+                  }))
+                }
+                maxLength={255}
+                className={`${fieldClassName} mt-2`}
+              />
             </label>
-            <input
-                type="date"
-                id="newCreationDate"
-                name="newCreationDate"
-                value={formData.newCreationDate}
-                onChange={handleInputChange}
-                className="w-full border-gray-300 rounded-md py-2 px-3 mb-4"
-            /> */}
+            <label className="text-sm font-semibold text-slate-800">
+              Secteur <span className="text-red-500">*</span>
+              <select
+                value={formData.sectorId}
+                onChange={(event) =>
+                  setFormData((current) => ({
+                    ...current,
+                    sectorId: event.target.value,
+                  }))
+                }
+                className={`${fieldClassName} mt-2`}
+              >
+                <option value="">Sélectionner un secteur</option>
+                {sectorOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-semibold text-slate-800">
+              Site internet
+              <input
+                type="url"
+                value={formData.website}
+                onChange={(event) =>
+                  setFormData((current) => ({
+                    ...current,
+                    website: event.target.value,
+                  }))
+                }
+                maxLength={255}
+                placeholder="https://www.entreprise.ma"
+                className={`${fieldClassName} mt-2`}
+              />
+            </label>
+            <label className="text-sm font-semibold text-slate-800">
+              Adresse
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(event) =>
+                  setFormData((current) => ({
+                    ...current,
+                    address: event.target.value,
+                  }))
+                }
+                maxLength={500}
+                className={`${fieldClassName} mt-2`}
+              />
+            </label>
+          </div>
 
-            <div className="space-y-2">
-              <label htmlFor="newSiegeSocial" className="block text-sm font-semibold text-gray-700">
-            Adresse du Siège Social
-          </label>
-          <input
-            type="text"
-            id="newSiegeSocial"
-            name="newSiegeSocial"
-            value={formData.newSiegeSocial}
-            onChange={handleInputChange}
-            placeholder="Entrez l'adresse du siège social"
-            className="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-          />
+          <div className="border-t border-slate-100 pt-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-800">
+                  Logo de l'entreprise
+                </p>
+                <p className="text-xs text-slate-500">
+                  PNG, JPG ou WEBP, 5 Mo maximum.
+                </p>
+              </div>
             </div>
-          </div>
-
-          <div className="space-y-4 border-t pt-6">
-            <label className="block text-sm font-semibold text-gray-700">Logo de l'Entreprise</label>
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-              {formData.newImage ? (
-                <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
-                  <img
-                    src={formData.newImage}
-                    alt="Logo Preview"
-                    className="w-24 h-24 rounded-lg border-2 border-green-200 object-contain bg-white p-2"
-                  />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 mb-1">Logo sélectionné</p>
-                    <p className="text-xs text-gray-500 mb-3">Le logo sera visible sur votre profil public</p>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center text-green-600 hover:text-green-700 text-sm font-medium bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors"
-                    >
-                      <Camera className="w-4 h-4 mr-1" /> Changer le logo
-                    </button>
-                  </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {visibleLogo ? (
+              <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center">
+                <img
+                  src={visibleLogo}
+                  alt="Aperçu du logo"
+                  className="h-20 w-20 rounded-xl border border-slate-200 bg-white object-contain p-1"
+                />
+                <div className="flex flex-1 flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex h-9 items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
+                  >
+                    <Camera className="h-4 w-4" />
+                    Changer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedLogoFile(null);
+                      setRemoveLogo(true);
+                    }}
+                    className="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700 hover:bg-red-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Supprimer
+                  </button>
                 </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center gap-3 hover:border-green-500 hover:bg-green-50 transition-colors"
-                >
-                  <Upload className="w-8 h-8 text-gray-400" />
-                  <div className="text-center">
-                    <p className="text-sm font-medium text-gray-700">Cliquez pour choisir un logo</p>
-                    <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP — max 5 Mo</p>
-                  </div>
-                </button>
-              )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-7 text-center transition hover:border-emerald-300 hover:bg-emerald-50"
+              >
+                <Upload className="h-7 w-7 text-slate-400" />
+                <span className="text-sm font-semibold text-slate-700">
+                  Choisir un logo
+                </span>
+              </button>
+            )}
           </div>
 
-          <div className="flex justify-end space-x-4 pt-6 border-t">
+          <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={handleCloseModal}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all duration-200"
+              onClick={closeEditor}
+              disabled={isSubmitting}
+              className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Annuler
             </button>
             <button
-            type="submit"
-            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            Sauvegarder
-          </button>
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Save className="h-4 w-4" />
+              {isSubmitting ? "Enregistrement…" : "Enregistrer"}
+            </button>
           </div>
         </form>
       </Modal>
-    </div>
+    </>
   );
 };
 

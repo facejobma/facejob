@@ -4,34 +4,37 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Job } from "@/constants/data";
 import {
-  CheckSquare,
-  XSquare,
-  // Edit,
+  CheckCircle2,
+  Download,
+  Eye,
+  LockKeyhole,
   MoreHorizontal,
-  View,
+  Sparkles,
+  X,
+  XCircle,
 } from "lucide-react";
-
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import ResumePDF, { downloadResumePDF, downloadConsumedResumePDF } from "@/components/ResumePDF";
+import {
+  downloadConsumedResumePDF,
+  downloadResumePDF,
+} from "@/components/ResumePDF";
 import { toast } from "react-hot-toast";
 
 interface Candidat {
   id: number;
   first_name: string;
   last_name: string;
-  email: string;
-  tel: string;
+  email: string | null;
+  tel: string | null;
   sex: string;
-  bio: string;
-  years_of_experience: number;
-  is_completed: number;
+  bio: string | null;
+  years_of_experience: number | null;
+  is_completed?: number | boolean;
   job_id: number | null;
   image: string | null;
   created_at: string;
@@ -45,11 +48,7 @@ interface Postuler {
   link?: string | null;
 }
 
-interface Payment {
-  id: number;
-  entreprise_id: number;
-  cv_video_remaining: number;
-}
+type ApplicationStatus = "submitted" | "viewed" | "accepted" | "rejected";
 
 export const OfferCandidatActions: React.FC<{
   candidat: Candidat;
@@ -57,114 +56,70 @@ export const OfferCandidatActions: React.FC<{
   applicationId: number;
   videoLink?: string | null;
   onVideoClick?: () => void;
-}> = ({ candidat, postuler, applicationId, videoLink, onVideoClick }) => {
-  // const [loading, setLoading] = useState(false);
-  const authToken = Cookies.get("authToken");
-  const router = useRouter();
-  const [lastPayment, setLastPayment] = useState<Payment | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [candidateToConsume, setCandidateToConsume] = useState<Candidat | null>(
-    null,
-  );
-  const [postulerToConsume, setPostulerToConsume] = useState<any | null>(
-    null,
-  );
-  const [isConsumed, setIsConsumed] = useState(false);
-
+  initiallyConsumed?: boolean;
+  videoAvailable?: boolean;
+  applicationStatus?: ApplicationStatus;
+}> = ({
+  candidat,
+  postuler,
+  applicationId,
+  videoLink,
+  onVideoClick,
+  initiallyConsumed = false,
+  videoAvailable = false,
+  applicationStatus = "submitted",
+}) => {
+  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+  const [isConsumed, setIsConsumed] = useState(initiallyConsumed);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [decisionInProgress, setDecisionInProgress] = useState<
+    "accept" | "reject" | null
+  >(null);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const company =
-    typeof window !== "undefined"
-      ? window.sessionStorage?.getItem("user") || "{}"
-      : "{}";
-  const companyId = company ? JSON.parse(company).id : null;
 
-  const checkIfConsumed = async () => {
-    try {
-      const response = await fetch(
-        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/check-consumption-status`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            postuler_id: postuler.id,
-            application_id: applicationId,
-            entreprise_id: companyId,
-          }),
-        },
-      );
+  useEffect(() => setIsConsumed(initiallyConsumed), [initiallyConsumed]);
 
-      const data = await response.json();
-      setIsConsumed(data.consumed || false);
-    } catch (error) {
-      console.error("Error checking consumption status:", error);
-    }
-  };
+  useEffect(() => {
+    if (!isUpgradeModalOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsUpgradeModalOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isUpgradeModalOpen]);
 
-  const fetchLastPayment = async () => {
-    try {
-      const response = await fetch(
-        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/payments/${companyId}/last`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        setLastPayment(data);
-      } else if (response.status === 404) {
-        // Handle "No payment found for this entreprise" case
-        console.log("No payment found for this enterprise");
-        setLastPayment(null);
-      } else {
-        console.error("Error fetching last payment:", response.status);
-        toast.error("Error fetching last payment!");
-      }
-    } catch (error) {
-      console.error("Error fetching last payment:", error);
-      toast.error("Error fetching last payment!");
-    }
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+    "Content-Type": "application/json",
   };
 
   const handleDownloadCV = async () => {
     try {
-      if (isConsumed) {
-        // If consumed, fetch from consumed-cvs endpoint which has complete data
-        const response = await fetch(
-          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/consumed-cvs`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des CV débloqués');
-        }
-        
-        const consumedCVs = await response.json();
-        
-        // Find the specific candidate in consumed CVs
-        const consumedCV = consumedCVs.find((cv: any) => 
-          cv.postuler?.candidat?.id === candidat.id
-        );
-        
-        if (consumedCV && consumedCV.postuler?.candidat) {
-          await downloadConsumedResumePDF(consumedCV.postuler.candidat);
-        } else {
-          // Fallback to regular download if not found in consumed list
-          await downloadResumePDF(candidat.id);
-        }
+      if (!isConsumed) {
+        await downloadResumePDF(candidat.id);
+        return;
+      }
+
+      const response = await fetch("/api/v1/consumed-cvs", { headers });
+      if (!response.ok)
+        throw new Error("Impossible de récupérer le CV débloqué");
+      const payload = await response.json();
+      const consumedCVs = payload?.data ?? payload;
+      const items = Array.isArray(consumedCVs) ? consumedCVs : [];
+      const consumedCV = items.find(
+        (cv: any) =>
+          Number(cv.postuler?.id) === Number(postuler.id) ||
+          Number(cv.postuler?.candidat?.id) === Number(candidat.id),
+      );
+
+      if (consumedCV?.postuler?.candidat) {
+        await downloadConsumedResumePDF(consumedCV.postuler.candidat);
       } else {
-        // If not consumed, use regular download (will be anonymized by backend)
         await downloadResumePDF(candidat.id);
       }
     } catch (error) {
@@ -173,216 +128,206 @@ export const OfferCandidatActions: React.FC<{
     }
   };
 
-  useEffect(() => {
-    fetchLastPayment();
-    checkIfConsumed();
-  }, [authToken, companyId]);
-
-  const handleConsumeClick = async (postuler: Postuler) => {
-    // Call API directly without pre-checking payment
+  const handleUnlock = async () => {
+    if (isUnlocking || isConsumed || !videoAvailable) return;
+    setIsUnlocking(true);
     try {
-      const response = await fetch(
-        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/consumations`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            postuler_id: postuler.id,
-            application_id: applicationId,
-            entreprise_id: companyId,
-          }),
-        },
-      );
+      const response = await fetch("/api/v1/consumations", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          postuler_id: postuler.id,
+          application_id: applicationId,
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        toast.success("CV débloqué avec succès !");
-        fetchLastPayment();
-        // Refresh the page to update the list
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        setIsConsumed(true);
+        toast.success("CV débloqué avec succès");
+        window.setTimeout(() => window.location.reload(), 500);
+        return;
+      }
+      if (response.status === 402) {
+        toast.error(
+          payload.message || "Aucun crédit de consultation n'est disponible.",
+        );
+        setIsUpgradeModalOpen(true);
+      } else if (response.status === 409) {
+        setIsConsumed(true);
+        toast.error("Ce CV a déjà été débloqué");
+        window.setTimeout(() => window.location.reload(), 500);
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        
-        // Handle specific errors
-        if (response.status === 402 && errorData.needs_upgrade) {
-          toast.error(errorData.message || "Vous avez atteint la limite de consultations de CV.", { duration: 5000 });
-          setTimeout(() => {
-            setIsUpgradeModalOpen(true);
-          }, 500);
-        } else if (response.status === 409) {
-          toast.error("Ce CV a déjà été débloqué");
-        } else {
-          toast.error(errorData.message || "Erreur lors du déblocage du CV");
-        }
+        toast.error(
+          payload.message || payload.error || "Erreur lors du déblocage du CV",
+        );
       }
     } catch (error) {
       console.error("Error consuming CV:", error);
       toast.error("Erreur réseau. Veuillez réessayer.");
+    } finally {
+      setIsUnlocking(false);
     }
   };
 
   const handleVideoView = async () => {
+    if (!videoLink || !onVideoClick) return;
     try {
-      await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/applications/${applicationId}/viewed`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `/api/v1/applications/${applicationId}/viewed`,
+        {
+          method: "PATCH",
+          headers,
+        },
+      );
+      if (!response.ok) {
+        console.error("Unable to mark application as viewed:", response.status);
+      }
     } catch (error) {
       console.error("Unable to mark application as viewed:", error);
     } finally {
-      onVideoClick?.();
+      onVideoClick();
     }
   };
 
   const decideApplication = async (decision: "accept" | "reject") => {
-    const endpoint = decision === "accept"
-      ? `/api/v1/offre/accept_cv/${applicationId}`
-      : `/api/v1/applications/${applicationId}/reject`;
-    const response = await fetch(`${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}${endpoint}`, {
-      method: decision === "accept" ? "POST" : "PATCH",
-      headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
-    });
-    if (!response.ok) {
-      const error = await response.json().catch(() => null);
-      toast.error(error?.message || "Impossible de mettre à jour la candidature");
-      return;
-    }
-    toast.success(decision === "accept" ? "Candidature acceptée" : "Candidature refusée");
-    window.location.reload();
-  };
-  
-
-
-  const handleConfirmConsume = async () => {
-    if (postulerToConsume) {
-      try {
-        const checkResponse = await fetch(
-          `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/check-consumption-status`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              postuler_id: postulerToConsume.id,
-              application_id: applicationId,
-              entreprise_id: companyId,
-            }),
-          },
+    if (decisionInProgress) return;
+    setDecisionInProgress(decision);
+    const endpoint =
+      decision === "accept"
+        ? `/api/v1/offre/accept_cv/${applicationId}`
+        : `/api/v1/applications/${applicationId}/reject`;
+    try {
+      const response = await fetch(endpoint, {
+        method: decision === "accept" ? "POST" : "PATCH",
+        headers,
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        toast.error(
+          payload?.message || "Impossible de mettre à jour la candidature",
         );
-
-        const checkData = await checkResponse.json();
-
-        if (checkData.consumed) {
-          toast.error("La vidéo de CV a déjà été débloquée.");
-          setIsModalOpen(false);
-          setCandidateToConsume(null);
-          return;
-        }
-
-        // Proceed to consume the CV video if not already consumed
-        const response = await fetch(
-          (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) + "/api/v1/consume_cv_video",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              postuler_id: postulerToConsume.id,
-              application_id: applicationId,
-              entreprise_id: companyId,
-            }),
-          },
-        );
-
-        if (response.ok) {
-          toast.success("Vidéo débloquée !");
-          fetchLastPayment();
-        } else {
-          toast.error("Échec du déblocage de la vidéo.");
-        }
-      } catch (error) {
-        console.error("Error consuming video:", error);
-        toast.error("Erreur lors du déblocage de la vidéo !");
+        return;
       }
+      toast.success(
+        decision === "accept" ? "Candidature acceptée" : "Candidature refusée",
+      );
+      window.setTimeout(() => window.location.reload(), 400);
+    } catch (error) {
+      console.error("Unable to update application:", error);
+      toast.error("Erreur réseau. Veuillez réessayer.");
+    } finally {
+      setDecisionInProgress(null);
     }
-
-    setIsModalOpen(false);
-    setCandidateToConsume(null);
-  };
-
-  const handleCancelConsume = () => {
-    setIsModalOpen(false);
-    setCandidateToConsume(null);
-  };
-
-  const handleUpgradePlan = () => {
-    window.location.href = "/dashboard/entreprise/services";
   };
 
   return (
     <>
-      {/* <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onDelete}
-        loading={loading}
-      /> */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-full justify-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200">
-            <MoreHorizontal className="h-4 w-4" />
-            <span>Actions</span>
+          <Button
+            variant="outline"
+            className="h-10 w-full justify-center gap-2 rounded-xl border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800"
+          >
+            <MoreHorizontal className="h-4 w-4" /> Actions
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-      
+        <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5">
+          <DropdownMenuLabel className="text-xs text-slate-500">
+            Candidature
+          </DropdownMenuLabel>
           {videoLink && onVideoClick && (
-            <DropdownMenuItem onClick={handleVideoView}>
-              <View className="mr-2 h-4 w-4" />
-              Voir CV vidéo
+            <DropdownMenuItem onClick={handleVideoView} className="rounded-lg">
+              <Eye className="mr-2 h-4 w-4" /> Voir le CV vidéo
             </DropdownMenuItem>
           )}
-
-          <DropdownMenuItem onClick={handleDownloadCV}>
-            <View className="mr-2 h-4 w-4" />
-            Télécharger CV
+          <DropdownMenuItem onClick={handleDownloadCV} className="rounded-lg">
+            <Download className="mr-2 h-4 w-4" /> Télécharger le CV
           </DropdownMenuItem>
-
-          <DropdownMenuItem onClick={() => handleConsumeClick(postuler)}>
-            <CheckSquare className="mr-2 h-4 w-4" /> 
-            Débloquer
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => decideApplication("accept")}>
-            <CheckSquare className="mr-2 h-4 w-4 text-green-600" /> Accepter
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => decideApplication("reject")}>
-            <XSquare className="mr-2 h-4 w-4 text-red-600" /> Refuser
-          </DropdownMenuItem>
+          {!isConsumed && videoAvailable && (
+            <DropdownMenuItem
+              onClick={handleUnlock}
+              disabled={isUnlocking}
+              className="rounded-lg"
+            >
+              <LockKeyhole className="mr-2 h-4 w-4" />
+              {isUnlocking ? "Déblocage..." : "Débloquer le profil"}
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
+          {applicationStatus !== "accepted" && (
+            <DropdownMenuItem
+              onClick={() => decideApplication("accept")}
+              disabled={decisionInProgress !== null}
+              className="rounded-lg text-emerald-700 focus:bg-emerald-50 focus:text-emerald-800"
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" /> Accepter
+            </DropdownMenuItem>
+          )}
+          {applicationStatus !== "rejected" && (
+            <DropdownMenuItem
+              onClick={() => decideApplication("reject")}
+              disabled={decisionInProgress !== null}
+              className="rounded-lg text-red-600 focus:bg-red-50 focus:text-red-700"
+            >
+              <XCircle className="mr-2 h-4 w-4" /> Refuser
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
+
       {isUpgradeModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="fixed inset-0 bg-black opacity-50"></div>
-          <div className="bg-white p-8 rounded-lg shadow-lg z-10">
-            <h2 className="text-xl font-semibold mb-8">
-              Vous avez atteint la limite de votre plan, veuillez souscrire à
-              nouveau.
-            </h2>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={handleUpgradePlan}
-                className="px-4 py-2 bg-primary text-white rounded-md"
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="upgrade-cv-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsUpgradeModalOpen(false);
+            }
+          }}
+        >
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setIsUpgradeModalOpen(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="px-6 pb-5 pt-8 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                <Sparkles className="h-7 w-7" />
+              </div>
+              <h2
+                id="upgrade-cv-title"
+                className="text-xl font-bold text-slate-950"
               >
-                Mettre à niveau
+                Limite de consultations atteinte
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Votre plan ne contient plus de crédits disponibles pour
+                débloquer ce CV vidéo.
+              </p>
+            </div>
+            <div className="grid gap-2 border-t border-slate-100 bg-slate-50/70 p-4 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setIsUpgradeModalOpen(false)}
+                className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Fermer
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = "/dashboard/entreprise/services";
+                }}
+                className="h-10 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
+              >
+                Voir les abonnements
               </button>
             </div>
           </div>

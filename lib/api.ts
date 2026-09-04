@@ -1,5 +1,5 @@
 // API utility functions with proper authentication handling
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 interface ApiOptions extends RequestInit {
   requireAuth?: boolean;
@@ -10,75 +10,86 @@ interface ApiOptions extends RequestInit {
  */
 export async function apiCall(endpoint: string, options: ApiOptions = {}) {
   const { requireAuth = false, ...fetchOptions } = options; // Default to false for public endpoints
-  
-  const baseUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL) || '';
-  const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
-  
+
+  const baseUrl =
+    (typeof window !== "undefined"
+      ? ""
+      : process.env.NEXT_PUBLIC_BACKEND_URL) || "";
+  const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || "v1";
+
   // Ensure endpoint starts with /api/v1/ if it's a relative path
   let fullEndpoint = endpoint;
-  if (!endpoint.startsWith('http') && !endpoint.startsWith('/api/v1/')) {
-    if (endpoint.startsWith('/api/')) {
-      fullEndpoint = endpoint.replace('/api/', `/api/${apiVersion}/`);
-    } else if (endpoint.startsWith('/')) {
+  if (!endpoint.startsWith("http") && !endpoint.startsWith("/api/v1/")) {
+    if (endpoint.startsWith("/api/")) {
+      fullEndpoint = endpoint.replace("/api/", `/api/${apiVersion}/`);
+    } else if (endpoint.startsWith("/")) {
       fullEndpoint = `/api/${apiVersion}${endpoint}`;
     } else {
       fullEndpoint = `/api/${apiVersion}/${endpoint}`;
     }
   }
-  
-  const url = fullEndpoint.startsWith('http') ? fullEndpoint : `${baseUrl}${fullEndpoint}`;
-  
+
+  const url = fullEndpoint.startsWith("http")
+    ? fullEndpoint
+    : `${baseUrl}${fullEndpoint}`;
+
   // Default headers
   const headers: Record<string, string> = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true',
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
     ...(fetchOptions.headers as Record<string, string>),
   };
-  
+
   // Add Bearer token if available and required
   if (requireAuth) {
     // Check both localStorage and cookies for token (for compatibility)
-    let token: string | null = localStorage.getItem('access_token');
+    let token: string | null = localStorage.getItem("access_token");
     if (!token) {
       // Fallback to cookies if localStorage doesn't have the token
-      token = Cookies.get('authToken') || null;
+      token = Cookies.get("authToken") || null;
     }
-    
+
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
   }
-  
+
   // Always include credentials for cookies
   const requestOptions: RequestInit = {
     ...fetchOptions,
     headers,
-    credentials: 'include', // Always include cookies
+    credentials: "include", // Always include cookies
   };
-  
-  console.log('🌐 API Call:', {
+
+  console.log("🌐 API Call:", {
     url,
-    method: requestOptions.method || 'GET',
-    hasAuth: !!headers['Authorization'],
+    method: requestOptions.method || "GET",
+    hasAuth: !!headers["Authorization"],
     requireAuth,
     credentials: requestOptions.credentials,
-    token: requireAuth ? (localStorage.getItem('access_token') ? 'localStorage' : Cookies.get('authToken') ? 'cookies' : 'none') : 'not-required'
+    token: requireAuth
+      ? localStorage.getItem("access_token")
+        ? "localStorage"
+        : Cookies.get("authToken")
+          ? "cookies"
+          : "none"
+      : "not-required",
   });
-  
+
   try {
     const response = await fetch(url, requestOptions);
-    
-    console.log('🌐 API Response:', {
+
+    console.log("🌐 API Response:", {
       url,
       status: response.status,
       statusText: response.statusText,
-      ok: response.ok
+      ok: response.ok,
     });
-    
+
     return response;
   } catch (error) {
-    console.error('🌐 API Error:', { url, error });
+    console.error("🌐 API Error:", { url, error });
     throw error;
   }
 }
@@ -89,35 +100,41 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
  */
 export async function getCsrfCookie() {
   try {
-    console.log('🍪 Getting CSRF cookie...');
+    console.log("🍪 Getting CSRF cookie...");
     // CSRF cookie not needed for Bearer token auth - skip this call
-    // await apiCall('/sanctum/csrf-cookie', { 
+    // await apiCall('/sanctum/csrf-cookie', {
     //   requireAuth: false,
     //   method: 'GET'
     // });
-    console.log('✅ CSRF cookie skipped (using Bearer token auth)');
+    console.log("✅ CSRF cookie skipped (using Bearer token auth)");
   } catch (error) {
-    console.warn('❌ Failed to get CSRF cookie:', error);
+    console.warn("❌ Failed to get CSRF cookie:", error);
   }
 }
 
 /**
  * Make authenticated API call with automatic CSRF handling
  */
-export async function authenticatedApiCall(endpoint: string, options: ApiOptions = {}) {
+export async function authenticatedApiCall(
+  endpoint: string,
+  options: ApiOptions = {},
+) {
   // Get CSRF cookie first if this is a state-changing request
   const method = options.method?.toUpperCase();
-  if (method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+  if (method && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
     await getCsrfCookie();
   }
-  
+
   return apiCall(endpoint, { requireAuth: true, ...options });
 }
 
 /**
  * Make public API call (no authentication required)
  */
-export async function publicApiCall(endpoint: string, options: ApiOptions = {}) {
+export async function publicApiCall(
+  endpoint: string,
+  options: ApiOptions = {},
+) {
   return apiCall(endpoint, { requireAuth: false, ...options });
 }
 
@@ -126,97 +143,142 @@ export async function publicApiCall(endpoint: string, options: ApiOptions = {}) 
 // =============================================================================
 
 export async function verifyEmail(token: string, email: string) {
-  const response = await publicApiCall(`/auth/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`, {
-    method: 'POST'
-  });
+  const response = await publicApiCall(
+    `/auth/verify-email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`,
+    {
+      method: "POST",
+    },
+  );
   const data = await response.json().catch(() => ({}));
   if (response.ok) return data;
-  throw new Error(data.message || "Le lien de vérification est invalide ou a expiré.");
+  throw new Error(
+    data.message || "Le lien de vérification est invalide ou a expiré.",
+  );
 }
 
 export async function resendVerification(email: string) {
-  const response = await publicApiCall('/auth/resend-verification', {
-    method: 'POST',
+  const response = await publicApiCall("/auth/resend-verification", {
+    method: "POST",
     body: JSON.stringify({
       email: email.trim(),
-      user_type: 'candidat',
-    })
+      user_type: "candidat",
+    }),
   });
   const data = await response.json().catch(() => ({}));
   if (response.ok) return data;
-  throw new Error(data.message || "Impossible de renvoyer l’email de vérification.");
+  throw new Error(
+    data.message || "Impossible de renvoyer l’email de vérification.",
+  );
 }
 
-export async function resetPassword(token: string, password: string, passwordConfirmation: string, actor: string) {
-  const response = await publicApiCall('/auth/reset-password', {
-    method: 'POST',
+export async function resetPassword(
+  token: string,
+  password: string,
+  passwordConfirmation: string,
+  actor: string,
+) {
+  const response = await publicApiCall("/auth/reset-password", {
+    method: "POST",
     body: JSON.stringify({
       token,
       password,
       password_confirmation: passwordConfirmation,
       actor,
-    })
+    }),
   });
   const data = await response.json().catch(() => ({}));
   if (response.ok) return data;
   const firstError = data.errors ? Object.values(data.errors).flat()[0] : null;
-  throw new Error(typeof firstError === "string" ? firstError : data.message || "Impossible de réinitialiser le mot de passe.");
+  throw new Error(
+    typeof firstError === "string"
+      ? firstError
+      : data.message || "Impossible de réinitialiser le mot de passe.",
+  );
 }
 
-export async function confirmAvailability(token: string, email: string, status: string = 'available') {
-  const response = await publicApiCall(`/availability/confirm?token=${token}&email=${encodeURIComponent(email)}&status=${status}`, {
-    method: 'GET'
-  });
+export async function confirmAvailability(
+  token: string,
+  email: string,
+  status: string = "available",
+) {
+  const response = await publicApiCall(
+    `/availability/confirm?token=${token}&email=${encodeURIComponent(email)}&status=${status}`,
+    {
+      method: "GET",
+    },
+  );
   if (response.ok) return response.json();
   throw new Error(`Failed to confirm availability: ${response.status}`);
 }
 
-export async function changeCandidatePassword(oldPassword: string, newPassword: string) {
-  const response = await authenticatedApiCall('/candidat/change-password', {
-    method: 'POST',
+export async function changeCandidatePassword(
+  oldPassword: string,
+  newPassword: string,
+) {
+  const response = await authenticatedApiCall("/candidat/change-password", {
+    method: "POST",
     body: JSON.stringify({
       old_password: oldPassword,
       new_password: newPassword,
-    })
+    }),
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to change candidate password: ${response.status}`);
 }
 
-export async function changeEntreprisePassword(oldPassword: string, newPassword: string) {
-  const response = await authenticatedApiCall('/entreprise/change-password', {
-    method: 'POST',
+export async function changeEntreprisePassword(
+  oldPassword: string,
+  newPassword: string,
+  confirmation?: string,
+) {
+  const response = await authenticatedApiCall("/entreprise/change-password", {
+    method: "POST",
     body: JSON.stringify({
       old_password: oldPassword,
       new_password: newPassword,
-    })
-  });
-  if (response.ok) return response.json();
-  throw new Error(`Failed to change entreprise password: ${response.status}`);
-}
-
-export async function submitCandidateApplication(data: any) {
-  const response = await authenticatedApiCall('/candidate/postuler', {
-    method: 'POST',
-    body: JSON.stringify(data)
+      new_password_confirmation: confirmation ?? newPassword,
+    }),
   });
   if (response.ok) return response.json();
   const payload = await response.json().catch(() => null);
   const validationMessage = payload?.errors
     ? Object.values(payload.errors).flat().join(" ")
     : null;
-  throw new Error(validationMessage || payload?.message || `Échec de la publication du CV (${response.status})`);
+  throw new Error(
+    validationMessage ||
+      payload?.message ||
+      `Impossible de modifier le mot de passe (${response.status}).`,
+  );
+}
+
+export async function submitCandidateApplication(data: any) {
+  const response = await authenticatedApiCall("/candidate/postuler", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  const payload = await response.json().catch(() => null);
+  const validationMessage = payload?.errors
+    ? Object.values(payload.errors).flat().join(" ")
+    : null;
+  throw new Error(
+    validationMessage ||
+      payload?.message ||
+      `Échec de la publication du CV (${response.status})`,
+  );
 }
 
 export async function fetchCandidateApplicationHistory() {
-  const response = await authenticatedApiCall('/candidate/application-history');
+  const response = await authenticatedApiCall("/candidate/application-history");
   if (response.ok) return response.json();
-  throw new Error(`Failed to fetch candidate application history: ${response.status}`);
+  throw new Error(
+    `Failed to fetch candidate application history: ${response.status}`,
+  );
 }
 
 export async function deleteCandidateVideo(id: string) {
   const response = await authenticatedApiCall(`/candidate-video/delete/${id}`, {
-    method: 'DELETE'
+    method: "DELETE",
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to delete candidate video: ${response.status}`);
@@ -227,7 +289,7 @@ export async function deleteCandidateVideo(id: string) {
 // =============================================================================
 
 export async function fetchSectors() {
-  const response = await publicApiCall('/sectors');
+  const response = await publicApiCall("/sectors");
   if (response.ok) {
     const result = await response.json();
     // Handle both wrapped response and direct array
@@ -237,50 +299,52 @@ export async function fetchSectors() {
 }
 
 export async function fetchEducations() {
-  const response = await publicApiCall('/educations');
+  const response = await publicApiCall("/educations");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch educations: ${response.status}`);
 }
 
 export async function fetchCountries() {
-  const response = await publicApiCall('/pays');
+  const response = await publicApiCall("/pays");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch countries: ${response.status}`);
 }
 
 export async function fetchDiplomas() {
-  const response = await publicApiCall('/diplomes');
+  const response = await publicApiCall("/diplomes");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch diplomas: ${response.status}`);
 }
 
 export async function fetchCities() {
-  const response = await publicApiCall('/villes');
+  const response = await publicApiCall("/villes");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch cities: ${response.status}`);
 }
 
 export async function fetchJobs() {
-  const response = await publicApiCall('/jobs');
+  const response = await publicApiCall("/jobs");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch jobs: ${response.status}`);
 }
 
 export async function fetchLevels() {
-  const response = await publicApiCall('/niveaux');
+  const response = await publicApiCall("/niveaux");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch levels: ${response.status}`);
 }
 
 export async function fetchSpecialties() {
-  const response = await publicApiCall('/specialties');
+  const response = await publicApiCall("/specialties");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch specialties: ${response.status}`);
 }
 
 export async function fetchOffers(page: number = 1, perPage: number = 15) {
   // Use authenticated call to include the Bearer token
-  const response = await authenticatedApiCall(`/offres?page=${page}&per_page=${perPage}`);
+  const response = await authenticatedApiCall(
+    `/offres?page=${page}&per_page=${perPage}`,
+  );
   if (response.ok) {
     const result = await response.json();
     // Return the full response with pagination info
@@ -314,13 +378,13 @@ export async function fetchEnterpriseProfile(id: string) {
 }
 
 export async function fetchPlans() {
-  const response = await publicApiCall('/plans');
+  const response = await publicApiCall("/plans");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch plans: ${response.status}`);
 }
 
 export async function fetchEnterprises() {
-  const response = await authenticatedApiCall('/entreprises');
+  const response = await authenticatedApiCall("/entreprises");
   if (response.ok) {
     const result = await response.json();
     // Handle both paginated response and direct array
@@ -330,30 +394,32 @@ export async function fetchEnterprises() {
 }
 
 export async function fetchAvailabilityStatus() {
-  const response = await authenticatedApiCall('/availability/status');
+  const response = await authenticatedApiCall("/availability/status");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch availability status: ${response.status}`);
 }
 
-export async function updateAvailabilityStatus(status: 'available' | 'unavailable') {
-  const response = await authenticatedApiCall('/availability/update', {
-    method: 'POST',
-    body: JSON.stringify({ status })
+export async function updateAvailabilityStatus(
+  status: "available" | "unavailable",
+) {
+  const response = await authenticatedApiCall("/availability/update", {
+    method: "POST",
+    body: JSON.stringify({ status }),
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to update availability status: ${response.status}`);
 }
 
 export async function reactivateProfile() {
-  const response = await authenticatedApiCall('/availability/reactivate', {
-    method: 'POST',
+  const response = await authenticatedApiCall("/availability/reactivate", {
+    method: "POST",
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to reactivate profile: ${response.status}`);
 }
 
 export async function fetchPostuleAll() {
-  const response = await authenticatedApiCall('/postule/all');
+  const response = await authenticatedApiCall("/postule/all");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch postule all: ${response.status}`);
 }
@@ -365,21 +431,23 @@ export async function fetchEntrepriseStats() {
 }
 
 export async function fetchNotifications() {
-  const response = await authenticatedApiCall('/notifications');
+  const response = await authenticatedApiCall("/notifications");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch notifications: ${response.status}`);
 }
 
 export async function markNotificationsAsRead() {
-  const response = await authenticatedApiCall('/notifications/mark-as-read', {
-    method: 'POST'
+  const response = await authenticatedApiCall("/notifications/mark-as-read", {
+    method: "POST",
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to mark notifications as read: ${response.status}`);
 }
 
 export async function fetchLastPayment(entrepriseId: string) {
-  const response = await authenticatedApiCall(`/api/payments/${entrepriseId}/last`);
+  const response = await authenticatedApiCall(
+    `/api/payments/${entrepriseId}/last`,
+  );
   if (response.ok) return response.json();
   if (response.status === 404) {
     // No payment found - return null instead of throwing
@@ -389,25 +457,25 @@ export async function fetchLastPayment(entrepriseId: string) {
 }
 
 export async function checkContactAccess(candidateId: string) {
-  const response = await authenticatedApiCall('/contact-access/check', {
-    method: 'POST',
-    body: JSON.stringify({ candidate_id: candidateId })
+  const response = await authenticatedApiCall("/contact-access/check", {
+    method: "POST",
+    body: JSON.stringify({ candidate_id: candidateId }),
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to check contact access: ${response.status}`);
 }
 
 export async function consumeContactAccess(candidateId: string) {
-  const response = await authenticatedApiCall('/contact-access/consume', {
-    method: 'POST',
-    body: JSON.stringify({ candidate_id: candidateId })
+  const response = await authenticatedApiCall("/contact-access/consume", {
+    method: "POST",
+    body: JSON.stringify({ candidate_id: candidateId }),
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to consume contact access: ${response.status}`);
 }
 
 export async function getContactAccessStats() {
-  const response = await authenticatedApiCall('/contact-access/stats');
+  const response = await authenticatedApiCall("/contact-access/stats");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch contact access stats: ${response.status}`);
 }
@@ -417,15 +485,15 @@ export async function getContactAccessStats() {
 // =============================================================================
 
 export async function fetchUserData() {
-  const response = await authenticatedApiCall('/user');
+  const response = await authenticatedApiCall("/user");
   if (response.ok) return response.json();
   throw new Error(`Failed to fetch user data: ${response.status}`);
 }
 
 export async function updateCandidate(data: any) {
-  const response = await authenticatedApiCall('/candidate/update', {
-    method: 'POST',
-    body: JSON.stringify(data)
+  const response = await authenticatedApiCall("/candidate/update", {
+    method: "POST",
+    body: JSON.stringify(data),
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to update candidate: ${response.status}`);
@@ -440,14 +508,14 @@ export class OfferApiError extends Error {
     public readonly details?: Record<string, unknown>,
   ) {
     super(message);
-    this.name = 'OfferApiError';
+    this.name = "OfferApiError";
   }
 }
 
 export async function createOffer(data: any) {
-  const response = await authenticatedApiCall('/offre/create', {
-    method: 'POST',
-    body: JSON.stringify(data)
+  const response = await authenticatedApiCall("/offre/create", {
+    method: "POST",
+    body: JSON.stringify(data),
   });
   if (response.ok) return response.json();
 
@@ -468,24 +536,31 @@ export async function createOffer(data: any) {
 }
 
 export async function logout() {
-  const response = await authenticatedApiCall('/logout', {
-    method: 'POST'
+  const response = await authenticatedApiCall("/logout", {
+    method: "POST",
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to logout: ${response.status}`);
 }
 
-export async function generateAIScriptFromText(cvText: string, isLocalTest: boolean = false) {
-  const endpoint = isLocalTest ? '/test/generate-script-text' : '/candidate/generate-script-text';
+export async function generateAIScriptFromText(
+  cvText: string,
+  isLocalTest: boolean = false,
+) {
+  const endpoint = isLocalTest
+    ? "/test/generate-script-text"
+    : "/candidate/generate-script-text";
   let response: Response;
   try {
     response = await apiCall(endpoint, {
-      method: 'POST',
+      method: "POST",
       requireAuth: !isLocalTest,
-      body: JSON.stringify({ cv_text: cvText })
+      body: JSON.stringify({ cv_text: cvText }),
     });
   } catch {
-    throw new Error('Échec de la génération du pitch : impossible de contacter le serveur. Vérifiez votre connexion.');
+    throw new Error(
+      "Échec de la génération du pitch : impossible de contacter le serveur. Vérifiez votre connexion.",
+    );
   }
 
   if (response.ok) return await response.json();
@@ -493,45 +568,61 @@ export async function generateAIScriptFromText(cvText: string, isLocalTest: bool
   let detail = `HTTP ${response.status}`;
   try {
     const body = await response.json();
-    const firstValidationError = body?.errors && typeof body.errors === 'object'
-      ? (Object.values(body.errors)[0] as string[] | undefined)?.[0]
-      : undefined;
-    detail = firstValidationError || body?.details?.detail || body?.detail || body?.message || detail;
+    const firstValidationError =
+      body?.errors && typeof body.errors === "object"
+        ? (Object.values(body.errors)[0] as string[] | undefined)?.[0]
+        : undefined;
+    detail =
+      firstValidationError ||
+      body?.details?.detail ||
+      body?.detail ||
+      body?.message ||
+      detail;
   } catch {
     // response body wasn't JSON; keep the status-code message
   }
   throw new Error(`Échec de la génération du pitch : ${detail}`);
 }
 
-export async function generateAIScriptFromPdf(pdfFile: File, isLocalTest: boolean = false) {
+export async function generateAIScriptFromPdf(
+  pdfFile: File,
+  isLocalTest: boolean = false,
+) {
   const formData = new FormData();
-  formData.append('cv', pdfFile);
+  formData.append("cv", pdfFile);
 
-  const endpoint = isLocalTest ? '/test/generate-script' : '/candidate/generate-script';
-  const token = Cookies.get('authToken')?.replace(/["']/g, "") || localStorage.getItem('access_token');
-  const baseUrl = (typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL);
-  const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+  const endpoint = isLocalTest
+    ? "/test/generate-script"
+    : "/candidate/generate-script";
+  const token =
+    Cookies.get("authToken")?.replace(/["']/g, "") ||
+    localStorage.getItem("access_token");
+  const baseUrl =
+    typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_BACKEND_URL;
+  const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || "v1";
   const url = `${baseUrl}/api/${apiVersion}${endpoint}`;
 
   const headers: Record<string, string> = {
-    'Accept': 'application/json',
-    'ngrok-skip-browser-warning': 'true',
+    Accept: "application/json",
+    "ngrok-skip-browser-warning": "true",
   };
 
   if (!isLocalTest && token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   let response: Response;
   try {
     response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: formData,
-      credentials: 'include'
+      credentials: "include",
     });
   } catch {
-    throw new Error('Échec de la génération du pitch : impossible de contacter le serveur. Vérifiez votre connexion.');
+    throw new Error(
+      "Échec de la génération du pitch : impossible de contacter le serveur. Vérifiez votre connexion.",
+    );
   }
 
   if (response.ok) return await response.json();
@@ -539,10 +630,16 @@ export async function generateAIScriptFromPdf(pdfFile: File, isLocalTest: boolea
   let detail = `HTTP ${response.status}`;
   try {
     const body = await response.json();
-    const firstValidationError = body?.errors && typeof body.errors === 'object'
-      ? (Object.values(body.errors)[0] as string[] | undefined)?.[0]
-      : undefined;
-    detail = firstValidationError || body?.details?.detail || body?.detail || body?.message || detail;
+    const firstValidationError =
+      body?.errors && typeof body.errors === "object"
+        ? (Object.values(body.errors)[0] as string[] | undefined)?.[0]
+        : undefined;
+    detail =
+      firstValidationError ||
+      body?.details?.detail ||
+      body?.detail ||
+      body?.message ||
+      detail;
   } catch {
     // response body wasn't JSON; keep the status-code message
   }
@@ -554,29 +651,29 @@ export async function performCompleteLogout() {
     // Call backend logout first
     await logout();
   } catch (error) {
-    console.warn('Backend logout failed:', error);
+    console.warn("Backend logout failed:", error);
   }
-  
+
   // Clear all client-side data regardless of backend response
   if (typeof window !== "undefined") {
     // Clear localStorage
     localStorage.clear();
-    
+
     // Clear sessionStorage
     sessionStorage.clear();
-    
+
     // Clear all cookies
     const allCookies = document.cookie.split(";");
-    allCookies.forEach(cookie => {
+    allCookies.forEach((cookie) => {
       const eqPos = cookie.indexOf("=");
       const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-      
+
       // Clear with different path and domain options
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
     });
-    
+
     // Redirect to home page
     window.location.href = "/";
   }

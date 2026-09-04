@@ -4,8 +4,18 @@ import { useState, useEffect } from "react";
 import Select, { MultiValue, StylesConfig } from "react-select";
 import { toast } from "react-hot-toast";
 import Cookies from "js-cookie";
-import { Send } from "lucide-react";
-import { fetchSectors, createOffer, fetchLastPayment } from "@/lib/api";
+import {
+  AlertTriangle,
+  Banknote,
+  BriefcaseBusiness,
+  CalendarDays,
+  CheckCircle2,
+  MapPin,
+  Send,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { fetchSectors, createOffer } from "@/lib/api";
 import RichTextEditor from "@/components/RichTextEditor";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { useUser } from "@/hooks/useUser";
@@ -25,7 +35,16 @@ type SelectOption = {
 
 const AVAILABLE_LANGUAGES = languagesData.languages;
 const AVAILABLE_SKILLS = Object.values(skillsData).flat();
-const BENEFIT_OPTIONS = ["Assurance santé", "Formation", "Télétravail", "Horaires flexibles", "Primes", "Transport", "Tickets restaurant", "Mutuelle"];
+const BENEFIT_OPTIONS = [
+  "Assurance santé",
+  "Formation",
+  "Télétravail",
+  "Horaires flexibles",
+  "Primes",
+  "Transport",
+  "Tickets restaurant",
+  "Mutuelle",
+];
 const AVAILABLE_LANGUAGE_SET = new Set(AVAILABLE_LANGUAGES);
 const AVAILABLE_SKILL_SET = new Set(AVAILABLE_SKILLS);
 const LANGUAGE_OPTIONS: SelectOption[] = AVAILABLE_LANGUAGES.map(
@@ -48,6 +67,19 @@ const SKILL_OPTIONS = Object.entries(skillsData).map(([group, skills]) => ({
     label: skill,
   })),
 }));
+
+const getLocalDateValue = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60_000;
+  return new Date(now.getTime() - offset).toISOString().split("T")[0];
+};
+
+const getNextDateValue = (dateValue: string) => {
+  if (!dateValue) return getLocalDateValue();
+  const date = new Date(`${dateValue}T12:00:00`);
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split("T")[0];
+};
 
 export default function PublierPage() {
   const { user, isLoading: userLoading } = useUser();
@@ -88,6 +120,13 @@ export default function PublierPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleLanguagesChange = (options: MultiValue<SelectOption>) => {
+    if (options.length > 20) {
+      setFormErrors((prev) => ({
+        ...prev,
+        required_languages: "Vous pouvez sélectionner au maximum 20 langues.",
+      }));
+      return;
+    }
     setRequiredLanguages(options.map((option) => option.value));
     if (formErrors.required_languages) {
       setFormErrors((prev) => ({ ...prev, required_languages: "" }));
@@ -95,6 +134,13 @@ export default function PublierPage() {
   };
 
   const handleSkillsChange = (options: MultiValue<SelectOption>) => {
+    if (options.length > 30) {
+      setFormErrors((prev) => ({
+        ...prev,
+        required_skills: "Vous pouvez sélectionner au maximum 30 compétences.",
+      }));
+      return;
+    }
     setRequiredSkills(options.map((option) => option.value));
     if (formErrors.required_skills) {
       setFormErrors((prev) => ({ ...prev, required_skills: "" }));
@@ -102,10 +148,10 @@ export default function PublierPage() {
   };
 
   const getFieldClassName = (field: string) =>
-    `w-full px-4 py-2.5 bg-white border rounded-lg focus:ring-2 text-gray-900 ${
+    `w-full min-h-11 rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-4 ${
       formErrors[field]
-        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-        : "border-gray-300 focus:ring-green-500 focus:border-green-500"
+        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
+        : "border-slate-300 focus:border-emerald-500 focus:ring-emerald-100"
     }`;
 
   const renderFieldError = (field: string) =>
@@ -129,6 +175,7 @@ export default function PublierPage() {
     control: (base, state) => ({
       ...base,
       minHeight: "44px",
+      borderRadius: "0.75rem",
       borderColor: formErrors[field]
         ? "#ef4444"
         : state.isFocused
@@ -152,6 +199,34 @@ export default function PublierPage() {
     }
   }, [user?.id]);
 
+  useEffect(() => {
+    const hasOpenModal =
+      isSuccessModalOpen || isUpgradeModalOpen || isLimitReachedModalOpen;
+
+    if (!hasOpenModal) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || isLoading) return;
+      setIsSuccessModalOpen(false);
+      setIsUpgradeModalOpen(false);
+      setIsLimitReachedModalOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [
+    isSuccessModalOpen,
+    isUpgradeModalOpen,
+    isLimitReachedModalOpen,
+    isLoading,
+  ]);
+
   const fetchSectorsData = async () => {
     try {
       const data = await fetchSectors();
@@ -168,7 +243,7 @@ export default function PublierPage() {
 
     try {
       const response = await fetch(
-        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/payments/${user.id}/last`,
+        `${typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payments/${user.id}/last`,
         {
           method: "GET",
           headers: {
@@ -207,17 +282,24 @@ export default function PublierPage() {
         console.error("No active payment found");
         setIsUpgradeModalOpen(true);
       } else {
-        console.error("Failed to fetch payment status");
-        setIsUpgradeModalOpen(true);
+        const payload = await response.json().catch(() => null);
+        console.error("Failed to fetch payment status", payload);
+        toast.error(
+          response.status === 401 || response.status === 403
+            ? "Votre session ne permet pas de vérifier l'abonnement. Veuillez vous reconnecter."
+            : "Impossible de vérifier votre quota pour le moment.",
+        );
       }
     } catch (error) {
       console.error("Error checking payment status:", error);
-      setIsUpgradeModalOpen(true);
+      toast.error("Impossible de vérifier votre quota pour le moment.");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLoading) return;
 
     if (!user?.id) {
       toast.error("Erreur: Utilisateur non identifié");
@@ -239,10 +321,17 @@ export default function PublierPage() {
       nextErrors.sector_id = "Veuillez sélectionner un secteur.";
     }
 
-    if (!formData.contractType) nextErrors.contractType = "Veuillez sélectionner un type de contrat.";
+    if (!formData.contractType)
+      nextErrors.contractType = "Veuillez sélectionner un type de contrat.";
 
     if (!formData.location.trim()) {
       nextErrors.location = "Veuillez entrer la localisation.";
+    } else if (formData.location.trim().length < 2) {
+      nextErrors.location =
+        "La localisation doit contenir au moins 2 caractères.";
+    } else if (formData.location.length > 100) {
+      nextErrors.location =
+        "La localisation ne peut pas dépasser 100 caractères.";
     }
 
     if (!formData.date_debut) {
@@ -259,19 +348,38 @@ export default function PublierPage() {
         "La description ne peut pas dépasser 10000 caractères.";
     }
 
-    // Validate date de début is in the future
-    const startDate = new Date(formData.date_debut);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (formData.date_debut && startDate < today) {
-      nextErrors.date_debut = "La date de début doit être aujourd’hui ou dans le futur.";
+    if (formData.date_debut && formData.date_debut < getLocalDateValue()) {
+      nextErrors.date_debut =
+        "La date de début doit être aujourd’hui ou dans le futur.";
     }
 
     if (formData.date_fin && formData.date_fin <= formData.date_debut) {
-      nextErrors.date_fin = "La date de fin doit être postérieure à la date de début.";
+      nextErrors.date_fin =
+        "La date de fin doit être postérieure à la date de début.";
     }
-    if (formData.salary_min && formData.salary_max && Number(formData.salary_max) < Number(formData.salary_min)) {
-      nextErrors.salary_max = "Le salaire maximum doit être supérieur ou égal au minimum.";
+    if (
+      formData.salary_min &&
+      formData.salary_max &&
+      Number(formData.salary_max) < Number(formData.salary_min)
+    ) {
+      nextErrors.salary_max =
+        "Le salaire maximum doit être supérieur ou égal au minimum.";
+    }
+
+    if (formData.salary_min !== "" && Number(formData.salary_min) < 0) {
+      nextErrors.salary_min = "Le salaire minimum ne peut pas être négatif.";
+    }
+    if (formData.salary_max !== "" && Number(formData.salary_max) < 0) {
+      nextErrors.salary_max = "Le salaire maximum ne peut pas être négatif.";
+    }
+    if (
+      formData.experience_required !== "" &&
+      (!Number.isInteger(Number(formData.experience_required)) ||
+        Number(formData.experience_required) < 0 ||
+        Number(formData.experience_required) > 50)
+    ) {
+      nextErrors.experience_required =
+        "L'expérience requise doit être un nombre entier entre 0 et 50 ans.";
     }
 
     if (
@@ -290,6 +398,9 @@ export default function PublierPage() {
 
     if (Object.keys(nextErrors).length > 0) {
       setFormErrors(nextErrors);
+      requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      });
       return;
     }
 
@@ -307,9 +418,14 @@ export default function PublierPage() {
         required_languages: requiredLanguages,
         required_skills: requiredSkills,
         benefits,
-        experience_required: formData.experience_required === "" ? null : Number(formData.experience_required),
-        salary_min: formData.salary_min === "" ? null : Number(formData.salary_min),
-        salary_max: formData.salary_max === "" ? null : Number(formData.salary_max),
+        experience_required:
+          formData.experience_required === ""
+            ? null
+            : Number(formData.experience_required),
+        salary_min:
+          formData.salary_min === "" ? null : Number(formData.salary_min),
+        salary_max:
+          formData.salary_max === "" ? null : Number(formData.salary_max),
       });
 
       setFormData({
@@ -330,6 +446,16 @@ export default function PublierPage() {
       setRequiredSkills([]);
       setBenefits([]);
 
+      setPlanInfo((current) => {
+        if (!current || current.jobRemaining === -1) return current;
+
+        return {
+          ...current,
+          jobPosted: current.jobPosted + 1,
+          jobRemaining: Math.max(0, current.jobRemaining - 1),
+        };
+      });
+
       setIsSuccessModalOpen(true);
     } catch (error: any) {
       console.error("Error creating offer:", error);
@@ -338,21 +464,35 @@ export default function PublierPage() {
       if (error?.code === "JOB_LIMIT_REACHED") {
         const limit = Number(error?.errors?.limit?.[0] ?? 0);
         const used = Number(error?.errors?.used?.[0] ?? limit);
+        setPlanInfo(
+          (current) =>
+            current ?? {
+              jobLimit: limit,
+              jobPosted: used,
+              jobRemaining: 0,
+              planName: "Plan actuel",
+            },
+        );
         toast.error(
           `Limite de publication d'offres atteinte pour votre plan actuel. (${used}/${limit} offres utilisées)`,
         );
+        setIsLimitReachedModalOpen(true);
       } else if (error?.status === 422 && error?.errors) {
         const apiErrors = Object.fromEntries(
-          Object.entries(error.errors).map(([field, messages]) => [field, Array.isArray(messages) ? messages[0] : String(messages)]),
+          Object.entries(error.errors).map(([field, messages]) => [
+            field,
+            Array.isArray(messages) ? messages[0] : String(messages),
+          ]),
         );
-        setIsLimitReachedModalOpen(true);
         setFormErrors(apiErrors);
         toast.error("Veuillez corriger les champs signalés.");
       } else if (error?.code === "NO_ACTIVE_SUBSCRIPTION") {
         setIsUpgradeModalOpen(true);
         toast.error(error.message);
       } else if (error?.status === 403) {
-        toast.error(error.message || "Vous n’êtes pas autorisé à publier cette offre.");
+        toast.error(
+          error.message || "Vous n’êtes pas autorisé à publier cette offre.",
+        );
       } else if (error?.message) {
         toast.error(error.message);
       } else {
@@ -378,6 +518,9 @@ export default function PublierPage() {
       ...prev,
       [name]: value,
       ...(name === "sector_id" ? { job_id: "" } : {}),
+      ...(name === "date_debut" && prev.date_fin && prev.date_fin <= value
+        ? { date_fin: "" }
+        : {}),
     }));
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: "" }));
@@ -397,19 +540,23 @@ export default function PublierPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-5xl space-y-6">
       {/* Header Simple */}
-      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-6 mb-6">
-        <div className="flex items-center justify-between gap-3">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-5 shadow-lg shadow-emerald-100 sm:p-7">
+        <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10" />
+        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <Send className="text-green-600 w-5 h-5" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 backdrop-blur-sm">
+              <Send className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-emerald-100">
+                Nouvelle opportunité
+              </p>
+              <h1 className="text-2xl font-bold text-white sm:text-3xl">
                 Publier une offre d'emploi
               </h1>
-              <p className="text-gray-600">
+              <p className="mt-1 text-sm text-emerald-50">
                 Remplissez les informations de votre offre
               </p>
             </div>
@@ -417,22 +564,12 @@ export default function PublierPage() {
 
           {/* Job Limit Indicator */}
           {planInfo && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border-2 border-green-300 shadow-sm">
+            <div className="self-start rounded-xl border border-white/25 bg-white/15 px-4 py-2.5 backdrop-blur-sm sm:self-auto">
               <div className="text-right">
-                <p className="text-xs text-gray-600 font-medium">
+                <p className="text-xs font-medium text-emerald-50">
                   Offres restantes
                 </p>
-                <p
-                  className={`text-lg font-bold ${
-                    planInfo.jobRemaining === -1
-                      ? "text-green-600"
-                      : planInfo.jobRemaining === 0
-                        ? "text-red-600"
-                        : planInfo.jobRemaining <= 2
-                          ? "text-amber-600"
-                          : "text-green-600"
-                  }`}
-                >
+                <p className="text-xl font-bold text-white">
                   {planInfo.jobRemaining === -1 ? "∞" : planInfo.jobRemaining}
                   {planInfo.jobLimit !== -1 && ` / ${planInfo.jobLimit}`}
                 </p>
@@ -447,21 +584,9 @@ export default function PublierPage() {
         planInfo.jobRemaining !== -1 &&
         planInfo.jobRemaining <= 2 &&
         planInfo.jobRemaining > 0 && (
-          <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-4 mb-6">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <svg
-                className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
+              <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
               <div>
                 <h3 className="text-sm font-semibold text-amber-900 mb-1">
                   Attention: Il vous reste seulement {planInfo.jobRemaining}{" "}
@@ -478,8 +603,25 @@ export default function PublierPage() {
         )}
 
       {/* Main Form Card */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6" noValidate>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-7 p-4 sm:p-6 lg:p-8"
+          noValidate
+        >
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+              <BriefcaseBusiness className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Informations principales
+              </h2>
+              <p className="text-xs text-slate-500">
+                Présentez clairement le poste et son contexte.
+              </p>
+            </div>
+          </div>
           {/* Titre */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -527,17 +669,30 @@ export default function PublierPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Métier de référence <span className="font-normal text-gray-500">(facultatif)</span>
+                Métier de référence{" "}
+                <span className="font-normal text-gray-500">(facultatif)</span>
               </label>
-              <select name="job_id" value={formData.job_id} onChange={handleInputChange}
-                disabled={!formData.sector_id} className={getFieldClassName("job_id")}>
+              <select
+                name="job_id"
+                value={formData.job_id}
+                onChange={handleInputChange}
+                disabled={!formData.sector_id}
+                className={getFieldClassName("job_id")}
+              >
                 <option value="">Autre métier / non répertorié</option>
-                {(sectors.find((sector) => sector.id === Number(formData.sector_id))?.jobs ?? []).map((job) => (
-                  <option key={job.id} value={job.id}>{job.name}</option>
+                {(
+                  sectors.find(
+                    (sector) => sector.id === Number(formData.sector_id),
+                  )?.jobs ?? []
+                ).map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.name}
+                  </option>
                 ))}
               </select>
               <p className="mt-1.5 text-xs text-gray-500">
-                Améliore le matching lorsqu’un métier correspondant existe, sans bloquer la publication.
+                Améliore le matching lorsqu’un métier correspondant existe, sans
+                bloquer la publication.
               </p>
               {renderFieldError("job_id")}
             </div>
@@ -552,6 +707,10 @@ export default function PublierPage() {
                 value={formData.contractType}
                 onChange={handleInputChange}
                 className={getFieldClassName("contractType")}
+                aria-invalid={!!formErrors.contractType}
+                aria-describedby={
+                  formErrors.contractType ? "contractType-error" : undefined
+                }
               >
                 <option value="">Sélectionner un type</option>
                 <option value="CDI">CDI</option>
@@ -564,46 +723,138 @@ export default function PublierPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4 pt-1">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+              <Banknote className="h-5 w-5" />
+            </span>
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Expérience minimale (années)</label>
-              <input type="number" name="experience_required" min="0" max="50" value={formData.experience_required}
-                onChange={handleInputChange} className={getFieldClassName("experience_required")} />
+              <h2 className="font-bold text-slate-900">Conditions proposées</h2>
+              <p className="text-xs text-slate-500">
+                Expérience, rémunération et avantages.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Expérience minimale (années)
+              </label>
+              <input
+                type="number"
+                name="experience_required"
+                min="0"
+                max="50"
+                value={formData.experience_required}
+                onChange={handleInputChange}
+                className={getFieldClassName("experience_required")}
+                aria-invalid={!!formErrors.experience_required}
+                aria-describedby={
+                  formErrors.experience_required
+                    ? "experience_required-error"
+                    : undefined
+                }
+              />
               {renderFieldError("experience_required")}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Salaire minimum</label>
-              <input type="number" name="salary_min" min="0" step="0.01" value={formData.salary_min}
-                onChange={handleInputChange} className={getFieldClassName("salary_min")} />
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Salaire minimum
+              </label>
+              <input
+                type="number"
+                name="salary_min"
+                min="0"
+                step="0.01"
+                value={formData.salary_min}
+                onChange={handleInputChange}
+                className={getFieldClassName("salary_min")}
+                aria-invalid={!!formErrors.salary_min}
+                aria-describedby={
+                  formErrors.salary_min ? "salary_min-error" : undefined
+                }
+              />
               {renderFieldError("salary_min")}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Salaire maximum</label>
-              <input type="number" name="salary_max" min="0" step="0.01" value={formData.salary_max}
-                onChange={handleInputChange} className={getFieldClassName("salary_max")} />
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Salaire maximum
+              </label>
+              <input
+                type="number"
+                name="salary_max"
+                min="0"
+                step="0.01"
+                value={formData.salary_max}
+                onChange={handleInputChange}
+                className={getFieldClassName("salary_max")}
+                aria-invalid={!!formErrors.salary_max}
+                aria-describedby={
+                  formErrors.salary_max ? "salary_max-error" : undefined
+                }
+              />
               {renderFieldError("salary_max")}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Devise <span className="text-red-500">*</span></label>
-              <select name="currency" value={formData.currency} onChange={handleInputChange} className={getFieldClassName("currency")}>
-                {['MAD', 'EUR', 'USD'].map((currency) => <option key={currency} value={currency}>{currency}</option>)}
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Devise <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="currency"
+                value={formData.currency}
+                onChange={handleInputChange}
+                className={getFieldClassName("currency")}
+              >
+                {["MAD", "EUR", "USD"].map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Avantages</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Avantages
+            </label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {BENEFIT_OPTIONS.map((benefit) => (
-                <label key={benefit} className="flex items-center gap-2 rounded-lg border p-3 text-sm">
-                  <input type="checkbox" checked={benefits.includes(benefit)} onChange={() =>
-                    setBenefits((current) => current.includes(benefit) ? current.filter((item) => item !== benefit) : [...current, benefit])
-                  } />
+                <label
+                  key={benefit}
+                  className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm font-medium transition ${benefits.includes(benefit) ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/40"}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={benefits.includes(benefit)}
+                    onChange={() =>
+                      setBenefits((current) =>
+                        current.includes(benefit)
+                          ? current.filter((item) => item !== benefit)
+                          : [...current, benefit],
+                      )
+                    }
+                  />
                   {benefit}
                 </label>
               ))}
             </div>
             {renderFieldError("benefits")}
+          </div>
+
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4 pt-1">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+              <MapPin className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Localisation et matching
+              </h2>
+              <p className="text-xs text-slate-500">
+                Ces informations améliorent la pertinence des candidats
+                proposés.
+              </p>
+            </div>
           </div>
 
           {/* Localisation */}
@@ -618,6 +869,7 @@ export default function PublierPage() {
               onChange={handleInputChange}
               className={getFieldClassName("location")}
               placeholder="Ex: Casablanca, Maroc"
+              maxLength={100}
               aria-invalid={!!formErrors.location}
               aria-describedby={
                 formErrors.location ? "location-error" : undefined
@@ -641,6 +893,12 @@ export default function PublierPage() {
               placeholder="Rechercher et sélectionner des langues..."
               noOptionsMessage={() => "Aucune langue trouvée"}
               classNamePrefix="react-select"
+              aria-invalid={!!formErrors.required_languages}
+              aria-describedby={
+                formErrors.required_languages
+                  ? "required_languages-error"
+                  : undefined
+              }
               styles={getSelectStyles("required_languages")}
               classNames={{
                 control: () => getSelectControlClassName("required_languages"),
@@ -668,6 +926,10 @@ export default function PublierPage() {
               placeholder="Rechercher et sélectionner des compétences..."
               noOptionsMessage={() => "Aucune compétence trouvée"}
               classNamePrefix="react-select"
+              aria-invalid={!!formErrors.required_skills}
+              aria-describedby={
+                formErrors.required_skills ? "required_skills-error" : undefined
+              }
               styles={getSelectStyles("required_skills")}
               classNames={{
                 control: () => getSelectControlClassName("required_skills"),
@@ -680,7 +942,21 @@ export default function PublierPage() {
             {renderFieldError("required_skills")}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-4 pt-1">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+              <CalendarDays className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="font-bold text-slate-900">
+                Période et description
+              </h2>
+              <p className="text-xs text-slate-500">
+                Précisez les dates et détaillez les missions du poste.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Date de début */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -691,7 +967,7 @@ export default function PublierPage() {
                 name="date_debut"
                 value={formData.date_debut}
                 onChange={handleInputChange}
-                min={new Date().toISOString().split("T")[0]}
+                min={getLocalDateValue()}
                 className={getFieldClassName("date_debut")}
                 aria-invalid={!!formErrors.date_debut}
                 aria-describedby={
@@ -711,8 +987,12 @@ export default function PublierPage() {
                 name="date_fin"
                 value={formData.date_fin}
                 onChange={handleInputChange}
-                min={formData.date_debut || new Date().toISOString().split("T")[0]}
+                min={getNextDateValue(formData.date_debut)}
                 className={getFieldClassName("date_fin")}
+                aria-invalid={!!formErrors.date_fin}
+                aria-describedby={
+                  formErrors.date_fin ? "date_fin-error" : undefined
+                }
               />
               {renderFieldError("date_fin")}
             </div>
@@ -737,7 +1017,7 @@ export default function PublierPage() {
                   }
                 }}
                 placeholder="Décrivez le poste, les missions, les compétences requises..."
-                minHeight="300px"
+                minHeight="240px"
               />
             </div>
             {renderFieldError("description")}
@@ -748,18 +1028,18 @@ export default function PublierPage() {
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="sticky bottom-3 z-10 flex flex-col-reverse gap-3 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => window.history.back()}
-              className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              className="h-11 rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:min-w-28"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 font-medium rounded-lg transition-colors ${
+              className={`flex h-11 items-center justify-center gap-2 rounded-xl px-6 text-sm font-semibold shadow-sm transition sm:min-w-48 ${
                 isLoading
                   ? "bg-gray-400 text-white cursor-not-allowed"
                   : "bg-green-600 text-white hover:bg-green-700"
@@ -783,49 +1063,55 @@ export default function PublierPage() {
 
       {/* Success Modal */}
       {isSuccessModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => window.location.reload()}
-          ></div>
-          <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  className="w-8 h-8 text-amber-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="offer-success-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsSuccessModalOpen(false);
+            }
+          }}
+        >
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setIsSuccessModalOpen(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="px-6 pb-5 pt-8 text-center sm:px-7">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+                <CheckCircle2 className="h-7 w-7" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Offre soumise avec succès!
+              <h2
+                id="offer-success-title"
+                className="text-xl font-bold text-slate-950"
+              >
+                Offre soumise avec succès
               </h2>
-              <p className="text-gray-600">
-                Votre offre d'emploi a été soumise et est en attente de
-                validation par notre équipe. Vous serez notifié une fois qu'elle
-                sera approuvée et publiée.
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Votre offre est maintenant en attente de validation. Vous serez
+                notifié dès qu'elle sera approuvée et publiée.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="grid gap-2 border-t border-slate-100 bg-slate-50/70 p-4 sm:grid-cols-2">
               <button
+                type="button"
                 onClick={() => {
                   window.location.href = "/dashboard/entreprise/mes-offres";
                 }}
-                className="flex-1 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Voir mes offres
               </button>
               <button
-                onClick={() => window.location.reload()}
-                className="flex-1 px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                type="button"
+                onClick={() => setIsSuccessModalOpen(false)}
+                className="h-10 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
               >
                 Créer une autre
               </button>
@@ -836,50 +1122,56 @@ export default function PublierPage() {
 
       {/* Upgrade Modal */}
       {isUpgradeModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setIsUpgradeModalOpen(false)}
-          ></div>
-          <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  className="w-8 h-8 text-amber-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="upgrade-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget)
+              setIsUpgradeModalOpen(false);
+          }}
+        >
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setIsUpgradeModalOpen(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="px-6 pb-5 pt-8 text-center sm:px-7">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                <Sparkles className="h-7 w-7" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Limite atteinte
+              <h2
+                id="upgrade-title"
+                className="text-xl font-bold text-slate-950"
+              >
+                Abonnement requis
               </h2>
-              <p className="text-gray-600">
-                Vous avez atteint la limite de votre plan. Mettez à niveau pour
-                publier plus d'offres.
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Aucun abonnement actif ne permet actuellement de publier cette
+                offre. Consultez les plans disponibles pour continuer.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="grid gap-2 border-t border-slate-100 bg-slate-50/70 p-4 sm:grid-cols-2">
               <button
+                type="button"
                 onClick={() => setIsUpgradeModalOpen(false)}
-                className="flex-1 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Annuler
               </button>
               <button
+                type="button"
                 onClick={() =>
                   (window.location.href = "/dashboard/entreprise/services")
                 }
-                className="flex-1 px-6 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                className="h-10 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
               >
-                Mettre à niveau
+                Voir les abonnements
               </button>
             </div>
           </div>
@@ -888,76 +1180,76 @@ export default function PublierPage() {
 
       {/* Job Limit Reached Modal */}
       {isLimitReachedModalOpen && planInfo && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setIsLimitReachedModalOpen(false)}
-          ></div>
-          <div className="bg-white p-8 rounded-xl shadow-lg z-10 max-w-md w-full">
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  className="w-8 h-8 text-red-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="limit-title"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget)
+              setIsLimitReachedModalOpen(false);
+          }}
+        >
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setIsLimitReachedModalOpen(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="px-6 pb-5 pt-8 text-center sm:px-7">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600 ring-1 ring-red-100">
+                <AlertTriangle className="h-7 w-7" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              <h2 id="limit-title" className="text-xl font-bold text-slate-950">
                 Limite d'offres atteinte
               </h2>
-              <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Plan actuel:</span>
-                  <span className="text-sm font-semibold text-gray-900">
+              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left">
+                <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-2">
+                  <span className="text-sm text-slate-600">Plan actuel</span>
+                  <span className="truncate text-sm font-semibold text-slate-900">
                     {planInfo.planName}
                   </span>
                 </div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">
-                    Offres publiées:
+                <div className="flex items-center justify-between gap-4 border-b border-slate-200 py-2">
+                  <span className="text-sm text-slate-600">
+                    Offres publiées
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-slate-900">
                     {planInfo.jobPosted} / {planInfo.jobLimit}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
-                    Offres restantes:
+                <div className="flex items-center justify-between gap-4 pt-2">
+                  <span className="text-sm text-slate-600">
+                    Offres restantes
                   </span>
                   <span className="text-sm font-bold text-red-600">
                     {planInfo.jobRemaining}
                   </span>
                 </div>
               </div>
-              <p className="text-gray-600">
+              <p className="mt-4 text-sm leading-6 text-slate-600">
                 Vous avez atteint la limite de publication d'offres pour votre
                 plan actuel. Pour continuer à publier des offres, veuillez
                 mettre à niveau votre abonnement.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="grid gap-2 border-t border-slate-100 bg-slate-50/70 p-4 sm:grid-cols-2">
               <button
-                onClick={() => {
-                  setIsLimitReachedModalOpen(false);
-                  window.history.back();
-                }}
-                className="flex-1 px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                type="button"
+                onClick={() => setIsLimitReachedModalOpen(false)}
+                className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
-                Retour
+                Fermer
               </button>
               <button
+                type="button"
                 onClick={() =>
                   (window.location.href = "/dashboard/entreprise/services")
                 }
-                className="flex-1 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-colors shadow-sm"
+                className="h-10 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
               >
                 Mettre à niveau
               </button>

@@ -1,266 +1,354 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ProfileEntrepHeader from "@/components/ProfileEntrepriseHeader";
 import BioEntrepSection from "@/components/BioEntrep";
 import ContactSection from "@/components/contactSection";
 import Cookies from "js-cookie";
-import { LoadingSpinner } from "@/components/ui/spinner";
-import { HiOutlineOfficeBuilding, HiOutlineCollection } from "react-icons/hi";
-import { FaBuilding, FaGlobe, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import { useUser } from "@/hooks/useUser";
+import {
+  AlertTriangle,
+  BadgeCheck,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  MapPin,
+  RefreshCw,
+  Sparkles,
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
-const CompanyProfile: React.FC = () => {
+interface CompanyProfileData {
+  id: number;
+  company_name: string;
+  sector_name: string;
+  site_web: string;
+  linkedin: string;
+  phone: string;
+  email: string;
+  email_verified_at: string | null;
+  is_verified: boolean;
+  creationDate: string;
+  adresse: string;
+  description: string;
+  image: string | null;
+  logo: string | null;
+}
+
+const CompanyProfile = () => {
   const { user, isLoading: userLoading } = useUser();
-  const [companyProfile, setCompanyProfile] = useState<any>(null);
+  const [companyProfile, setCompanyProfile] =
+    useState<CompanyProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const fetchCompanyData = async () => {
-    if (!user) return;
+  const fetchCompanyData = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
 
-    const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-    const companyId = user.id;
-
-    if (companyId) {
-      const apiUrl = `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/enterprise/${companyId}`;
+      setLoading(true);
+      setLoadError(null);
+      const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
 
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(`/api/v1/enterprise/${user.id}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
+          signal,
         });
-
+        const payload = await response.json().catch(() => null);
         if (!response.ok) {
-          throw new Error("Failed to fetch company data");
+          throw new Error(
+            payload?.message || "Impossible de charger le profil entreprise.",
+          );
         }
+        const companyData = payload?.data ?? payload;
+        if (!companyData?.id) throw new Error("Réponse invalide du serveur.");
 
-        const companyData = await response.json();
-        const profileData = {
+        setCompanyProfile({
           id: companyData.id,
-          company_name: companyData.company_name,
-          sector_name: companyData.sector?.name,
-          site_web: companyData.site_web,
-          linkedin: companyData.linkedin,
-          phone: companyData.phone,
-          email: companyData.email,
-          email_verified_at: companyData.email_verified_at,
-          is_verified: companyData.is_verified,
-          creationDate: companyData.created_at.split("T")[0],
-          adresse: companyData.adresse,
+          company_name: companyData.company_name || "Entreprise",
+          sector_name: companyData.sector?.name || "Secteur non renseigné",
+          site_web: companyData.site_web || "",
+          linkedin: companyData.linkedin || "",
+          phone: companyData.phone || "",
+          email: companyData.email || "",
+          email_verified_at: companyData.email_verified_at || null,
+          is_verified:
+            companyData.is_verified === true ||
+            companyData.is_verified === 1 ||
+            String(companyData.is_verified).toLowerCase() === "accepted",
+          creationDate: companyData.created_at?.split("T")[0] || "",
+          adresse: companyData.adresse || "",
           description: companyData.description || "",
-          image: companyData.image || "https://via.placeholder.com/150",
-          logo: companyData.logo || "https://via.placeholder.com/150",
-        };
-        setCompanyProfile(profileData);
-        setLoading(false);
+          image: companyData.image || null,
+          logo: companyData.logo || companyData.image || null,
+        });
       } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Impossible de charger le profil entreprise.";
         console.error("Error fetching company data:", error);
-        setLoading(false);
+        setLoadError(message);
+        setCompanyProfile(null);
+      } finally {
+        if (!signal?.aborted) setLoading(false);
       }
-    }
-  };
+    },
+    [user?.id],
+  );
 
   useEffect(() => {
-    if (userLoading || !user) return;
-    fetchCompanyData();
-  }, [user, userLoading]);
+    if (userLoading) return;
+    const controller = new AbortController();
+    void fetchCompanyData(controller.signal);
+    return () => controller.abort();
+  }, [fetchCompanyData, userLoading]);
+
+  const profileStats = useMemo(() => {
+    if (!companyProfile) return { completed: 0, percentage: 0 };
+    const values = [
+      companyProfile.description,
+      companyProfile.site_web,
+      companyProfile.linkedin,
+      companyProfile.phone,
+      companyProfile.adresse,
+      companyProfile.logo,
+    ];
+    const completed = values.filter((value) => Boolean(value?.trim?.())).length;
+    return {
+      completed,
+      percentage: Math.round((completed / values.length) * 100),
+    };
+  }, [companyProfile]);
 
   if (userLoading || loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] gap-6">
-        <div className="w-12 h-12 border-4 border-gray-200 border-t-green-600 rounded-full animate-spin"></div>
+      <div className="flex min-h-[55vh] flex-col items-center justify-center gap-4">
+        <div className="h-11 w-11 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
         <div className="text-center">
-          <p className="text-lg font-semibold text-gray-900 mb-2">Chargement du profil entreprise</p>
-          <p className="text-sm text-gray-500">Veuillez patienter...</p>
+          <p className="font-semibold text-slate-900">
+            Chargement du profil entreprise
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            Récupération de vos informations…
+          </p>
         </div>
       </div>
     );
   }
 
-  // Calculate profile completion stats
-  const profileStats = {
-    total: 6,
-    completed: [
-      companyProfile?.description,
-      companyProfile?.site_web,
-      companyProfile?.linkedin,
-      companyProfile?.phone,
-      companyProfile?.adresse,
-      companyProfile?.logo && companyProfile?.logo !== "https://via.placeholder.com/150"
-    ].filter(Boolean).length
-  };
+  if (loadError || !companyProfile) {
+    return (
+      <div className="mx-auto max-w-xl rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+          <AlertTriangle className="h-7 w-7" />
+        </div>
+        <h1 className="mt-4 text-xl font-bold text-slate-950">
+          Profil indisponible
+        </h1>
+        <p className="mt-2 text-sm text-slate-600">
+          {loadError || "Votre profil n'a pas pu être récupéré."}
+        </p>
+        <button
+          type="button"
+          onClick={() => void fetchCompanyData()}
+          className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          <RefreshCw className="h-4 w-4" /> Réessayer
+        </button>
+      </div>
+    );
+  }
 
-  const completionPercentage = Math.round((profileStats.completed / profileStats.total) * 100);
+  const accountAge = companyProfile.creationDate
+    ? Math.max(
+        0,
+        new Date().getFullYear() -
+          new Date(`${companyProfile.creationDate}T12:00:00`).getFullYear(),
+      )
+    : 0;
+
+  const verification = !companyProfile.email_verified_at
+    ? {
+        icon: AlertTriangle,
+        title: "Email non vérifié",
+        text: "Vérifiez votre adresse email pour sécuriser le compte et activer toutes les fonctionnalités.",
+        classes: "border-amber-200 bg-amber-50 text-amber-900",
+        iconClasses: "bg-amber-100 text-amber-700",
+      }
+    : !companyProfile.is_verified
+      ? {
+          icon: Sparkles,
+          title: "Profil en cours de vérification",
+          text: "Notre équipe examine actuellement les informations de votre entreprise.",
+          classes: "border-blue-200 bg-blue-50 text-blue-900",
+          iconClasses: "bg-blue-100 text-blue-700",
+        }
+      : {
+          icon: CheckCircle2,
+          title: "Entreprise vérifiée",
+          text: "Votre profil est validé et toutes les fonctionnalités sont disponibles.",
+          classes: "border-emerald-200 bg-emerald-50 text-emerald-900",
+          iconClasses: "bg-emerald-100 text-emerald-700",
+        };
+  const VerificationIcon = verification.icon;
 
   return (
-    <div className="space-y-6 md:space-y-8">
-      {/* Verification Status Banner */}
-      {companyProfile && (
-        <div className="space-y-3 md:space-y-4">
-          {/* Email Verification Status */}
-          {!companyProfile.email_verified_at && (
-            <div className="bg-yellow-50 border border-yellow-200 p-3 md:p-4 rounded-lg">
-              <div className="flex items-center gap-2 md:gap-3">
-                <svg className="h-4 w-4 md:h-5 md:w-5 text-yellow-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <p className="text-xs md:text-sm text-yellow-800">
-                  <span className="font-medium">Email non vérifié.</span> Veuillez vérifier votre email pour activer toutes les fonctionnalités.
-                </p>
-              </div>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-700 p-5 text-white shadow-lg shadow-emerald-100 sm:p-7">
+        <div className="absolute -right-20 -top-28 h-72 w-72 rounded-full bg-white/10" />
+        <div className="relative flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
+              <Building2 className="h-6 w-6" />
             </div>
-          )}
-          
-          {/* Company Verification Status */}
-          {companyProfile.email_verified_at && !companyProfile.is_verified && (
-            <div className="bg-blue-50 border border-blue-200 p-3 md:p-4 rounded-lg">
-              <div className="flex items-center gap-2 md:gap-3">
-                <svg className="h-4 w-4 md:h-5 md:w-5 text-blue-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <p className="text-xs md:text-sm text-blue-800">
-                  <span className="font-medium">Compte en attente de vérification.</span> Notre équipe examine votre profil entreprise.
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-100">
+                Espace entreprise
+              </p>
+              <h1 className="mt-1 break-words text-2xl font-bold sm:text-3xl">
+                Profil de {companyProfile.company_name}
+              </h1>
+              <p className="mt-1 text-sm text-emerald-50">
+                Gérez votre identité, votre présentation et vos coordonnées.
+              </p>
             </div>
-          )}
-          
-          {/* Verified Status */}
-          {companyProfile.email_verified_at && companyProfile.is_verified && (
-            <div className="bg-green-50 border border-green-200 p-3 md:p-4 rounded-lg">
-              <div className="flex items-center gap-2 md:gap-3">
-                <svg className="h-4 w-4 md:h-5 md:w-5 text-green-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <p className="text-xs md:text-sm text-green-800">
-                  <span className="font-medium">Compte vérifié.</span> Votre entreprise est vérifiée et vous avez accès à toutes les fonctionnalités.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {/* Header with simple design */}
-      <div className="bg-green-50 rounded-lg border-2 border-green-200 p-4 md:p-6">
-        <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-          <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-            <HiOutlineOfficeBuilding className="text-green-600 text-lg md:text-xl" />
           </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold text-gray-900">Profil Entreprise</h1>
-            <p className="text-xs md:text-base text-gray-600">Gérez les informations de votre entreprise</p>
+          <div className="w-full max-w-sm rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-emerald-50">Profil complété</span>
+              <strong>{profileStats.percentage}%</strong>
+            </div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-black/15">
+              <div
+                className="h-full rounded-full bg-white transition-all"
+                style={{ width: `${profileStats.percentage}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-emerald-100">
+              {profileStats.completed} informations sur 6 renseignées
+            </p>
           </div>
         </div>
-        
-        {/* Profile Statistics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <FaBuilding className="text-green-600 text-sm md:text-base" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-base md:text-xl font-bold text-gray-900">{completionPercentage}%</p>
-                <p className="text-xs text-gray-600">Complété</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <FaGlobe className="text-green-600 text-sm md:text-base" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-base md:text-xl font-bold text-gray-900">{companyProfile?.sector_name ? 1 : 0}</p>
-                <p className="text-xs text-gray-600">Secteur</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <FaCalendarAlt className="text-green-600 text-sm md:text-base" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-base md:text-xl font-bold text-gray-900">{new Date().getFullYear() - new Date(companyProfile?.creationDate).getFullYear()}</p>
-                <p className="text-xs text-gray-600">Années</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white border-2 border-green-200 rounded-lg p-3 md:p-4">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <FaMapMarkerAlt className="text-green-600 text-sm md:text-base" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-base md:text-xl font-bold text-gray-900">{companyProfile?.adresse ? 1 : 0}</p>
-                <p className="text-xs text-gray-600">Localisation</p>
-              </div>
-            </div>
-          </div>
+      </section>
+
+      <div
+        className={`flex items-start gap-3 rounded-2xl border p-4 shadow-sm ${verification.classes}`}
+      >
+        <span
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${verification.iconClasses}`}
+        >
+          <VerificationIcon className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="font-semibold">{verification.title}</p>
+          <p className="mt-0.5 text-sm opacity-90">{verification.text}</p>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="space-y-4 md:space-y-6">
-        {/* Company Information - Combined Section */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-4 md:p-6">
-            <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-              <div className="h-6 w-6 md:h-8 md:w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <FaBuilding className="text-green-600 text-xs md:text-sm" />
-              </div>
-              <h2 className="text-base md:text-lg font-semibold text-gray-900">Informations de l'entreprise</h2>
-            </div>
-            
-            {/* Company Header */}
-            <div className="mb-4 md:mb-6">
-              <ProfileEntrepHeader
-                id={companyProfile.id}
-                company_name={companyProfile.company_name}
-                companyLogoUrl={companyProfile.logo}
-                sector_name={companyProfile.sector_name}
-                website={companyProfile.site_web}
-                creationDate={companyProfile.creationDate}
-                siegeSocial={companyProfile.adresse}
-                image={companyProfile.image}
-                onProfileUpdate={fetchCompanyData}
-              />
-            </div>
-            
-            {/* Divider */}
-            <div className="my-4 md:my-6 border-t border-gray-200"></div>
-            
-            {/* Two Column Layout for Description and Contact */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-              {/* Description Section */}
-              <div>
-                <BioEntrepSection
-                  id={companyProfile.id}
-                  bio={companyProfile.description}
-                />
-              </div>
-              
-              {/* Contact Section */}
-              <div>
-                <ContactSection
-                  id={companyProfile.id}
-                  email={companyProfile.email}
-                  phone={companyProfile.phone}
-                  linkedin={companyProfile.linkedin}
-                  adresse={companyProfile.adresse}
-                />
-              </div>
-            </div>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          {
+            icon: BadgeCheck,
+            value: `${profileStats.percentage}%`,
+            label: "Profil complété",
+            color: "text-emerald-700 bg-emerald-50",
+          },
+          {
+            icon: Building2,
+            value:
+              companyProfile.sector_name !== "Secteur non renseigné"
+                ? "Renseigné"
+                : "À compléter",
+            label: "Secteur",
+            color: "text-blue-700 bg-blue-50",
+          },
+          {
+            icon: CalendarDays,
+            value:
+              accountAge === 0
+                ? "Cette année"
+                : `${accountAge} an${accountAge > 1 ? "s" : ""}`,
+            label: "Ancienneté du compte",
+            color: "text-violet-700 bg-violet-50",
+          },
+          {
+            icon: MapPin,
+            value: companyProfile.adresse ? "Renseignée" : "À compléter",
+            label: "Localisation",
+            color: "text-amber-700 bg-amber-50",
+          },
+        ].map(({ icon: Icon, value, label, color }) => (
+          <div
+            key={label}
+            className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          >
+            <span
+              className={`flex h-9 w-9 items-center justify-center rounded-xl ${color}`}
+            >
+              <Icon className="h-4 w-4" />
+            </span>
+            <p className="mt-3 break-words text-lg font-bold text-slate-950">
+              {value}
+            </p>
+            <p className="mt-0.5 text-xs text-slate-500">{label}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
+          <h2 className="font-bold text-slate-950">
+            Informations de l'entreprise
+          </h2>
+          <p className="mt-0.5 text-sm text-slate-500">
+            Ces informations apparaissent sur vos offres et votre profil public.
+          </p>
+        </div>
+        <div className="space-y-5 p-4 sm:p-6">
+          <ProfileEntrepHeader
+            id={companyProfile.id}
+            company_name={companyProfile.company_name}
+            companyLogoUrl={companyProfile.logo || undefined}
+            sector_name={companyProfile.sector_name}
+            website={companyProfile.site_web}
+            creationDate={companyProfile.creationDate}
+            siegeSocial={companyProfile.adresse}
+            image={companyProfile.image || undefined}
+            onProfileUpdate={() => void fetchCompanyData()}
+          />
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <BioEntrepSection
+              id={companyProfile.id}
+              bio={companyProfile.description}
+              onUpdated={() => {
+                toast.success("Présentation mise à jour");
+                void fetchCompanyData();
+              }}
+            />
+            <ContactSection
+              id={companyProfile.id}
+              email={companyProfile.email}
+              phone={companyProfile.phone}
+              linkedin={companyProfile.linkedin}
+              adresse={companyProfile.adresse}
+              onUpdated={() => {
+                toast.success("Coordonnées mises à jour");
+                void fetchCompanyData();
+              }}
+            />
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

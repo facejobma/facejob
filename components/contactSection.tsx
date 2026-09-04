@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { Edit, Mail, Phone, Linkedin, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Edit3, Linkedin, Mail, MapPin, Phone, Save } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import Cookies from "js-cookie";
+import { toast } from "react-hot-toast";
 
 interface ContactSectionProps {
   id: number;
@@ -11,187 +12,253 @@ interface ContactSectionProps {
   phone: string;
   linkedin: string;
   adresse: string;
+  onUpdated?: () => void;
 }
 
-const ContactSection: React.FC<ContactSectionProps> = ({ id, email, phone, linkedin, adresse }) => {
-  const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
-
+const ContactSection = ({
+  id,
+  email,
+  phone,
+  linkedin,
+  adresse,
+  onUpdated,
+}: ContactSectionProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [newEmail, setNewEmail] = useState(email);
-  const [newPhone, setNewPhone] = useState(phone);
-  const [newLinkedin, setNewLinkedin] = useState(linkedin);
-  const [newAdresse, setNewAdresse] = useState(adresse);
+  const [newPhone, setNewPhone] = useState(phone || "");
+  const [newLinkedin, setNewLinkedin] = useState(linkedin || "");
+  const [newAdresse, setNewAdresse] = useState(adresse || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+  useEffect(() => {
+    setNewPhone(phone || "");
+    setNewLinkedin(linkedin || "");
+    setNewAdresse(adresse || "");
+  }, [phone, linkedin, adresse]);
 
-  const handleCloseModal = () => {
+  const closeModal = () => {
+    if (isSubmitting) return;
     setIsEditing(false);
-    setNewEmail(email);
-    setNewPhone(phone);
-    setNewLinkedin(linkedin);
-    setNewAdresse(adresse);
+    setNewPhone(phone || "");
+    setNewLinkedin(linkedin || "");
+    setNewAdresse(adresse || "");
   };
 
-  const handleContactUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(
-        `${(typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BACKEND_URL)}/api/v1/enterprise/updateId/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: newEmail,
-            phone: newPhone,
-            linkedin: newLinkedin,
-            adresse: newAdresse,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const updatedData = await response.json();
-        console.log("Updated contact:", updatedData);
-        setIsEditing(false);
-      } else {
-        console.error("Failed to update contact");
+  const handleContactUpdate = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    if (newPhone.length > 30 || newAdresse.length > 500) {
+      toast.error("Veuillez vérifier la longueur des coordonnées saisies.");
+      return;
+    }
+    if (newLinkedin) {
+      try {
+        const url = new URL(newLinkedin);
+        if (!["http:", "https:"].includes(url.protocol)) throw new Error();
+      } catch {
+        toast.error("Veuillez saisir une URL LinkedIn valide.");
+        return;
       }
+    }
+
+    setIsSubmitting(true);
+    try {
+      const authToken = Cookies.get("authToken")?.replace(/["']/g, "");
+      const response = await fetch(`/api/v1/enterprise/updateId/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone: newPhone.trim(),
+          linkedin: newLinkedin.trim(),
+          adresse: newAdresse.trim(),
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        const firstValidationError = payload?.errors
+          ? (Object.values(payload.errors)[0] as string[] | undefined)?.[0]
+          : null;
+        throw new Error(
+          firstValidationError ||
+            payload?.message ||
+            "Impossible de mettre à jour les coordonnées.",
+        );
+      }
+      setIsEditing(false);
+      onUpdated?.();
     } catch (error) {
       console.error("Error updating contact:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de la mise à jour.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const contactItems = [
+    {
+      icon: Mail,
+      label: "Email du compte",
+      value: email || "Non renseigné",
+      href: email ? `mailto:${email}` : undefined,
+      color: "bg-blue-50 text-blue-700",
+    },
+    {
+      icon: Phone,
+      label: "Téléphone",
+      value: newPhone || "Non renseigné",
+      href: newPhone ? `tel:${newPhone}` : undefined,
+      color: "bg-emerald-50 text-emerald-700",
+    },
+    {
+      icon: Linkedin,
+      label: "LinkedIn",
+      value: newLinkedin || "Non renseigné",
+      href: (() => {
+        try {
+          const url = new URL(newLinkedin);
+          return ["http:", "https:"].includes(url.protocol)
+            ? url.toString()
+            : undefined;
+        } catch {
+          return undefined;
+        }
+      })(),
+      color: "bg-sky-50 text-sky-700",
+    },
+    {
+      icon: MapPin,
+      label: "Adresse",
+      value: newAdresse || "Non renseignée",
+      color: "bg-amber-50 text-amber-700",
+    },
+  ];
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden h-full flex flex-col">
-      <div className="p-4 flex justify-between items-center border-b border-gray-200">
-        <h2 className="text-base font-semibold text-gray-900">Coordonnées de l'entreprise</h2>
-        <button
-          onClick={handleEditClick}
-          className="text-gray-400 hover:text-green-600 transition-colors"
-        >
-          <Edit className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="p-4 flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <Mail className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-gray-500 mb-0.5">Email</p>
-              <p className="text-sm text-gray-900 truncate">{newEmail}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <Phone className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-gray-500 mb-0.5">Téléphone</p>
-              <p className="text-sm text-gray-900 truncate">{newPhone}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <Linkedin className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-gray-500 mb-0.5">LinkedIn</p>
-              <a 
-                href={newLinkedin} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm text-green-600 hover:text-green-700 truncate block"
-              >
-                {newLinkedin || "Non renseigné"}
-              </a>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-gray-500 mb-0.5">Adresse</p>
-              <p className="text-sm text-gray-900 truncate">{newAdresse}</p>
-            </div>
-          </div>
+    <div className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5">
+        <div>
+          <h3 className="font-semibold text-slate-900">Coordonnées</h3>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Informations permettant de vous contacter.
+          </p>
         </div>
-        
         <button
-          onClick={handleEditClick}
-          className="mt-4 text-sm text-green-600 hover:text-green-700 font-medium transition-colors flex items-center gap-2"
+          type="button"
+          onClick={() => setIsEditing(true)}
+          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
         >
-          <Edit className="w-4 h-4" />
-          Modifier les coordonnées
+          <Edit3 className="h-4 w-4" />
+          <span className="hidden sm:inline">Modifier</span>
         </button>
       </div>
-
-
+      <div className="grid flex-1 grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-5">
+        {contactItems.map(({ icon: Icon, label, value, href, color }) => (
+          <div
+            key={label}
+            className="flex min-w-0 items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3.5"
+          >
+            <span
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${color}`}
+            >
+              <Icon className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs text-slate-500">{label}</p>
+              {href ? (
+                <a
+                  href={href}
+                  target={label === "LinkedIn" ? "_blank" : undefined}
+                  rel={label === "LinkedIn" ? "noopener noreferrer" : undefined}
+                  className="mt-0.5 block break-words text-sm font-medium text-slate-800 transition hover:text-emerald-700"
+                >
+                  {value}
+                </a>
+              ) : (
+                <p className="mt-0.5 break-words text-sm font-medium text-slate-700">
+                  {value}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
 
       <Modal
         isOpen={isEditing}
-        onClose={handleCloseModal}
-        title="Modifier les informations de Contact"
-        description="Mettre à jour les coordonnées de Contact de l'entreprise"
+        onClose={closeModal}
+        title="Modifier les coordonnées"
+        description="Actualisez les informations publiques de votre entreprise."
+        size="profile"
       >
-        <form onSubmit={handleContactUpdate}>
-          <label className="block mb-2">
-            Email
-            <input
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              className="block w-full mt-1 p-2 border rounded"
-              placeholder="exemple@email.com"
-            />
-          </label>
-          <label className="block mb-2">
+        <form onSubmit={handleContactUpdate} className="space-y-4">
+          <div className="rounded-xl border border-blue-100 bg-blue-50 p-3">
+            <p className="text-xs font-semibold text-blue-900">
+              Email du compte
+            </p>
+            <p className="mt-0.5 break-all text-sm text-blue-800">{email}</p>
+            <p className="mt-1 text-xs text-blue-700">
+              Pour des raisons de sécurité, l’adresse de connexion ne se modifie
+              pas depuis ce formulaire.
+            </p>
+          </div>
+          <label className="block text-sm font-semibold text-slate-800">
             Téléphone
             <input
-              type="text"
+              type="tel"
               value={newPhone}
-              onChange={(e) => setNewPhone(e.target.value)}
-              className="block w-full mt-1 p-2 border rounded"
+              onChange={(event) => setNewPhone(event.target.value)}
+              maxLength={30}
+              className="mt-2 min-h-11 w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
               placeholder="+212 6 12 34 56 78"
             />
           </label>
-          <label className="block mb-2">
+          <label className="block text-sm font-semibold text-slate-800">
             LinkedIn
             <input
-              type="text"
+              type="url"
               value={newLinkedin}
-              onChange={(e) => setNewLinkedin(e.target.value)}
-              className="block w-full mt-1 p-2 border rounded"
-              placeholder="https://linkedin.com/in/votre-profil"
+              onChange={(event) => setNewLinkedin(event.target.value)}
+              maxLength={255}
+              className="mt-2 min-h-11 w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="https://linkedin.com/company/votre-entreprise"
             />
           </label>
-          <label className="block mb-2">
-            Adresse Postale
-            <input
-              type="text"
+          <label className="block text-sm font-semibold text-slate-800">
+            Adresse
+            <textarea
               value={newAdresse}
-              onChange={(e) => setNewAdresse(e.target.value)}
-              className="block w-full mt-1 p-2 border rounded"
+              onChange={(event) => setNewAdresse(event.target.value)}
+              maxLength={500}
+              rows={3}
+              className="mt-2 w-full resize-y rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
               placeholder="123 Rue Exemple, Casablanca"
             />
           </label>
-          <button
-            type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors"
-          >
-            Sauvegarder
-          </button>
+          <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={closeModal}
+              disabled={isSubmitting}
+              className="h-10 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Save className="h-4 w-4" />
+              {isSubmitting ? "Enregistrement…" : "Enregistrer"}
+            </button>
+          </div>
         </form>
       </Modal>
     </div>

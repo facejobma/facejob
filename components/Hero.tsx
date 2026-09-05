@@ -9,13 +9,17 @@ export default function Hero() {
   const heroVideos = [
     { src: "/videos/video1.webm", label: "Candidate 1" },
     { src: "/videos/video2.webm", label: "Candidate 2" },
+    { src: "/videos/video3.webm", label: "Candidate 3" },
   ];
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [isSwitchingVideo, setIsSwitchingVideo] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const activeVideo = heroVideos[activeVideoIndex];
-  const previewVideoIndex = activeVideoIndex === 0 ? 1 : 0;
-  const previewVideo = heroVideos[previewVideoIndex];
+  const previousVideoIndex =
+    (activeVideoIndex - 1 + heroVideos.length) % heroVideos.length;
+  const nextVideoIndex = (activeVideoIndex + 1) % heroVideos.length;
+  const previousVideo = heroVideos[previousVideoIndex];
+  const nextVideo = heroVideos[nextVideoIndex];
   const activeVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -32,14 +36,14 @@ export default function Hero() {
 
     const timeoutId = window.setTimeout(() => {
       setIsSwitchingVideo(false);
-    }, 360);
+    }, 440);
 
     return () => window.clearTimeout(timeoutId);
   }, [isSwitchingVideo, activeVideoIndex]);
 
-  const switchVideo = () => {
+  const switchVideo = (videoIndex: number) => {
     setIsSwitchingVideo(true);
-    setActiveVideoIndex(previewVideoIndex);
+    setActiveVideoIndex(videoIndex);
   };
 
   useEffect(() => {
@@ -175,13 +179,28 @@ export default function Hero() {
                 <div className={`hero-video-stage absolute inset-0 ${isSwitchingVideo ? "is-switching" : ""}`}>
                   <button
                     type="button"
-                    className="hero-video-card hero-video-card-preview"
-                    onClick={switchVideo}
-                    aria-label={`Afficher la video de ${previewVideo.label}`}
+                    className="hero-video-card hero-video-card-preview hero-video-card-preview-left"
+                    onClick={() => switchVideo(previousVideoIndex)}
+                    aria-label={`Afficher la video de ${previousVideo.label}`}
                   >
                     <video
                       className="h-full w-full object-cover pointer-events-none"
-                      src={previewVideo.src}
+                      src={previousVideo.src}
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    className="hero-video-card hero-video-card-preview hero-video-card-preview-right"
+                    onClick={() => switchVideo(nextVideoIndex)}
+                    aria-label={`Afficher la video de ${nextVideo.label}`}
+                  >
+                    <video
+                      className="h-full w-full object-cover pointer-events-none"
+                      src={nextVideo.src}
                       muted
                       loop
                       playsInline

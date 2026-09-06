@@ -124,12 +124,55 @@ const PublishOffer: React.FC = () => {
       toast.error("Veuillez remplir tous les champs obligatoires.");
       return;
     }
+    if (title.trim().length < 5 || title.trim().length > 200) {
+      toast.error("Le titre doit contenir entre 5 et 200 caractères.");
+      return;
+    }
+    if (location.trim().length < 2 || location.trim().length > 100) {
+      toast.error("Le lieu doit contenir entre 2 et 100 caractères.");
+      return;
+    }
+    const plainDescription = description.replace(/<[^>]*>/g, "").trim();
+    if (plainDescription.length < 50 || plainDescription.length > 10000) {
+      toast.error("La description doit contenir entre 50 et 10 000 caractères.");
+      return;
+    }
     if (endDate && endDate <= startDate) {
       toast.error("La date de fin doit être postérieure à la date de début.");
       return;
     }
-    if (salaryMin && salaryMax && Number(salaryMax) < Number(salaryMin)) {
+    const minimumSalary = salaryMin === "" ? null : Number(salaryMin);
+    const maximumSalary = salaryMax === "" ? null : Number(salaryMax);
+    const experience = experienceRequired === "" ? null : Number(experienceRequired);
+    if ((minimumSalary !== null && minimumSalary < 0) || (maximumSalary !== null && maximumSalary < 0)) {
+      toast.error("Les salaires ne peuvent pas être négatifs.");
+      return;
+    }
+    if (minimumSalary !== null && maximumSalary !== null && maximumSalary < minimumSalary) {
       toast.error("Le salaire maximum doit être supérieur ou égal au salaire minimum.");
+      return;
+    }
+    if (experience !== null && (!Number.isInteger(experience) || experience < 0 || experience > 50)) {
+      toast.error("L’expérience requise doit être un nombre entier entre 0 et 50 ans.");
+      return;
+    }
+    if (selectedJob && !filteredJobs.some((job) => String(job.id) === selectedJob)) {
+      toast.error("Le métier sélectionné ne correspond pas au secteur choisi.");
+      return;
+    }
+
+    const languages = requiredLanguages.split(",").map((item) => item.trim()).filter(Boolean);
+    const skills = requiredSkills.split(",").map((item) => item.trim()).filter(Boolean);
+    if (languages.length > 20 || languages.some((item) => item.length > 50) || new Set(languages).size !== languages.length) {
+      toast.error("Utilisez au maximum 20 langues distinctes de 50 caractères.");
+      return;
+    }
+    if (skills.length > 30 || skills.some((item) => item.length > 100) || new Set(skills).size !== skills.length) {
+      toast.error("Utilisez au maximum 30 compétences distinctes de 100 caractères.");
+      return;
+    }
+    if (benefits.length > 8) {
+      toast.error("Vous pouvez sélectionner au maximum 8 avantages.");
       return;
     }
 
@@ -154,13 +197,13 @@ const PublishOffer: React.FC = () => {
               description,
               sector_id: selectedSector,
               job_id: selectedJob || null,
-              experience_required: experienceRequired === "" ? null : Number(experienceRequired),
-              salary_min: salaryMin === "" ? null : Number(salaryMin),
-              salary_max: salaryMax === "" ? null : Number(salaryMax),
+              experience_required: experience,
+              salary_min: minimumSalary,
+              salary_max: maximumSalary,
               currency,
               benefits,
-              required_languages: requiredLanguages.split(",").map((item) => item.trim()).filter(Boolean),
-              required_skills: requiredSkills.split(",").map((item) => item.trim()).filter(Boolean),
+              required_languages: languages,
+              required_skills: skills,
             }),
           },
         );

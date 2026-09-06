@@ -27,7 +27,8 @@ interface CompanyProfileData {
   phone: string;
   email: string;
   email_verified_at: string | null;
-  is_verified: boolean;
+  is_verified: "Pending" | "Accepted" | "Declined";
+  comment: string | null;
   creationDate: string;
   adresse: string;
   description: string;
@@ -79,10 +80,13 @@ const CompanyProfile = () => {
           phone: companyData.phone || "",
           email: companyData.email || "",
           email_verified_at: companyData.email_verified_at || null,
-          is_verified:
-            companyData.is_verified === true ||
-            companyData.is_verified === 1 ||
-            String(companyData.is_verified).toLowerCase() === "accepted",
+          is_verified: (() => {
+            const value = String(companyData.is_verified).toLowerCase();
+            if (value === "accepted" || value === "1" || value === "true") return "Accepted";
+            if (value === "declined") return "Declined";
+            return "Pending";
+          })(),
+          comment: companyData.comment || null,
           creationDate: companyData.created_at?.split("T")[0] || "",
           adresse: companyData.adresse || "",
           description: companyData.description || "",
@@ -185,7 +189,15 @@ const CompanyProfile = () => {
         classes: "border-amber-200 bg-amber-50 text-amber-900",
         iconClasses: "bg-amber-100 text-amber-700",
       }
-    : !companyProfile.is_verified
+    : companyProfile.is_verified === "Declined"
+      ? {
+          icon: AlertTriangle,
+          title: "Profil refusé",
+          text: companyProfile.comment || "Votre profil n’a pas été validé. Contactez le support pour obtenir plus d’informations.",
+          classes: "border-red-200 bg-red-50 text-red-900",
+          iconClasses: "bg-red-100 text-red-700",
+        }
+    : companyProfile.is_verified === "Pending"
       ? {
           icon: Sparkles,
           title: "Profil en cours de vérification",

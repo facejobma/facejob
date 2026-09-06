@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import { FaTrash, FaVideo, FaUpload, FaCheckCircle, FaCloudUploadAlt, FaEdit, FaInfoCircle } from "react-icons/fa";
+import { FaTrash, FaVideo, FaUpload, FaCheckCircle, FaCloudUploadAlt, FaInfoCircle, FaBriefcase, FaArrowRight, FaShieldAlt } from "react-icons/fa";
 import { fetchSectors, submitCandidateApplication } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -155,16 +155,20 @@ export default function PublishVideo() {
   const getSelectStyles = (hasError: boolean) => ({
     control: (base: any) => ({
       ...base,
-      minHeight: "42px",
-      height: "42px",
-      borderColor: hasError ? "#dc2626" : "#d1d5db",
-      boxShadow: hasError ? "0 0 0 1px rgba(220, 38, 38, 0.4)" : base.boxShadow,
-      borderRadius: "0.5rem",
-      "&:hover": { borderColor: hasError ? "#dc2626" : "#9ca3af" },
+      minHeight: "50px",
+      borderColor: hasError ? "#ef4444" : "#e2e8f0",
+      backgroundColor: "#ffffff",
+      boxShadow: hasError ? "0 0 0 3px rgba(239, 68, 68, 0.12)" : "0 1px 2px rgba(15, 23, 42, 0.03)",
+      borderRadius: "0.875rem",
+      cursor: "pointer",
+      "&:hover": { borderColor: hasError ? "#ef4444" : "#10b981" },
+      "&:focus-within": {
+        borderColor: hasError ? "#ef4444" : "#10b981",
+        boxShadow: hasError ? "0 0 0 3px rgba(239, 68, 68, 0.12)" : "0 0 0 3px rgba(16, 185, 129, 0.12)",
+      },
     }),
     valueContainer: (base: any) => ({
       ...base,
-      height: "42px",
       padding: "2px 12px",
     }),
     input: (base: any) => ({
@@ -174,12 +178,21 @@ export default function PublishVideo() {
     }),
     indicatorsContainer: (base: any) => ({
       ...base,
-      height: "42px",
+      minHeight: "50px",
     }),
     option: (base: any, state: any) => ({
       ...base,
       backgroundColor: state.isSelected ? "var(--primary)" : state.isFocused ? "#f3f4f6" : "white",
       color: state.isSelected ? "white" : "#111827",
+      cursor: "pointer",
+    }),
+    menu: (base: any) => ({
+      ...base,
+      zIndex: 50,
+      overflow: "hidden",
+      borderRadius: "0.875rem",
+      border: "1px solid #e2e8f0",
+      boxShadow: "0 16px 35px rgba(15, 23, 42, 0.14)",
     }),
   });
 
@@ -370,48 +383,74 @@ export default function PublishVideo() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1400px] space-y-6 pb-10">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Créer mon CV vidéo</h1>
-          <p className="text-gray-600 mt-1">Mettez en valeur vos compétences et démarquez-vous</p>
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-emerald-800 to-teal-700 p-6 text-white shadow-xl shadow-emerald-950/10 sm:p-8">
+        <div className="absolute -right-14 -top-16 h-52 w-52 rounded-full bg-white/10 blur-2xl" />
+        <div className="absolute -bottom-20 right-1/3 h-44 w-44 rounded-full bg-teal-300/10 blur-3xl" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-emerald-50 backdrop-blur-sm">
+              <FaVideo className="text-sm" /> Profil candidat
+            </span>
+            <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Créer mon CV vidéo</h1>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-emerald-50 sm:text-base">Présentez votre parcours en 90 secondes et donnez aux recruteurs une raison de vous rencontrer.</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {[
+              ["1", "Vidéo"],
+              ["2", "Profil"],
+              ["3", "Publication"],
+            ].map(([step, label]) => (
+              <div key={step} className="rounded-2xl border border-white/15 bg-white/10 px-3 py-3 text-center backdrop-blur-sm sm:min-w-24">
+                <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-black text-emerald-800">{step}</span>
+                <span className="mt-1.5 block text-[10px] font-semibold text-emerald-50 sm:text-xs">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Main Form */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_12px_45px_rgba(15,23,42,0.07)]">
+        <form onSubmit={handleSubmit} className="space-y-0" noValidate>
           {/* Video Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">Votre CV vidéo</h2>
-                <p className="text-gray-600 text-sm mt-1">Enregistrez ou importez votre présentation</p>
+          <div className="space-y-5 p-5 sm:p-7 lg:p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"><FaVideo className="text-lg" /></span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-700">Étape 1</p>
+                  <h2 className="mt-0.5 text-lg font-bold text-slate-900">Votre CV vidéo</h2>
+                  <p className="mt-1 text-sm text-slate-500">Enregistrez ou importez votre présentation</p>
+                </div>
                 {formErrors.video ? (
-                  <p className="text-sm text-red-600 mt-2">{formErrors.video}</p>
+                  <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 ring-1 ring-red-100">{formErrors.video}</p>
                 ) : null}
               </div>
-              <div className="text-right">
-                <p className="text-xs font-medium text-gray-500">Durée maximale</p>
-                <p className="text-sm font-bold text-green-600">1 min 30 sec</p>
+              <div className="flex items-center gap-3 self-start rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:self-auto">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-sm"><FaShieldAlt /></span>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Format recommandé</p>
+                  <p className="text-sm font-bold text-slate-800">90 sec · MP4 · 50 Mo</p>
+                </div>
               </div>
             </div>
 
             {/* Tabs */}
             {!videoUrl && (
               <div className="flex justify-center">
-                <div className="inline-flex gap-3 p-2 bg-gray-100 rounded-lg">
+                <div className="grid w-full max-w-xl grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-slate-100/80 p-1.5">
                   <button
                     type="button"
                     onClick={() => {
                       recorderRef.current?.stopCamera();
                       setVideoTab("upload");
                     }}
-                    className={`flex items-center gap-2 px-6 py-3 font-semibold text-sm rounded-lg transition-all ${
+                    className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 ${
                       videoTab === "upload"
-                        ? "bg-green-600 text-white shadow-md"
-                        : "text-gray-700 hover:bg-gray-200"
+                        ? "bg-white text-emerald-700 shadow-sm ring-1 ring-slate-200"
+                        : "text-slate-500 hover:bg-white/70 hover:text-slate-800"
                     }`}
                   >
                     <FaCloudUploadAlt className="text-lg" />
@@ -420,10 +459,10 @@ export default function PublishVideo() {
                   <button
                     type="button"
                     onClick={() => setVideoTab("record")}
-                    className={`flex items-center gap-2 px-6 py-3 font-semibold text-sm rounded-lg transition-all ${
+                    className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 ${
                       videoTab === "record"
-                        ? "bg-green-600 text-white shadow-md"
-                        : "text-gray-700 hover:bg-gray-200"
+                        ? "bg-white text-emerald-700 shadow-sm ring-1 ring-slate-200"
+                        : "text-slate-500 hover:bg-white/70 hover:text-slate-800"
                     }`}
                   >
                     <FaVideo className="text-lg" />
@@ -435,22 +474,22 @@ export default function PublishVideo() {
 
             {/* Video ready */}
             {videoUrl ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 max-w-lg mx-auto">
-                <div className="flex items-center mb-4">
-                  <FaCheckCircle className="text-green-600 text-2xl mr-3" />
+              <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm sm:p-5">
+                <div className="mb-4 flex items-center gap-3 rounded-2xl bg-white p-3 ring-1 ring-emerald-100">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700"><FaCheckCircle className="text-xl" /></span>
                   <div>
-                    <p className="font-semibold text-gray-900">Vidéo prête !</p>
-                    <p className="text-sm text-gray-600">Votre CV vidéo est uploadé avec succès</p>
+                    <p className="font-bold text-slate-900">Vidéo prête à publier</p>
+                    <p className="text-xs text-slate-500 sm:text-sm">Vérifiez l’aperçu avant de continuer</p>
                   </div>
                 </div>
                 <video 
                   src={videoUrl} 
                   controls 
                   crossOrigin="anonymous"
-                  className="w-full rounded-lg shadow-sm mb-4"
+                  className="mb-4 aspect-video w-full rounded-2xl bg-slate-950 object-contain shadow-lg"
                 />
                 <Button type="button" onClick={() => setVideoUrl(null)} variant="outline"
-                  className="text-red-600 border-red-300 hover:bg-red-50">
+                  className="h-11 w-full rounded-xl border-red-200 bg-white font-bold text-red-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700 sm:w-auto">
                   <FaTrash className="mr-2" />
                   Supprimer et recommencer
                 </Button>
@@ -468,41 +507,42 @@ export default function PublishVideo() {
                 />
 
                 {isCompressing ? (
-                  <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                    <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4" />
-                    <p className="text-gray-600 font-medium mb-2">
+                  <div className="flex min-h-72 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-emerald-300 bg-emerald-50/50 p-8 sm:p-12">
+                    <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+                    <p className="mb-2 font-bold text-slate-700">
                       {progress >= 85 ? "Finalisation..." : `Compression en cours... ${progress}%`}
                     </p>
-                    <div className="w-full max-w-xs bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-600 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                    <div className="h-2.5 w-full max-w-xs overflow-hidden rounded-full bg-emerald-100">
+                      <div className="h-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all" style={{ width: `${progress}%` }} />
                     </div>
                   </div>
                 ) : isUploadingRecording ? (
-                  <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                    <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4" />
-                    <p className="text-gray-600 font-medium">Upload en cours...</p>
+                  <div className="flex min-h-72 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-emerald-300 bg-emerald-50/50 p-8 sm:p-12">
+                    <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+                    <p className="font-bold text-slate-700">Téléversement en cours...</p>
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-12 flex flex-col items-center hover:border-green-600 hover:bg-gray-50 transition-colors"
+                    className="group/upload flex min-h-72 w-full flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-300 bg-gradient-to-b from-white to-slate-50/70 p-7 text-center transition duration-300 hover:border-emerald-400 hover:bg-emerald-50/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 sm:p-12"
                   >
-                    <FaCloudUploadAlt className="w-12 h-12 text-gray-400 mb-4" />
-                    <p className="text-base font-semibold text-gray-700 mb-2">Cliquez pour choisir une vidéo</p>
-                    <p className="text-sm text-gray-500">MP4, MOV, AVI — max 1 min 30 sec</p>
+                    <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-100 transition group-hover/upload:scale-105 group-hover/upload:bg-emerald-100"><FaCloudUploadAlt className="h-8 w-8" /></span>
+                    <p className="text-base font-black text-slate-800 sm:text-lg">Déposez votre vidéo ici</p>
+                    <p className="mt-1 text-sm text-slate-500">ou cliquez pour parcourir vos fichiers</p>
+                    <span className="mt-5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-500 shadow-sm">MP4, MOV ou AVI · 90 sec maximum · 50 Mo</span>
                   </button>
                 )}
               </div>
 
             ) : (
               /* Record tab with AI assistant sidebar */
-              <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3">
+              <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-5">
+                <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 p-2 shadow-lg lg:col-span-3">
                   {isUploadingRecording ? (
-                    <div className="flex flex-col items-center justify-center p-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 h-[450px]">
-                      <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4" />
-                      <p className="text-gray-600 font-medium">Upload en cours...</p>
+                    <div className="flex h-[450px] flex-col items-center justify-center rounded-2xl bg-slate-900 p-12 text-white">
+                      <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-200/20 border-t-emerald-400" />
+                      <p className="font-bold">Téléversement en cours...</p>
                     </div>
                   ) : (
                     <VideoRecorder 
@@ -515,7 +555,7 @@ export default function PublishVideo() {
                     />
                   )}
                 </div>
-                <div className="lg:col-span-2 space-y-4">
+                <div className="space-y-4 rounded-3xl border border-slate-200 bg-slate-50/70 p-3 lg:col-span-2">
                   <AIProfileScriptGenerator 
                     onScriptGenerated={(script) => {
                       setTeleprompterScript(script);
@@ -531,10 +571,10 @@ export default function PublishVideo() {
                     <button
                       type="button"
                       onClick={() => setShowTeleprompter(!showTeleprompter)}
-                      className={`w-full py-2.5 px-4 font-bold text-sm rounded-lg transition-all border ${
+                      className={`min-h-11 w-full rounded-xl border px-4 py-2.5 text-sm font-bold transition-all ${
                         showTeleprompter 
-                          ? "bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100" 
-                          : "bg-green-600 hover:bg-green-700 text-white shadow-sm border-transparent"
+                          ? "border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                          : "border-transparent bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
                       }`}
                     >
                       {showTeleprompter ? "Masquer le Téléprompteur" : "Afficher le Téléprompteur"}
@@ -546,15 +586,19 @@ export default function PublishVideo() {
           </div>
 
           {/* Form Fields */}
-          <div className="space-y-4 pt-6 border-t border-gray-200">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Informations professionnelles</h2>
-              <p className="text-gray-600 text-sm mt-1">Complétez votre profil</p>
+          <div className="space-y-5 border-t border-slate-200 bg-slate-50/60 p-5 sm:p-7 lg:p-8">
+            <div className="flex items-start gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm ring-1 ring-slate-200"><FaBriefcase /></span>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-emerald-700">Étape 2</p>
+                <h2 className="mt-0.5 text-lg font-bold text-slate-900">Informations professionnelles</h2>
+                <p className="mt-1 text-sm text-slate-500">Aidez les recruteurs à identifier rapidement votre profil</p>
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="grid grid-cols-1 gap-5 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-2 sm:p-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-700">
                   Années d'expérience <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -566,17 +610,17 @@ export default function PublishVideo() {
                       setFormErrors((prev) => ({ ...prev, experiences: undefined }));
                     }
                   }}
-                  className={`w-full h-[42px] px-4 text-sm rounded-lg border focus:outline-none focus:ring-2 ${formErrors.experiences ? "border-red-500 focus:border-red-500 focus:ring-red-200" : "border-gray-300 focus:border-green-500 focus:ring-green-500"}`}
+                  className={`h-[50px] w-full rounded-[14px] border bg-white px-4 text-sm font-medium text-slate-800 shadow-[0_1px_2px_rgba(15,23,42,0.03)] outline-none transition placeholder:text-slate-400 focus:ring-4 ${formErrors.experiences ? "border-red-500 focus:border-red-500 focus:ring-red-100" : "border-slate-200 hover:border-emerald-400 focus:border-emerald-500 focus:ring-emerald-100"}`}
                   placeholder="Ex: 3"
                   min="0"
                 />
                 {formErrors.experiences ? (
-                  <p className="mt-2 text-sm text-red-600">{formErrors.experiences}</p>
+                  <p className="text-xs font-semibold text-red-600">{formErrors.experiences}</p>
                 ) : null}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-slate-700">
                   Secteur d'activité <span className="text-red-500">*</span>
                 </label>
                 <Select
@@ -596,12 +640,12 @@ export default function PublishVideo() {
                   noOptionsMessage={() => "Aucun secteur trouvé"}
                 />
                 {formErrors.sector ? (
-                  <p className="mt-2 text-sm text-red-600">{formErrors.sector}</p>
+                  <p className="text-xs font-semibold text-red-600">{formErrors.sector}</p>
                 ) : null}
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="space-y-2 md:col-span-2">
+                <label className="block text-sm font-bold text-slate-700">
                   Poste recherché <span className="text-red-500">*</span>
                 </label>
                 <Select
@@ -621,17 +665,21 @@ export default function PublishVideo() {
                   noOptionsMessage={() => "Aucun métier trouvé"}
                 />
                 {formErrors.job ? (
-                  <p className="mt-2 text-sm text-red-600">{formErrors.job}</p>
+                  <p className="text-xs font-semibold text-red-600">{formErrors.job}</p>
                 ) : null}
               </div>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end pt-6 border-t border-gray-200">
+          <div className="flex flex-col gap-4 border-t border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7 lg:px-8">
+            <div className="flex items-start gap-2.5 text-xs text-slate-500 sm:max-w-md">
+              <FaShieldAlt className="mt-0.5 shrink-0 text-emerald-600" />
+              <p>Votre vidéo sera vérifiée avant sa publication. Vous pourrez suivre son statut depuis votre tableau de bord.</p>
+            </div>
             <Button
               type="submit"
-              className={`bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors ${
+              className={`group min-h-[52px] w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 font-bold text-white shadow-lg shadow-emerald-200 transition hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl sm:w-auto ${
                 uploadStatus === "uploading" ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={uploadStatus === "uploading"}
@@ -645,6 +693,7 @@ export default function PublishVideo() {
                 <>
                   <FaUpload className="mr-2" />
                   Publier mon CV vidéo
+                  <FaArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
                 </>
               )}
             </Button>

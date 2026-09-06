@@ -273,7 +273,7 @@ export default function EntrepriseDashboardPage() {
   const companyName = user?.company_name || "votre entreprise";
   const cards = [
     {
-      label: "Offres publiées",
+      label: "Offres créées",
       value: stats.totalOffres,
       note: "depuis la création du compte",
       icon: BriefcaseBusiness,
@@ -368,7 +368,7 @@ export default function EntrepriseDashboardPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="font-semibold text-slate-900">Offres publiées</h2>
+              <h2 className="font-semibold text-slate-900">Offres créées</h2>
               <p className="mt-1 text-xs text-slate-500">
                 Évolution mensuelle en {currentYear}
               </p>

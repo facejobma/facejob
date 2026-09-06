@@ -9,7 +9,8 @@ import { LANGUAGE_OPTIONS } from "@/constants/languages";
 import { useUser } from "@/hooks/useUser";
 import { 
   MapPin, Briefcase, GraduationCap, Code, Building2, 
-  Calendar, Check, User, Filter, X, Eye, FileText, RefreshCw, SlidersHorizontal, Video
+  Calendar, Check, User, Filter, X, Eye, FileText, RefreshCw, SlidersHorizontal, Video,
+  Download, LockKeyhole, Play
 } from "lucide-react";
 
 interface Formation {
@@ -127,6 +128,9 @@ const CandidatsPage: React.FC = () => {
     
     return 0;
   };
+
+  const remainingCredits = getRemainingCredits();
+  const hasAvailableCredits = remainingCredits === 999 || remainingCredits > 0;
 
   // Fonction pour corriger les URLs avec des backslashes échappés
   const fixImageUrl = (url: string | null): string => {
@@ -420,7 +424,7 @@ const CandidatsPage: React.FC = () => {
       return;
     }
     
-    if (!lastPayment || lastPayment.status?.toLowerCase() === "pending" || getRemainingCredits() <= 0) {
+    if (!lastPayment || lastPayment.status?.toLowerCase() !== "accepted" || !hasAvailableCredits) {
       setIsUpgradeModalOpen(true);
       return;
     }
@@ -450,6 +454,8 @@ const CandidatsPage: React.FC = () => {
         },
       );
 
+      const responseData = await response.json().catch(() => ({}));
+
       if (response.ok) {
         setIsConfirmModalOpen(false);
         // Remove from list
@@ -457,10 +463,18 @@ const CandidatsPage: React.FC = () => {
         
         // Update credits
         if (lastPayment) {
-          const currentCredits = getRemainingCredits();
+          const serverRemaining = responseData.remaining_consultations;
+          const nextRemaining = serverRemaining === "unlimited"
+            ? "unlimited"
+            : Math.max(
+                0,
+                serverRemaining !== undefined
+                  ? Number(serverRemaining) || 0
+                  : remainingCredits - 1,
+              );
           setLastPayment({
             ...lastPayment,
-            contact_access_remaining: currentCredits === 999 ? 'unlimited' : Math.max(0, currentCredits - 1)
+            contact_access_remaining: nextRemaining,
           });
         }
         
@@ -485,7 +499,7 @@ const CandidatsPage: React.FC = () => {
           );
         }, 1000);
       } else {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = responseData;
         
         // Handle already consumed - show the candidate info directly
         if (response.status === 409 && errorData.error === "Video already consumed") {
@@ -513,6 +527,11 @@ const CandidatsPage: React.FC = () => {
             );
           }, 1000);
         } else if (response.status === 402 && errorData.needs_upgrade) {
+          setIsConfirmModalOpen(false);
+          setLastPayment((current) => current ? {
+            ...current,
+            contact_access_remaining: 0,
+          } : current);
           toast.error(errorData.message || "Vous avez atteint la limite de consultations de CV.", { duration: 5000 });
           setTimeout(() => {
             setIsUpgradeModalOpen(true);
@@ -919,17 +938,17 @@ const CandidatsPage: React.FC = () => {
         ) : (
           <>
             {/* Grid View - Desktop and Mobile */}
-            <div className="relative grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className="relative grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {candidates.map((candidate) => (
                 <div
                   key={candidate.cv_id}
-                  className="relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg"
+                  className="group/card relative flex min-w-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-[0_18px_45px_rgba(5,150,105,0.14)]"
                 >
                   {/* Video Preview */}
                   <button
                     type="button"
                     aria-label={`Consulter le profil de ${candidate.full_name || "ce candidat"}`}
-                    className="group relative h-40 w-full overflow-hidden bg-slate-950 text-left focus:outline-none focus:ring-4 focus:ring-emerald-200 sm:h-44"
+                    className="group/video relative h-44 w-full overflow-hidden bg-slate-950 text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-emerald-300 sm:h-48"
                     onClick={() => handleVideoClick(candidate)}
                     onMouseEnter={() => {
                       const video = videoRefs.current[candidate.cv_id];
@@ -946,29 +965,42 @@ const CandidatsPage: React.FC = () => {
                       }
                     }}
                   >
-                    {hasPlayableVideo(candidate) ? <video
-                      ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
-                      src={getVideoUrl(candidate.link)}
-                      className="w-full h-full object-cover"
-                      style={{ position: 'relative' }}
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
-                      controlsList="nodownload"
-                    /> : <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-900 to-slate-800 px-5 text-center text-white"><Video className="h-7 w-7 text-emerald-300" /><span className="text-sm font-semibold">Aperçu vidéo indisponible</span><span className="text-xs text-slate-300">Le profil reste consultable.</span></div>}
-                    <div className="pointer-events-none absolute inset-0 flex items-end justify-between bg-gradient-to-t from-slate-950/85 via-slate-950/5 to-transparent p-3">
-                      <span className="rounded-lg bg-slate-950/55 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">Profil anonyme</span>
-                      {hasPlayableVideo(candidate) && <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm ring-1 ring-white/40 transition group-hover:scale-110"><Eye className="h-5 w-5" /></span>}
+                    {hasPlayableVideo(candidate) ? (
+                      <video
+                        ref={(el) => { videoRefs.current[candidate.cv_id] = el; }}
+                        src={getVideoUrl(candidate.link)}
+                        className="h-full w-full object-cover transition duration-500 group-hover/video:scale-[1.03]"
+                        style={{ position: 'relative' }}
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        controlsList="nodownload"
+                      />
+                    ) : (
+                      <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-5 text-center text-white">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15"><Video className="h-6 w-6 text-emerald-300" /></span>
+                        <span className="text-sm font-semibold">Aperçu vidéo indisponible</span>
+                        <span className="text-xs text-slate-300">Le profil reste consultable</span>
+                      </div>
+                    )}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-slate-950/10" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between p-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-slate-950/45 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-white backdrop-blur-md"><Video className="h-3 w-3" /> CV vidéo</span>
+                      <span className="rounded-full border border-emerald-300/30 bg-emerald-400/20 px-2.5 py-1 text-[10px] font-semibold text-emerald-50 backdrop-blur-md">Disponible</span>
+                    </div>
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-3.5">
+                      <span className="rounded-lg bg-slate-950/50 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">Profil anonyme</span>
+                      {hasPlayableVideo(candidate) && <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-emerald-700 shadow-lg ring-4 ring-white/20 transition duration-300 group-hover/video:scale-110"><Play className="ml-0.5 h-4 w-4 fill-current" /></span>}
                     </div>
                   </button>
 
                   {/* Card Content */}
                   <div className="flex flex-1 flex-col p-4 sm:p-5">
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-4">
                       {/* Profile Header */}
                       <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border-2 border-emerald-200 bg-emerald-50">
+                        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-2xl border-2 border-white bg-emerald-50 shadow-md ring-1 ring-emerald-100">
                           {candidate.image ? (
                             <img 
                               src={getImageUrl(candidate.image)}
@@ -983,60 +1015,64 @@ const CandidatsPage: React.FC = () => {
                             />
                           ) : null}
                           <div 
-                            className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-sm font-bold"
+                            className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-400 to-teal-700 text-sm font-bold text-white"
                             style={{ display: candidate.image ? 'none' : 'flex' }}
                           >
                             {candidate.full_name?.[0] || 'C'}
                           </div>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-sm text-gray-900 truncate">{candidate.full_name || 'Candidat'}</h3>
-                          <p className="text-xs text-gray-600 truncate">{candidate.job?.name || 'Non spécifié'}</p>
+                          <h3 className="truncate text-[15px] font-bold text-slate-900">{candidate.full_name || 'Candidat'}</h3>
+                          <p className="mt-0.5 truncate text-xs font-medium text-emerald-700">{candidate.job?.name || 'Non spécifié'}</p>
                         </div>
                       </div>
 
                       {/* Quick Info */}
-                      <div className="flex flex-wrap gap-1.5 pt-1 text-xs">
-                        {candidate.city && (
-                          <span className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            <span className="truncate max-w-[80px]">{candidate.city}</span>
-                          </span>
-                        )}
-                        <span className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {candidate.years_of_experience} ans
-                        </span>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-2.5 py-2.5 text-slate-700">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm"><MapPin className="h-3.5 w-3.5" /></span>
+                          <span className="min-w-0"><span className="block text-[9px] font-bold uppercase tracking-wide text-slate-400">Ville</span><span className="block truncate font-semibold">{candidate.city || 'Non indiquée'}</span></span>
+                        </div>
+                        <div className="flex min-w-0 items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-2.5 py-2.5 text-slate-700">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm"><Briefcase className="h-3.5 w-3.5" /></span>
+                          <span className="min-w-0"><span className="block text-[9px] font-bold uppercase tracking-wide text-slate-400">Expérience</span><span className="block truncate font-semibold">{candidate.years_of_experience} an{candidate.years_of_experience > 1 ? 's' : ''}</span></span>
+                        </div>
                       </div>
 
                       {/* CV Upload Date */}
                       {candidate.created_at && (
-                        <p className="flex items-center gap-1 text-xs text-slate-400">
-                          <Calendar className="w-3 h-3" />
+                        <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                          <Calendar className="h-3.5 w-3.5" />
                           CV mis en ligne le {new Date(candidate.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </p>
                       )}
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="mt-auto grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
+                    <div className="mt-5 space-y-2.5 border-t border-slate-100 pt-4">
                       <button
+                        type="button"
                         onClick={() => handleGenerateCV(candidate.id)}
-                        className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-[11px] font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800"
+                        className="group/button flex min-h-12 w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left transition duration-200 hover:border-emerald-300 hover:bg-emerald-50/70 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100"
                         title="Télécharger le CV anonyme gratuitement"
                       >
-                        <FileText className="w-4 h-4" />
-                        <span className="hidden sm:inline">CV anonyme (gratuit)</span>
-                        <span className="sm:hidden">CV anonyme</span>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition group-hover/button:bg-white group-hover/button:text-emerald-700 group-hover/button:shadow-sm"><FileText className="h-4 w-4" /></span>
+                        <span className="min-w-0 flex-1"><span className="block text-xs font-bold text-slate-800">Télécharger le CV</span><span className="block text-[10px] font-medium text-slate-400">Version anonyme gratuite</span></span>
+                        <Download className="h-4 w-4 text-slate-400 transition group-hover/button:translate-y-0.5 group-hover/button:text-emerald-700" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleConsumeClick(candidate)}
-                        disabled={isConsuming}
-                        className="flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2.5 py-2 text-[11px] font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
-                        title="Débloquer les coordonnées du candidat"
+                        disabled={isConsuming || !hasAvailableCredits}
+                        className="group/button flex min-h-12 w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-2.5 text-left text-white shadow-md shadow-emerald-200/70 transition duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 disabled:cursor-not-allowed disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-500 disabled:shadow-none"
+                        title={hasAvailableCredits ? "Débloquer les coordonnées du candidat" : "Aucun crédit disponible"}
                       >
-                        <Eye className="w-4 h-4" />
-                        <span className="leading-tight text-center">Débloquer<br/><span className="text-[9px] opacity-80">(1 crédit)</span></span>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 group-disabled/button:bg-slate-300 group-disabled/button:ring-slate-300">{hasAvailableCredits ? <Eye className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}</span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xs font-bold">{hasAvailableCredits ? 'Débloquer le profil' : 'Crédits épuisés'}</span>
+                          <span className="block text-[10px] font-medium text-white/75 group-disabled/button:text-slate-400">{hasAvailableCredits ? 'Coordonnées complètes' : 'Aucun accès disponible'}</span>
+                        </span>
+                        <span className="rounded-lg bg-white/15 px-2 py-1 text-[10px] font-bold ring-1 ring-white/20 group-disabled/button:bg-white group-disabled/button:text-slate-500 group-disabled/button:ring-slate-300">{hasAvailableCredits ? '1 crédit' : 'Solde 0'}</span>
                       </button>
                     </div>
                   </div>
@@ -1272,22 +1308,24 @@ const CandidatsPage: React.FC = () => {
               </div>
 
               {/* Footer Actions */}
-              <div className="flex flex-shrink-0 flex-col gap-2 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:justify-end md:px-6">
+              <div className="grid flex-shrink-0 gap-2.5 border-t border-slate-200 bg-slate-50/70 px-4 py-4 sm:grid-cols-2 md:px-6">
                 <button
+                  type="button"
                   onClick={() => handleGenerateCV(detailCandidate.id)}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800 sm:w-auto sm:min-w-48"
+                  className="group/button flex min-h-14 w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100"
                 >
-                  <FileText className="w-4 h-4" />
-                  <span className="hidden sm:inline">CV anonyme (gratuit)</span>
-                  <span className="sm:hidden">CV anonyme</span>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition group-hover/button:bg-white group-hover/button:text-emerald-700"><FileText className="h-4 w-4" /></span>
+                  <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-slate-800">Télécharger le CV</span><span className="block text-[11px] font-medium text-slate-400">Anonyme et gratuit</span></span>
+                  <Download className="h-4 w-4 text-slate-400 group-hover/button:text-emerald-700" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleConsumeClick(detailCandidate)}
-                  disabled={isConsuming}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-44"
+                  disabled={isConsuming || !hasAvailableCredits}
+                  className="group/button flex min-h-14 w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-left text-white shadow-md shadow-emerald-200 transition hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 disabled:cursor-not-allowed disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-500 disabled:shadow-none"
                 >
-                  <Check className="w-4 h-4" />
-                  <span className="leading-tight text-center">Débloquer<br/><span className="text-[11px] opacity-80">(1 crédit)</span></span>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 group-disabled/button:bg-slate-300 group-disabled/button:ring-slate-300">{hasAvailableCredits ? <Eye className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}</span>
+                  <span className="min-w-0 flex-1"><span className="block text-sm font-bold">{hasAvailableCredits ? 'Débloquer le profil' : 'Crédits épuisés'}</span><span className="block text-[11px] font-medium text-white/75 group-disabled/button:text-slate-400">{hasAvailableCredits ? 'Coût : 1 crédit' : 'Solde disponible : 0'}</span></span>
                 </button>
               </div>
             </div>
@@ -1318,7 +1356,7 @@ const CandidatsPage: React.FC = () => {
                       Cette action débloquera 1 crédit
                     </p>
                     <p className="text-xs text-orange-700">
-                      Crédits restants après déblocage : {getRemainingCredits() - 1}
+                      Crédits restants après déblocage : {remainingCredits === 999 ? '∞' : Math.max(0, remainingCredits - 1)}
                     </p>
                   </div>
                 </div>
@@ -1326,20 +1364,22 @@ const CandidatsPage: React.FC = () => {
 
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row">
                 <button
+                  type="button"
                   onClick={() => {
                     setIsConfirmModalOpen(false);
                     setCandidateToConsume(null);
                   }}
-                  className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="min-h-12 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-100"
                 >
                   Annuler
                 </button>
                 <button
+                  type="button"
                   onClick={confirmConsume}
                   disabled={isConsuming}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-bold text-white shadow-md shadow-emerald-200 transition hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <Check className="w-5 h-5" />
+                  {isConsuming ? <RefreshCw className="h-4 w-4 animate-spin" /> : <LockKeyhole className="h-4 w-4" />}
                   {isConsuming ? "Déblocage..." : "Confirmer"}
                 </button>
               </div>

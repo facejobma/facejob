@@ -1,118 +1,63 @@
-"use client";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { ArrowRight, Building2, Search, Video } from "lucide-react";
 import Hero from "../components/Hero";
 import HowWorks from "../components/HowWorks";
-import { 
-  OrganizationStructuredData, 
-  WebSiteStructuredData, 
-  FAQStructuredData,
-  BreadcrumbStructuredData 
-} from "../components/StructuredData";
+import { BreadcrumbStructuredData, FAQStructuredData, OrganizationStructuredData, WebSiteStructuredData } from "../components/StructuredData";
 
-// Lazy load below-the-fold components
-const Category = dynamic(() => import("../components/Category"), {
-  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />
-});
-const FeaturedOffers = dynamic(() => import("../components/FeaturedOffers"), {
-  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />
-});
-const Testimonials = dynamic(() => import("../components/Testimonials"), {
-  loading: () => <div className="h-96 bg-optional1 animate-pulse" />
-});
-const Subscription = dynamic(() => import("../components/Subscription"), {
-  loading: () => <div className="h-80 bg-gray-50 animate-pulse" />
-});
-const Footer = dynamic(() => import("../components/Footer"), {
-  loading: () => <div className="h-96 bg-gray-900 animate-pulse" />
-});
+const FeaturedOffers = dynamic(() => import("../components/FeaturedOffers"), { loading: () => <div className="h-96 animate-pulse bg-slate-50" /> });
+const Testimonials = dynamic(() => import("../components/Testimonials"), { loading: () => <div className="h-96 animate-pulse bg-emerald-50/50" /> });
+const Subscription = dynamic(() => import("../components/Subscription"), { loading: () => <div className="h-80 animate-pulse bg-white" /> });
+const Footer = dynamic(() => import("../components/Footer"), { loading: () => <div className="h-96 animate-pulse bg-slate-900" /> });
+
+const benefits = [
+  { icon: Video, title: "CV vidéo", text: "Présentez plus que votre parcours." },
+  { icon: Search, title: "Offres pertinentes", text: "Trouvez plus vite les bonnes opportunités." },
+  { icon: Building2, title: "Lien direct", text: "Facilitez la découverte par les recruteurs." },
+];
 
 export default function Home() {
-    const breadcrumbItems = [
-        { name: "Accueil", url: "/" }
-    ];
+  return (
+    <div className="w-full overflow-hidden bg-white">
+      <OrganizationStructuredData />
+      <WebSiteStructuredData />
+      <FAQStructuredData />
+      <BreadcrumbStructuredData items={[{ name: "Accueil", url: "/" }]} />
 
-    return (
-        <div className="w-full">
-            {/* Enhanced Structured Data */}
-            <OrganizationStructuredData />
-            <WebSiteStructuredData />
-            <FAQStructuredData />
-            <BreadcrumbStructuredData items={breadcrumbItems} />
-            
-            {/* Hero Section - Above the fold content - Load immediately */}
-            <Hero/>
-            
-            {/* Main Content - Optimized section order for conversion */}
-            <main className="w-full">
-                {/* Social Proof - Early trust building */}
-                {/* <section className="bg-gradient-to-b from-white to-gray-50 py-12 border-b border-gray-100">
-                    <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="flex flex-col items-center text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
-                                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center mb-4 shadow-lg">
-                                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                                <p className="text-3xl font-bold text-gray-900 mb-1">783+</p>
-                                <p className="text-gray-600 font-medium">Candidats recrutés</p>
-                            </div>
+      <Hero />
 
-                            <div className="flex flex-col items-center text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
-                                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-4 shadow-lg">
-                                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-                                        <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
-                                    </svg>
-                                </div>
-                                <p className="text-3xl font-bold text-gray-900 mb-1">1000+</p>
-                                <p className="text-gray-600 font-medium">Offres d'emploi</p>
-                            </div>
-
-                            <div className="flex flex-col items-center text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
-                                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mb-4 shadow-lg">
-                                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                                <p className="text-3xl font-bold text-gray-900 mb-1">100%</p>
-                                <p className="text-gray-600 font-medium">Gratuit</p>
-                            </div>
-                        </div>
-                    </div>
-                </section> */}
-
-                {/* How It Works - Core value proposition - Load immediately */}
-                <HowWorks/>
-                
-                {/* Job Categories - Lazy loaded */}
-                {/* <Category/> */}
-                
-                {/* Featured Offers - Lazy loaded */}
-                <FeaturedOffers/>
-                
-                {/* Testimonials - Lazy loaded */}
-                <Testimonials/>
-                
-                {/* Benefits/Subscription - Lazy loaded */}
-                <Subscription/>
-                
-                {/* About - CTA vers page dédiée */}
-                <section className="py-12 bg-white">
-                  <div className="container mx-auto px-4 text-center max-w-xl">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-secondary mb-3">À propos de nous</h2>
-                    <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                      Découvrez la vision et la mission de FaceJob, la première plateforme d'emploi avec CV vidéo au Maroc.
-                    </p>
-                    <a href="/apropsdenous" className="inline-flex items-center justify-center px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary-1 transition-colors text-sm">
-                      En savoir plus
-                    </a>
-                  </div>
-                </section>
-                
-                {/* Footer - Lazy loaded */}
-                <Footer/>
-            </main>
+      <section aria-label="Les avantages FaceJob" className="relative z-10 border-y border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-7xl divide-y divide-slate-200 px-4 sm:px-6 md:grid-cols-3 md:divide-x md:divide-y-0 lg:px-8">
+          {benefits.map(({ icon: Icon, title, text }) => (
+            <div key={title} className="flex items-center gap-4 py-5 md:px-6">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+              <div><p className="font-semibold text-slate-900">{title}</p><p className="mt-0.5 text-sm text-slate-500">{text}</p></div>
+            </div>
+          ))}
         </div>
-    );
+      </section>
+
+      <main className="w-full">
+        <HowWorks />
+        <FeaturedOffers />
+        <Testimonials />
+        <Subscription />
+
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-3xl bg-slate-900 px-6 py-10 sm:px-10 lg:flex lg:items-center lg:justify-between lg:px-14 lg:py-12">
+              <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+              <div className="relative max-w-2xl">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-400">Notre mission</p>
+                <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Rendre le recrutement plus humain au Maroc</h2>
+                <p className="mt-4 leading-7 text-slate-300">FaceJob aide les candidats à montrer leur potentiel et permet aux entreprises de découvrir les profils au-delà du CV traditionnel.</p>
+              </div>
+              <Link href="/apropsdenous" className="relative mt-7 inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-emerald-50 lg:ml-10 lg:mt-0">Découvrir FaceJob <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </main>
+    </div>
+  );
 }

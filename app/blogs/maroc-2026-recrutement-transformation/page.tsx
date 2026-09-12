@@ -64,12 +64,12 @@ function BlogStructuredData() {
 
 const Blog1Page: React.FC = () => {
   return (
-    <div className="min-h-screen bg-optional1">
+    <div className="blog-article-page min-h-screen bg-slate-50">
       <BlogStructuredData />
       <NavBar />
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-16 overflow-hidden">
+      <header className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-white via-emerald-50/50 to-white pb-14 pt-20">
         {/* Background decorations */}
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
         <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
@@ -97,11 +97,11 @@ const Blog1Page: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Article Content */}
-      <article className="container mx-auto px-6 py-16">
-        <div className="max-w-4xl mx-auto">
+      <article className="container mx-auto px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mx-auto max-w-3xl">
           {/* Featured Image */}
           <div className="mb-12 rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100">
             <img
@@ -112,7 +112,7 @@ const Blog1Page: React.FC = () => {
           </div>
 
           {/* Article Body */}
-          <div className="prose prose-lg max-w-none">
+          <div className="blog-article-content prose prose-lg max-w-none">
             <div className="bg-gradient-to-r from-primary/5 to-green-50/50 border-l-4 border-primary p-6 mb-8 rounded-r-xl shadow-sm">
               <p className="font-body text-lg text-gray-700 leading-relaxed font-medium">
                 Du nord au sud, d'Agadir à Oujda, le Maroc vit une transformation sans précédent. En 2026, avec des projets colossaux comme l'organisation de la Coupe du Monde, le développement de l'Hydrogène vert et l'essor de la "Digital Factory" nationale, le marché de l'emploi explose.

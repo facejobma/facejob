@@ -171,12 +171,12 @@ const OfferDetailPage: React.FC = () => {
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-optional1">
+      <div className="min-h-screen bg-slate-50">
 
         {/* Hero banner */}
-        <div className="relative bg-gradient-to-br from-white via-optional1 to-green-50/30 pt-20 pb-12 overflow-hidden">
+        <div className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-br from-white via-emerald-50/50 to-white pb-12 pt-20">
           {/* Background decorations */}
-          <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full blur-3xl opacity-60 pointer-events-none animate-pulse" />
+          <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
           <div className="absolute bottom-0 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
           
           <div className="container mx-auto px-4 max-w-6xl relative">
@@ -185,15 +185,17 @@ const OfferDetailPage: React.FC = () => {
               Retour aux offres
             </button>
 
-            <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-xl p-8">
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+              <div className="h-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-lime-400" />
+              <div className="p-6 sm:p-8">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 <div className="flex items-start gap-5 flex-1">
-                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/10 to-green-100/50 border-2 border-primary/20 flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <Building className="h-8 w-8 text-primary" />
+                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 shadow-sm">
+                     <Building className="h-7 w-7 text-emerald-700" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-secondary mb-2 leading-tight">{offer.titre}</h1>
-                    <p className="font-body text-lg text-gray-600 font-semibold mb-4">{offer.company_name}</p>
+                    <h1 className="mb-2 text-2xl font-bold leading-tight text-slate-950 sm:text-3xl">{offer.titre}</h1>
+                    <p className="mb-4 text-base font-semibold text-slate-600">{offer.company_name || "Entreprise confidentielle"}</p>
                     <div className="flex flex-wrap gap-2 mb-5">
                       {offer.location && (
                         <span className="inline-flex items-center gap-1.5 text-xs bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full font-medium font-body border border-purple-100">
@@ -244,29 +246,30 @@ const OfferDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-3 lg:w-64 flex-shrink-0">
                   <button
                     onClick={handleApply}
-                    className="group w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-primary text-white font-accent font-bold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                    className="group flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700"
                   >
                     Postuler maintenant
                     <ArrowLeft className="h-4 w-4 rotate-180 group-hover:translate-x-1 transition-transform" />
                   </button>
-                  <button onClick={handleShare} className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-200 hover:border-primary rounded-xl text-sm font-semibold text-gray-600 hover:text-primary transition-all duration-300 font-accent hover:shadow-md">
+                  <button onClick={handleShare} className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
                     <Share2 className="h-4 w-4" /> Partager l'offre
                   </button>
                 </div>
+              </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 max-w-6xl py-12">
+        <div className="container mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             {/* Main */}
             <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
 
               {/* Description */}
-              <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 p-6">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="font-heading text-lg font-bold text-secondary mb-4 flex items-center gap-2">
                   <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
                     <Briefcase className="h-4 w-4 text-primary" />
@@ -277,7 +280,7 @@ const OfferDetailPage: React.FC = () => {
               </div>
 
               {/* Details */}
-              <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 p-6">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="font-heading text-lg font-bold text-secondary mb-5 flex items-center gap-2">
                   <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
                     <Calendar className="h-4 w-4 text-primary" />
@@ -291,7 +294,7 @@ const OfferDetailPage: React.FC = () => {
                     { label: "Secteur", value: offer.sector_name, icon: <Briefcase className="h-4 w-4 text-primary" /> },
                     { label: "Métier", value: offer.job_name, icon: <Users className="h-4 w-4 text-primary" /> },
                   ].map(({ label, value, icon }) => value ? (
-                    <div key={label} className="bg-gray-50 rounded-xl p-4 border border-gray-100 flex items-start gap-3">
+                    <div key={label} className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                       <div className="w-8 h-8 bg-white rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
                         {icon}
                       </div>
@@ -303,20 +306,21 @@ const OfferDetailPage: React.FC = () => {
                   ) : null)}
                 </div>
               </div>
+
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6 order-1 lg:order-2">
 
               {/* Company */}
-              <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:sticky lg:top-24">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:sticky lg:top-24">
                 <h3 className="font-heading text-xl font-bold text-secondary mb-5 flex items-center gap-2">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                     <Building className="h-5 w-5 text-primary" />
                   </div>
                   À propos de l'entreprise
                 </h3>
-                <div className="flex items-center gap-4 mb-5 p-5 bg-gradient-to-br from-primary/5 to-green-50/50 rounded-xl border-2 border-primary/10">
+                <div className="mb-5 flex items-center gap-4 rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
                   <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-green-100/50 border-2 border-primary/20 flex items-center justify-center flex-shrink-0">
                     <Building className="h-7 w-7 text-primary" />
                   </div>
@@ -326,7 +330,7 @@ const OfferDetailPage: React.FC = () => {
                   </div>
                 </div>
                 <p className="font-body text-sm text-gray-600 leading-relaxed mb-6">
-                  {offer.company_description || "Une entreprise leader dans son secteur, offrant des opportunités de carrière dans un environnement dynamique."}
+                  {offer.company_description || "Les informations détaillées de l’entreprise sont communiquées aux candidats dans le cadre du processus de candidature."}
                 </p>
 
                 {/* Quick info */}
@@ -361,7 +365,7 @@ const OfferDetailPage: React.FC = () => {
                   <Link
                     key={rel.id}
                     href={`/offres/${rel.id}`}
-                    className="group bg-white rounded-2xl border-2 border-gray-100 hover:border-primary/30 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col gap-4 cursor-pointer"
+                    className="group flex cursor-pointer flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg"
                   >
                     <div className="flex items-start gap-4">
                       <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-green-100/50 border border-primary/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">

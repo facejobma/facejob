@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import NavBar from "./NavBar";
 import Image from "next/image";
 import Link from "next/link";
+import { BriefcaseBusiness } from "lucide-react";
 
 export default function Hero() {
   const heroVideos = [
@@ -126,9 +127,10 @@ export default function Hero() {
                 className="group inline-flex items-center justify-center px-5 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white font-accent font-semibold text-base rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
               >
                 Voir les offres
-                <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <BriefcaseBusiness
+                  aria-hidden="true"
+                  className="ml-2 h-5 w-5 transition-transform group-hover:scale-110"
+                />
               </Link>
             </div>
 

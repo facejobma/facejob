@@ -227,7 +227,7 @@ export function redirectToLogin(role?: UserRole) {
       window.location.href = '/auth/login-candidate';
       break;
     case 'entreprise':
-      window.location.href = '/auth/login-entreprise';
+      window.location.href = '/entreprise-bientot';
       break;
     default:
       window.location.href = '/auth/login-candidate'; // Default to candidate login

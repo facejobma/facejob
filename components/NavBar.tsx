@@ -149,7 +149,7 @@ export default function NavBar() {
       clearInvalidAuthSession();
       setIsAuthenticated(false);
       setUserType(null);
-      const loginPath = userType === 'candidat' ? '/auth/login-candidate' : '/auth/login-entreprise';
+      const loginPath = userType === 'candidat' ? '/auth/login-candidate' : '/entreprise-bientot';
       const returnUrl = dashboardLink || '/dashboard/entreprise';
       router.push(`${loginPath}?returnUrl=${encodeURIComponent(returnUrl)}`);
       return;
@@ -263,7 +263,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/auth/login-entreprise"
+                      href="/entreprise-bientot"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm"
                     >
                       Entreprise
@@ -282,7 +282,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/auth/login-entreprise"
+                      href="/entreprise-bientot"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                     >
                       Entreprise
@@ -319,7 +319,7 @@ export default function NavBar() {
                   </li>
                   <li>
                     <Link
-                      href="/auth/login-entreprise"
+                      href="/entreprise-bientot"
                       className="inline-flex items-center h-9 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary-1 transition-all"
                     >
                       Entreprise
@@ -420,7 +420,7 @@ export default function NavBar() {
                     Espace Candidat
                   </Link>
                   <Link
-                    href="/auth/login-entreprise"
+                    href="/entreprise-bientot"
                     className="w-full text-center px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-1 transition-all"
                     onClick={() => setOpen(false)}
                   >
@@ -465,7 +465,7 @@ export default function NavBar() {
                     Espace Candidat
                   </Link>
                   <Link
-                    href="/auth/login-entreprise"
+                    href="/entreprise-bientot"
                     className="w-full text-center px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-1 transition-all"
                     onClick={() => setOpen(false)}
                   >

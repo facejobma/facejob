@@ -100,7 +100,7 @@ function getDefaultDashboard(role: UserRole): string {
 function getDefaultLogin(requiredRole?: UserRole): string {
   switch (requiredRole) {
     case 'entreprise':
-      return '/auth/login-entreprise';
+      return '/entreprise-bientot';
     case 'candidat':
       return '/auth/login-candidate';
     default:

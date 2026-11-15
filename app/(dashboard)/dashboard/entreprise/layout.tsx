@@ -11,7 +11,7 @@ interface LayoutProps {
 export default function EntrepriseLayout({ children, params }: LayoutProps) {
   const { isLoading, isAuthorized } = useAuthGuard({
     requiredRole: 'entreprise',
-    redirectTo: '/auth/login-entreprise',
+    redirectTo: '/entreprise-bientot',
   });
 
   if (isLoading) {

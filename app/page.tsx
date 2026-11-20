@@ -6,6 +6,7 @@ import HowWorks from "../components/HowWorks";
 import { BreadcrumbStructuredData, FAQStructuredData, OrganizationStructuredData, WebSiteStructuredData } from "../components/StructuredData";
 
 const FeaturedOffers = dynamic(() => import("../components/FeaturedOffers"), { loading: () => <div className="h-96 animate-pulse bg-slate-50" /> });
+const PartnerSection = dynamic(() => import("../components/PartnerSection"), { loading: () => <div className="h-96 animate-pulse bg-slate-50" /> });
 const Testimonials = dynamic(() => import("../components/Testimonials"), { loading: () => <div className="h-96 animate-pulse bg-emerald-50/50" /> });
 const Subscription = dynamic(() => import("../components/Subscription"), { loading: () => <div className="h-80 animate-pulse bg-white" /> });
 const Footer = dynamic(() => import("../components/Footer"), { loading: () => <div className="h-96 animate-pulse bg-slate-900" /> });
@@ -40,6 +41,7 @@ export default function Home() {
       <main className="w-full">
         <HowWorks />
         <FeaturedOffers />
+        <PartnerSection />
         <Testimonials />
         <Subscription />
 

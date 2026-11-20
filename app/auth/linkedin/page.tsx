@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FullPageLoading } from "@/components/ui/loading";
 import Cookies from "js-cookie";
 import { toast } from "react-hot-toast";
-import { getUserFromToken, redirectToDashboard } from "@/lib/auth";
+import { getSafeReturnUrl, getUserFromToken, redirectToDashboard, resetAuthCache } from "@/lib/auth";
 import { Suspense } from "react";
 
 function LinkedinCallbackContent() {
@@ -36,7 +36,13 @@ function LinkedinCallbackContent() {
         }
 
         // Store auth token
-        Cookies.set("authToken", token, { expires: 7 });
+        Cookies.set("authToken", token, {
+          expires: 7,
+          sameSite: "lax",
+          secure: window.location.protocol === "https:",
+        });
+        sessionStorage.setItem("authToken", token);
+        resetAuthCache();
 
         console.log("Access Token OAuth:", token);
 
@@ -49,9 +55,14 @@ function LinkedinCallbackContent() {
 
         // Store user data
         sessionStorage.setItem("user", JSON.stringify(authenticatedUser));
-        
-        // IMPORTANT: Store userRole for sidebar navigation
+        sessionStorage.setItem("userId", String(authenticatedUser.id));
+        sessionStorage.setItem("userEmail", authenticatedUser.email || "");
         sessionStorage.setItem("userRole", authenticatedUser.role);
+        Cookies.set("userRole", authenticatedUser.role, {
+          expires: 7,
+          sameSite: "lax",
+          secure: window.location.protocol === "https:",
+        });
 
         // Show success message
         toast.success("Connexion LinkedIn réussie !");
@@ -59,13 +70,22 @@ function LinkedinCallbackContent() {
         console.log('🔐 LinkedIn OAuth successful - Redirecting to dashboard:', authenticatedUser.role);
 
         // Check if there's a returnUrl stored before OAuth redirect
-        const returnUrl = sessionStorage.getItem('oauthReturnUrl');
+        const returnUrl = getSafeReturnUrl(sessionStorage.getItem('oauthReturnUrl'));
         
         if (returnUrl) {
           console.log('🔄 Found returnUrl, redirecting to:', returnUrl);
           sessionStorage.removeItem('oauthReturnUrl'); // Clean up
           setTimeout(() => {
             window.location.href = returnUrl;
+          }, 1000);
+        } else if (
+          authenticatedUser.role === "candidat" &&
+          (authenticatedUser.is_completed === false || authenticatedUser.is_completed === 0)
+        ) {
+          // New OAuth candidates continue through the existing profile
+          // completion step; the standard email/password signup is untouched.
+          setTimeout(() => {
+            window.location.href = "/auth/signup-candidate";
           }, 1000);
         } else {
           // Redirect to appropriate dashboard based on actual user role from database

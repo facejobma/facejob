@@ -30,7 +30,12 @@ function GoogleCallbackContent() {
         }
 
         // Store auth token
-        Cookies.set("authToken", token, { expires: 7 });
+        Cookies.set("authToken", token, {
+          expires: 7,
+          sameSite: "lax",
+          secure: window.location.protocol === "https:",
+        });
+        sessionStorage.setItem("authToken", token);
         resetAuthCache();
 
         // Get user data from backend using the token
@@ -42,9 +47,14 @@ function GoogleCallbackContent() {
 
         // Store user data
         sessionStorage.setItem("user", JSON.stringify(authenticatedUser));
-        
-        // IMPORTANT: Store userRole for sidebar navigation
+        sessionStorage.setItem("userId", String(authenticatedUser.id));
+        sessionStorage.setItem("userEmail", authenticatedUser.email || "");
         sessionStorage.setItem("userRole", authenticatedUser.role);
+        Cookies.set("userRole", authenticatedUser.role, {
+          expires: 7,
+          sameSite: "lax",
+          secure: window.location.protocol === "https:",
+        });
 
         // Show success message
         toast.success("Connexion Google réussie !");
@@ -59,6 +69,15 @@ function GoogleCallbackContent() {
           sessionStorage.removeItem('oauthReturnUrl'); // Clean up
           setTimeout(() => {
             window.location.href = returnUrl;
+          }, 1000);
+        } else if (
+          authenticatedUser.role === "candidat" &&
+          (authenticatedUser.is_completed === false || authenticatedUser.is_completed === 0)
+        ) {
+          // New OAuth candidates continue through the existing profile
+          // completion step; the standard email/password signup is untouched.
+          setTimeout(() => {
+            window.location.href = "/auth/signup-candidate";
           }, 1000);
         } else {
           // Redirect to appropriate dashboard based on actual user role from database
